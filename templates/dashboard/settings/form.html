@@ -1,0 +1,180 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="settings-form" id="settingsForm">
+    {% csrf_token %}
+
+    <!-- Maintenance Mode Toggle (Top Right) -->
+    <div class="maintenance-toggle-container">
+        <label class="toggle-label">
+            <span>Maintenance Mode</span>
+            <div class="toggle-switch-wrapper">
+                {{ form.maintenance_mode }}
+                <span class="toggle-slider"></span>
+            </div>
+        </label>
+    </div>
+
+    <!-- Basic Information Section -->
+    <div class="settings-section">
+        <h2 class="section-title">Basic Information</h2>
+        <p class="section-description">Here you setup your all business information.</p>
+
+        <div class="form-grid">
+            <!-- Company Name -->
+            <div class="form-group">
+                <label for="{{ form.store_name.id_for_label }}" class="form-label required">
+                    Company Name
+                </label>
+                {{ form.store_name }}
+                {% if form.store_name.errors %}
+                <div class="field-error">{{ form.store_name.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label for="{{ form.contact_email.id_for_label }}" class="form-label required">
+                    Email
+                </label>
+                {{ form.contact_email }}
+                {% if form.contact_email.errors %}
+                <div class="field-error">{{ form.contact_email.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Phone -->
+            <div class="form-group">
+                <label for="{{ form.phone.id_for_label }}" class="form-label required">
+                    Phone
+                </label>
+                <div class="phone-input-group">
+                    <select class="country-code-select" id="countryCode">
+                        <option value="+234" data-flag="🇳🇬">🇳🇬 +234</option>
+                        <option value="+1" data-flag="🇺🇸">🇺🇸 +1</option>
+                        <option value="+44" data-flag="🇬🇧">🇬🇧 +44</option>
+                        <option value="+91" data-flag="🇮🇳">🇮🇳 +91</option>
+                    </select>
+                    {{ form.phone }}
+                </div>
+                {% if form.phone.errors %}
+                <div class="field-error">{{ form.phone.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Country -->
+            <div class="form-group">
+                <label for="{{ form.country.id_for_label }}" class="form-label required">
+                    Country
+                </label>
+                <select name="{{ form.country.name }}" id="{{ form.country.id_for_label }}" class="form-control">
+                    <option value="NG">Nigeria</option>
+                    <option value="US">United States</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="IN">India</option>
+                    <option value="CA">Canada</option>
+                    <option value="AU">Australia</option>
+                </select>
+                {% if form.country.errors %}
+                <div class="field-error">{{ form.country.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Time Zone -->
+            <div class="form-group">
+                <label for="{{ form.time_zone.id_for_label }}" class="form-label required">
+                    Time Zone
+                </label>
+                <select name="{{ form.time_zone.name }}" id="{{ form.time_zone.id_for_label }}" class="form-control">
+                    <option value="UTC">(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna</option>
+                    <option value="America/New_York">(GMT-05:00) Eastern Time (US & Canada)</option>
+                    <option value="America/Chicago">(GMT-06:00) Central Time (US & Canada)</option>
+                    <option value="America/Los_Angeles">(GMT-08:00) Pacific Time (US & Canada)</option>
+                    <option value="Europe/London">(GMT+00:00) London</option>
+                    <option value="Asia/Kolkata">(GMT+05:30) Mumbai, Kolkata, Chennai</option>
+                </select>
+                {% if form.time_zone.errors %}
+                <div class="field-error">{{ form.time_zone.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Pagination -->
+            <div class="form-group">
+                <label for="{{ form.pagination_items_per_page.id_for_label }}" class="form-label">
+                    Pagination
+                    <i class="fas fa-info-circle tooltip-icon" title="Number of items per page"></i>
+                </label>
+                {{ form.pagination_items_per_page }}
+                {% if form.pagination_items_per_page.errors %}
+                <div class="field-error">{{ form.pagination_items_per_page.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Address (Full Width) -->
+            <div class="form-group full-width">
+                <label for="{{ form.address_line1.id_for_label }}" class="form-label">
+                    Address
+                    <i class="fas fa-info-circle tooltip-icon" title="This address will be used for development purposes only"></i>
+                </label>
+                {{ form.address_line1 }}
+                {% if form.address_line1.errors %}
+                <div class="field-error">{{ form.address_line1.errors.0 }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Map Widget -->
+        <div class="map-container">
+            <div id="map" class="map-widget">
+                <!-- Map will be rendered here -->
+                <div class="map-placeholder">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <p>Map will display your business location</p>
+                    <small>For development purposes only</small>
+                </div>
+            </div>
+            <div class="map-controls">
+                <button type="button" class="btn-icon" title="Fullscreen">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="window.location.reload()">
+            Reset
+        </button>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i>
+            Save Information
+        </button>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle switch functionality
+    const toggleSwitch = document.querySelector('#{{ form.maintenance_mode.id_for_label }}');
+    if (toggleSwitch) {
+        toggleSwitch.addEventListener('change', function() {
+            // You can add AJAX call here to toggle immediately
+            console.log('Maintenance mode:', this.checked);
+        });
+    }
+
+    // Form submission
+    const form = document.getElementById('settingsForm');
+    form.addEventListener('submit', function(e) {
+        // Add loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    });
+});
+</script>
+{% endblock %}

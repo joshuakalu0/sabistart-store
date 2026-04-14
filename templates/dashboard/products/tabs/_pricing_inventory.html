@@ -1,0 +1,47 @@
+<h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+  <span class="material-symbols-outlined text-primary">payments</span>
+  Pricing & Inventory
+</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div>
+    <label class="block text-sm font-semibold mb-2">Price</label>
+    {{ form.price }} {% if form.price.errors %}<span
+      class="text-red-500 text-sm"
+      >{{ form.price.errors.0 }}</span
+    >{% endif %}
+  </div>
+  <div>
+    <label class="block text-sm font-semibold mb-2">Compare at Price</label>
+    {{ form.compare_at_price }} {% if form.compare_at_price.errors %}<span
+      class="text-red-500 text-sm"
+      >{{ form.compare_at_price.errors.0 }}</span
+    >{% endif %}
+  </div>
+  <div>
+    <label class="block text-sm font-semibold mb-2">Cost Price</label>
+    {{ form.cost_price }} {% if form.cost_price.errors %}<span
+      class="text-red-500 text-sm"
+      >{{ form.cost_price.errors.0 }}</span
+    >{% endif %}
+  </div>
+  <div class="flex items-center space-x-3">
+    {{ form.manage_stock }}
+    <label class="text-sm font-medium text-slate-700 dark:text-slate-300"
+      >Manage Stock</label
+    >
+  </div>
+  <div>
+    <label class="block text-sm font-semibold mb-2">Stock Quantity</label>
+    {{ form.stock_quantity }} {% if form.stock_quantity.errors %}<span
+      class="text-red-500 text-sm"
+      >{{ form.stock_quantity.errors.0 }}</span
+    >{% endif %}
+  </div>
+  <div>
+    <label class="block text-sm font-semibold mb-2">Stock Status</label>
+    {{ form.stock_status }} {% if form.stock_status.errors %}<span
+      class="text-red-500 text-sm"
+      >{{ form.stock_status.errors.0 }}</span
+    >{% endif %}
+  </div>
+</div>

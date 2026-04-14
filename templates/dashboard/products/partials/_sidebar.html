@@ -1,0 +1,109 @@
+<div class="space-y-6">
+  <!-- Status & Visibility Card -->
+  <div
+    class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800"
+  >
+    <h4
+      class="font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2"
+    >
+      <span class="material-symbols-outlined text-primary text-lg"
+        >visibility</span
+      >
+      Publish Settings
+    </h4>
+    <div class="space-y-4">
+      <div>
+        <label
+          class="block text-xs font-bold uppercase text-slate-500 mb-2 tracking-wider"
+          >Status</label
+        >
+        <div class="flex gap-2">
+          <label class="flex-1 cursor-pointer">
+            <input
+              checked
+              class="hidden peer"
+              name="status"
+              type="radio"
+              value="draft"
+            />
+            <div
+              class="text-center py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 peer-checked:bg-primary/10 peer-checked:border-primary peer-checked:text-primary font-medium transition-all"
+            >
+              Draft
+            </div>
+          </label>
+          <label class="flex-1 cursor-pointer">
+            <input
+              class="hidden peer"
+              name="status"
+              type="radio"
+              value="active"
+            />
+            <div
+              class="text-center py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 peer-checked:bg-emerald-500/10 peer-checked:border-emerald-500 peer-checked:text-emerald-500 font-medium transition-all"
+            >
+              Active
+            </div>
+          </label>
+        </div>
+      </div>
+      <div>
+        <label
+          class="block text-xs font-bold uppercase text-slate-500 mb-2 tracking-wider"
+          >Visibility</label
+        >
+        {{ form.catalog_visibility }}
+      </div>
+      <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-medium">Auto-Renew Listing</span>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input checked class="sr-only peer" type="checkbox" value="" />
+            <div
+              class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"
+            ></div>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Card -->
+  <div class="bg-primary/5 p-6 rounded-xl border border-primary/20">
+    <h4 class="font-bold text-primary mb-3">Form Summary</h4>
+    <ul class="space-y-3">
+      <li id="summary-basic" class="flex items-center gap-2 text-sm">
+        <span class="material-symbols-outlined text-emerald-500 text-lg"
+          >check_circle</span
+        >
+        <span class="text-slate-600 dark:text-slate-400"
+          >Basic Info Started</span
+        >
+      </li>
+      <li id="summary-content" class="flex items-center gap-2 text-sm">
+        <span class="material-symbols-outlined text-slate-300 text-lg"
+          >radio_button_unchecked</span
+        >
+        <span class="text-slate-400">0 Media Files Uploaded</span>
+      </li>
+      <li id="summary-pricing" class="flex items-center gap-2 text-sm">
+        <span class="material-symbols-outlined text-slate-300 text-lg"
+          >radio_button_unchecked</span
+        >
+        <span class="text-slate-400">Pricing not set</span>
+      </li>
+      <li id="summary-shipping" class="flex items-center gap-2 text-sm">
+        <span class="material-symbols-outlined text-slate-300 text-lg"
+          >radio_button_unchecked</span
+        >
+        <span class="text-slate-400">Shipping not configured</span>
+      </li>
+      <li id="summary-variants" class="flex items-center gap-2 text-sm">
+        <span class="material-symbols-outlined text-slate-300 text-lg"
+          >radio_button_unchecked</span
+        >
+        <span class="text-slate-400">Variants not configured</span>
+      </li>
+    </ul>
+  </div>
+</div>

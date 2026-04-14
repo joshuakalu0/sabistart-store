@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ page_title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px; box-sizing: border-box; }
+        .btn { padding: 10px 20px; background: #0066cc; color: white; border: none; cursor: pointer; border-radius: 4px; }
+        .btn:hover { background: #0052a3; }
+        .messages { padding: 10px; margin: 10px 0; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; }
+        .back-link { display: inline-block; margin-top: 20px; color: #0066cc; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <h1>{{ page_title }}</h1>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="messages">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn">Save Changes</button>
+    </form>
+    
+    <a href="{% url 'dashboard:dashboard_settings:index' prefix %}" class="back-link">← Back to Settings</a>
+</body>
+</html>

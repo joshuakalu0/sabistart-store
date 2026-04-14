@@ -1,0 +1,190 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div class="settings-index">
+    <div class="settings-grid">
+        {% for category in settings_categories %}
+        
+        <a href="{ url 'dashboard:dashboard_settings:' category.url %}" class="settings-card">
+            <div class="card-icon">
+                <i class="fas fa-{{ category.icon }}"></i>
+            </div>
+            <div class="card-content">
+                <h3 class="card-title">{{ category.name }}</h3>
+                <p class="card-description">{{ category.description }}</p>
+            </div>
+            <div class="card-arrow">
+                <i class="fas fa-chevron-right"></i>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="quick-stats">
+        <div class="stat-card">
+            <div class="stat-icon success">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ settings.store_name }}</div>
+                <div class="stat-label">Store Name</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon {% if settings.is_operational %}success{% else %}warning{% endif %}">
+                <i class="fas fa-{% if settings.is_operational %}power-off{% else %}exclamation-triangle{% endif %}"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ settings.get_store_status_display }}</div>
+                <div class="stat-label">Store Status</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon info">
+                <i class="fas fa-credit-card"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ settings.get_active_payment_methods|length }}</div>
+                <div class="stat-label">Payment Methods</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon primary">
+                <i class="fas fa-globe"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ settings.default_currency }}</div>
+                <div class="stat-label">Currency</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.settings-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+
+.settings-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.card-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-primary);
+    border-radius: var(--border-radius-sm);
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.card-content {
+    flex: 1;
+}
+
+.card-title {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.card-description {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+.card-arrow {
+    color: var(--text-muted);
+    font-size: 1.25rem;
+}
+
+.quick-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-xl);
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-sm);
+    font-size: 1.5rem;
+}
+
+.stat-icon.success {
+    background: #ECFDF5;
+    color: #10B981;
+}
+
+.stat-icon.warning {
+    background: #FEF3C7;
+    color: #F59E0B;
+}
+
+.stat-icon.info {
+    background: #EFF6FF;
+    color: #3B82F6;
+}
+
+.stat-icon.primary {
+    background: #EEF2FF;
+    color: var(--primary-color);
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.stat-label {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+</style>
+{% endblock %}
+

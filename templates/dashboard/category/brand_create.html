@@ -1,0 +1,317 @@
+{% extends "dashboard/_partials/base.html" %} {% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      Create Brand
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Add a new brand to your product catalog
+    </p>
+  </div>
+  <a
+    href="{% url 'dashboard:dashboard_categories:brand_list' prefix %}"
+    class="bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors flex items-center space-x-2"
+  >
+    <span class="material-icons-outlined text-sm">arrow_back</span>
+    <span>Back to List</span>
+  </a>
+</div>
+
+<div class="space-y-6">
+  <form method="post" class='space-y-6 gap-9' enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- Basic Information Section -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
+          <span class="material-icons-outlined text-lg mr-3 text-blue-600 dark:text-blue-400">info</span>
+          Basic Information
+        </h3>
+        <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Enter the basic details for your brand</p>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Name <span class="text-red-500">*</span></label>
+          {{ form.name }}
+          {% if form.name.errors %}
+          <span class="text-red-500 text-sm">{{ form.name.errors.0 }}</span>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Slug <span class="text-red-500">*</span></label>
+          <div class="flex space-x-2">
+            {{ form.slug }}
+            <button type="button" onclick="generateSlug()" class="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center" title="Generate slug from name">
+              <span class="material-icons-outlined text-sm">refresh</span>
+            </button>
+          </div>
+          {% if form.slug.errors %}
+          <span class="text-red-500 text-sm">{{ form.slug.errors.0 }}</span>
+          {% endif %}
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Description</label>
+          {{ form.description }}
+          {% if form.description.errors %}
+          <span class="text-red-500 text-sm">{{ form.description.errors.0 }}</span>
+          {% endif %}
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Brand Story</label>
+          {{ form.story }}
+          {% if form.story.errors %}
+          <span class="text-red-500 text-sm">{{ form.story.errors.0 }}</span>
+          {% endif %}
+        </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Media Section -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
+          <span class="material-icons-outlined text-lg mr-3 text-purple-600 dark:text-purple-400">image</span>
+          Media
+        </h3>
+        <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Upload brand logo and banner images</p>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Logo</label>
+          <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-6 text-center hover:border-primary transition-colors">
+            <span class="material-icons-outlined text-slate-400 text-4xl mb-2">cloud_upload</span>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mb-2">Click to upload or drag and drop</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">PNG, JPG, GIF up to 10MB</p>
+            {{ form.logo }}
+          </div>
+          {% if form.logo.errors %}
+          <span class="text-red-500 text-sm">{{ form.logo.errors.0 }}</span>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Banner</label>
+          <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-6 text-center hover:border-primary transition-colors">
+            <span class="material-icons-outlined text-slate-400 text-4xl mb-2">cloud_upload</span>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mb-2">Click to upload or drag and drop</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">PNG, JPG, GIF up to 10MB</p>
+            {{ form.banner }}
+          </div>
+          {% if form.banner.errors %}
+          <span class="text-red-500 text-sm">{{ form.banner.errors.0 }}</span>
+          {% endif %}
+        </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Information Section -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div class="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
+          <span class="material-icons-outlined text-lg mr-3 text-orange-600 dark:text-orange-400">contact_mail</span>
+          Contact Information
+        </h3>
+        <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Add brand contact details</p>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Website</label>
+          {{ form.website }}
+          {% if form.website.errors %}
+          <span class="text-red-500 text-sm">{{ form.website.errors.0 }}</span>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+          <span class="text-red-500 text-sm">{{ form.email.errors.0 }}</span>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Phone</label>
+          {{ form.phone }}
+          {% if form.phone.errors %}
+          <span class="text-red-500 text-sm">{{ form.phone.errors.0 }}</span>
+          {% endif %}
+        </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Social Media Section -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div class="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
+          <span class="material-icons-outlined text-lg mr-3 text-pink-600 dark:text-pink-400">share</span>
+          Social Media
+        </h3>
+        <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Connect your social media profiles</p>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Facebook</label>
+          {{ form.facebook }}
+          {% if form.facebook.errors %}
+          <span class="text-red-500 text-sm">{{ form.facebook.errors.0 }}</span>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Twitter</label>
+          {{ form.twitter }}
+          {% if form.twitter.errors %}
+          <span class="text-red-500 text-sm">{{ form.twitter.errors.0 }}</span>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Instagram</label>
+          {{ form.instagram }}
+          {% if form.instagram.errors %}
+          <span class="text-red-500 text-sm">{{ form.instagram.errors.0 }}</span>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">YouTube</label>
+          {{ form.youtube }}
+          {% if form.youtube.errors %}
+          <span class="text-red-500 text-sm">{{ form.youtube.errors.0 }}</span>
+          {% endif %}
+        </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEO Section -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
+          <span class="material-icons-outlined text-lg mr-3 text-green-600 dark:text-green-400">search</span>
+          SEO Information
+        </h3>
+        <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Optimize for search engines</p>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-1 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Meta Title</label>
+          {{ form.meta_title }}
+          {% if form.meta_title.errors %}
+          <span class="text-red-500 text-sm">{{ form.meta_title.errors.0 }}</span>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Meta Description</label>
+          {{ form.meta_description }}
+          {% if form.meta_description.errors %}
+          <span class="text-red-500 text-sm">{{ form.meta_description.errors.0 }}</span>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Meta Keywords</label>
+          {{ form.meta_keywords }}
+          {% if form.meta_keywords.errors %}
+          <span class="text-red-500 text-sm">{{ form.meta_keywords.errors.0 }}</span>
+          {% endif %}
+        </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Section -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div class="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
+          <span class="material-icons-outlined text-lg mr-3 text-indigo-600 dark:text-indigo-400">settings</span>
+          Settings
+        </h3>
+        <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Configure brand display settings</p>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Featured</label>
+          {{ form.featured }}
+          {% if form.featured.errors %}
+          <span class="text-red-500 text-sm">{{ form.featured.errors.0 }}</span>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Display Order</label>
+          {{ form.display_order }}
+          {% if form.display_order.errors %}
+          <span class="text-red-500 text-sm">{{ form.display_order.errors.0 }}</span>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Active</label>
+          {{ form.is_active }}
+          {% if form.is_active.errors %}
+          <span class="text-red-500 text-sm">{{ form.is_active.errors.0 }}</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+      <div class="flex items-center justify-end space-x-4">
+        <button type="button" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          Cancel
+        </button>
+        <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2">
+          <span class="material-icons-outlined text-sm">save</span>
+          <span>Create Brand</span>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  function slugify(text) {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^\w\-]+/g, '')
+      .replace(/\-\-+/g, '-')
+      .replace(/^-+/, '')
+      .replace(/-+$/, '');
+  }
+
+  function generateSlug() {
+    const nameField = document.getElementById('id_name');
+    const slugField = document.getElementById('id_slug');
+
+    if (nameField && slugField && nameField.value) {
+      slugField.value = slugify(nameField.value);
+    }
+  }
+
+  // Auto-generate slug as user types
+  document.addEventListener('DOMContentLoaded', function() {
+    const nameField = document.getElementById('id_name');
+    const slugField = document.getElementById('id_slug');
+
+    if (nameField && slugField) {
+      nameField.addEventListener('input', function() {
+        if (!slugField.value || slugField.dataset.autoGenerated !== 'false') {
+          slugField.value = slugify(this.value);
+          slugField.dataset.autoGenerated = 'true';
+        }
+      });
+
+      // Mark as manually edited if user types in slug field
+      slugField.addEventListener('input', function() {
+        this.dataset.autoGenerated = 'false';
+      });
+    }
+  });
+</script>
+{% endblock %}

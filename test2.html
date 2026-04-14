@@ -1,0 +1,495 @@
+<!-- Content Content -->
+<div
+  class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark p-8"
+>
+  <div class="max-w-6xl mx-auto space-y-6 pb-24">
+    <!-- Attributes Selection Section -->
+    <section
+      class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6"
+    >
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white">
+            Product Attributes
+          </h3>
+          <p class="text-sm text-slate-500">
+            Select options like color or size to create product variants.
+          </p>
+        </div>
+        <button
+          class="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-slate-200 transition-colors"
+        >
+          <span class="material-symbols-outlined text-[20px]">add</span>
+          Add Attribute
+        </button>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <div
+          class="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-3 rounded-lg pr-1"
+        >
+          <div class="flex flex-col">
+            <span
+              class="text-[10px] font-bold uppercase tracking-wider text-slate-400"
+              >Color</span
+            >
+            <div class="flex items-center gap-2">
+              <span
+                class="px-2 py-0.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-xs font-medium"
+                >Midnight Blue</span
+              >
+              <span
+                class="px-2 py-0.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-xs font-medium"
+                >Slate Gray</span
+              >
+            </div>
+          </div>
+          <button class="p-1 text-slate-400 hover:text-slate-600">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+          </button>
+        </div>
+        <div
+          class="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-3 rounded-lg pr-1"
+        >
+          <div class="flex flex-col">
+            <span
+              class="text-[10px] font-bold uppercase tracking-wider text-slate-400"
+              >Size</span
+            >
+            <div class="flex items-center gap-2">
+              <span
+                class="px-2 py-0.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-xs font-medium"
+                >Small</span
+              >
+              <span
+                class="px-2 py-0.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-xs font-medium"
+                >Medium</span
+              >
+              <span
+                class="px-2 py-0.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-xs font-medium"
+                >Large</span
+              >
+            </div>
+          </div>
+          <button class="p-1 text-slate-400 hover:text-slate-600">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+          </button>
+        </div>
+      </div>
+    </section>
+    <!-- Variants Table Section -->
+    <section
+      class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden"
+    >
+      <div
+        class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between"
+      >
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white">
+          Generated Variants (6)
+        </h3>
+        <div class="flex gap-2">
+          <button
+            class="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 transition-colors"
+          >
+            Bulk Edit Price
+          </button>
+          <button
+            class="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 transition-colors"
+          >
+            Sync Inventory
+          </button>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 dark:bg-slate-800/30">
+              <th
+                class="px-6 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider"
+              >
+                Default
+              </th>
+              <th
+                class="px-6 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider"
+              >
+                Variant &amp; Image
+              </th>
+              <th
+                class="px-6 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider"
+              >
+                SKU / Identifiers
+              </th>
+              <th
+                class="px-6 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider"
+              >
+                Financials ($)
+              </th>
+              <th
+                class="px-6 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider"
+              >
+                Inventory
+              </th>
+              <th
+                class="px-6 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center"
+              >
+                Status
+              </th>
+              <th
+                class="px-6 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider"
+              >
+                Details
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <!-- Variant Row 1 -->
+            <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20">
+              <td class="px-6 py-4">
+                <input
+                  checked=""
+                  class="text-primary focus:ring-primary h-4 w-4 border-slate-300 dark:bg-slate-800 dark:border-slate-700"
+                  name="default_variant"
+                  type="radio"
+                />
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="h-10 w-10 rounded border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 flex shrink-0 overflow-hidden"
+                  >
+                    <img
+                      alt="Product thumbnail"
+                      class="object-cover w-full h-full"
+                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuCE5KR0MEo_O_JD-c49TtWkc_6o9FWhFS7KIJQYI6aCiyE1IbsLxbjSO9poOeQdFhhCoit1eD3GqRteN8vD6ODArJYMso0dkI9X1-jg4iTS033sk99qARtmJuhk_sgr4VNfwhoheSHaNDt7IIefAUkYzUggoDNdoomIttsafPWRq9phqLBsM5la-GH9jxAVIyJWvEIrG7xzSId99xrqgkjE4KeJDEzjbaMtICOUz6exm94oWEaJ5c7imj1T9h0DaTrtgvqnNTMqdKlu"
+                    />
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-sm font-semibold"
+                      >Midnight Blue / Small</span
+                    ><span class="text-[10px] text-slate-500"
+                      >Color: Midnight Blue, Size: Small</span
+                    >
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex flex-col gap-1">
+                  <input
+                    class="w-32 text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-md focus:border-primary focus:ring-primary"
+                    placeholder="SKU"
+                    type="text"
+                    value="WATCH-BLUE-SM"
+                  />
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex flex-col gap-1">
+                  <span class="text-[9px] text-slate-400 font-bold uppercase"
+                    >Price</span
+                  ><input
+                    class="w-24 text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-md focus:border-primary focus:ring-primary text-right"
+                    type="number"
+                    value="129.00"
+                  />
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex flex-col gap-1">
+                  <span class="text-[9px] text-slate-400 font-bold uppercase"
+                    >Stock</span
+                  ><input
+                    class="w-20 text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-md focus:border-primary focus:ring-primary text-right"
+                    type="number"
+                    value="45"
+                  />
+                </div>
+              </td>
+              <td class="px-6 py-4 text-center">
+                <label class="relative inline-flex items-center cursor-pointer"
+                  ><input checked="" class="sr-only peer" type="checkbox" />
+                  <div
+                    class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary"
+                  ></div
+                ></label>
+              </td>
+              <td class="px-6 py-4">
+                <button
+                  class="text-slate-400 hover:text-primary transition-colors"
+                >
+                  <span class="material-symbols-outlined">expand_less</span>
+                </button>
+              </td>
+            </tr>
+            <!-- Expandable Details Example -->
+            <tr class="bg-primary/5 dark:bg-primary/10">
+              <td class="px-8 py-6" colspan="7">
+                <div
+                  class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+                >
+                  <div class="space-y-4">
+                    <h4
+                      class="text-xs font-bold text-slate-900 dark:text-white uppercase"
+                    >
+                      Product Identifiers
+                    </h4>
+                    <div class="space-y-3">
+                      <div>
+                        <label
+                          class="block text-[10px] font-bold text-slate-500 mb-1"
+                          >Barcode (EAN/UPC)</label
+                        >
+                        <input
+                          class="w-full text-xs border-slate-200 dark:border-slate-700 rounded focus:border-primary focus:ring-primary dark:bg-slate-800"
+                          placeholder="1234567890123"
+                          type="text"
+                        />
+                      </div>
+                      <div>
+                        <label
+                          class="block text-[10px] font-bold text-slate-500 mb-1"
+                          >MPN</label
+                        >
+                        <input
+                          class="w-full text-xs border-slate-200 dark:border-slate-700 rounded focus:border-primary focus:ring-primary dark:bg-slate-800"
+                          placeholder="WCH-M-BLU-S"
+                          type="text"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="space-y-4">
+                    <h4
+                      class="text-xs font-bold text-slate-900 dark:text-white uppercase"
+                    >
+                      Shipping Override
+                    </h4>
+                    <div class="space-y-3">
+                      <div>
+                        <label
+                          class="block text-[10px] font-bold text-slate-500 mb-1"
+                          >Weight (kg)</label
+                        >
+                        <input
+                          class="w-full text-xs border-slate-200 dark:border-slate-700 rounded focus:border-primary focus:ring-primary dark:bg-slate-800"
+                          step="0.01"
+                          type="number"
+                          value="0.25"
+                        />
+                      </div>
+                      <div>
+                        <label
+                          class="block text-[10px] font-bold text-slate-500 mb-1"
+                          >Dimensions (L x W x H cm)</label
+                        >
+                        <div class="grid grid-cols-3 gap-1">
+                          <input
+                            class="w-full text-xs border-slate-200 dark:border-slate-700 rounded p-1.5 focus:border-primary focus:ring-primary dark:bg-slate-800"
+                            placeholder="L"
+                            type="number"
+                          />
+                          <input
+                            class="w-full text-xs border-slate-200 dark:border-slate-700 rounded p-1.5 focus:border-primary focus:ring-primary dark:bg-slate-800"
+                            placeholder="W"
+                            type="number"
+                          />
+                          <input
+                            class="w-full text-xs border-slate-200 dark:border-slate-700 rounded p-1.5 focus:border-primary focus:ring-primary dark:bg-slate-800"
+                            placeholder="H"
+                            type="number"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-span-2 space-y-4">
+                    <h4
+                      class="text-xs font-bold text-slate-900 dark:text-white uppercase"
+                    >
+                      Variant Image Gallery
+                    </h4>
+                    <div class="flex flex-wrap gap-2">
+                      <div
+                        class="relative w-20 h-20 rounded border-2 border-primary/50 group overflow-hidden"
+                      >
+                        <img
+                          alt="Variant detail"
+                          class="object-cover w-full h-full"
+                          data-alt="Close up of a blue watch dial"
+                          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZTiPf2SJuByjhA9RzWut9nIpIJ0lNs-xdb2qDuRySN-ME46pNEwZPUB7PbR5lNk-x3X90VzWlra_w3CfZnkSIl-cqNQ_px1bNfnsDoFZBW7cCkJW9kpcgZFZisaiCXR7DIuuHr_iyxnSKO6uwla2NoSfs5gkQd6BgW0dFtBBIMhbczjRCPHGHYBtUvXUJ9Z-Vf4IpT8juU6gM0FmCrp6uJbnNq1Udlu2H4Ze6lBM3V_GHBNJYVHv6km6f3sioW7xIz-E1MlJvQsh_"
+                        />
+                        <button
+                          class="absolute top-1 right-1 bg-white/80 rounded-full p-0.5 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <span class="material-symbols-outlined text-[14px]"
+                            >delete</span
+                          >
+                        </button>
+                      </div>
+                      <div
+                        class="relative w-20 h-20 rounded border-2 border-transparent group overflow-hidden"
+                      >
+                        <img
+                          alt="Variant detail"
+                          class="object-cover w-full h-full"
+                          data-alt="Side view of watch leather strap"
+                          src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiE_0P0PUTC___tS2d1X0KeFYnv9G6DmqwxcpsC9yoPVL-Nwc1b2tpIF3le6cB9cmqMTau7yXQyEQVdtNA8M1sBwPeiGzNe1fJIRfLHoVvvmDNeo11lbGncPfL5uWnPcgCW7bigrBSnZemcSXDDm7_K4o3sKYnH7-OysQD-2FOrYozGcmsskz4PXizJistzzzjpNQiDvBIh6XXjbh2IwGbzMU7ty_R8AUV5Bim5WmX0RT0lMlo14MjUVAXyvSyUI3nkwfFRHGIdbmf"
+                        />
+                        <button
+                          class="absolute top-1 right-1 bg-white/80 rounded-full p-0.5 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <span class="material-symbols-outlined text-[14px]"
+                            >delete</span
+                          >
+                        </button>
+                      </div>
+                      <button
+                        class="w-20 h-20 rounded border-2 border-dashed border-primary/30 flex flex-col items-center justify-center text-primary/60 hover:border-primary hover:text-primary transition-all bg-white dark:bg-slate-800"
+                      >
+                        <span class="material-symbols-outlined text-[20px]"
+                          >add_a_photo</span
+                        >
+                        <span class="text-[9px] font-bold">Add</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <!-- Variant Row 2 -->
+            <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20">
+              <td class="px-6 py-4">
+                <input
+                  class="text-primary focus:ring-primary h-4 w-4 border-slate-300 dark:bg-slate-800 dark:border-slate-700"
+                  name="default_variant"
+                  type="radio"
+                />
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="h-10 w-10 rounded border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 flex shrink-0 overflow-hidden"
+                  >
+                    <img
+                      alt="Product thumbnail"
+                      class="object-cover w-full h-full"
+                      data-alt="Blue minimalist wristwatch thumbnail"
+                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlAMOGPo6I7kWkOr53nOajsuFnbN4XWjjf3AyGnxD64-DuJ9HzczM5KTcp7_0G2NniCVHBOA9GGuCYKK5oiTYxNTwZ7WT4w1uEMb0OuxfG6NB3QI1g6yUj7zdDo1nvspeAkmcrW03wCriCPHBLzd1RXWgYHjHwp4uvpeq5dqneLIuvA1gdPSWUxaRvem3I8LhG4efQhlN9v0W-e9-qo5CIuihNhLty45D-mE3gahq2CkTSHGWc1V12Py-sMtton1ougnys86_oEPzj"
+                    />
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-sm font-semibold"
+                      >Midnight Blue / Medium</span
+                    >
+                    <span class="text-[10px] text-slate-500">2 Attributes</span>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <input
+                  class="w-32 text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-md focus:border-primary focus:ring-primary"
+                  type="text"
+                  value="WATCH-BLUE-MD"
+                />
+              </td>
+              <td class="px-6 py-4">
+                <input
+                  class="w-24 text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-md focus:border-primary focus:ring-primary text-right"
+                  type="number"
+                  value="129.00"
+                />
+              </td>
+              <td class="px-6 py-4">
+                <input
+                  class="w-20 text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-md focus:border-primary focus:ring-primary text-right"
+                  type="number"
+                  value="120"
+                />
+              </td>
+              <td class="px-6 py-4 text-center">
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input checked="" class="sr-only peer" type="checkbox" />
+                  <div
+                    class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary"
+                  ></div>
+                </label>
+              </td>
+              <td class="px-6 py-4">
+                <button
+                  class="text-slate-400 hover:text-primary transition-colors"
+                >
+                  <span class="material-symbols-outlined">expand_more</span>
+                </button>
+              </td>
+            </tr>
+            <!-- Variant Row 3 -->
+            <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20">
+              <td class="px-6 py-4">
+                <input
+                  class="text-primary focus:ring-primary h-4 w-4 border-slate-300 dark:bg-slate-800 dark:border-slate-700"
+                  name="default_variant"
+                  type="radio"
+                />
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="h-10 w-10 rounded border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 flex shrink-0 overflow-hidden"
+                  >
+                    <img
+                      alt="Product thumbnail"
+                      class="object-cover w-full h-full"
+                      data-alt="Gray minimalist wristwatch thumbnail"
+                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYcoKpq0DPzUcI0m6vdhXAsWJv-tObQeGTDudaItBi0KMD0m7wb0dGe9JGRpjFHWM4PJcIBYxJl1PAfDUJNWEbomcio1iaY86HCOil3YrE2NknVKQgzZ092u7akrzAMPS6SsIq9RX62fyyrKCg4eagBwJHMpiXSxT6oMj6hNiY_eCNKg9-4hXYHuZlssFMK7O6xxLmco0e6o9ERhW4ERzPII7py8R0s8CebB_9rQJ20RrVriFZhzoNToWVHQCP41X0sZnpRqwTlfdx"
+                    />
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-sm font-semibold"
+                      >Slate Gray / Small</span
+                    >
+                    <span class="text-[10px] text-slate-500">2 Attributes</span>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <input
+                  class="w-32 text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-md focus:border-primary focus:ring-primary"
+                  type="text"
+                  value="WATCH-GRAY-SM"
+                />
+              </td>
+              <td class="px-6 py-4">
+                <input
+                  class="w-24 text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-md focus:border-primary focus:ring-primary text-right text-red-500 font-medium"
+                  type="number"
+                  value="115.00"
+                />
+              </td>
+              <td class="px-6 py-4">
+                <input
+                  class="w-20 text-xs bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-md focus:border-primary focus:ring-primary text-right"
+                  type="number"
+                  value="12"
+                />
+              </td>
+              <td class="px-6 py-4 text-center">
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input class="sr-only peer" type="checkbox" />
+                  <div
+                    class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary"
+                  ></div>
+                </label>
+              </td>
+              <td class="px-6 py-4">
+                <button
+                  class="text-slate-400 hover:text-primary transition-colors"
+                >
+                  <span class="material-symbols-outlined">expand_more</span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+<!-- Footer Actions -->

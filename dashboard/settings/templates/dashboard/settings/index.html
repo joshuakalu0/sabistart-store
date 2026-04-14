@@ -1,0 +1,30 @@
+{% extends 'dashboard/settings/base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">{{ page_title }}</h1>
+        <p class="mt-2 text-gray-600">Configure your store settings and preferences</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for category in settings_categories %}
+        <a href="{% url 'dashboard:dashboard_settings:'|add:category.url prefix %}" 
+           class="block bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6 border border-gray-200 hover:border-blue-500">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-{{ category.icon }} text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="ml-4 flex-1">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ category.name }}</h3>
+                    <p class="text-sm text-gray-600">{{ category.description }}</p>
+                </div>
+                <i class="fas fa-chevron-right text-gray-400 mt-2"></i>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

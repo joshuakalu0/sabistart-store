@@ -1,0 +1,16 @@
+name: sabistore
+
+services:
+  postgres:
+    image: postgres
+    container_name: m_postgres_store
+    environment:
+      POSTGRES_USER: sabistore
+      POSTGRES_PASSWORD: sabistore
+      POSTGRES_DB: sabistore
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgres/data
+volumes:
+  postgres_data:

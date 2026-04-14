@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ page_title }} - Store Settings{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white shadow-lg">
+            <div class="p-6 border-b">
+                <h2 class="text-xl font-bold text-gray-800">Settings</h2>
+            </div>
+            <nav class="p-4">
+                {% block sidebar %}
+                <a href="{% url 'dashboard:dashboard_home:home' prefix %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded mb-2">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+                </a>
+                <a href="{% url 'dashboard:dashboard_settings:index' prefix %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded mb-2">
+                    <i class="fas fa-th-large mr-2"></i> All Settings
+                </a>
+                {% endblock %}
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            {% if messages %}
+                <div class="mb-6">
+                    {% for message in messages %}
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
+                            <div class="flex">
+                                <i class="fas fa-check-circle text-green-500 mr-3 mt-1"></i>
+                                <p class="text-green-700">{{ message }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

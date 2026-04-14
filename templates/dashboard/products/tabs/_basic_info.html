@@ -1,0 +1,66 @@
+<h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+  <span class="material-symbols-outlined text-primary">badge</span>
+  Identity & Categorization
+</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div class="col-span-2">
+    <label class="block text-sm font-semibold mb-2"
+      >Product Name <span class="text-rose-500">*</span></label
+    >
+    {{ form.name }} {% if form.name.errors %}<span class="text-red-500 text-sm"
+      >{{ form.name.errors.0 }}</span
+    >{% endif %}
+  </div>
+  <div>
+    <label class="block text-sm font-semibold mb-2">URL Slug</label>
+    <div class="flex">
+      <span
+        class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 text-sm"
+        >site.com/p/</span
+      >
+      {{ form.slug }}
+    </div>
+    {% if form.slug.errors %}<span class="text-red-500 text-sm"
+      >{{ form.slug.errors.0 }}</span
+    >{% endif %}
+  </div>
+  <div>
+    <label class="block text-sm font-semibold mb-2"
+      >SKU <span class="text-rose-500">*</span></label
+    >
+    {{ form.sku }} {% if form.sku.errors %}<span class="text-red-500 text-sm"
+      >{{ form.sku.errors.0 }}</span
+    >{% endif %}
+  </div>
+  <div>
+    <label class="block text-sm font-semibold mb-2">Product Type</label>
+    {{ form.product_type }} {% if form.product_type.errors %}<span
+      class="text-red-500 text-sm"
+      >{{ form.product_type.errors.0 }}</span
+    >{% endif %}
+  </div>
+  <div>
+    <label class="block text-sm font-semibold mb-2">Brand</label>
+    {{ form.brand }} {% if form.brand.errors %}<span
+      class="text-red-500 text-sm"
+      >{{ form.brand.errors.0 }}</span
+    >{% endif %}
+  </div>
+  <div class="col-span-2">
+    <label class="block text-sm font-semibold mb-2">Categories</label>
+    <div
+      class="flex flex-wrap gap-2 p-3 bg-slate-50 dark:bg-slate-800/50 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg"
+    >
+      {{ form.categories }}
+    </div>
+    {% if form.categories.errors %}<span class="text-red-500 text-sm"
+      >{{ form.categories.errors.0 }}</span
+    >{% endif %}
+  </div>
+  <div class="col-span-2">
+    <label class="block text-sm font-semibold mb-2">Tags</label>
+    {{ form.tags }} {% if form.tags.errors %}<span class="text-red-500 text-sm"
+      >{{ form.tags.errors.0 }}</span
+    >{% endif %}
+  </div>
+</div>

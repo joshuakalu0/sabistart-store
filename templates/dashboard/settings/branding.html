@@ -1,0 +1,341 @@
+{% extends "dashboard/_partials/base.html" %}
+
+{% block content %}
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+        <h2 class="text-lg font-semibold text-slate-800 dark:text-white">Branding & Appearance</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Customize your store visual identity, colors, and theme</p>
+    </div>
+    <div class="p-6">
+        <form id="form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Logos and Icons -->
+            <div class="mb-8">
+                <h3 class="text-md font-semibold text-slate-800 dark:text-white mb-4">Logos and Icons</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Main Logo -->
+                    <div class="space-y-3">
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Main Logo</label>
+                        {% if settings.logo %}
+                        <div class="relative">
+                            <img src="{{ settings.logo.url }}" alt="Main Logo" class="w-full h-40 object-contain rounded-lg border border-slate-200 dark:border-slate-700 p-4 bg-white dark:bg-slate-800">
+                            <button type="button" class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors" onclick="document.getElementById('id_logo_clear').value = 'on'; this.closest('.relative').remove();">
+                                <span class="material-icons-outlined text-sm">close</span>
+                            </button>
+                            {{ form.logo.as_hidden }}
+                            <input type="hidden" id="id_logo_clear" name="logo-clear">
+                        </div>
+                        {% else %}
+                        <div class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg p-4 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 hover:border-primary/50 transition-colors min-h-[160px]">
+                            <span class="material-icons-outlined text-slate-400 text-3xl mb-2">image</span>
+                            <span class="text-[10px] text-slate-500 mb-4 text-center">JPG, PNG or SVG (Max. 2MB)</span>
+                            <input type="file" name="logo" id="id_logo" class="hidden" accept="image/*">
+                            <label for="id_logo" class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                                Upload Image
+                            </label>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Dark Mode Logo -->
+                    <div class="space-y-3">
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Dark Mode Logo</label>
+                        {% if settings.logo_dark %}
+                        <div class="relative">
+                            <img src="{{ settings.logo_dark.url }}" alt="Dark Mode Logo" class="w-full h-40 object-contain rounded-lg border border-slate-200 dark:border-slate-700 p-4 bg-white dark:bg-slate-800">
+                            <button type="button" class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors" onclick="document.getElementById('id_logo_dark_clear').value = 'on'; this.closest('.relative').remove();">
+                                <span class="material-icons-outlined text-sm">close</span>
+                            </button>
+                            {{ form.logo_dark.as_hidden }}
+                            <input type="hidden" id="id_logo_dark_clear" name="logo_dark-clear">
+                        </div>
+                        {% else %}
+                        <div class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg p-4 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 hover:border-primary/50 transition-colors min-h-[160px]">
+                            <span class="material-icons-outlined text-slate-400 text-3xl mb-2">dark_mode</span>
+                            <span class="text-[10px] text-slate-500 mb-4 text-center">High contrast logo for dark UI</span>
+                            <input type="file" name="logo_dark" id="id_logo_dark" class="hidden" accept="image/*">
+                            <label for="id_logo_dark" class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                                Upload Image
+                            </label>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Favicon -->
+                    <div class="space-y-3">
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Favicon</label>
+                        {% if settings.favicon %}
+                        <div class="relative">
+                            <img src="{{ settings.favicon.url }}" alt="Favicon" class="w-full h-40 object-contain rounded-lg border border-slate-200 dark:border-slate-700 p-4 bg-white dark:bg-slate-800">
+                            <button type="button" class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors" onclick="document.getElementById('id_favicon_clear').value = 'on'; this.closest('.relative').remove();">
+                                <span class="material-icons-outlined text-sm">close</span>
+                            </button>
+                            {{ form.favicon.as_hidden }}
+                            <input type="hidden" id="id_favicon_clear" name="favicon-clear">
+                        </div>
+                        {% else %}
+                        <div class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg p-4 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 hover:border-primary/50 transition-colors min-h-[160px]">
+                            <span class="material-icons-outlined text-slate-400 text-3xl mb-2">tab</span>
+                            <span class="text-[10px] text-slate-500 mb-4 text-center">Standard 32x32 or 16x16 px</span>
+                            <input type="file" name="favicon" id="id_favicon" class="hidden" accept="image/*">
+                            <label for="id_favicon" class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                                Upload Icon
+                            </label>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Loading Animation -->
+                    <div class="space-y-3">
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Loading Animation</label>
+                        {% if settings.loading_gif %}
+                        <div class="relative">
+                            <img src="{{ settings.loading_gif.url }}" alt="Loading Animation" class="w-full h-40 object-contain rounded-lg border border-slate-200 dark:border-slate-700 p-4 bg-white dark:bg-slate-800">
+                            <button type="button" class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors" onclick="document.getElementById('id_loading_gif_clear').value = 'on'; this.closest('.relative').remove();">
+                                <span class="material-icons-outlined text-sm">close</span>
+                            </button>
+                            {{ form.loading_gif.as_hidden }}
+                            <input type="hidden" id="id_loading_gif_clear" name="loading_gif-clear">
+                        </div>
+                        {% else %}
+                        <div class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg p-4 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 hover:border-primary/50 transition-colors min-h-[160px]">
+                            <span class="material-icons-outlined text-slate-400 text-3xl mb-2">hourglass_empty</span>
+                            <span class="text-[10px] text-slate-500 mb-4 text-center">GIF or SVG animation</span>
+                            <input type="file" name="loading_gif" id="id_loading_gif" class="hidden" accept="image/*,.gif,.svg">
+                            <label for="id_loading_gif" class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                                Upload Animation
+                            </label>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colors -->
+            <div class="mb-8">
+                <h3 class="text-md font-semibold text-slate-800 dark:text-white mb-4">Colors</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="flex items-center space-x-6 p-4 border border-slate-100 dark:border-slate-700 rounded-xl">
+                        <div class="relative">
+                            {{ form.primary_color }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-800 dark:text-white mb-1">Primary Color</label>
+                            <p class="text-xs text-slate-500 mb-2">Applied to buttons, links, and active states.</p>
+                            <code class="text-[10px] bg-slate-100 dark:bg-slate-900 px-2 py-1 rounded">{{ form.primary_color.value }}</code>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-6 p-4 border border-slate-100 dark:border-slate-700 rounded-xl">
+                        <div class="relative">
+                            {{ form.secondary_color }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-800 dark:text-white mb-1">Secondary Color</label>
+                            <p class="text-xs text-slate-500 mb-2">Applied to highlights and secondary elements.</p>
+                            <code class="text-[10px] bg-slate-100 dark:bg-slate-900 px-2 py-1 rounded">{{ form.secondary_color.value }}</code>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-6 p-4 border border-slate-100 dark:border-slate-700 rounded-xl">
+                        <div class="relative">
+                            {{ form.accent_color }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-800 dark:text-white mb-1">Accent Color</label>
+                            <p class="text-xs text-slate-500 mb-2">Applied to call-to-action and highlights.</p>
+                            <code class="text-[10px] bg-slate-100 dark:bg-slate-900 px-2 py-1 rounded">{{ form.accent_color.value }}</code>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-6 p-4 border border-slate-100 dark:border-slate-700 rounded-xl">
+                        <div class="relative">
+                            {{ form.background_color }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-800 dark:text-white mb-1">Background Color</label>
+                            <p class="text-xs text-slate-500 mb-2">Main background color of the store.</p>
+                            <code class="text-[10px] bg-slate-100 dark:bg-slate-900 px-2 py-1 rounded">{{ form.background_color.value }}</code>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-6 p-4 border border-slate-100 dark:border-slate-700 rounded-xl">
+                        <div class="relative">
+                            {{ form.text_color }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-800 dark:text-white mb-1">Text Color</label>
+                            <p class="text-xs text-slate-500 mb-2">Default text color for content.</p>
+                            <code class="text-[10px] bg-slate-100 dark:bg-slate-900 px-2 py-1 rounded">{{ form.text_color.value }}</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Typography -->
+            <div class="mb-8">
+                <h3 class="text-md font-semibold text-slate-800 dark:text-white mb-4">Typography</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Heading Font</label>
+                        {{ form.heading_font }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Body Font</label>
+                        {{ form.body_font }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layout -->
+            <div class="mb-8">
+                <h3 class="text-md font-semibold text-slate-800 dark:text-white mb-4">Layout Style</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="border {% if form.layout_style.value == 'modern' %}border-primary bg-blue-50 dark:bg-primary/10{% else %}border-slate-200 dark:border-slate-700{% endif %} rounded-lg p-3 cursor-pointer hover:border-primary/50 transition-colors">
+                        <div class="flex items-center">
+                            <input {% if form.layout_style.value == 'modern' %}checked{% endif %} class="text-primary focus:ring-primary" name="{{ form.layout_style.name }}" type="radio" value="modern">
+                            <span class="ml-2 text-xs font-semibold {% if form.layout_style.value == 'modern' %}text-primary{% else %}text-slate-600 dark:text-slate-400{% endif %}">Modern</span>
+                        </div>
+                    </div>
+                    <div class="border {% if form.layout_style.value == 'classic' %}border-primary bg-blue-50 dark:bg-primary/10{% else %}border-slate-200 dark:border-slate-700{% endif %} rounded-lg p-3 cursor-pointer hover:border-primary/50 transition-colors">
+                        <div class="flex items-center">
+                            <input {% if form.layout_style.value == 'classic' %}checked{% endif %} class="text-primary focus:ring-primary" name="{{ form.layout_style.name }}" type="radio" value="classic">
+                            <span class="ml-2 text-xs font-semibold {% if form.layout_style.value == 'classic' %}text-primary{% else %}text-slate-600 dark:text-slate-400{% endif %}">Classic</span>
+                        </div>
+                    </div>
+                    <div class="border {% if form.layout_style.value == 'minimal' %}border-primary bg-blue-50 dark:bg-primary/10{% else %}border-slate-200 dark:border-slate-700{% endif %} rounded-lg p-3 cursor-pointer hover:border-primary/50 transition-colors">
+                        <div class="flex items-center">
+                            <input {% if form.layout_style.value == 'minimal' %}checked{% endif %} class="text-primary focus:ring-primary" name="{{ form.layout_style.name }}" type="radio" value="minimal">
+                            <span class="ml-2 text-xs font-semibold {% if form.layout_style.value == 'minimal' %}text-primary{% else %}text-slate-600 dark:text-slate-400{% endif %}">Minimal</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div id="buttom_submit" class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 flex justify-end items-center space-x-4 shadow-sm mb-12 sticky bottom-0 z-20 mt-8">
+                <button id="reset_button" type="button" class="px-8 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">Reset</button>
+                <button id="submit_button" type="submit" class="px-8 py-2.5 rounded-lg bg-primary text-white font-medium shadow-lg shadow-primary/20 hover:bg-blue-600 transition-all flex items-center">
+                    <span class="material-icons-outlined mr-2 text-[18px]">save</span>
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% include 'dashboard/_partials/submit_button.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// File preview functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInputs = ['id_logo', 'id_logo_dark', 'id_favicon', 'id_loading_gif'];
+    fileInputs.forEach(inputId => {
+        const fileInput = document.getElementById(inputId);
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const container = fileInput.closest('.space-y-3');
+                        const fileName = fileInput.id.replace('id_', '');
+
+                        // Create preview
+                        const preview = `
+                            <div class="relative">
+                                <img src="${e.target.result}" alt="${fileName} Preview" class="w-full h-40 object-contain rounded-lg border border-slate-200 dark:border-slate-700 p-4 bg-white dark:bg-slate-800">
+                                <button type="button" class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors" onclick="removeFile('${fileInput.id}')">
+                                    <span class="material-icons-outlined text-sm">close</span>
+                                </button>
+                                <input type="hidden" id="${fileInput.id}_clear" name="${fileName}-clear">
+                            </div>
+                        `;
+
+                        container.querySelector('.border-2').outerHTML = preview;
+                    };
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+        }
+    });
+});
+
+// Remove file functionality
+function removeFile(inputId) {
+    const fileName = inputId.replace('id_', '');
+    const clearInput = document.getElementById(inputId + '_clear');
+    const fileInput = document.getElementById(inputId);
+    const container = fileInput.closest('.space-y-3');
+
+    // Reset the file input
+    fileInput.value = '';
+    if (clearInput) {
+        clearInput.value = 'on';
+    }
+
+    // Show upload placeholder again
+    let icon, text, label, accept;
+    switch(fileName) {
+        case 'logo':
+            icon = 'image';
+            text = 'JPG, PNG or SVG (Max. 2MB)';
+            label = 'Upload Image';
+            accept = 'image/*';
+            break;
+        case 'logo_dark':
+            icon = 'dark_mode';
+            text = 'High contrast logo for dark UI';
+            label = 'Upload Image';
+            accept = 'image/*';
+            break;
+        case 'favicon':
+            icon = 'tab';
+            text = 'Standard 32x32 or 16x16 px';
+            label = 'Upload Icon';
+            accept = 'image/*';
+            break;
+        case 'loading_gif':
+            icon = 'hourglass_empty';
+            text = 'GIF or SVG animation';
+            label = 'Upload Animation';
+            accept = 'image/*,.gif,.svg';
+            break;
+    }
+
+    const placeholder = `
+        <div class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg p-4 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 hover:border-primary/50 transition-colors min-h-[160px]">
+            <span class="material-icons-outlined text-slate-400 text-3xl mb-2">${icon}</span>
+            <span class="text-[10px] text-slate-500 mb-4 text-center">${text}</span>
+            <input type="file" name="${fileName}" id="${inputId}" class="hidden" accept="${accept}">
+            <label for="${inputId}" class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                ${label}
+            </label>
+        </div>
+    `;
+
+    container.querySelector('.relative').outerHTML = placeholder;
+
+    // Re-add event listener
+    const newFileInput = document.getElementById(inputId);
+    if (newFileInput) {
+        newFileInput.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = `
+                        <div class="relative">
+                            <img src="${e.target.result}" alt="${fileName} Preview" class="w-full h-40 object-contain rounded-lg border border-slate-200 dark:border-slate-700 p-4 bg-white dark:bg-slate-800">
+                            <button type="button" class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors" onclick="removeFile('${inputId}')">
+                                <span class="material-icons-outlined text-sm">close</span>
+                            </button>
+                            <input type="hidden" id="${inputId}_clear" name="${fileName}-clear">
+                        </div>
+                    `;
+                    container.querySelector('.border-2').outerHTML = preview;
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

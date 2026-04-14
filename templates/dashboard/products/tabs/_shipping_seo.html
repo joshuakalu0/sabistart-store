@@ -1,0 +1,61 @@
+<h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+  <span class="material-symbols-outlined text-primary">local_shipping</span>
+  Shipping & SEO
+</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div class="flex items-center space-x-3">
+    {{ form.requires_shipping }}
+    <label class="text-sm font-medium text-slate-700 dark:text-slate-300"
+      >Requires Shipping</label
+    >
+  </div>
+  <div>
+    <label class="block text-sm font-semibold mb-2">Weight (kg)</label>
+    {{ form.weight }} {% if form.weight.errors %}<span
+      class="text-red-500 text-sm"
+      >{{ form.weight.errors.0 }}</span
+    >{% endif %}
+  </div>
+  <div>
+    <label class="block text-sm font-semibold mb-2">Length (cm)</label>
+    {{ form.length }} {% if form.length.errors %}<span
+      class="text-red-500 text-sm"
+      >{{ form.length.errors.0 }}</span
+    >{% endif %}
+  </div>
+  <div>
+    <label class="block text-sm font-semibold mb-2">Width (cm)</label>
+    {{ form.width }} {% if form.width.errors %}<span
+      class="text-red-500 text-sm"
+      >{{ form.width.errors.0 }}</span
+    >{% endif %}
+  </div>
+  <div>
+    <label class="block text-sm font-semibold mb-2">Height (cm)</label>
+    {{ form.height }} {% if form.height.errors %}<span
+      class="text-red-500 text-sm"
+      >{{ form.height.errors.0 }}</span
+    >{% endif %}
+  </div>
+  <div class="col-span-2">
+    <label class="block text-sm font-semibold mb-2">Meta Title</label>
+    {{ form.meta_title }} {% if form.meta_title.errors %}<span
+      class="text-red-500 text-sm"
+      >{{ form.meta_title.errors.0 }}</span
+    >{% endif %}
+  </div>
+  <div class="col-span-2">
+    <label class="block text-sm font-semibold mb-2">Meta Description</label>
+    {{ form.meta_description }} {% if form.meta_description.errors %}<span
+      class="text-red-500 text-sm"
+      >{{ form.meta_description.errors.0 }}</span
+    >{% endif %}
+  </div>
+  <div class="col-span-2">
+    <label class="block text-sm font-semibold mb-2">Meta Keywords</label>
+    {{ form.meta_keywords }} {% if form.meta_keywords.errors %}<span
+      class="text-red-500 text-sm"
+      >{{ form.meta_keywords.errors.0 }}</span
+    >{% endif %}
+  </div>
+</div>

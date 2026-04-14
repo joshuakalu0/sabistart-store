@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ page_title }}</title>
+    <style>
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px; }
+        .btn { padding: 10px 20px; background: #0066cc; color: white; border: none; cursor: pointer; }
+        .messages { padding: 10px; margin: 10px 0; background: #d4edda; border: 1px solid #c3e6cb; }
+    </style>
+</head>
+<body>
+    <h1>{{ page_title }}</h1>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="messages">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn">Save Changes</button>
+    </form>
+    
+    <p><a href="{% url 'dashboard:dashboard_settings:index' prefix %}">← Back to Settings</a></p>
+</body>
+</html>
