@@ -1,0 +1,237 @@
+{% extends "dashboard/_partials/base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      Menu Items
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Manage menu items for {{ menu.name }}
+    </p>
+  </div>
+  <div class="flex space-x-4">
+    <a
+      href="{% url 'dashboard:store_settings:navigation_menu_item_create' prefix menu.pk %}"
+      class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+    >
+      <span class="material-icons-outlined text-sm">add</span>
+      <span>Add Item</span>
+    </a>
+    <a
+      href="{% url 'dashboard:store_settings:navigation_menu_edit' prefix menu.pk %}"
+      class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+    >
+      <span class="material-icons-outlined text-sm mr-2">arrow_back</span>
+      Back to Menu
+    </a>
+  </div>
+</div>
+
+<div
+  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+>
+  <div class="p-6 border-b border-slate-200 dark:border-slate-700">
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-lg font-semibold text-slate-800 dark:text-white">{{ menu.name }}</h3>
+        <p class="text-sm text-slate-600 dark:text-slate-400">{{ menu.description }}</p>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span
+          class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+        >
+          {{ menu.get_location_display }}
+        </span>
+        {% if menu.is_active %}
+        <span
+          class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+        >
+          Active
+        </span>
+        {% else %}
+        <span
+          class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+        >
+          Inactive
+        </span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="p-6">
+    <div class="flex flex-col sm:flex-row gap-4 mb-6">
+      <div class="flex-1">
+        <div class="relative">
+          <span
+            class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
+          >
+            <span class="material-icons-outlined text-slate-400 text-sm">search</span>
+          </span>
+          <input
+            type="text"
+            name="search"
+            value="{{ search_query }}"
+            placeholder="Search menu items..."
+            class="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-700 dark:text-white"
+          />
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <select
+          name="type"
+          class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white"
+        >
+          <option value="">All Types</option>
+          <option value="link" {% if type_filter == 'link' %}selected{% endif %}>Link</option>
+          <option value="category" {% if type_filter == 'category' %}selected{% endif %}>Category</option>
+          <option value="page" {% if type_filter == 'page' %}selected{% endif %}>Page</option>
+        </select>
+        <select
+          name="status"
+          class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white"
+        >
+          <option value="">All Statuses</option>
+          <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+          <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-slate-50 dark:bg-slate-700">
+          <tr>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            >
+              Item
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            >
+              Type
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            >
+              URL
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            >
+              Status
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            >
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody
+          class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700"
+        >
+          {% if items %} {% for item in items %}
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+            <td class="px-6 py-4">
+              <div class="flex items-center space-x-3">
+                {% if item.icon %}
+                <span class="material-icons-outlined text-slate-400">{{ item.icon }}</span>
+                {% endif %}
+                <div>
+                  <div class="text-sm font-medium text-slate-900 dark:text-white">
+                    {{ item.label }}
+                  </div>
+                  {% if item.description %}
+                  <div class="text-sm text-slate-500 dark:text-slate-400">
+                    {{ item.description }}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300"
+              >
+                {{ item.get_type_display }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
+              {{ item.url }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              {% if item.is_active %}
+              <span
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+              >
+                Active
+              </span>
+              {% else %}
+              <span
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+              >
+                Inactive
+              </span>
+              {% endif %}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+              <a
+                href="{% url 'dashboard:store_settings:navigation_menu_item_edit' prefix menu.pk item.pk %}"
+                class="text-primary hover:text-blue-600"
+                >Edit</a
+              >
+              <button
+                class="text-red-600 hover:text-red-800 cursor-pointer delete-btn"
+                data-name="{{ item.label }}"
+                data-url="{% url 'dashboard:store_settings:navigation_menu_item_delete' prefix menu.pk item.pk %}"
+              >
+                Delete
+              </button>
+            </td>
+          </tr>
+          {% endfor %} {% else %}
+          <tr>
+            <td
+              colspan="5"
+              class="px-6 py-4 text-center text-slate-600 dark:text-slate-400"
+            >
+              No menu items found
+            </td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Delete functionality
+    document.querySelectorAll(".delete-btn").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const name = this.dataset.name;
+        const url = this.dataset.url;
+
+        openDeleteModal(
+          "Delete Menu Item",
+          `Are you sure you want to delete "${name}"? This action cannot be undone.`,
+          function () {
+            fetch(url, {
+              method: "POST",
+              headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+            }).then(() => location.reload());
+          },
+        );
+      });
+    });
+  });
+</script>
+
+{% endblock content %}

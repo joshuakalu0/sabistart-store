@@ -1,0 +1,181 @@
+{% extends "dashboard/_partials/base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      Popup Settings
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Configure popup behavior, triggers, and display settings
+    </p>
+  </div>
+  <a
+    href="{% url 'dashboard:store_settings:manage_popup_settings' prefix %}"
+    class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+  >
+    <span class="material-icons-outlined text-sm mr-2">refresh</span>
+    Refresh
+  </a>
+</div>
+
+<div
+  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+>
+  <div class="p-6">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Popup Features</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_newsletter_popup.name }}" {% if form.enable_newsletter_popup.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Newsletter Popup</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_cookie_consent.name }}" {% if form.enable_cookie_consent.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Cookie Consent</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_promo_banner.name }}" {% if form.enable_promo_banner.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Promotional Banner</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_exit_intent.name }}" {% if form.enable_exit_intent.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Exit Intent Popup</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_announcement_bar.name }}" {% if form.enable_announcement_bar.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Announcement Bar</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Popup Triggers</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Trigger Type
+                </label>
+                {{ form.trigger_type }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Trigger Delay (seconds)
+                </label>
+                {{ form.trigger_delay_seconds }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Scroll Percentage
+                </label>
+                {{ form.trigger_scroll_percentage }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Exit Intent Delay (seconds)
+                </label>
+                {{ form.exit_intent_delay }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Popup Styling</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Popup Position
+                </label>
+                {{ form.popup_position }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Popup Animation
+                </label>
+                {{ form.popup_animation }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Background Color
+                </label>
+                {{ form.background_color }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Text Color
+                </label>
+                {{ form.text_color }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Border Radius
+                </label>
+                {{ form.border_radius }}
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Popup Content</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Popup Title
+                </label>
+                {{ form.popup_title }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Popup Content
+                </label>
+                {{ form.popup_content }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  CTA Button Text
+                </label>
+                {{ form.cta_button_text }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  CTA Button Color
+                </label>
+                {{ form.cta_button_color }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Background Image
+                </label>
+                {{ form.background_image }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-8 flex justify-end space-x-4">
+        <button
+          type="submit"
+          class="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+        >
+          <span class="material-icons-outlined text-sm">save</span>
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

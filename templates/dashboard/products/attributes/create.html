@@ -1,0 +1,423 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load static %}
+{% block content %}
+  <form method="post" id="attributeForm">
+    {% csrf_token %}
+    <input type="hidden" id="saveStatus" name="save_status" value="active" />
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <div class="flex items-center space-x-4">
+            <a href="{% url 'dashboard:product_settings:attribute_list' prefix %}"
+               class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+              <svg class="w-5 h-5 text-gray-600"
+                   fill="none"
+                   stroke="currentColor"
+                   viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+            </a>
+            <div>
+              <h1 class="text-xl font-bold text-gray-900">{{ attribute.name|default:'Create Attribute' }}</h1>
+              <p class="text-xs text-gray-500 hidden sm:block">Define product characteristics and variant options</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Form Area -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- STEP 1: Basic Information -->
+          <div id="step1Section" class="section-visible animate-fade-in">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+              <div class="p-4 sm:p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-primary-600"
+                       fill="none"
+                       stroke="currentColor"
+                       viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                    </path>
+                  </svg>
+                  Basic Information
+                </h2>
+                <div class="space-y-4">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label for="attributeName"
+                             class="block text-sm font-medium text-gray-700 required-field">Attribute Name</label>
+                      {{ form.name }}
+                      {% if form.name.errors %}
+                      <span class="text-red-500 text-sm">{{ form.name.errors.0 }}</span>
+                      {% endif %}
+                      <p class="mt-1 text-xs text-gray-500">The display name shown to customers</p>
+                    </div>
+                    <div>
+                      <label for="attributeSlug" class="block text-sm font-medium text-gray-700">URL Slug</label>
+                      <div class="mt-1 flex rounded-md shadow-sm">
+                        <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">/attributes/</span>
+                        {{ form.slug }}
+                      </div>
+                      {% if form.slug.errors %}
+                      <span class="text-red-500 text-sm">{{ form.slug.errors.0 }}</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div>
+                    <label for="attributeGroup" class="block text-sm font-medium text-gray-700">Attribute Group</label>
+                    {{ form.group }}
+                    {% if form.group.errors %}
+                    <span class="text-red-500 text-sm">{{ form.group.errors.0 }}</span>
+                    {% endif %}
+                  </div>
+                  <div>
+                    <label for="attributeType"
+                           class="block text-sm font-medium text-gray-700 required-field">Attribute Type</label>
+                    {{ form.attribute_type }}
+                    {% if form.attribute_type.errors %}
+                    <span class="text-red-500 text-sm">{{ form.attribute_type.errors.0 }}</span>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">Determines how customers interact with this attribute</p>
+                  </div>
+                  <!-- Type-Specific Info Box -->
+                  <div id="typeInfoBox" class="hidden p-4 rounded-lg border animate-fade-in">
+                    <div class="flex items-start space-x-3">
+                      <svg class="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"
+                           fill="none"
+                           stroke="currentColor"
+                           viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                        </path>
+                      </svg>
+                      <div>
+                        <h4 class="font-medium text-primary-800" id="typeInfoTitle"></h4>
+                        <p class="text-sm text-primary-700 mt-1" id="typeInfoDescription"></p>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label for="attributeDescription"
+                           class="block text-sm font-medium text-gray-700">
+                      Description
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <span class="text-red-500 text-sm">{{ form.description.errors.0 }}</span>
+                    {% endif %}
+                  </div>
+                  <div>
+                    <label for="attributeHelpText"
+                           class="block text-sm font-medium text-gray-700">
+                      Help Text
+                    </label>
+                    {{ form.help_text }}
+                    {% if form.help_text.errors %}
+                    <span class="text-red-500 text-sm">{{ form.help_text.errors.0 }}</span>
+                    {% endif %}
+                  </div>
+                  <div>
+                    <label for="attributeUnit" class="block text-sm font-medium text-gray-700">Unit of Measurement</label>
+                    {{ form.unit }}
+                    {% if form.unit.errors %}
+                    <span class="text-red-500 text-sm">{{ form.unit.errors.0 }}</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 2: Advanced Settings -->
+          <div id="step2Section" class="section-visible animate-fade-in">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+              <div class="p-4 sm:p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-primary-600"
+                       fill="none"
+                       stroke="currentColor"
+                       viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z">
+                    </path>
+                  </svg>
+                  Advanced Settings
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <label class="text-sm font-medium text-gray-700">Required</label>
+                      <p class="text-xs text-gray-500">Field must be filled</p>
+                    </div>
+                    {{ form.is_required }}
+                  </div>
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <label class="text-sm font-medium text-gray-700">Unique</label>
+                      <p class="text-xs text-gray-500">Values must be unique</p>
+                    </div>
+                    {{ form.is_unique }}
+                  </div>
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <label class="text-sm font-medium text-gray-700">Variant Option</label>
+                      <p class="text-xs text-gray-500">Used for product variations</p>
+                    </div>
+                    {{ form.is_variant_option }}
+                  </div>
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <label class="text-sm font-medium text-gray-700">Filterable</label>
+                      <p class="text-xs text-gray-500">Available in product filters</p>
+                    </div>
+                    {{ form.is_filterable }}
+                  </div>
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <label class="text-sm font-medium text-gray-700">Searchable</label>
+                      <p class="text-xs text-gray-500">Included in search results</p>
+                    </div>
+                    {{ form.is_searchable }}
+                  </div>
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <label class="text-sm font-medium text-gray-700">Comparable</label>
+                      <p class="text-xs text-gray-500">Shown in product comparison</p>
+                    </div>
+                    {{ form.is_comparable }}
+                  </div>
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <label class="text-sm font-medium text-gray-700">Visible on Front</label>
+                      <p class="text-xs text-gray-500">Displayed to customers</p>
+                    </div>
+                    {{ form.is_visible_on_front }}
+                  </div>
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <label class="text-sm font-medium text-gray-700">Display Order</label>
+                      <p class="text-xs text-gray-500">Position in attribute lists</p>
+                    </div>
+                    {{ form.display_order }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+          <!-- Preview Card -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 sticky top-40">
+            <div class="p-4 sm:p-6">
+              <h3 class="text-sm font-medium text-gray-500 mb-4">
+                Attribute Preview
+              </h3>
+              <div class="border border-gray-200 rounded-lg p-4 mb-4">
+                <div class="flex items-center justify-between mb-2">
+                  <span id="previewName" class="font-semibold text-gray-900">
+                    {{ attribute.name|default:"Attribute Name" }}
+                  </span>
+                  <span
+                    id="previewType"
+                    class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                    >{{ attribute.get_attribute_type_display|default:"Type" }}</span
+                  >
+                </div>
+                <p id="previewDescription" class="text-sm text-gray-500 mb-3">
+                  {{ attribute.description|default:"Description will appear here" }}
+                </p>
+                <div id="previewValues" class="flex flex-wrap gap-1"></div>
+              </div>
+              <div class="space-y-2 text-sm">
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-500">Slug</span>
+                  <span id="previewSlug" class="font-mono text-gray-700">{{ attribute.slug|default:"-" }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-500">Group</span>
+                  <span id="previewGroup" class="text-gray-700">{{ attribute.group.name|default:"-" }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-500">Unit</span>
+                  <span id="previewUnit" class="text-gray-700">{{ attribute.unit|default:"-" }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-500">Required</span>
+                  <span id="previewRequired" class="text-gray-700">{{ attribute.is_required|yesno:"Yes,No"|default:"No" }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-500">Variant Option</span>
+                  <span id="previewVariant" class="text-gray-700">{{ attribute.is_variant_option|yesno:"Yes,No"|default:"No" }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Tips -->
+          <div class="bg-gradient-to-br from-primary-50 to-blue-50 rounded-xl shadow-sm border border-primary-100">
+            <div class="p-4 sm:p-6">
+              <h3 class="text-sm font-semibold text-primary-800 mb-3 flex items-center">
+                <svg class="w-4 h-4 mr-2"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
+                  </path>
+                </svg>
+                Quick Tips
+              </h3>
+              <ul class="space-y-2 text-xs text-primary-700">
+                <li class="flex items-start">
+                  <span class="mr-2">•</span>
+                  <span>Use <strong>Select</strong> type for attributes like Color or Size</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="mr-2">•</span>
+                  <span>Enable <strong>Variant Option</strong> for product variations</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="mr-2">•</span>
+                  <span>Set <strong>Filterable</strong> for customer filtering</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- Bottom bar with action buttons -->
+    <div class="bg-gray-50 border-t border-gray-200 px-6 sm:px-8 lg:px-10 py-6 z-50 mt-12 shadow-lg">
+      <div class="max-w-7xl mx-auto flex justify-end items-center space-x-3">
+        <a href="{% url 'dashboard:product_settings:attribute_list' prefix %}"
+           class="px-6 py-3 text-gray-700 hover:text-gray-900 transition-colors flex items-center space-x-2 text-lg">
+          <svg class="w-5 h-5"
+               fill="none"
+               stroke="currentColor"
+               viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          Cancel
+        </a>
+        <button type="submit"
+                onclick="document.getElementById('saveStatus').value = 'draft'"
+                class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2 text-lg">
+          <svg class="w-5 h-5"
+               fill="none"
+               stroke="currentColor"
+               viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"></path>
+          </svg>
+          Save as Draft
+        </button>
+        <button type="submit"
+                onclick="document.getElementById('saveStatus').value = 'active'"
+                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 border-2 border-blue-500 text-lg font-semibold">
+          <svg class="w-5 h-5"
+               fill="none"
+               stroke="currentColor"
+               viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          Publish Attribute
+        </button>
+      </div>
+    </div>
+  </form>
+
+{% block js %}
+  <script>
+    // Essential State
+    const isEditing = {{ attribute.id|default:0|yesno:"true,false" }};
+
+    // Generate Slug
+    function generateSlug() {
+      const name = document.getElementById("id_name").value;
+      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      document.getElementById("id_slug").value = slug;
+      updatePreview();
+    }
+
+    // Handle Attribute Type Change
+    function handleAttributeTypeChange() {
+      const type = document.getElementById("id_attribute_type").value;
+      const typeInfoBox = document.getElementById("typeInfoBox");
+
+      if (type) {
+        typeInfoBox.classList.remove("hidden");
+        const typeInfo = {
+          text: { title: "Text Input", description: "Simple text field for short text values" },
+          number: { title: "Number", description: "Numeric values for measurements and quantities" },
+          decimal: { title: "Decimal Number", description: "Numbers with decimal precision" },
+          select: { title: "Select", description: "Predefined options for single selection" },
+          multiselect: { title: "Multi-Select", description: "Predefined options for multiple selections" },
+          boolean: { title: "Boolean", description: "Yes/No or True/False values" },
+          color: { title: "Color", description: "Color picker with hex code support" },
+          image: { title: "Image", description: "Image upload for visual attributes" },
+          file: { title: "File Upload", description: "File upload for documents and files" },
+          url: { title: "URL", description: "Website URLs with validation" },
+          email: { title: "Email", description: "Email addresses with validation" },
+          date: { title: "Date", description: "Date picker for date values" },
+          range: { title: "Range", description: "Numeric range with slider control" }
+        };
+
+        if (typeInfo[type]) {
+          document.getElementById("typeInfoTitle").textContent = typeInfo[type].title;
+          document.getElementById("typeInfoDescription").textContent = typeInfo[type].description;
+        }
+      } else {
+        typeInfoBox.classList.add("hidden");
+      }
+      updatePreview();
+    }
+
+    // Update Preview
+    function updatePreview() {
+      const name = document.getElementById("id_name").value || "{{ attribute.name|default:'Attribute Name' }}";
+      const type = document.getElementById("id_attribute_type").value || "{{ attribute.get_attribute_type_display|default:'Type' }}";
+      const description = document.getElementById("id_description").value || "{{ attribute.description|default:'Description will appear here' }}";
+      const slug = document.getElementById("id_slug").value || "{{ attribute.slug|default:'-' }}";
+      const group = document.getElementById("id_group").options[document.getElementById("id_group").selectedIndex].text || "{{ attribute.group.name|default:'-' }}";
+      const unit = document.getElementById("id_unit").value || "{{ attribute.unit|default:'-' }}";
+      const required = document.getElementById("id_is_required").checked;
+      const variant = document.getElementById("id_is_variant_option").checked;
+
+      document.getElementById("previewName").textContent = name;
+      document.getElementById("previewType").textContent = type;
+      document.getElementById("previewDescription").textContent = description.substring(0, 60) + (description.length > 60 ? "..." : "");
+      document.getElementById("previewSlug").textContent = slug;
+      document.getElementById("previewGroup").textContent = group;
+      document.getElementById("previewUnit").textContent = unit;
+      document.getElementById("previewRequired").textContent = required ? "Yes" : "No";
+      document.getElementById("previewRequired").className = required ? "text-green-600" : "text-gray-700";
+      document.getElementById("previewVariant").textContent = variant ? "Yes" : "No";
+      document.getElementById("previewVariant").className = variant ? "text-primary-600" : "text-gray-700";
+
+      const valuesContainer = document.getElementById("previewValues");
+      valuesContainer.innerHTML = '<span class="text-xs text-gray-400">Free input</span>';
+    }
+
+    // Form submission handler - Simplified
+    document.getElementById('attributeForm').addEventListener('submit', function(e) {
+      console.log("Form submitted");
+    });
+
+    // Event listeners
+    document.getElementById("id_name").addEventListener("input", function() {
+      generateSlug();
+    });
+
+    document.getElementById("id_attribute_type").addEventListener("change", handleAttributeTypeChange);
+
+    // Initialize
+    {% if attribute %}
+    handleAttributeTypeChange();
+    {% endif %}
+    updatePreview();
+  </script>
+{% endblock js %}
+{% endblock content %}

@@ -1,0 +1,42 @@
+{% extends "account/features/base.html" %}
+{% block page_intro %}
+  <p class="mt-2 text-sm text-slate-500">Manage coupon codes that tenants can apply during checkout without mixing them into campaign setup.</p>
+{% endblock %}
+{% block feature_content %}
+  <div class="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+    <section class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <h3 class="text-lg font-bold text-slate-950">Create coupon</h3>
+      <form method="post" class="mt-5 grid gap-4">
+        {% csrf_token %}
+        {% for field in form %}
+          {% include "shared/forms/field.html" with field=field %}
+        {% endfor %}
+        <button class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700" type="submit">Save coupon</button>
+      </form>
+    </section>
+
+    <section class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <h3 class="text-lg font-bold text-slate-950">Active coupons</h3>
+      <div class="mt-5 space-y-4">
+        {% for coupon in coupons %}
+          <article class="rounded-[1.25rem] border border-slate-200 bg-slate-50 px-4 py-4">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="font-semibold text-slate-950">{{ coupon.code }}</p>
+                <p class="mt-1 text-sm text-slate-500">{{ coupon.description|default:"No description." }}</p>
+              </div>
+              <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">{{ coupon.discount_value }} {{ coupon.get_discount_type_display }}</span>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-2 text-xs text-slate-500">
+              <span class="rounded-full border border-slate-200 px-3 py-1">{% if coupon.is_active %}Active{% else %}Inactive{% endif %}</span>
+              <span class="rounded-full border border-slate-200 px-3 py-1">Tenant limit: {{ coupon.max_uses_per_tenant }}</span>
+              <span class="rounded-full border border-slate-200 px-3 py-1">Uses: {{ coupon.current_uses }}{% if coupon.max_uses %}/{{ coupon.max_uses }}{% endif %}</span>
+            </div>
+          </article>
+        {% empty %}
+          <div class="rounded-[1.25rem] border border-dashed border-slate-300 bg-slate-50 px-4 py-10 text-center text-sm text-slate-500">No coupons configured yet.</div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+{% endblock %}

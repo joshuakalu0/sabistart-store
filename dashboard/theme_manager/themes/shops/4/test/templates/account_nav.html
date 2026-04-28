@@ -1,0 +1,15 @@
+<aside class="surface-card h-fit overflow-hidden">
+    <div class="px-6 py-6 border-b border-stone-100" style="background:var(--color-primary)">
+        <p class="text-xs font-bold uppercase tracking-widest text-white/40 mb-2" style="letter-spacing:.2em">Customer Area</p>
+        <h2 class="brand-font text-2xl font-semibold text-white">{{ request.user.get_full_name|default:request.user.email|default:"My Account" }}</h2>
+        <p class="mt-2 text-sm text-white/50 font-light leading-5">Orders, addresses, saved items, and account preferences.</p>
+    </div>
+    <nav class="p-3">
+        {% for item in account_navigation %}
+            <a href="{{ item.url }}" class="flex items-center justify-between px-4 py-3 text-xs font-bold uppercase tracking-widest transition {% if request.path == item.url %}bg-stone-900 text-white{% else %}text-stone-600 hover:bg-stone-50 hover:text-stone-900{% endif %}" style="letter-spacing:.14em">
+                <span>{{ item.label }}</span>
+                <span class="material-symbols-outlined {% if request.path == item.url %}text-white/60{% else %}text-stone-300{% endif %}" style="font-size:.9rem">chevron_right</span>
+            </a>
+        {% endfor %}
+    </nav>
+</aside>

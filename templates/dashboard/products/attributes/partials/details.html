@@ -1,0 +1,286 @@
+<div class="space-y-6">
+  <!-- Basic Information -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Basic Information
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Name:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ attribute.name }}</span
+        >
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Slug:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ attribute.slug }}</span
+        >
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Type:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ attribute.get_attribute_type_display }}</span
+        >
+      </div>
+      {% if attribute.group %}
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Group:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ attribute.group.name }}</span
+        >
+      </div>
+      {% endif %} {% if attribute.description %}
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Description:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ attribute.description }}</span
+        >
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Configuration -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Configuration
+    </h4>
+    <div class="space-y-3">
+      {% if attribute.help_text %}
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Help Text:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ attribute.help_text }}</span
+        >
+      </div>
+      {% endif %} {% if attribute.unit %}
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Unit:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ attribute.unit }}</span
+        >
+      </div>
+      {% endif %}
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Display Order:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ attribute.display_order }}</span
+        >
+      </div>
+    </div>
+  </div>
+
+  <!-- Validation -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Validation
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Required:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1">
+          {% if attribute.is_required %}
+          <span
+            class="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 text-xs rounded-full"
+            >Yes</span
+          >
+          {% else %}
+          <span
+            class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 text-xs rounded-full"
+            >No</span
+          >
+          {% endif %}
+        </span>
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Unique:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1">
+          {% if attribute.is_unique %}
+          <span
+            class="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 text-xs rounded-full"
+            >Yes</span
+          >
+          {% else %}
+          <span
+            class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 text-xs rounded-full"
+            >No</span
+          >
+          {% endif %}
+        </span>
+      </div>
+      {% if attribute.min_value is not None %}
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Min Value:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ attribute.min_value }}</span
+        >
+      </div>
+      {% endif %} {% if attribute.max_value is not None %}
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Max Value:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ attribute.max_value }}</span
+        >
+      </div>
+      {% endif %} {% if attribute.regex_pattern %}
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Regex:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1 font-mono"
+          >{{ attribute.regex_pattern }}</span
+        >
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Usage -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Usage
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Variant Option:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1">
+          {% if attribute.is_variant_option %}
+          <span
+            class="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 text-xs rounded-full"
+            >Yes</span
+          >
+          {% else %}
+          <span
+            class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 text-xs rounded-full"
+            >No</span
+          >
+          {% endif %}
+        </span>
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Filterable:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1">
+          {% if attribute.is_filterable %}
+          <span
+            class="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 text-xs rounded-full"
+            >Yes</span
+          >
+          {% else %}
+          <span
+            class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 text-xs rounded-full"
+            >No</span
+          >
+          {% endif %}
+        </span>
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Searchable:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1">
+          {% if attribute.is_searchable %}
+          <span
+            class="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 text-xs rounded-full"
+            >Yes</span
+          >
+          {% else %}
+          <span
+            class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 text-xs rounded-full"
+            >No</span
+          >
+          {% endif %}
+        </span>
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Comparable:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1">
+          {% if attribute.is_comparable %}
+          <span
+            class="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 text-xs rounded-full"
+            >Yes</span
+          >
+          {% else %}
+          <span
+            class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 text-xs rounded-full"
+            >No</span
+          >
+          {% endif %}
+        </span>
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Visible:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1">
+          {% if attribute.is_visible_on_front %}
+          <span
+            class="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 text-xs rounded-full"
+            >Yes</span
+          >
+          {% else %}
+          <span
+            class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 text-xs rounded-full"
+            >No</span
+          >
+          {% endif %}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dates -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Dates
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Created:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ attribute.created_at|date:"M d, Y H:i" }}</span
+        >
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Updated:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ attribute.updated_at|date:"M d, Y H:i" }}</span
+        >
+      </div>
+    </div>
+  </div>
+</div>

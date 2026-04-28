@@ -1,0 +1,58 @@
+{% extends "system/classic/templates/base.html" %}
+
+{% block content %}
+<section class="mx-auto max-w-6xl space-y-8">
+    <div class="surface-card overflow-hidden text-center" style="background:var(--color-primary)">
+        <div class="px-8 py-14">
+            <p class="eyebrow !text-amber-400">Order Confirmed</p>
+            <div class="accent-bar mt-3 mb-6 mx-auto"></div>
+            <h1 class="brand-font text-5xl font-semibold text-white">{{ order.order_number }}</h1>
+            <p class="mt-5 mx-auto max-w-2xl text-base leading-7 font-light" style="color:rgba(255,255,255,.55)">Your order has been placed successfully and is now attached to this storefront. Next-step updates will follow through your selected contact channel.</p>
+            <div class="mt-8 flex flex-wrap justify-center gap-3">
+                <a href="{% url 'tenant:account_orders' %}" class="button-secondary" style="border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.8)">View Orders</a>
+                <a href="{% url 'category:shop_all' %}" class="button-primary" style="background:var(--color-accent);border-color:var(--color-accent);color:var(--color-primary)">Continue Shopping</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid gap-8 xl:grid-cols-2">
+        <div class="surface-card">
+            <div class="px-6 py-5 border-b border-stone-100">
+                <p class="eyebrow">Order Snapshot</p>
+            </div>
+            <div class="divide-y divide-stone-100">
+                <div class="flex justify-between px-6 py-4 text-sm">
+                    <span class="text-stone-400 uppercase tracking-widest font-bold" style="letter-spacing:.14em;font-size:.65rem">Status</span>
+                    <span class="text-stone-800 font-semibold">{{ order.get_status_display }}</span>
+                </div>
+                <div class="flex justify-between px-6 py-4 text-sm">
+                    <span class="text-stone-400 uppercase tracking-widest font-bold" style="letter-spacing:.14em;font-size:.65rem">Payment</span>
+                    <span class="text-stone-800 font-semibold">{{ order.get_financial_status_display }}</span>
+                </div>
+                <div class="flex justify-between px-6 py-4 text-sm">
+                    <span class="text-stone-400 uppercase tracking-widest font-bold" style="letter-spacing:.14em;font-size:.65rem">Total</span>
+                    <span class="brand-font text-xl font-semibold text-stone-900">{{ order.total_price }}</span>
+                </div>
+                <div class="flex justify-between px-6 py-4 text-sm">
+                    <span class="text-stone-400 uppercase tracking-widest font-bold" style="letter-spacing:.14em;font-size:.65rem">Shipping</span>
+                    <span class="text-stone-800 font-semibold">{{ order.shipping_method_name }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="surface-card">
+            <div class="px-6 py-5 border-b border-stone-100">
+                <p class="eyebrow">Delivery Address</p>
+            </div>
+            <div class="px-6 py-6">
+                {% if shipping_address %}
+                    <p class="brand-font text-xl font-semibold text-stone-900 mb-2">{{ shipping_address.full_name }}</p>
+                    <p class="text-sm leading-7 text-stone-500 font-light">{{ shipping_address.full_address }}</p>
+                {% else %}
+                    <p class="text-sm text-stone-400 font-light">Shipping address snapshot unavailable.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

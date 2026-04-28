@@ -1,0 +1,124 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+
+    <!-- Page header -->
+    <div class="sm:flex sm:justify-between sm:items-center mb-8">
+        <div class="mb-4 sm:mb-0">
+            <h1 class="text-2xl md:text-3xl text-slate-800 font-bold">{% if is_new %}{% trans "Create Category" %}{% else %}{% trans "Edit Category:" %} {{ category.name }}{% endif %}</h1>
+        </div>
+        <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
+            <a href="{% url 'dashboard:notification_category_list' prefix=prefix %}" class="btn bg-white border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-600">
+                Cancel
+            </a>
+            <button type="submit" form="category-form" class="btn bg-indigo-500 hover:bg-indigo-600 text-white">
+                Save
+            </button>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white shadow-lg rounded-sm mb-8">
+        <form id="category-form" method="POST" action="">
+            {% csrf_token %}
+            <div class="p-6 space-y-6">
+                <section>
+                    <h2 class="text-xl leading-snug text-slate-800 font-bold mb-1">Configuration</h2>
+                    <div class="text-sm text-slate-500 mb-4">Categories group templates together and allow customers to opt-out per category.</div>
+
+                    <div class="grid gap-5 md:grid-cols-2">
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+                            {{ form.name }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.slug.id_for_label }}">{{ form.slug.label }}</label>
+                            {{ form.slug }}
+                            <div class="text-xs text-slate-400 mt-1">Unique identifier (e.g. order_updates, marketing)</div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium mb-1" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                            {{ form.description }}
+                        </div>
+                    </div>
+                </section>
+
+                <hr class="border-slate-200" />
+
+                <section>
+                    <h2 class="text-xl leading-snug text-slate-800 font-bold mb-1">Customer Preferences</h2>
+                    <div class="text-sm text-slate-500 mb-4">Define how this category appears in the customer portal.</div>
+
+                    <div class="grid gap-5 md:grid-cols-3">
+                        <div class="flex flex-col flex-wrap">
+                            <label class="block text-sm font-medium mb-1" for="{{ form.is_customer_visible.id_for_label }}">{{ form.is_customer_visible.label }}</label>
+                            {{ form.is_customer_visible }}
+                        </div>
+                        <div class="flex flex-col flex-wrap">
+                            <label class="block text-sm font-medium mb-1" for="{{ form.allow_customer_opt_out.id_for_label }}">{{ form.allow_customer_opt_out.label }}</label>
+                            {{ form.allow_customer_opt_out }}
+                        </div>
+                        <div class="flex flex-col flex-wrap">
+                            <label class="block text-sm font-medium mb-1" for="{{ form.default_opt_in.id_for_label }}">{{ form.default_opt_in.label }}</label>
+                            {{ form.default_opt_in }}
+                        </div>
+                    </div>
+                </section>
+
+                <hr class="border-slate-200" />
+
+                <section>
+                    <h2 class="text-xl leading-snug text-slate-800 font-bold mb-1">Appearance</h2>
+                    <div class="grid gap-5 md:grid-cols-3">
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.display_order.id_for_label }}">{{ form.display_order.label }}</label>
+                            {{ form.display_order }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.icon.id_for_label }}">{{ form.icon.label }}</label>
+                            {{ form.icon }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.color.id_for_label }}">{{ form.color.label }}</label>
+                            <div class="flex items-center space-x-2">
+                                {{ form.color }}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<style>
+    form input[type="text"], form input[type="number"], form select, form textarea {
+        width: 100%;
+        border-radius: 0.25rem;
+        border-color: #cbd5e1;
+        background-color: #fff;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    form input[type="checkbox"] {
+        width: 1rem;
+        height: 1rem;
+        border-color: #cbd5e1;
+        margin-top: 0.25rem;
+        border-radius: 0.125rem;
+    }
+    form input[type="color"] {
+        width: 3rem;
+        height: 2.5rem;
+        padding: 0.1rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.25rem;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}

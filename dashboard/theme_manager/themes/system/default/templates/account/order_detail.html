@@ -1,0 +1,66 @@
+{% extends "system/default/templates/base.html" %}
+
+{% block content %}
+<section class="grid gap-8 xl:grid-cols-[320px,1fr]">
+    {% include "system/default/templates/_partials/account_nav.html" %}
+    <div class="space-y-8">
+        <div class="surface-card p-8">
+            <p class="eyebrow">{% if tracking_mode %}Order Tracking{% else %}Order Detail{% endif %}</p>
+            <h1 class="section-title mt-3">{{ order.order_number }}</h1>
+            <div class="mt-6 grid gap-4 md:grid-cols-3">
+                <div class="surface-card-soft p-4">
+                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Status</p>
+                    <p class="mt-2 text-sm font-semibold text-slate-950">{{ order.get_status_display }}</p>
+                </div>
+                <div class="surface-card-soft p-4">
+                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Financial</p>
+                    <p class="mt-2 text-sm font-semibold text-slate-950">{{ order.get_financial_status_display }}</p>
+                </div>
+                <div class="surface-card-soft p-4">
+                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Fulfillment</p>
+                    <p class="mt-2 text-sm font-semibold text-slate-950">{{ order.get_fulfillment_status_display }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="surface-card p-8">
+            <p class="eyebrow">Line Items</p>
+            <div class="mt-6 space-y-4">
+                {% for item in order.items.all %}
+                    <div class="surface-card-soft p-5">
+                        <div class="flex flex-wrap items-center justify-between gap-4">
+                            <div>
+                                <p class="brand-font text-2xl font-bold text-slate-950">{{ item.product_title }}</p>
+                                {% if item.variant_title %}<p class="mt-1 text-sm text-slate-500">{{ item.variant_title }}</p>{% endif %}
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-slate-500">Qty {{ item.quantity }}</p>
+                                <p class="mt-1 text-base font-semibold text-slate-950">{{ item.total }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="surface-card p-8">
+            <p class="eyebrow">{% if tracking_mode %}Tracking Timeline{% else %}Status Timeline{% endif %}</p>
+            <div class="mt-6 space-y-3">
+                {% for event in order.status_history.all %}
+                    <div class="surface-card-soft p-4 text-sm text-slate-600">
+                        <span class="font-semibold text-slate-900">{{ event.created_at }}</span>
+                        <span class="mx-2 text-slate-400">|</span>
+                        <span>{{ event.to_status }}</span>
+                        {% if event.note %}
+                            <span class="mx-2 text-slate-400">|</span>
+                            <span>{{ event.note }}</span>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <div class="surface-card-soft p-4 text-sm text-slate-500">No status events have been recorded yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

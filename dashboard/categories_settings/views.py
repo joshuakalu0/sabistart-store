@@ -10,6 +10,9 @@ from public.category.models import Category, Tag, Brand
 from public.category.forms import CategoryForm, TagForm, BrandForm
 from dashboard.sidebar_utiles import main_sidebar, get_settings_sidebar, get_sidebar_with_active, get_sub_sidebar_with_active
 
+from django.shortcuts import render, get_object_or_404
+from django.utils.text import slugify
+
 
 @login_required
 @dashboard_prefix_required
@@ -21,7 +24,7 @@ def category_list(request, prefix):
         'page_title': 'Categories',
         'active_menu': 'categories',
         'store_name': 'My Store',
-        'categories': [],
+        'categories': categories,
         'sidebar':  main_sidebar(prefix),
         # 'sub_sidebar': get_settings_sidebar ,
     }
@@ -32,20 +35,27 @@ def category_list(request, prefix):
 @dashboard_prefix_required
 def category_create(request, prefix):
     """Category create page - requires valid prefix."""
-    # if request.method == 'POST':
-    #     form = CategoryForm(request.POST, request.FILES)
-    #     if form.is_valid():
-    #         try:
-    #             with transaction.atomic():
-    #                 form.save(created_by=request.user, updated_by=request.user)
-    #             messages.success(request, 'Category created successfully!')
-    #             return redirect(reverse('dashboard:dashboard_categories:list', args=[prefix]))
-    #         except Exception as e:
-    #             messages.error(request, f'Error creating category: {str(e)}')
-    #     else:
-    #         messages.error(request, 'Please correct the errors below.')
-    # else:
-    #     form = CategoryForm()
+    user = request.user
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, request.FILES)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    # form.save(created_by=request.user, updated_by=request.user)
+                    category = form.save(commit=False)
+                    category.created_by = user
+                    category.updated_by = user
+                    category.save()
+                messages.success(request, 'Category created successfully!')
+                return redirect(reverse('dashboard:dashboard_categories:list', args=[prefix]))
+            except Exception as e:
+                print(e)
+                messages.error(request, f'Error creating category: {str(e)}')
+        else:
+            print(form.errors)
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = CategoryForm()
     form = CategoryForm()
 
     context = {
@@ -88,9 +98,12 @@ def category_edit(request, prefix, category_id):
         'active_menu': 'categories',
         'store_name': 'My Store',
         'form': form,
-        'category': category
+        'category': category if category else {},
+        'sub_sidebar': None,
+        'sidebar': main_sidebar(prefix),
+        'edit_url': reverse('dashboard:dashboard_categories:edit', kwargs=({'prefix': prefix, 'category_id': category_id})),
     }
-    return render(request, 'dashboard/category/edit.html', context)
+    return render(request, 'dashboard/category/create.html', context)
 
 
 @login_required
@@ -160,6 +173,41 @@ def tag_create(request, prefix):
         'sub_sidebar': None  # get_settings_sidebar,
     }
     return render(request, 'dashboard/category/tag_create.html', context)
+
+
+def ajax_create_tag(request, prefix):
+    """
+    AJAX endpoint for creating new tag on the fly
+    """
+    name = request.POST.get('name', '').strip()
+
+    if not name:
+        return JsonResponse({
+            'success': False,
+            'error': 'Tag name is required'
+        }, status=400)
+
+    # Check if tag already exists
+    tag, created = Tag.objects.get_or_create(
+        slug=slugify(name),
+        defaults={'name': name}
+    )
+
+    if not created:
+        return JsonResponse({
+            'success': False,
+            'error': 'Tag already exists'
+        }, status=400)
+
+    return JsonResponse({
+        'success': True,
+        'tag': {
+            'id': str(tag.id),
+            'name': tag.name,
+            'slug': tag.slug,
+            'color': tag.color,
+        }
+    })
 
 
 @login_required
@@ -236,12 +284,17 @@ def brand_list(request, prefix):
 # @dashboard_prefix_required
 def brand_create(request, prefix):
     """Brand create page - requires valid prefix."""
+    user = request.user
     if request.method == 'POST':
         form = BrandForm(request.POST, request.FILES)
         if form.is_valid():
             try:
                 with transaction.atomic():
-                    form.save(created_by=request.user, updated_by=request.user)
+                    brand = form.save(commit=False)
+                    brand.created_by = user
+                    brand.updated_by = user
+                    brand.save()
+                    # form.save(created_by=request.user, updated_by=request.user)
                 messages.success(request, 'Brand created successfully!')
                 return redirect(reverse('dashboard:dashboard_categories:brand_list', args=[prefix]))
             except Exception as e:
@@ -313,3 +366,39 @@ def brand_delete(request, prefix, brand_id):
     except Exception as e:
         messages.error(request, f'Error deleting brand: {str(e)}')
         return redirect(reverse('dashboard:dashboard_categories:brand_list', args=[prefix]))
+
+
+@login_required
+@dashboard_prefix_required
+@require_http_methods(["GET"])
+def category_details(request, prefix, category_id):
+    """Category details endpoint for modal - requires valid prefix."""
+    category = get_object_or_404(Category, id=category_id)
+
+    # Render category details HTML snippet
+    context = {"category": category}
+    return render(request, "dashboard/category/partials/details.html", context)
+
+
+@login_required
+@dashboard_prefix_required
+@require_http_methods(["GET"])
+def tag_details(request, prefix, tag_id):
+    """Tag details endpoint for modal - requires valid prefix."""
+    tag = get_object_or_404(Tag, id=tag_id)
+
+    # Render tag details HTML snippet
+    context = {"tag": tag}
+    return render(request, "dashboard/category/partials/tag_details.html", context)
+
+
+@login_required
+@dashboard_prefix_required
+@require_http_methods(["GET"])
+def brand_details(request, prefix, brand_id):
+    """Brand details endpoint for modal - requires valid prefix."""
+    brand = get_object_or_404(Brand, id=brand_id)
+
+    # Render brand details HTML snippet
+    context = {"brand": brand}
+    return render(request, "dashboard/category/partials/brand_details.html", context)

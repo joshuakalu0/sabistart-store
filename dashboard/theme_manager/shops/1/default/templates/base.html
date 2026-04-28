@@ -1,0 +1,103 @@
+{% load theme_tags %}
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ shop.name }}{% endblock %}</title>
+    
+    <!-- Theme Styles -->
+    <link href="{% theme_static 'css/style.css' %}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="h-full bg-white">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex-shrink-0">
+                    <a href="/" class="text-2xl font-bold text-blue-600">
+                        {{ shop.name }}
+                    </a>
+                </div>
+                
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="/" class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">Home</a>
+                    <a href="/products/" class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">Products</a>
+                    <a href="/categories/" class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">Categories</a>
+                    <a href="/about/" class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">About</a>
+                </nav>
+                
+                <!-- Cart & User -->
+                <div class="flex items-center space-x-4">
+                    <a href="/cart/" class="text-gray-700 hover:text-blue-600 relative">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5-6m0 0h15M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"></path>
+                        </svg>
+                        <span class="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                    </a>
+                    <a href="/account/" class="text-gray-700 hover:text-blue-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">{{ shop.name }}</h3>
+                    <p class="text-gray-400">Your trusted online store for quality products.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="/" class="hover:text-white">Home</a></li>
+                        <li><a href="/products/" class="hover:text-white">Products</a></li>
+                        <li><a href="/about/" class="hover:text-white">About Us</a></li>
+                        <li><a href="/contact/" class="hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Customer Service</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="/help/" class="hover:text-white">Help Center</a></li>
+                        <li><a href="/shipping/" class="hover:text-white">Shipping Info</a></li>
+                        <li><a href="/returns/" class="hover:text-white">Returns</a></li>
+                        <li><a href="/privacy/" class="hover:text-white">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Newsletter</h4>
+                    <p class="text-gray-400 mb-4">Subscribe for updates and offers</p>
+                    <form class="flex">
+                        <input type="email" placeholder="Your email" class="flex-1 px-3 py-2 bg-gray-800 text-white rounded-l-md">
+                        <button class="bg-blue-600 px-4 py-2 rounded-r-md hover:bg-blue-700">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 {{ shop.name }}. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Theme Scripts -->
+    <script src="{% theme_static 'js/theme.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

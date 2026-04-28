@@ -1,0 +1,21 @@
+{% extends "system/default/templates/base.html" %}
+
+{% block content %}
+<section class="grid gap-8 xl:grid-cols-[320px,1fr]">
+    {% include "system/default/templates/_partials/account_nav.html" %}
+    <div class="space-y-6">
+        <div class="surface-card p-8">
+            <p class="eyebrow">Wishlist</p>
+            <h1 class="section-title mt-3">Saved items for later.</h1>
+            <p class="section-copy mt-3 text-base">This wishlist is currently session-backed for the storefront and surfaces the products you have marked to revisit.</p>
+        </div>
+        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {% for product in products %}
+                {% include "system/default/templates/_partials/product_card.html" with product=product %}
+            {% empty %}
+                <div class="surface-card p-8 text-sm text-slate-500">No products saved yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

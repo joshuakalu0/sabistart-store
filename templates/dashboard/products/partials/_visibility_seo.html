@@ -1,0 +1,141 @@
+<!-- SEO -->
+        <div
+          class="bg-white rounded-xl shadow-sm border border-gray-200 section-card"
+        >
+          <div class="p-6">
+            <h2
+              class="text-lg font-semibold text-gray-900 mb-4 flex items-center"
+            >
+              <svg
+                class="w-5 h-5 mr-2 text-primary-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                ></path>
+              </svg>
+              Search Engine Optimization
+            </h2>
+            <div class="space-y-4">
+              <div>
+                <label
+                  for="{{ form.seo_form.meta_title.id_for_label }}"
+                  class="block text-sm font-medium text-gray-700"
+                  >Meta Title</label
+                >
+                {{ form.seo_form.meta_title }}
+                <p class="mt-1 text-xs text-gray-500">
+                  <span id="metaTitleCount">0</span>/255 characters
+                </p>
+                {% if form.seo_form.meta_title.errors %}
+                <p class="error-message">
+                  {{ form.seo_form.meta_title.errors.0 }}
+                </p>
+                {% endif %}
+              </div>
+              <div>
+                <label
+                  for="{{ form.seo_form.meta_description.id_for_label }}"
+                  class="block text-sm font-medium text-gray-700"
+                  >Meta Description</label
+                >
+                {{ form.seo_form.meta_description }}
+                <p class="mt-1 text-xs text-gray-500">
+                  <span id="metaDescCount">0</span>/500 characters
+                </p>
+                {% if form.seo_form.meta_description.errors %}
+                <p class="error-message">
+                  {{ form.seo_form.meta_description.errors.0 }}
+                </p>
+                {% endif %}
+              </div>
+              <div>
+                <label
+                  for="{{ form.seo_form.focus_keyword.id_for_label }}"
+                  class="block text-sm font-medium text-gray-700"
+                  >Focus Keyword</label
+                >
+                {{ form.seo_form.focus_keyword }}
+                {% if  form.seo_form.focus_keyword.errors %}
+                <p class="error-message">
+                  {{ form.seo_form.focus_keyword.errors.0 }}
+                </p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visibility & Status -->
+        <div
+          class="bg-white rounded-xl shadow-sm border border-gray-200 section-card"
+        >
+          <div class="p-6">
+            <h2
+              class="text-lg font-semibold text-gray-900 mb-4 flex items-center"
+            >
+              <svg
+                class="w-5 h-5 mr-2 text-primary-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                ></path>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                ></path>
+              </svg>
+              Visibility & Status
+            </h2>
+            <div class="space-y-4">
+              <div>
+                <label
+                  for="{{ form.visibility_form.status.id_for_label }}"
+                  class="block text-sm font-medium text-gray-700"
+                  >Status</label
+                >
+                {{ form.visibility_form.status }}
+                 {% if form.visibility_form.status.errors %}
+                <p class="error-message">
+                  {{ form.visibility_form.status.errors.0 }}
+                </p>
+                {% endif %}
+              </div>
+              <div class="flex flex-wrap gap-4">
+                <label class="flex items-center space-x-2">
+                  {{ form.visibility_form.is_active }}
+                  <span class="text-sm text-gray-700">Active</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                  {{ form.visibility_form.is_featured }}
+                  <span class="text-sm text-gray-700">Featured</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                  {{ form.visibility_form.is_bestseller }}
+                  <span class="text-sm text-gray-700">Bestseller</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                  {{ form.visibility_form.is_new }}
+                  <span class="text-sm text-gray-700">New</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                  {{ form.visibility_form.is_on_sale }}
+                  <span class="text-sm text-gray-700">On Sale</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>

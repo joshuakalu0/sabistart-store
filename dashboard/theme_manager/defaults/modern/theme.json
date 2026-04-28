@@ -1,0 +1,25 @@
+{
+  "name": "Modern Theme",
+  "version": "1.0.0",
+  "description": "A clean, modern e-commerce theme",
+  "author": "SabiStart",
+  "pages": ["home", "product_list", "product_detail", "cart", "checkout"],
+  "colors": {
+    "primary": "#3b82f6",
+    "secondary": "#64748b",
+    "accent": "#f59e0b",
+    "background": "#ffffff",
+    "text": "#1f2937"
+  },
+  "fonts": {
+    "primary": "Inter, sans-serif",
+    "secondary": "Roboto, sans-serif"
+  },
+  "features": [
+    "responsive_design",
+    "dark_mode",
+    "product_zoom",
+    "ajax_cart",
+    "wishlist"
+  ]
+}

@@ -1,0 +1,795 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{{ title }} | Store Admin</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "inverse-surface": "#0b0f10",
+              "inverse-primary": "#618bff",
+              "tertiary": "#605c78",
+              "surface": "#f7f9fb",
+              "secondary-fixed-dim": "#c5d6f0",
+              "on-primary-fixed-variant": "#0050d4",
+              "tertiary-dim": "#54506b",
+              "on-surface-variant": "#566166",
+              "primary-fixed-dim": "#c7d3ff",
+              "on-background": "#2a3439",
+              "outline-variant": "#a9b4b9",
+              "on-secondary": "#f7f9ff",
+              "secondary-fixed": "#d3e4fe",
+              "on-secondary-fixed-variant": "#4d5d73",
+              "surface-container-low": "#f0f4f7",
+              "surface-container-lowest": "#ffffff",
+              "secondary-dim": "#44546a",
+              "on-surface": "#2a3439",
+              "secondary-container": "#d3e4fe",
+              "primary-dim": "#0048c1",
+              "on-tertiary": "#fcf7ff",
+              "error-container": "#fe8983",
+              "primary-container": "#dbe1ff",
+              "on-tertiary-fixed": "#3e3a54",
+              "on-primary": "#f8f7ff",
+              "on-primary-container": "#0048bf",
+              "secondary": "#506076",
+              "on-primary-fixed": "#003798",
+              "surface-variant": "#d9e4ea",
+              "surface-container-high": "#e1e9ee",
+              "surface-bright": "#f7f9fb",
+              "on-secondary-container": "#435368",
+              "outline": "#717c82",
+              "background": "#f7f9fb",
+              "on-tertiary-fixed-variant": "#5b5672",
+              "surface-dim": "#cfdce3",
+              "tertiary-fixed-dim": "#d4cdee",
+              "surface-container": "#e8eff3",
+              "on-secondary-fixed": "#314055",
+              "surface-container-highest": "#d9e4ea",
+              "on-error-container": "#752121",
+              "error": "#9f403d",
+              "on-tertiary-container": "#514d68",
+              "on-error": "#fff7f6",
+              "error-dim": "#4e0309",
+              "primary-fixed": "#dbe1ff",
+              "tertiary-fixed": "#e3dbfd",
+              "primary": "#0053db",
+              "inverse-on-surface": "#9a9d9f",
+              "tertiary-container": "#e3dbfd",
+              "surface-tint": "#0053db"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+
+        /* Custom scrollbar for a cleaner ledger look */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d9e4ea; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a9b4b9; }
+
+        /* Architectural Line for Active Inputs */
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-bottom: 2px solid #0053db !important;
+        }
+
+        /* Form Error States */
+        .form-field-error {
+            border-bottom-color: #9f403d !important;
+            background-color: #fef2f2 !important;
+        }
+        .error-message {
+            color: #9f403d;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Toggle Switch Styling */
+        .toggle-checkbox {
+            opacity: 0;
+            position: absolute;
+        }
+
+        /* Color Input */
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 8px;
+        }
+
+        /* Button Style Selection */
+        .button-style-option.selected {
+            background-color: #ffffff;
+            color: #0053db;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Conditional Section Opacity */
+        .conditional-section {
+            transition: opacity 0.3s ease;
+        }
+        .conditional-section.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Range Input */
+        input[type="range"] {
+            accent-color: #0053db;
+        }
+
+        /* File Upload */
+        .file-upload-area {
+            transition: all 0.3s ease;
+        }
+        .file-upload-area:hover {
+            border-color: #0053db;
+        }
+        .file-upload-area.has-image {
+            border-style: solid;
+            border-color: #0053db;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen">
+
+<!-- Django Messages Framework -->
+{% if messages %}
+<div class="fixed top-20 right-8 z-50 space-y-2">
+    {% for message in messages %}
+    <div class="flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg" style="background-color: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#9f403d{% else %}#ffffff{% endif %}; color: {% if message.tags == 'error' %}#fff7f6{% else %}#2a3439{% endif %};">
+        <span class="material-symbols-outlined text-sm">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span class="font-medium text-sm">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/50 shadow-sm shadow-slate-200/50 flex items-center justify-between px-8 h-16 max-w-full mx-auto">
+    <div class="flex items-center gap-8">
+        <span class="text-xl font-extrabold font-manrope text-slate-900">{{ title }}</span>
+        <div class="hidden md:flex items-center gap-6">
+            <a class="text-sm font-medium font-inter text-blue-700 border-b-2 border-blue-700 pb-1" href="{% url 'manage_email_template_settings' %}">Templates</a>
+            <a class="text-sm font-medium font-inter text-slate-500 hover:text-slate-900 transition-colors" href="#">Campaigns</a>
+            <a class="text-sm font-medium font-inter text-slate-500 hover:text-slate-900 transition-colors" href="#">Automation</a>
+            <a class="text-sm font-medium font-inter text-slate-500 hover:text-slate-900 transition-colors" href="#">Settings</a>
+        </div>
+    </div>
+    <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 mr-4">
+            <button type="button" class="p-2 text-slate-500 hover:bg-slate-50 rounded-lg transition-all" title="Help">
+                <span class="material-symbols-outlined">help</span>
+            </button>
+            <a href="{% url 'email_template_preview' 'order_confirmation' %}" class="p-2 text-slate-500 hover:bg-slate-50 rounded-lg transition-all" title="Preview">
+                <span class="material-symbols-outlined">visibility</span>
+            </a>
+        </div>
+        <button type="button" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 rounded-lg transition-all active:scale-95" onclick="window.location.href='{% url 'manage_email_template_settings' %}'">Reset</button>
+        <button type="submit" form="email-template-form" class="px-5 py-2 text-sm font-bold bg-primary text-on-primary rounded-lg shadow-sm hover:bg-primary-dim transition-all active:scale-95 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]">
+            {% if is_edit %}Save Changes{% else %}Create Settings{% endif %}
+        </button>
+        {% if is_edit %}
+        <a href="{% url 'reset_email_template_settings' %}" class="px-4 py-2 text-sm font-medium text-orange-600 hover:bg-orange-50 rounded-lg transition-all" title="Reset to defaults" onclick="return confirm('Are you sure you want to reset to default settings?')">
+            <span class="material-symbols-outlined text-sm align-middle">refresh</span>
+        </a>
+        {% endif %}
+        <div class="w-8 h-8 rounded-full bg-slate-200 ml-2 overflow-hidden border border-slate-200">
+            <img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmMzehU-vI3jtLL7BwKUnjpwbyPtH1INi7STz5hxsepw8dso_KSVp9fiH7ZVn9q_T_fdKMqk5pPs96Zxojl0R-W7gToKVNK0OTA8Q6bPzG-Jg6d6Ok78haA1sddRldEZEfIhEDnhamhxqnYNAjTX3Fa8w4RItjqYZBgVwoBGGTPPDZyniTK9lEGo38IZO81v9l4-pnIqm67I-9JYJx1oM3A0cx6PP9PmqXjt3zGkn7im2h0o-JPo5sRMBOnkUybeswEuQ13JUZao4"/>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content Area -->
+<main class="pt-24 pb-16 px-8 max-w-[1600px] mx-auto">
+    <form id="email-template-form" method="post" action="{{ action_url }}" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <div class="flex gap-12 items-start">
+            <!-- Left Column: Editor Forms -->
+            <div class="w-3/5 space-y-10">
+                <header class="mb-8">
+                    <h1 class="text-4xl font-extrabold tracking-tight text-on-surface mb-2">Template Designer</h1>
+                    <p class="text-on-surface-variant font-medium">Configure the global aesthetic for your transactional emails.</p>
+                    {% if is_edit and enabled_features_count %}
+                    <p class="text-xs text-on-surface-variant mt-4">
+                        <span class="material-symbols-outlined text-xs align-middle">palette</span>
+                        {{ enabled_features_count|default:0 }} features enabled •
+                        <span class="material-symbols-outlined text-xs align-middle">image</span>
+                        {% if logo_configured %}Logo configured{% else %}No logo{% endif %} •
+                        <span class="material-symbols-outlined text-xs align-middle">security</span>
+                        {% if gdpr_compliant %}GDPR compliant{% else %}Review needed{% endif %}
+                    </p>
+                    {% endif %}
+                </header>
+
+                <!-- Branding & Colors Section -->
+                <section class="bg-surface-container-low p-8 rounded-xl space-y-8">
+                    <h2 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant">Branding &amp; Colors</h2>
+                    <div class="grid grid-cols-2 gap-8">
+                        <div class="col-span-2">
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase mb-3" for="{{ form.logo.id_for_label }}">Brand Logo</label>
+                            <div class="file-upload-area flex items-center justify-center w-full h-32 px-4 transition bg-surface-container-lowest border-2 border-slate-200 border-dashed rounded-lg hover:border-primary" onclick="document.getElementById('{{ form.logo.id_for_label }}').click()">
+                                {% if is_edit and object.logo %}
+                                <img src="{{ object.logo.url }}" alt="Current logo" class="h-20 w-auto object-contain mb-2"/>
+                                {% else %}
+                                <label class="flex flex-col items-center justify-center w-full h-full cursor-pointer">
+                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <span class="material-symbols-outlined text-slate-400 text-3xl mb-2">upload_file</span>
+                                        <p class="text-sm text-slate-500 font-medium">Drop logo here or click to browse</p>
+                                    </div>
+                                </label>
+                                {% endif %}
+                                {{ form.logo }}
+                            </div>
+                            {% if form.logo.errors %}
+                                {% for error in form.logo.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                            <p class="text-xs text-on-surface-variant mt-2">Recommended: 200x60px PNG or SVG</p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase" for="{{ form.accent_color.id_for_label }}">Accent Color</label>
+                            <div class="flex items-center gap-3 p-3 bg-surface-container-lowest rounded-lg border-b-2 border-slate-100 focus-within:border-primary transition-all">
+                                {{ form.accent_color }}
+                                <input class="bg-transparent border-0 text-sm font-mono font-medium focus:ring-0 w-full" type="text" value="{{ form.accent_color.value|default:'#2563EB' }}" id="accent-color-text"/>
+                            </div>
+                            {% if form.accent_color.errors %}
+                                {% for error in form.accent_color.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="space-y-4">
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase" for="{{ form.background_color.id_for_label }}">Background Color</label>
+                            <div class="flex items-center gap-3 p-3 bg-surface-container-lowest rounded-lg border-b-2 border-slate-100 focus-within:border-primary transition-all">
+                                {{ form.background_color }}
+                                <input class="bg-transparent border-0 text-sm font-mono font-medium focus:ring-0 w-full" type="text" value="{{ form.background_color.value|default:'#F3F4F6' }}" id="background-color-text"/>
+                            </div>
+                            {% if form.background_color.errors %}
+                                {% for error in form.background_color.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="space-y-4">
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase" for="{{ form.content_background_color.id_for_label }}">Content Canvas</label>
+                            <div class="flex items-center gap-3 p-3 bg-surface-container-lowest rounded-lg border-b-2 border-slate-100 focus-within:border-primary transition-all">
+                                {{ form.content_background_color }}
+                                <input class="bg-transparent border-0 text-sm font-mono font-medium focus:ring-0 w-full" type="text" value="{{ form.content_background_color.value|default:'#FFFFFF' }}" id="content-bg-color-text"/>
+                            </div>
+                            {% if form.content_background_color.errors %}
+                                {% for error in form.content_background_color.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="space-y-4">
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase" for="{{ form.text_color.id_for_label }}">Primary Text</label>
+                            <div class="flex items-center gap-3 p-3 bg-surface-container-lowest rounded-lg border-b-2 border-slate-100 focus-within:border-primary transition-all">
+                                {{ form.text_color }}
+                                <input class="bg-transparent border-0 text-sm font-mono font-medium focus:ring-0 w-full" type="text" value="{{ form.text_color.value|default:'#1F2937' }}" id="text-color-text"/>
+                            </div>
+                            {% if form.text_color.errors %}
+                                {% for error in form.text_color.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Header & Footer Section -->
+                <section class="bg-surface-container-low p-8 rounded-xl space-y-8">
+                    <h2 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant">Header &amp; Footer</h2>
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase" for="{{ form.header_text.id_for_label }}">Header Text</label>
+                            {{ form.header_text }}
+                            {% if form.header_text.errors %}
+                                {% for error in form.header_text.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-xl">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-on-surface">Header Social Links</span>
+                                <span class="text-xs text-on-surface-variant">Include active social profiles in email header.</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                {{ form.show_social_links_in_header }}
+                                <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" style="background-color: {% if form.show_social_links_in_header.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                    <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.show_social_links_in_header.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                                </div>
+                            </label>
+                        </div>
+                        {% if form.show_social_links_in_header.errors %}
+                            {% for error in form.show_social_links_in_header.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase" for="{{ form.footer_text.id_for_label }}">Footer Text</label>
+                            {{ form.footer_text }}
+                            {% if form.footer_text.errors %}
+                                {% for error in form.footer_text.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                            <p class="text-xs text-on-surface-variant">Supports HTML for formatting</p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-xl">
+                                <span class="text-xs font-bold text-on-surface uppercase">Contact Info</span>
+                                {{ form.show_contact_info }}
+                            </div>
+                            {% if form.show_contact_info.errors %}
+                                {% for error in form.show_contact_info.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+
+                            <div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-xl">
+                                <span class="text-xs font-bold text-on-surface uppercase">Footer Socials</span>
+                                {{ form.show_social_links_in_footer }}
+                            </div>
+                            {% if form.show_social_links_in_footer.errors %}
+                                {% for error in form.show_social_links_in_footer.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+
+                            <div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-xl col-span-2">
+                                <span class="text-xs font-bold text-on-surface uppercase">Unsubscribe Link</span>
+                                {{ form.show_unsubscribe_link }}
+                            </div>
+                            {% if form.show_unsubscribe_link.errors %}
+                                {% for error in form.show_unsubscribe_link.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Typography & Buttons Section -->
+                <section class="bg-surface-container-low p-8 rounded-xl space-y-8">
+                    <h2 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant">Typography &amp; Buttons</h2>
+                    <div class="space-y-8">
+                        <div class="space-y-4">
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase" for="{{ form.font_family.id_for_label }}">Font Family</label>
+                            {{ form.font_family }}
+                            {% if form.font_family.errors %}
+                                {% for error in form.font_family.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="space-y-4">
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase" for="{{ form.button_style.id_for_label }}">Button Style</label>
+                            <div class="grid grid-cols-3 gap-2 p-1 bg-surface-container-highest rounded-lg">
+                                <button type="button" class="button-style-option py-2.5 text-xs font-bold rounded-md {% if form.button_style.value == 'solid' %}selected{% else %}text-on-surface-variant hover:bg-white/50 transition-all{% endif %}" data-style="solid">Solid</button>
+                                <button type="button" class="button-style-option py-2.5 text-xs font-bold rounded-md {% if form.button_style.value == 'outline' %}selected{% else %}text-on-surface-variant hover:bg-white/50 transition-all{% endif %}" data-style="outline">Outline</button>
+                                <button type="button" class="button-style-option py-2.5 text-xs font-bold rounded-md {% if form.button_style.value == 'link' %}selected{% else %}text-on-surface-variant hover:bg-white/50 transition-all{% endif %}" data-style="link">Link</button>
+                            </div>
+                            {{ form.button_style }}
+                            {% if form.button_style.errors %}
+                                {% for error in form.button_style.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="flex justify-between">
+                                <label class="block text-xs font-bold text-on-surface-variant uppercase" for="{{ form.button_border_radius.id_for_label }}">Border Radius</label>
+                                <span class="text-xs font-bold text-primary" id="border-radius-display">{{ form.button_border_radius.value|default:6 }}px</span>
+                            </div>
+                            {{ form.button_border_radius }}
+                            <div class="flex justify-between text-[10px] text-on-surface-variant">
+                                <span>0px</span>
+                                <span>Sharp</span>
+                                <span>50px</span>
+                            </div>
+                            {% if form.button_border_radius.errors %}
+                                {% for error in form.button_border_radius.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Template Messages -->
+                <section class="bg-surface-container-low p-8 rounded-xl space-y-8">
+                    <h2 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant">Template Messages</h2>
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase" for="{{ form.order_confirmation_custom_message.id_for_label }}">Order Confirmation Message</label>
+                            {{ form.order_confirmation_custom_message }}
+                            {% if form.order_confirmation_custom_message.errors %}
+                                {% for error in form.order_confirmation_custom_message.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase" for="{{ form.shipping_notification_custom_message.id_for_label }}">Shipping Notification Message</label>
+                            {{ form.shipping_notification_custom_message }}
+                            {% if form.shipping_notification_custom_message.errors %}
+                                {% for error in form.shipping_notification_custom_message.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column: Sticky Live Preview -->
+            <div class="w-2/5 sticky top-24">
+                <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/60 overflow-hidden border border-slate-100 flex flex-col max-h-[calc(100vh-120px)]">
+                    <div class="p-4 bg-surface-container-low border-b border-slate-200 flex items-center justify-between">
+                        <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Email Preview</span>
+                        <div class="flex gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+                        </div>
+                    </div>
+                    <div class="overflow-y-auto p-8 bg-slate-50 flex-grow" id="email-preview-container" style="background-color: {{ form.background_color.value|default:'#F3F4F6' }};">
+                        <!-- Email Mockup Starts -->
+                        <div class="max-w-[500px] mx-auto bg-white rounded-xl shadow-sm overflow-hidden" id="email-preview" style="background-color: {{ form.content_background_color.value|default:'#FFFFFF' }}; font-family: {{ form.get_font_stack|default:'Inter, sans-serif' }}; color: {{ form.text_color.value|default:'#1F2937' }};">
+                            <!-- Mockup Header -->
+                            <div class="p-6 text-center border-b border-slate-100">
+                                {% if is_edit and object.logo %}
+                                <img alt="Brand Logo" class="mx-auto h-10 w-auto mb-4" src="{{ object.logo.url }}"/>
+                                {% else %}
+                                <div class="mx-auto h-10 w-32 bg-slate-200 rounded mb-4 flex items-center justify-center">
+                                    <span class="text-[10px] text-slate-400 font-bold">LOGO</span>
+                                </div>
+                                {% endif %}
+                                {% if form.show_social_links_in_header.value %}
+                                <div class="flex justify-center gap-3 text-slate-400">
+                                    <span class="material-symbols-outlined text-sm">language</span>
+                                    <span class="material-symbols-outlined text-sm">share</span>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Mockup Content -->
+                            <div class="p-8">
+                                <h2 class="text-2xl font-bold mb-4" style="color: {{ form.text_color.value|default:'#1F2937' }};">Order Confirmed!</h2>
+                                <p class="mb-6 leading-relaxed" style="color: {{ form.text_color.value|default:'#1F2937' }};">Hi James, thank you for your order. We've received your request and our team is currently processing it. You'll receive another email with tracking information shortly.</p>
+                                <div class="bg-slate-50 p-4 rounded-lg mb-6 border border-slate-100">
+                                    <div class="flex justify-between mb-2">
+                                        <span class="text-sm font-medium text-slate-500">Order #</span>
+                                        <span class="text-sm font-bold" style="color: {{ form.text_color.value|default:'#1F2937' }};">EA-99210</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm font-medium text-slate-500">Total</span>
+                                        <span class="text-sm font-bold" style="color: {{ form.text_color.value|default:'#1F2937' }};">$128.00</span>
+                                    </div>
+                                </div>
+                                <button class="w-full py-4 text-white font-bold rounded-lg transition-transform active:scale-[0.98]" id="preview-button" style="background-color: {{ form.accent_color.value|default:'#0053db' }}; border-radius: {{ form.button_border_radius.value|default:6 }}px;">
+                                    Track My Order
+                                </button>
+                            </div>
+
+                            <!-- Mockup Footer -->
+                            <div class="p-6 bg-slate-50 text-center border-t border-slate-100">
+                                {% if form.show_contact_info.value %}
+                                <p class="text-[11px] text-slate-400 font-medium mb-4">
+                                    © 2024 Acme Corp. 123 Architecture Lane, Design District, NY 10001.
+                                </p>
+                                {% endif %}
+                                {% if form.show_social_links_in_footer.value %}
+                                <div class="flex justify-center gap-4 text-slate-300 mb-4">
+                                    <span class="material-symbols-outlined text-lg">social_leaderboard</span>
+                                    <span class="material-symbols-outlined text-lg">brand_awareness</span>
+                                    <span class="material-symbols-outlined text-lg">alternate_email</span>
+                                </div>
+                                {% endif %}
+                                {% if form.show_unsubscribe_link.value %}
+                                <a class="text-[10px] text-blue-600 font-bold uppercase tracking-widest" href="#">Unsubscribe</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <!-- Email Mockup Ends -->
+                    </div>
+                    <div class="p-4 bg-white border-t border-slate-100 text-center">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Interactive Live View</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</main>
+
+<!-- JavaScript for Dynamic Interactions -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // === Toggle Switch Styling ===
+        const toggleCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+        toggleCheckboxes.forEach(function(checkbox) {
+            checkbox.classList.add('toggle-checkbox');
+
+            checkbox.addEventListener('change', function() {
+                const toggleDiv = this.parentElement.querySelector('div.w-11.h-6');
+                const toggleKnob = toggleDiv?.querySelector('span.absolute');
+
+                if (toggleDiv) {
+                    toggleDiv.style.backgroundColor = this.checked ? '#0053db' : '#d9e4ea';
+                }
+                if (toggleKnob) {
+                    toggleKnob.style.left = this.checked ? '28px' : '4px';
+                }
+
+                // Update preview
+                updateEmailPreview();
+            });
+        });
+
+        // === Color Picker Display Updates ===
+        const colorInputs = [
+            {id: '{{ form.accent_color.id_for_label }}', textId: 'accent-color-text', preview: 'preview-button', property: 'backgroundColor'},
+            {id: '{{ form.background_color.id_for_label }}', textId: 'background-color-text', preview: 'email-preview-container', property: 'backgroundColor'},
+            {id: '{{ form.content_background_color.id_for_label }}', textId: 'content-bg-color-text', preview: 'email-preview', property: 'backgroundColor'},
+            {id: '{{ form.text_color.id_for_label }}', textId: 'text-color-text', preview: 'email-preview', property: 'color'}
+        ];
+
+        colorInputs.forEach(function(config) {
+            const input = document.getElementById(config.id);
+            const textDisplay = document.getElementById(config.textId);
+
+            if (input && textDisplay) {
+                textDisplay.value = input.value;
+
+                input.addEventListener('input', function() {
+                    textDisplay.value = this.value;
+                    if (config.preview) {
+                        const preview = document.getElementById(config.preview);
+                        if (preview) {
+                            preview.style[config.property] = this.value;
+                        }
+                    }
+                    updateEmailPreview();
+                });
+
+                textDisplay.addEventListener('input', function() {
+                    input.value = this.value;
+                    if (config.preview) {
+                        const preview = document.getElementById(config.preview);
+                        if (preview) {
+                            preview.style[config.property] = this.value;
+                        }
+                    }
+                    updateEmailPreview();
+                });
+            }
+        });
+
+        // === Button Style Selection ===
+        const buttonStyleOptions = document.querySelectorAll('.button-style-option');
+        const buttonStyleInput = document.getElementById('{{ form.button_style.id_for_label }}');
+        const previewButton = document.getElementById('preview-button');
+
+        buttonStyleOptions.forEach(function(option) {
+            option.addEventListener('click', function() {
+                buttonStyleOptions.forEach(function(opt) {
+                    opt.classList.remove('selected');
+                    opt.classList.add('text-on-surface-variant', 'hover:bg-white/50');
+                    opt.classList.remove('bg-white', 'shadow-sm', 'text-primary');
+                });
+
+                this.classList.add('selected');
+                this.classList.remove('text-on-surface-variant', 'hover:bg-white/50');
+                this.classList.add('bg-white', 'shadow-sm', 'text-primary');
+
+                if (buttonStyleInput) {
+                    buttonStyleInput.value = this.getAttribute('data-style');
+                }
+
+                // Update preview button style
+                if (previewButton) {
+                    const style = this.getAttribute('data-style');
+                    if (style === 'solid') {
+                        previewButton.style.backgroundColor = document.getElementById('{{ form.accent_color.id_for_label }}').value;
+                        previewButton.style.color = '#ffffff';
+                        previewButton.style.border = 'none';
+                    } else if (style === 'outline') {
+                        previewButton.style.backgroundColor = 'transparent';
+                        previewButton.style.color = document.getElementById('{{ form.accent_color.id_for_label }}').value;
+                        previewButton.style.border = '2px solid ' + document.getElementById('{{ form.accent_color.id_for_label }}').value;
+                    } else if (style === 'link') {
+                        previewButton.style.backgroundColor = 'transparent';
+                        previewButton.style.color = document.getElementById('{{ form.accent_color.id_for_label }}').value;
+                        previewButton.style.border = 'none';
+                        previewButton.style.textDecoration = 'underline';
+                    }
+                }
+
+                updateEmailPreview();
+            });
+        });
+
+        // === Border Radius Range Display ===
+        const borderRadiusRange = document.getElementById('{{ form.button_border_radius.id_for_label }}');
+        const borderRadiusDisplay = document.getElementById('border-radius-display');
+        const previewButton = document.getElementById('preview-button');
+
+        if (borderRadiusRange && borderRadiusDisplay && previewButton) {
+            borderRadiusDisplay.textContent = borderRadiusRange.value + 'px';
+            previewButton.style.borderRadius = borderRadiusRange.value + 'px';
+
+            borderRadiusRange.addEventListener('input', function() {
+                borderRadiusDisplay.textContent = this.value + 'px';
+                previewButton.style.borderRadius = this.value + 'px';
+            });
+        }
+
+        // === Logo Upload Preview ===
+        const logoInput = document.getElementById('{{ form.logo.id_for_label }}');
+        if (logoInput) {
+            logoInput.classList.add('hidden');
+            logoInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const container = logoInput.parentElement;
+                        const existingImg = container.querySelector('img');
+                        if (existingImg) {
+                            existingImg.src = e.target.result;
+                        } else {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.className = 'h-20 w-auto object-contain mb-2';
+                            img.alt = 'Logo preview';
+                            const label = container.querySelector('label');
+                            if (label) {
+                                container.insertBefore(img, label);
+                            }
+                        }
+                        container.classList.add('has-image');
+
+                        // Update preview
+                        const previewLogo = document.querySelector('#email-preview img');
+                        if (previewLogo) {
+                            previewLogo.src = e.target.result;
+                        }
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
+
+        // === Update Email Preview ===
+        function updateEmailPreview() {
+            const emailPreview = document.getElementById('email-preview');
+            if (!emailPreview) return;
+
+            // Update header social links visibility
+            const headerSocialCheckbox = document.getElementById('{{ form.show_social_links_in_header.id_for_label }}');
+            const headerSocials = emailPreview.querySelector('.p-6.text-center.border-b .flex');
+            if (headerSocials) {
+                headerSocials.style.display = headerSocialCheckbox?.checked ? 'flex' : 'none';
+            }
+
+            // Update footer contact info visibility
+            const contactCheckbox = document.getElementById('{{ form.show_contact_info.id_for_label }}');
+            const contactInfo = emailPreview.querySelector('.p-6.bg-slate-50 p.text-\\[11px\\]');
+            if (contactInfo) {
+                contactInfo.style.display = contactCheckbox?.checked ? 'block' : 'none';
+            }
+
+            // Update footer social links visibility
+            const footerSocialCheckbox = document.getElementById('{{ form.show_social_links_in_footer.id_for_label }}');
+            const footerSocials = emailPreview.querySelector('.p-6.bg-slate-50 .flex.justify-center.gap-4');
+            if (footerSocials) {
+                footerSocials.style.display = footerSocialCheckbox?.checked ? 'flex' : 'none';
+            }
+
+            // Update unsubscribe link visibility
+            const unsubscribeCheckbox = document.getElementById('{{ form.show_unsubscribe_link.id_for_label }}');
+            const unsubscribeLink = emailPreview.querySelector('.p-6.bg-slate-50 a');
+            if (unsubscribeLink) {
+                unsubscribeLink.style.display = unsubscribeCheckbox?.checked ? 'inline-block' : 'none';
+            }
+
+            // Update font family
+            const fontSelect = document.getElementById('{{ form.font_family.id_for_label }}');
+            if (fontSelect && emailPreview) {
+                const fontMap = {
+                    'system': 'Inter, sans-serif',
+                    'arial': 'Arial, sans-serif',
+                    'helvetica': 'Helvetica, Arial, sans-serif',
+                    'georgia': 'Georgia, serif',
+                    'times': 'Times New Roman, Times, serif'
+                };
+                emailPreview.style.fontFamily = fontMap[fontSelect.value] || 'Inter, sans-serif';
+            }
+        }
+
+        // === Initialize Preview ===
+        updateEmailPreview();
+
+        // === Hide Messages After 5 Seconds ===
+        setTimeout(function() {
+            const messages = document.querySelectorAll('.fixed.top-20');
+            messages.forEach(function(msg) {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    msg.remove();
+                }, 500);
+            });
+        }, 5000);
+
+        // === Form Change Detection ===
+        const form = document.getElementById('email-template-form');
+        let formChanged = false;
+
+        form.addEventListener('input', function() {
+            formChanged = true;
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (formChanged) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

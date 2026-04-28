@@ -1,0 +1,278 @@
+{% extends "dashboard/_partials/base.html" %} {% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Edit User</h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Edit user information, roles, and permissions
+    </p>
+  </div>
+  <a
+    href="{% url 'dashboard:user_settings:user_list' prefix %}"
+    class="bg-slate-600 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors flex items-center space-x-2"
+  >
+    <span class="material-icons-outlined text-sm">arrow_back</span>
+    <span>Back to Users</span>
+  </a>
+</div>
+
+<div
+  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+>
+  <div class="p-6">
+    <form method="POST">
+      {% csrf_token %}
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Basic Information -->
+        <div class="md:col-span-2">
+          <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-4">
+            Basic Information
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label
+                class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              >
+                First Name *
+              </label>
+              {{ form.first_name }} {% if form.first_name.errors %} {% for error
+              in form.first_name.errors %}
+              <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+              {% endfor %} {% endif %}
+            </div>
+            <div>
+              <label
+                class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              >
+                Last Name *
+              </label>
+              {{ form.last_name }} {% if form.last_name.errors %} {% for error
+              in form.last_name.errors %}
+              <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+              {% endfor %} {% endif %}
+            </div>
+            <div>
+              <label
+                class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              >
+                Email *
+              </label>
+              {{ form.email }} {% if form.email.errors %} {% for error in
+              form.email.errors %}
+              <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+              {% endfor %} {% endif %}
+            </div>
+            <div>
+              <label
+                class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              >
+                Username *
+              </label>
+              {{ form.username }} {% if form.username.errors %} {% for error in
+              form.username.errors %}
+              <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+              {% endfor %} {% endif %}
+            </div>
+            <div>
+              <label
+                class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              >
+                Password
+              </label>
+              {{ form.password }} {% if form.password.errors %} {% for error in
+              form.password.errors %}
+              <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+              {% endfor %} {% endif %}
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Leave blank to keep existing password
+              </p>
+            </div>
+            <div>
+              <label
+                class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              >
+                Confirm Password
+              </label>
+              {{ form.confirm_password }} {% if form.confirm_password.errors %}
+              {% for error in form.confirm_password.errors %}
+              <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+              {% endfor %} {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- User Type & Status -->
+        <div>
+          <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-4">
+            User Settings
+          </h3>
+          <div>
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+            >
+              User Type *
+            </label>
+            {{ form.user_type }} {% if form.user_type.errors %} {% for error in
+            form.user_type.errors %}
+            <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+            {% endfor %} {% endif %}
+          </div>
+          <div class="mt-4">
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+            >
+              Status *
+            </label>
+            {{ form.status }} {% if form.status.errors %} {% for error in
+            form.status.errors %}
+            <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+            {% endfor %} {% endif %}
+          </div>
+          <div class="mt-4">
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+            >
+              Phone Number
+            </label>
+            {{ form.phone }} {% if form.phone.errors %} {% for error in
+            form.phone.errors %}
+            <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+            {% endfor %} {% endif %}
+          </div>
+          <div class="mt-4">
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+            >
+              Date of Birth
+            </label>
+            {{ form.date_of_birth }} {% if form.date_of_birth.errors %} {% for
+            error in form.date_of_birth.errors %}
+            <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+            {% endfor %} {% endif %}
+          </div>
+          <div class="mt-4">
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+            >
+              Gender
+            </label>
+            {{ form.gender }} {% if form.gender.errors %} {% for error in
+            form.gender.errors %}
+            <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+            {% endfor %} {% endif %}
+          </div>
+        </div>
+
+        <!-- Roles & Permissions -->
+        <div>
+          <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-4">
+            Roles & Permissions
+          </h3>
+          <div>
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+            >
+              Roles
+            </label>
+            {{ form.roles }} {% if form.roles.errors %} {% for error in
+            form.roles.errors %}
+            <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+            {% endfor %} {% endif %}
+          </div>
+          <div class="mt-4">
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+            >
+              Custom Permissions
+            </label>
+            {{ form.custom_permissions }} {% if form.custom_permissions.errors
+            %} {% for error in form.custom_permissions.errors %}
+            <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+            {% endfor %} {% endif %}
+          </div>
+        </div>
+
+        <!-- Verification & Preferences -->
+        <div md:col-span-2>
+          <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-4">
+            Verification & Preferences
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex items-center space-x-3">
+              {{ form.email_verified }}
+              <label
+                class="text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
+                Email Verified
+              </label>
+            </div>
+            <div class="flex items-center space-x-3">
+              {{ form.phone_verified }}
+              <label
+                class="text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
+                Phone Verified
+              </label>
+            </div>
+            <div class="flex items-center space-x-3">
+              {{ form.two_factor_enabled }}
+              <label
+                class="text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
+                Two-Factor Authentication
+              </label>
+            </div>
+            <div class="flex items-center space-x-3">
+              {{ form.marketing_consent }}
+              <label
+                class="text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
+                Marketing Consent
+              </label>
+            </div>
+            <div class="flex items-center space-x-3">
+              {{ form.newsletter_subscription }}
+              <label
+                class="text-sm font-medium text-slate-700 dark:text-slate-300"
+              >
+                Newsletter Subscription
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div md:col-span-2>
+          <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-4">
+            Notes
+          </h3>
+          <div>
+            {{ form.notes }} {% if form.notes.errors %} {% for error in
+            form.notes.errors %}
+            <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+            {% endfor %} {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Buttons -->
+      <div class="mt-8 flex items-center space-x-4">
+        <button
+          type="submit"
+          class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+        >
+          <span class="material-icons-outlined text-sm">save</span>
+          <span>Save Changes</span>
+        </button>
+        <a
+          href="{% url 'dashboard:user_settings:user_list' prefix %}"
+          class="bg-slate-600 text-white px-6 py-2 rounded-lg hover:bg-slate-700 transition-colors flex items-center space-x-2"
+        >
+          <span class="material-icons-outlined text-sm">cancel</span>
+          <span>Cancel</span>
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

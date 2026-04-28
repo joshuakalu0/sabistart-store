@@ -1,0 +1,39 @@
+<script>
+  // Specifications (Key-Value Pairs)
+  function addSpecification() {
+    specifications.push({
+      id: generateUUID(),
+      key: '',
+      value: ''
+    });
+    renderSpecifications();
+  }
+
+  function renderSpecifications() {
+    const container = document.getElementById('specificationsList');
+    if (specifications.length === 0) {
+      container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">No specifications added yet</p>';
+      return;
+    }
+    container.innerHTML = specifications.map((spec, index) => `
+          <div class="spec-row flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+              <input type="text" value="${spec.key}" placeholder="Key (e.g., Processor)" onchange="updateSpecification(${index}, 'key', this.value)"
+                  class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500">
+              <input type="text" value="${spec.value}" placeholder="Value (e.g., Intel i7)" onchange="updateSpecification(${index}, 'value', this.value)"
+                  class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500">
+              <button type="button" onclick="removeSpecification(${index})" class="p-2 text-red-600 hover:text-red-700">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </button>
+          </div>
+      `).join('');
+  }
+
+  function updateSpecification(index, field, value) {
+    specifications[index][field] = value;
+  }
+
+  function removeSpecification(index) {
+    specifications.splice(index, 1);
+    renderSpecifications();
+  }
+</script>

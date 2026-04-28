@@ -1,0 +1,57 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">{{ mode.gateway.name }}</h2>
+      <p class="text-slate-600 dark:text-slate-400">Routing, credentials, and checkout settings for this gateway.</p>
+    </div>
+    <a href="{% url 'dashboard:payments_tenant:gateway_mode_list' prefix %}" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-sm">Back</a>
+  </div>
+
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+    <div><p class="text-slate-500">Provider</p><p class="font-medium dark:text-white">{{ mode.gateway.provider|upper }}</p></div>
+    <div><p class="text-slate-500">Status</p><p class="font-medium dark:text-white">{{ mode.get_status_display }}</p></div>
+    <div><p class="text-slate-500">Current Mode</p><p class="font-medium dark:text-white">{{ mode.get_mode_display }}</p></div>
+    <div><p class="text-slate-500">Direct Credential</p><p class="font-medium dark:text-white">{% if mode.direct_credential %}{{ mode.direct_credential.get_status_display }}{% else %}None{% endif %}</p></div>
+    <div class="md:col-span-2"><p class="text-slate-500">Accepted Currencies</p><p class="dark:text-white">{{ mode.accepted_currencies|join:", "|default:"—" }}</p></div>
+  </div>
+
+  <div class="flex flex-wrap gap-3">
+    <form method="post" action="{% url 'dashboard:payments_tenant:gateway_mode_set_default' prefix mode.id %}">
+      {% csrf_token %}
+      <button type="submit" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-sm">Set Default</button>
+    </form>
+    <form method="post" action="{% url 'dashboard:payments_tenant:gateway_mode_switch' prefix mode.id %}">
+      {% csrf_token %}
+      {% if mode.is_direct_mode %}
+      <input type="hidden" name="target_mode" value="platform">
+      <button type="submit" class="px-4 py-2 rounded-lg bg-primary text-white text-sm">Switch To Platform Mode</button>
+      {% else %}
+      <input type="hidden" name="target_mode" value="direct">
+      <button type="submit" class="px-4 py-2 rounded-lg bg-primary text-white text-sm">Switch To Direct Mode</button>
+      {% endif %}
+    </form>
+    <a href="{% url 'dashboard:payments_tenant:credential_create' prefix mode.id %}" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-sm">Add Credentials</a>
+  </div>
+
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="p-4 border-b border-slate-200 dark:border-slate-700">
+      <h3 class="font-semibold text-slate-900 dark:text-white">Credential History</h3>
+    </div>
+    <div class="divide-y divide-slate-200 dark:divide-slate-700">
+      {% for credential in credentials %}
+      <div class="p-4 flex items-center justify-between text-sm">
+        <div>
+          <p class="font-medium dark:text-white">{{ credential.label|default:"Credential Set" }}</p>
+          <p class="text-slate-500">{{ credential.get_environment_display }} · {{ credential.get_status_display }}</p>
+        </div>
+        <a href="{% url 'dashboard:payments_tenant:credential_edit' prefix mode.id credential.id %}" class="text-primary hover:underline">Edit</a>
+      </div>
+      {% empty %}
+      <div class="p-6 text-sm text-slate-500">No credentials submitted for this gateway yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

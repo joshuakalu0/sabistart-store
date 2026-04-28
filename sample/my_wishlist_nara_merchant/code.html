@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-bright": "#f9f9f9",
+              "inverse-on-surface": "#f0f1f1",
+              "tertiary-container": "#271901",
+              "inverse-primary": "#bec6e0",
+              "surface-variant": "#e2e2e2",
+              "secondary-fixed-dim": "#ffb690",
+              "outline": "#76777d",
+              "on-tertiary": "#ffffff",
+              "on-primary-container": "#7c839b",
+              "inverse-surface": "#2f3131",
+              "on-tertiary-fixed-variant": "#574425",
+              "on-error": "#ffffff",
+              "surface-container-high": "#e8e8e8",
+              "on-background": "#1a1c1c",
+              "primary-fixed-dim": "#bec6e0",
+              "on-surface": "#1a1c1c",
+              "on-secondary-fixed": "#341100",
+              "on-tertiary-fixed": "#271901",
+              "tertiary-fixed": "#fcdeb5",
+              "surface-container-low": "#f3f3f3",
+              "primary-fixed": "#dae2fd",
+              "outline-variant": "#c6c6cd",
+              "error": "#ba1a1a",
+              "secondary": "#9d4300",
+              "secondary-fixed": "#ffdbca",
+              "on-secondary-fixed-variant": "#783200",
+              "surface-container-highest": "#e2e2e2",
+              "primary": "#000000",
+              "on-surface-variant": "#45464d",
+              "on-secondary-container": "#5c2400",
+              "surface": "#f9f9f9",
+              "on-secondary": "#ffffff",
+              "secondary-container": "#fd761a",
+              "error-container": "#ffdad6",
+              "primary-container": "#131b2e",
+              "surface-dim": "#dadada",
+              "on-tertiary-container": "#98805d",
+              "on-error-container": "#93000a",
+              "background": "#f9f9f9",
+              "surface-tint": "#565e74",
+              "surface-container": "#eeeeee",
+              "tertiary": "#000000",
+              "on-primary-fixed-variant": "#3f465c",
+              "on-primary-fixed": "#131b2e",
+              "on-primary": "#ffffff",
+              "tertiary-fixed-dim": "#dec29a",
+              "surface-container-lowest": "#ffffff"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface flex min-h-screen">
+<!-- SideNavBar Anchor -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-slate-50 dark:bg-slate-950 flex flex-col p-4 gap-2 z-40">
+<div class="flex items-center gap-3 px-2 py-6">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="storefront">storefront</span>
+</div>
+<div>
+<h2 class="text-lg font-black text-slate-900 dark:text-white leading-tight">Nara Merchant</h2>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Premium Tier</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-transform hover:translate-x-1 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-['Inter'] text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-transform hover:translate-x-1 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="package">package</span>
+<span class="font-['Inter'] text-sm">Orders</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-transform hover:translate-x-1 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-['Inter'] text-sm">Inventory</span>
+</a>
+<!-- Active State: Wishlist -->
+<a class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold rounded-lg shadow-sm transition-transform hover:translate-x-1 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="favorite" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="font-['Inter'] text-sm">Wishlist</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-transform hover:translate-x-1 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Inter'] text-sm">Settings</span>
+</a>
+</nav>
+<div class="mt-auto space-y-4">
+<button class="w-full py-3 bg-secondary-container text-white font-bold rounded-lg text-sm active:scale-95 transition-transform">
+                Upgrade Account
+            </button>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-transform hover:translate-x-1 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-['Inter'] text-sm">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 flex-1 bg-surface min-h-screen">
+<!-- Top Navigation Anchor (Shared) -->
+<header class="fixed top-0 right-0 left-64 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-[0px_20px_40px_rgba(15,23,42,0.06)] px-8 py-4 flex justify-between items-center">
+<div class="flex items-center gap-8">
+<nav class="hidden md:flex gap-6">
+<a class="text-slate-500 hover:text-slate-900 font-medium transition-colors" href="#">Marketplace</a>
+<a class="text-slate-500 hover:text-slate-900 font-medium transition-colors" href="#">Help</a>
+<a class="text-slate-500 hover:text-slate-900 font-medium transition-colors" href="#">Support</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 hover:text-slate-900 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:text-slate-900 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden ml-2 border-2 border-white">
+<img alt="Merchant User Profile" class="w-full h-full object-cover" data-alt="Close up portrait of a male business professional" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRVvG-kYRt4cNPmVjXePPuCiNILgVq1cAePCDeDCJDjr2Vk8Y_TuZK28wsU_qlh04x7TZ3vkOI2rVvzR8PiUARcYvAhoqxzWduadhitF6Hsgpb1uTt56nCk1PmPPEV0dqloSQVX86VzCHAZgBNWZJfTAhF5XvVORI7RGjoj2PJcCrG0AZyF5CBum6Z1IqK_ad6kFInDlSyUbG04uG5B0E0x5GCLQmFy8E5FuC2z4UfnVGv0Tyx27lLp9Rb-YoWoXwgKb4GcXE1f1g"/>
+</div>
+</div>
+</header>
+<!-- Wishlist Content -->
+<div class="pt-24 pb-16 px-12 max-w-7xl mx-auto">
+<!-- Page Header -->
+<div class="mb-12">
+<h1 class="text-4xl font-extrabold tracking-tight text-primary mb-2">My Wishlist</h1>
+<p class="text-on-primary-container font-medium">Manage and monitor the stock of your most-wanted inventory items.</p>
+</div>
+<!-- Product Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+<!-- Product Card 1 -->
+<div class="group relative bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col transition-all duration-300 hover:shadow-[0px_20px_40px_rgba(15,23,42,0.06)]">
+<div class="aspect-[4/5] relative overflow-hidden bg-surface-container-low">
+<img alt="Premium Wireless Headphones" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="High-end black wireless headphones on a clean gray background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAIA1ocT3o7A2dx9_R71-dD_4xPICKN-UD52ETR8BwxoXjJX4Qo0Cx5SogWedTKFOvZhhJ-Trph4rjUAYXC26UOoq5c3OdU40rXHK3jjvaYIwEq9PaAzDJe0x25_F2cKOXET0Jnr_AUWLUUjwJ8dCKhZMWX7hSH_bTW_hxL_VKtDaF_DCBevSMb7ZCRkbvoH3ql4H1336rB9F82pdgg9yLViWPWH4vtye1nAtV8ieCbP6CBovswjN8SkJco2UH-FZMipF-3cZZcuU"/>
+<button class="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-md rounded-full text-error hover:bg-white transition-all shadow-sm active:scale-90">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+<div class="absolute bottom-4 left-4">
+<span class="px-3 py-1 bg-secondary-container text-white text-[10px] font-bold rounded-full uppercase tracking-wider">Stock Low</span>
+</div>
+</div>
+<div class="p-6 flex flex-col flex-1">
+<h3 class="text-lg font-bold text-primary mb-1 group-hover:text-secondary transition-colors">Premium Wireless Headphones</h3>
+<p class="text-sm text-on-surface-variant line-clamp-2 mb-4 font-body">Studio-quality sound with active noise cancellation and 40-hour battery life.</p>
+<div class="mt-auto flex items-center justify-between">
+<span class="text-xl font-bold text-primary">₦ 125,000</span>
+</div>
+<button class="mt-6 w-full flex items-center justify-center gap-2 py-3 bg-primary text-white font-bold rounded-lg hover:bg-slate-800 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-sm" data-icon="shopping_cart">shopping_cart</span>
+                            Add to Cart
+                        </button>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="group relative bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col transition-all duration-300 hover:shadow-[0px_20px_40px_rgba(15,23,42,0.06)]">
+<div class="aspect-[4/5] relative overflow-hidden bg-surface-container-low">
+<img alt="Minimalist Analog Watch" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Luxury white and gold minimalist watch on a soft background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCY8fXeTDGsoZwbB62GPutChFhL9cQtDPXuFvFhyxpcUrN5AfjsBEFby00pT2Nxu5hk4f8toTSV1k1NcKOWrvN5uXghsmxW1nWvSqBpS56F88bJTH7U5sjro6JZC1-_kk2Gt_mvzqfFaX7peczqzM3YNJiM1ISQzSfLqwlu-meUDEcI1ISIlhg24FeZgjdoKAc8MBK3DxQ2RfkIs-bpmJVjQ4KNz7HNBjr8XuYtJ53iqMFB6NxGsipcSuogrGF1pONXnyUqrwvsoXc"/>
+<button class="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-md rounded-full text-error hover:bg-white transition-all shadow-sm active:scale-90">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+<div class="p-6 flex flex-col flex-1">
+<h3 class="text-lg font-bold text-primary mb-1 group-hover:text-secondary transition-colors">Minimalist Analog Watch</h3>
+<p class="text-sm text-on-surface-variant line-clamp-2 mb-4 font-body">Elegant design with genuine leather strap and sapphire crystal glass.</p>
+<div class="mt-auto flex items-center justify-between">
+<span class="text-xl font-bold text-primary">₦ 85,000</span>
+</div>
+<button class="mt-6 w-full flex items-center justify-center gap-2 py-3 bg-primary text-white font-bold rounded-lg hover:bg-slate-800 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-sm" data-icon="shopping_cart">shopping_cart</span>
+                            Add to Cart
+                        </button>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="group relative bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col transition-all duration-300 hover:shadow-[0px_20px_40px_rgba(15,23,42,0.06)]">
+<div class="aspect-[4/5] relative overflow-hidden bg-surface-container-low">
+<img alt="Professional Camera Lens" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Macro shot of a high-end professional camera lens" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAutvOVHGDkTaHkEXEr2OYHqoO7XfvX3LCZsnmN5eE4OBrlqPhloxkFfTFxP5Q5D5YKbjKnkRXeVSRA1uv6pMNvQ7owyNk8f_j2M5UzA7_MJtj8hupSFqy9vy5iXCLNJhfiM0gWrkwssUl9iWJpCsSWRkK35D88beE4UH_Q0srtFuDLOB2PNnqGybRu8M30MDYCeFQ0QbkoV-r9Rd6wNdwr9Prg2OKjTvQlrh94MJfUOomslR2Nu9sY-EUu2tngabhqRo6_sQIKUpU"/>
+<button class="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-md rounded-full text-error hover:bg-white transition-all shadow-sm active:scale-90">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+<div class="absolute bottom-4 left-4">
+<span class="px-3 py-1 bg-secondary-container text-white text-[10px] font-bold rounded-full uppercase tracking-wider">Out of Stock</span>
+</div>
+</div>
+<div class="p-6 flex flex-col flex-1 opacity-80">
+<h3 class="text-lg font-bold text-primary mb-1 group-hover:text-secondary transition-colors">Professional Camera Lens</h3>
+<p class="text-sm text-on-surface-variant line-clamp-2 mb-4 font-body">85mm f/1.4 prime lens for stunning portrait photography and bokeh.</p>
+<div class="mt-auto flex items-center justify-between">
+<span class="text-xl font-bold text-primary">₦ 420,000</span>
+</div>
+<button class="mt-6 w-full flex items-center justify-center gap-2 py-3 bg-slate-200 text-slate-500 font-bold rounded-lg cursor-not-allowed" disabled="">
+                            Notify Me
+                        </button>
+</div>
+</div>
+<!-- Product Card 4 -->
+<div class="group relative bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col transition-all duration-300 hover:shadow-[0px_20px_40px_rgba(15,23,42,0.06)]">
+<div class="aspect-[4/5] relative overflow-hidden bg-surface-container-low">
+<img alt="Athletic Performance Shoes" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Vibrant red running sneakers on a clean product stage" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCt2OKdBh1HoQXjRwGhgG8b6HOl8iYn-X3Gbxnj2eyCKW0JdtKX83WDzhf_dD6YZD_C5aM-72j-_7pfdiMcdCniP62hv-LrwDm1JjZszQ-HokDbhUkQBCXkml1KJTxqjMaMbsPUVTyuEBFjP8MTUmcyfBPUK4jw5sF3BD3UwtsBfUmWoeRMNmDDa2qC8gl0MPq6I1VUrREWQ0FgJHn0FIPyC2kPD7PDKeqn7rfmL_tJHM1Xwc0idV9Qk47YcQ8KeUIC6J3gQCL0BaM"/>
+<button class="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-md rounded-full text-error hover:bg-white transition-all shadow-sm active:scale-90">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+<div class="p-6 flex flex-col flex-1">
+<h3 class="text-lg font-bold text-primary mb-1 group-hover:text-secondary transition-colors">Athletic Performance Shoes</h3>
+<p class="text-sm text-on-surface-variant line-clamp-2 mb-4 font-body">Ultra-lightweight mesh upper with responsive cushioning for peak performance.</p>
+<div class="mt-auto flex items-center justify-between">
+<span class="text-xl font-bold text-primary">₦ 42,500</span>
+</div>
+<button class="mt-6 w-full flex items-center justify-center gap-2 py-3 bg-primary text-white font-bold rounded-lg hover:bg-slate-800 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-sm" data-icon="shopping_cart">shopping_cart</span>
+                            Add to Cart
+                        </button>
+</div>
+</div>
+</div>
+<!-- Empty State (Hidden) -->
+<div class="hidden flex-col items-center justify-center py-32 text-center">
+<div class="w-24 h-24 bg-surface-container-low rounded-full flex items-center justify-center mb-6 text-slate-300">
+<span class="material-symbols-outlined text-6xl" data-icon="heart_broken">heart_broken</span>
+</div>
+<h2 class="text-2xl font-bold text-primary mb-2">Your wishlist is empty.</h2>
+<p class="text-on-surface-variant max-w-sm mb-8">Start exploring our marketplace to find premium items for your storefront inventory.</p>
+<button class="px-8 py-4 bg-primary text-white font-bold rounded-xl active:scale-95 transition-transform">
+                    Explore Marketplace
+                </button>
+</div>
+</div>
+<!-- Pagination / Footer Info -->
+<footer class="px-12 py-8 border-t border-slate-100 flex justify-between items-center text-sm text-on-surface-variant max-w-7xl mx-auto">
+<p>© 2024 Nara Merchant Solutions. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+</div>
+</footer>
+</main>
+</body></html>

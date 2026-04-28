@@ -1,0 +1,1177 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-container": "#dbe1ff",
+              "on-tertiary-fixed-variant": "#5b5672",
+              "on-primary-fixed": "#003798",
+              "on-surface": "#2a3439",
+              "inverse-surface": "#0b0f10",
+              "tertiary": "#605c78",
+              "error": "#9f403d",
+              "outline": "#717c82",
+              "secondary-fixed": "#d3e4fe",
+              "surface-dim": "#cfdce3",
+              "surface-variant": "#d9e4ea",
+              "tertiary-fixed-dim": "#d4cdee",
+              "secondary-fixed-dim": "#c5d6f0",
+              "on-secondary-fixed": "#314055",
+              "surface-container": "#e8eff3",
+              "on-error": "#fff7f6",
+              "tertiary-dim": "#54506b",
+              "surface-container-low": "#f0f4f7",
+              "primary-fixed-dim": "#c7d3ff",
+              "surface-container-highest": "#d9e4ea",
+              "on-secondary": "#f7f9ff",
+              "tertiary-fixed": "#e3dbfd",
+              "on-secondary-fixed-variant": "#4d5d73",
+              "on-error-container": "#752121",
+              "primary-fixed": "#dbe1ff",
+              "on-secondary-container": "#435368",
+              "on-tertiary": "#fcf7ff",
+              "error-container": "#fe8983",
+              "surface-tint": "#0053db",
+              "on-tertiary-fixed": "#3e3a54",
+              "surface-bright": "#f7f9fb",
+              "secondary-dim": "#44546a",
+              "secondary-container": "#d3e4fe",
+              "primary": "#0053db",
+              "error-dim": "#4e0309",
+              "on-tertiary-container": "#514d68",
+              "on-surface-variant": "#566166",
+              "surface": "#f7f9fb",
+              "on-primary-fixed-variant": "#0050d4",
+              "inverse-primary": "#618bff",
+              "background": "#f7f9fb",
+              "surface-container-high": "#e1e9ee",
+              "primary-dim": "#0048c1",
+              "surface-container-lowest": "#ffffff",
+              "on-background": "#2a3439",
+              "tertiary-container": "#e3dbfd",
+              "secondary": "#506076",
+              "inverse-on-surface": "#9a9d9f",
+              "on-primary-container": "#0048bf",
+              "outline-variant": "#a9b4b9",
+              "on-primary": "#f8f7ff"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+
+        /* Form Control Styles */
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: #2a3439;
+            background-color: #ffffff;
+            border: 1.5px solid #d9e4ea;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+        }
+        .form-control:focus {
+            border-color: #0053db;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(0, 83, 219, 0.1);
+        }
+        .form-control::placeholder { color: #717c82; }
+        .form-control:disabled { background-color: #f0f4f7; cursor: not-allowed; }
+
+        /* Form Select */
+        .form-select {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 2.5rem 0.75rem 1rem;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: #2a3439;
+            background-color: #ffffff;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23566166' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 16px 12px;
+            border: 1.5px solid #d9e4ea;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+            appearance: none;
+        }
+        .form-select:focus {
+            border-color: #0053db;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(0, 83, 219, 0.1);
+        }
+
+        /* Form Error States */
+        .form-field-error {
+            border: 2px solid #9f403d !important;
+            background-color: #fef2f2 !important;
+        }
+        .error-message {
+            color: #9f403d;
+            font-size: 0.75rem;
+            margin-top: 0.375rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Toggle Switch Styling */
+        .toggle-checkbox {
+            opacity: 0;
+            position: absolute;
+            width: 0;
+            height: 0;
+            cursor: pointer;
+        }
+
+        /* Layout/Style Selection Cards */
+        .selection-card.selected {
+            border-color: #0053db;
+            background-color: #dbe1ff;
+        }
+        .selection-card.selected .selection-icon {
+            color: #0053db;
+        }
+
+        /* Variant Display Buttons */
+        .variant-btn.selected {
+            background-color: #0053db;
+            color: #ffffff;
+            border-color: #0053db;
+        }
+    </style>
+    {% endblock %}
+{% block content %}
+<div class="bg-surface text-on-surface antialiased min-h-screen">
+
+<!-- Django Messages Framework -->
+{% if messages %}
+<div class="fixed top-20 right-8 z-50 space-y-2">
+    {% for message in messages %}
+    <div class="flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg" style="background-color: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#9f403d{% else %}#ffffff{% endif %}; color: {% if message.tags == 'error' %}#fff7f6{% else %}#2a3439{% endif %};">
+        <span class="material-symbols-outlined text-sm">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span class="font-medium text-sm">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+
+
+<main class="pt-24 pb-20 max-w-7xl mx-auto px-8">
+    <form id="product-form" method="post" action="{{ action_url }}" novalidate>
+        {% csrf_token %}
+
+        <!-- Header & Page Meta -->
+        <div class="mb-12">
+            <h1 class="text-4xl font-extrabold text-on-surface mb-2">Product Page Configuration</h1>
+            <p class="text-on-surface-variant text-lg">Define how your products appear to customers. Global overrides for model: ProductPageSettings.</p>
+            {% if is_edit and layout_display %}
+            <p class="text-xs text-on-surface-variant mt-2">
+                <span class="material-symbols-outlined text-xs align-middle">info</span>
+                Current Layout: {{ layout_display }}
+            </p>
+            {% endif %}
+        </div>
+
+        <!-- 01. Layout & Header -->
+        <section class="mb-16">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="material-symbols-outlined text-on-surface-variant">dashboard_customize</span>
+                <h2 class="text-xl font-bold uppercase tracking-widest text-on-surface-variant">01. Layout &amp; Header</h2>
+            </div>
+            <div class="bg-surface-container-low rounded-xl p-8 grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div class="space-y-6">
+                    <!-- Primary Layout -->
+                    <div>
+                        <label class="block text-sm font-semibold text-on-surface mb-2" for="{{ form.layout.id_for_label }}">Primary Layout</label>
+                        <select id="{{ form.layout.id_for_label }}" name="{{ form.layout.name }}" class="form-select">
+                            {% for value, label in form.layout.field.choices %}
+                                <option value="{{ value }}" {% if form.layout.value == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.layout.errors %}
+                            {% for error in form.layout.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Show Breadcrumbs -->
+                    <div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg">
+                        <div>
+                            <p class="font-semibold text-sm">Show Breadcrumbs</p>
+                            <p class="text-xs text-on-surface-variant">Enable navigational trail</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            {{ form.show_breadcrumbs }}
+                            <div class="w-10 h-5 bg-surface-container-high border-none rounded-full" style="background-color: {% if form.show_breadcrumbs.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                <div class="w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all" style="left: {% if form.show_breadcrumbs.value %}52%{% else %}2%{% endif %};"></div>
+                            </div>
+                        </label>
+                    </div>
+                    {% if form.show_breadcrumbs.errors %}
+                        {% for error in form.show_breadcrumbs.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Breadcrumb Style -->
+                    <div>
+                        <label class="block text-sm font-semibold text-on-surface mb-2" for="{{ form.breadcrumb_style.id_for_label }}">Breadcrumb Style</label>
+                        <div class="flex gap-4">
+                            <button type="button" class="breadcrumb-style-btn flex-1 py-3 text-xs font-bold rounded-lg uppercase tracking-wider {% if form.breadcrumb_style.value == 'arrows' %}bg-primary text-on-primary{% else %}bg-surface-container-lowest text-on-surface-variant border border-outline-variant/20{% endif %}" data-style="arrows">Arrows</button>
+                            <button type="button" class="breadcrumb-style-btn flex-1 py-3 text-xs font-bold rounded-lg uppercase tracking-wider {% if form.breadcrumb_style.value == 'slashes' %}bg-primary text-on-primary{% else %}bg-surface-container-lowest text-on-surface-variant border border-outline-variant/20{% endif %}" data-style="slashes">Slashes</button>
+                            <button type="button" class="breadcrumb-style-btn flex-1 py-3 text-xs font-bold rounded-lg uppercase tracking-wider {% if form.breadcrumb_style.value == 'dots' %}bg-primary text-on-primary{% else %}bg-surface-container-lowest text-on-surface-variant border border-outline-variant/20{% endif %}" data-style="dots">Dots</button>
+                        </div>
+                        {{ form.breadcrumb_style }}
+                        {% if form.breadcrumb_style.errors %}
+                            {% for error in form.breadcrumb_style.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Layout Preview -->
+                <div class="bg-white rounded-xl p-6 border border-outline-variant/10 shadow-sm relative overflow-hidden flex flex-col justify-center items-center min-h-[200px]">
+                    <div class="absolute top-4 left-6 text-[10px] text-on-surface-variant flex gap-2">
+                        <span>Home</span> / <span>Catalog</span> / <span class="text-primary font-bold">Current Product</span>
+                    </div>
+                    <div class="w-full h-1 bg-surface-container-low rounded-full mb-4"></div>
+                    <div class="grid grid-cols-2 gap-4 w-full">
+                        <div class="aspect-square bg-surface-container-high rounded-lg flex items-center justify-center">
+                            <span class="material-symbols-outlined text-on-surface-variant">image</span>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="h-4 w-3/4 bg-on-surface-variant/20 rounded"></div>
+                            <div class="h-4 w-1/2 bg-on-surface-variant/10 rounded"></div>
+                            <div class="h-8 w-full bg-primary/20 rounded mt-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 02. Image Gallery -->
+        <section class="mb-16">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="material-symbols-outlined text-on-surface-variant">collections</span>
+                <h2 class="text-xl font-bold uppercase tracking-widest text-on-surface-variant">02. Image Gallery</h2>
+            </div>
+            <div class="bg-surface-container-low rounded-xl p-8 grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div class="space-y-6">
+                    <!-- Gallery Style & Aspect Ratio -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-on-surface mb-2" for="{{ form.gallery_style.id_for_label }}">Gallery Style</label>
+                            <select id="{{ form.gallery_style.id_for_label }}" name="{{ form.gallery_style.name }}" class="form-select">
+                                {% for value, label in form.gallery_style.field.choices %}
+                                    <option value="{{ value }}" {% if form.gallery_style.value == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.gallery_style.errors %}
+                                {% for error in form.gallery_style.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-on-surface mb-2" for="{{ form.image_aspect_ratio.id_for_label }}">Aspect Ratio</label>
+                            <select id="{{ form.image_aspect_ratio.id_for_label }}" name="{{ form.image_aspect_ratio.name }}" class="form-select">
+                                {% for value, label in form.image_aspect_ratio.field.choices %}
+                                    <option value="{{ value }}" {% if form.image_aspect_ratio.value == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.image_aspect_ratio.errors %}
+                                {% for error in form.image_aspect_ratio.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Gallery Feature Toggles -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                            <input type="checkbox" id="{{ form.enable_image_zoom.id_for_label }}" name="{{ form.enable_image_zoom.name }}" class="toggle-checkbox" {% if form.enable_image_zoom.value %}checked{% endif %}>
+                            <span class="text-xs font-semibold">Enable Zoom</span>
+                        </label>
+                        {% if form.enable_image_zoom.errors %}
+                            {% for error in form.enable_image_zoom.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <label class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                            <input type="checkbox" id="{{ form.enable_lightbox.id_for_label }}" name="{{ form.enable_lightbox.name }}" class="toggle-checkbox" {% if form.enable_lightbox.value %}checked{% endif %}>
+                            <span class="text-xs font-semibold">Lightbox View</span>
+                        </label>
+                        {% if form.enable_lightbox.errors %}
+                            {% for error in form.enable_lightbox.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <label class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                            <input type="checkbox" id="{{ form.enable_360_view.id_for_label }}" name="{{ form.enable_360_view.name }}" class="toggle-checkbox" {% if form.enable_360_view.value %}checked{% endif %}>
+                            <span class="text-xs font-semibold">360° View</span>
+                        </label>
+                        {% if form.enable_360_view.errors %}
+                            {% for error in form.enable_360_view.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <label class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                            <input type="checkbox" id="{{ form.enable_video_in_gallery.id_for_label }}" name="{{ form.enable_video_in_gallery.name }}" class="toggle-checkbox" {% if form.enable_video_in_gallery.value %}checked{% endif %}>
+                            <span class="text-xs font-semibold">Video Support</span>
+                        </label>
+                        {% if form.enable_video_in_gallery.errors %}
+                            {% for error in form.enable_video_in_gallery.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Gallery Preview -->
+                <div class="bg-white rounded-xl p-6 border border-outline-variant/10 shadow-sm relative overflow-hidden">
+                    <div class="text-[10px] font-bold text-on-surface-variant mb-3 tracking-widest uppercase">Gallery Preview</div>
+                    <div class="relative w-full aspect-video bg-surface-container-high rounded-lg flex items-center justify-center overflow-hidden">
+                        <img class="object-cover w-full h-full opacity-90" alt="Modern minimalist watch on product background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeMdCrQDBYfSsGxos8goMbndLYoYK55dnapdPvblZoxx8FluHVZwc9MM3Qh37gBb2-FoqUivp6K0ihjaFD2nKVVKsVUpacTEFA9l4SFnrToKn8c1jBnIN-zU1-505sEudiVFFcBgDSjqbB0LCuGR20ZfJouu589BXoD0uVkmM-C5VqGHDytzwtnlE2YDvQcnQU3mWrgW21CscW6rYE1VVhyYfjO392Qf4MCs0DaqRua6AmcF1-WJXguctK9YdoTuIUgiugdYU3FXA"/>
+                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                            <div class="w-2 h-2 rounded-full bg-primary"></div>
+                            <div class="w-2 h-2 rounded-full bg-white/50"></div>
+                            <div class="w-2 h-2 rounded-full bg-white/50"></div>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex gap-2">
+                        <div class="w-12 h-12 rounded border-2 border-primary bg-surface-container-high"></div>
+                        <div class="w-12 h-12 rounded bg-surface-container-low"></div>
+                        <div class="w-12 h-12 rounded bg-surface-container-low"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 03. Product Information -->
+        <section class="mb-16">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="material-symbols-outlined text-on-surface-variant">info</span>
+                <h2 class="text-xl font-bold uppercase tracking-widest text-on-surface-variant">03. Product Information</h2>
+            </div>
+            <div class="bg-surface-container-low rounded-xl p-8 space-y-8">
+                <!-- Info Toggles Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <label class="p-4 bg-surface-container-lowest rounded-lg flex flex-col gap-2 cursor-pointer">
+                        <span class="text-xs font-bold text-on-surface-variant uppercase">Show Vendor</span>
+                        <input type="checkbox" id="{{ form.show_vendor.id_for_label }}" name="{{ form.show_vendor.name }}" class="toggle-checkbox" {% if form.show_vendor.value %}checked{% endif %}>
+                    </label>
+                    <label class="p-4 bg-surface-container-lowest rounded-lg flex flex-col gap-2 cursor-pointer">
+                        <span class="text-xs font-bold text-on-surface-variant uppercase">Show SKU</span>
+                        <input type="checkbox" id="{{ form.show_sku.id_for_label }}" name="{{ form.show_sku.name }}" class="toggle-checkbox" {% if form.show_sku.value %}checked{% endif %}>
+                    </label>
+                    <label class="p-4 bg-surface-container-lowest rounded-lg flex flex-col gap-2 cursor-pointer">
+                        <span class="text-xs font-bold text-on-surface-variant uppercase">Show Availability</span>
+                        <input type="checkbox" id="{{ form.show_availability.id_for_label }}" name="{{ form.show_availability.name }}" class="toggle-checkbox" {% if form.show_availability.value %}checked{% endif %}>
+                    </label>
+                    <label class="p-4 bg-surface-container-lowest rounded-lg flex flex-col gap-2 cursor-pointer">
+                        <span class="text-xs font-bold text-on-surface-variant uppercase">Stock Quantity</span>
+                        <input type="checkbox" id="{{ form.show_stock_quantity.id_for_label }}" name="{{ form.show_stock_quantity.name }}" class="toggle-checkbox" {% if form.show_stock_quantity.value %}checked{% endif %}>
+                    </label>
+                </div>
+
+                <!-- Low Stock Threshold & Additional Toggles -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <label class="block text-sm font-semibold text-on-surface mb-2" for="{{ form.low_stock_threshold.id_for_label }}">Low Stock Threshold</label>
+                        {{ form.low_stock_threshold }}
+                        {% if form.low_stock_threshold.errors %}
+                            {% for error in form.low_stock_threshold.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                        <p class="mt-2 text-xs text-on-surface-variant italic">Display warning badge when stock drops below this value.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-4 items-end">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="{{ form.show_product_type.id_for_label }}" name="{{ form.show_product_type.name }}" class="toggle-checkbox" {% if form.show_product_type.value %}checked{% endif %}>
+                            <span class="text-xs font-semibold">Product Type</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="{{ form.show_tags.id_for_label }}" name="{{ form.show_tags.name }}" class="toggle-checkbox" {% if form.show_tags.value %}checked{% endif %}>
+                            <span class="text-xs font-semibold">Tags</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="{{ form.show_share_buttons.id_for_label }}" name="{{ form.show_share_buttons.name }}" class="toggle-checkbox" {% if form.show_share_buttons.value %}checked{% endif %}>
+                            <span class="text-xs font-semibold">Share Buttons</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 04. Variants & Selection -->
+        <section class="mb-16">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="material-symbols-outlined text-on-surface-variant">layers</span>
+                <h2 class="text-xl font-bold uppercase tracking-widest text-on-surface-variant">04. Variants &amp; Selection</h2>
+            </div>
+            <div class="bg-surface-container-low rounded-xl p-8 grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div class="space-y-6">
+                    <!-- Variant Display Mode -->
+                    <div>
+                        <label class="block text-sm font-semibold text-on-surface mb-2" for="{{ form.variant_display.id_for_label }}">Variant Display Mode</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" class="variant-btn py-3 px-4 text-xs font-bold rounded-lg border {% if form.variant_display.value == 'swatches' %}selected{% else %}bg-surface-container-lowest text-on-surface-variant border-outline-variant/10{% endif %}" data-variant="swatches">Color Swatches</button>
+                            <button type="button" class="variant-btn py-3 px-4 text-xs font-bold rounded-lg border {% if form.variant_display.value == 'dropdown' %}selected{% else %}bg-surface-container-lowest text-on-surface-variant border-outline-variant/10{% endif %}" data-variant="dropdown">Dropdown List</button>
+                            <button type="button" class="variant-btn py-3 px-4 text-xs font-bold rounded-lg border {% if form.variant_display.value == 'buttons' %}selected{% else %}bg-surface-container-lowest text-on-surface-variant border-outline-variant/10{% endif %}" data-variant="buttons">Button Pills</button>
+                            <button type="button" class="variant-btn py-3 px-4 text-xs font-bold rounded-lg border {% if form.variant_display.value == 'images' %}selected{% else %}bg-surface-container-lowest text-on-surface-variant border-outline-variant/10{% endif %}" data-variant="images">Image Swatches</button>
+                        </div>
+                        {{ form.variant_display }}
+                        {% if form.variant_display.errors %}
+                            {% for error in form.variant_display.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Quantity Settings -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-on-surface-variant mb-1 uppercase" for="{{ form.min_quantity.id_for_label }}">Min Qty</label>
+                            {{ form.min_quantity }}
+                            {% if form.min_quantity.errors %}
+                                {% for error in form.min_quantity.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-on-surface-variant mb-1 uppercase" for="{{ form.max_quantity.id_for_label }}">Max Qty</label>
+                            {{ form.max_quantity }}
+                            {% if form.max_quantity.errors %}
+                                {% for error in form.max_quantity.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-on-surface-variant mb-1 uppercase" for="{{ form.quantity_increments.id_for_label }}">Increment</label>
+                            {{ form.quantity_increments }}
+                            {% if form.quantity_increments.errors %}
+                                {% for error in form.quantity_increments.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if form.non_field_errors %}
+                        {% for error in form.non_field_errors %}
+                            <div class="bg-error-container/20 border border-error-container text-error px-4 py-3 rounded-lg text-sm">
+                                <span class="material-symbols-outlined text-sm align-middle">error</span>
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Variant Features -->
+                    <div class="space-y-3">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            {{ form.show_variant_images }}
+                            <span class="text-sm">Link variants to unique images</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            {{ form.show_variant_prices }}
+                            <span class="text-sm">Show distinct prices for variants</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Selector Preview -->
+                <div class="bg-white rounded-xl p-6 border border-outline-variant/10 shadow-sm">
+                    <div class="text-[10px] font-bold text-on-surface-variant mb-4 tracking-widest uppercase">Selector Preview</div>
+                    <div class="space-y-6">
+                        <div>
+                            <p class="text-[11px] font-bold uppercase text-on-surface-variant mb-3">Color: Midnight Black</p>
+                            <div class="flex gap-3">
+                                <div class="w-8 h-8 rounded-full bg-slate-900 ring-2 ring-primary ring-offset-2"></div>
+                                <div class="w-8 h-8 rounded-full bg-slate-300"></div>
+                                <div class="w-8 h-8 rounded-full bg-indigo-200"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-bold uppercase text-on-surface-variant mb-3">Quantity</p>
+                            <div class="flex items-center border border-outline-variant/20 rounded-lg w-fit px-2 py-1">
+                                <button type="button" class="p-1 material-symbols-outlined text-sm">remove</button>
+                                <span class="px-6 font-bold" id="quantity-preview">1</span>
+                                <button type="button" class="p-1 material-symbols-outlined text-sm">add</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 05. Pricing & Cart -->
+        <section class="mb-16">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="material-symbols-outlined text-on-surface-variant">shopping_bag</span>
+                <h2 class="text-xl font-bold uppercase tracking-widest text-on-surface-variant">05. Pricing &amp; Cart</h2>
+            </div>
+            <div class="bg-surface-container-low rounded-xl p-8 space-y-10">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Pricing Display Toggles -->
+                <div class="space-y-4">
+                    <label class="flex items-center justify-between p-3 bg-surface-container-lowest rounded-lg cursor-pointer">
+                        <span class="text-xs font-semibold">Price per unit</span>
+                        <input type="checkbox" id="{{ form.show_price_per_unit.id_for_label }}" name="{{ form.show_price_per_unit.name }}" class="toggle-checkbox" {% if form.show_price_per_unit.value %}checked{% endif %}>
+                    </label>
+                    <label class="flex items-center justify-between p-3 bg-surface-container-lowest rounded-lg cursor-pointer">
+                        <span class="text-xs font-semibold">Savings Amount ($)</span>
+                        <input type="checkbox" id="{{ form.show_savings_amount.id_for_label }}" name="{{ form.show_savings_amount.name }}" class="toggle-checkbox" {% if form.show_savings_amount.value %}checked{% endif %}>
+                    </label>
+                    <label class="flex items-center justify-between p-3 bg-surface-container-lowest rounded-lg cursor-pointer">
+                        <span class="text-xs font-semibold">Savings Percentage (%)</span>
+                        <input type="checkbox" id="{{ form.show_savings_percentage.id_for_label }}" name="{{ form.show_savings_percentage.name }}" class="toggle-checkbox" {% if form.show_savings_percentage.value %}checked{% endif %}>
+                    </label>
+                </div>
+
+                <!-- Button Text Fields -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-2 uppercase" for="{{ form.add_to_cart_button_text.id_for_label }}">Add to Cart Text</label>
+                        <input type="text" id="{{ form.add_to_cart_button_text.id_for_label }}" name="{{ form.add_to_cart_button_text.name }}" class="form-control" value="{{ form.add_to_cart_button_text.value|default:'Add to Cart' }}" maxlength="50">
+                        {% if form.add_to_cart_button_text.errors %}
+                            {% for error in form.add_to_cart_button_text.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-2 uppercase" for="{{ form.buy_now_button_text.id_for_label }}">Buy Now Text</label>
+                        <input type="text" id="{{ form.buy_now_button_text.id_for_label }}" name="{{ form.buy_now_button_text.name }}" class="form-control" value="{{ form.buy_now_button_text.value|default:'Buy Now' }}" maxlength="50">
+                        {% if form.buy_now_button_text.errors %}
+                            {% for error in form.buy_now_button_text.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Sticky Cart Toggles -->
+                <div class="space-y-4">
+                    <label class="flex items-center gap-3 p-3 bg-surface-container-lowest rounded-lg cursor-pointer">
+                        <input type="checkbox" id="{{ form.enable_sticky_add_to_cart.id_for_label }}" name="{{ form.enable_sticky_add_to_cart.name }}" class="toggle-checkbox" {% if form.enable_sticky_add_to_cart.value %}checked{% endif %}>
+                        <span class="text-xs font-semibold uppercase">Sticky Add to Cart Bar</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 bg-surface-container-lowest rounded-lg cursor-pointer">
+                        <input type="checkbox" id="{{ form.show_quantity_in_sticky_bar.id_for_label }}" name="{{ form.show_quantity_in_sticky_bar.name }}" class="toggle-checkbox" {% if form.show_quantity_in_sticky_bar.value %}checked{% endif %}>
+                        <span class="text-xs font-semibold uppercase">Show Qty in Sticky Bar</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 bg-surface-container-lowest rounded-lg cursor-pointer">
+                        <input type="checkbox" id="{{ form.show_buy_now_button.id_for_label }}" name="{{ form.show_buy_now_button.name }}" class="toggle-checkbox" {% if form.show_buy_now_button.value %}checked{% endif %}>
+                        <span class="text-xs font-semibold uppercase">Show Buy Now Button</span>
+                    </label>
+                </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 06. Content Display -->
+        <section class="mb-16">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="material-symbols-outlined text-on-surface-variant">description</span>
+                <h2 class="text-xl font-bold uppercase tracking-widest text-on-surface-variant">06. Content Display</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2 bg-surface-container-low rounded-xl p-8">
+                    <!-- Description Display Style -->
+                    <label class="block text-sm font-semibold text-on-surface mb-4" for="{{ form.description_display.id_for_label }}">Description Display Style</label>
+                    <div class="grid grid-cols-3 gap-4 mb-8">
+                        <button type="button" class="description-display-btn selection-card aspect-video rounded-lg {% if form.description_display.value == 'tabs' %}border-2 border-primary bg-primary/5 selected{% else %}bg-surface-container-lowest border-2 border-transparent{% endif %} flex flex-col items-center justify-center gap-2" data-display="tabs">
+                            <span class="material-symbols-outlined selection-icon">tab</span>
+                            <span class="text-[10px] font-bold">TABS</span>
+                        </button>
+                        <button type="button" class="description-display-btn selection-card aspect-video rounded-lg {% if form.description_display.value == 'accordion' %}border-2 border-primary bg-primary/5 selected{% else %}bg-surface-container-lowest border-2 border-transparent{% endif %} flex flex-col items-center justify-center gap-2" data-display="accordion">
+                            <span class="material-symbols-outlined selection-icon">expand</span>
+                            <span class="text-[10px] font-bold">ACCORDION</span>
+                        </button>
+                        <button type="button" class="description-display-btn selection-card aspect-video rounded-lg {% if form.description_display.value == 'full' %}border-2 border-primary bg-primary/5 selected{% else %}bg-surface-container-lowest border-2 border-transparent{% endif %} flex flex-col items-center justify-center gap-2" data-display="full">
+                            <span class="material-symbols-outlined selection-icon">view_agenda</span>
+                            <span class="text-[10px] font-bold">STACKED</span>
+                        </button>
+                    </div>
+                    {{ form.description_display }}
+                    {% if form.description_display.errors %}
+                        {% for error in form.description_display.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Tab Toggles -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="p-4 bg-surface-container-lowest rounded-lg flex items-center justify-between cursor-pointer">
+                            <span class="text-xs font-semibold">Description Tab</span>
+                            <input type="checkbox" id="{{ form.show_description_tab.id_for_label }}" name="{{ form.show_description_tab.name }}" class="toggle-checkbox" {% if form.show_description_tab.value %}checked{% endif %}>
+                        </label>
+                        <label class="p-4 bg-surface-container-lowest rounded-lg flex items-center justify-between cursor-pointer">
+                            <span class="text-xs font-semibold">Specifications Tab</span>
+                            <input type="checkbox" id="{{ form.show_specifications_tab.id_for_label }}" name="{{ form.show_specifications_tab.name }}" class="toggle-checkbox" {% if form.show_specifications_tab.value %}checked{% endif %}>
+                        </label>
+                        <label class="p-4 bg-surface-container-lowest rounded-lg flex items-center justify-between cursor-pointer">
+                            <span class="text-xs font-semibold">Shipping Tab</span>
+                            <input type="checkbox" id="{{ form.show_shipping_tab.id_for_label }}" name="{{ form.show_shipping_tab.name }}" class="toggle-checkbox" {% if form.show_shipping_tab.value %}checked{% endif %}>
+                        </label>
+                        <label class="p-4 bg-surface-container-lowest rounded-lg flex items-center justify-between cursor-pointer">
+                            <span class="text-xs font-semibold">Reviews Tab</span>
+                            <input type="checkbox" id="{{ form.show_reviews_tab.id_for_label }}" name="{{ form.show_reviews_tab.name }}" class="toggle-checkbox" {% if form.show_reviews_tab.value %}checked{% endif %}>
+                        </label>
+                        <label class="p-4 bg-surface-container-lowest rounded-lg flex items-center justify-between cursor-pointer">
+                            <span class="text-xs font-semibold">Questions Tab</span>
+                            <input type="checkbox" id="{{ form.show_questions_tab.id_for_label }}" name="{{ form.show_questions_tab.name }}" class="toggle-checkbox" {% if form.show_questions_tab.value %}checked{% endif %}>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Editor Tip -->
+                <div class="bg-primary-container/30 border-2 border-primary-container rounded-xl p-8 flex flex-col justify-center">
+                    <span class="material-symbols-outlined text-primary text-4xl mb-4">lightbulb</span>
+                    <h3 class="font-bold text-on-primary-container text-lg mb-2">Editor Tip</h3>
+                    <p class="text-sm text-on-primary-container/80 leading-relaxed">Tabs are best for products with technical specs. Use Accordions for mobile-first shopping experiences.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 07. Trust Signals -->
+        <section class="mb-16">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="material-symbols-outlined text-on-surface-variant">verified_user</span>
+                <h2 class="text-xl font-bold uppercase tracking-widest text-on-surface-variant">07. Trust Signals</h2>
+            </div>
+            <div class="bg-surface-container-low rounded-xl p-8 grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div class="space-y-4">
+                    <label class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                        <input type="checkbox" id="{{ form.show_trust_badges.id_for_label }}" name="{{ form.show_trust_badges.name }}" class="toggle-checkbox" {% if form.show_trust_badges.value %}checked{% endif %}>
+                        <div class="flex flex-col">
+                            <span class="text-xs font-bold uppercase">Show Trust Badges</span>
+                            <span class="text-[10px] text-on-surface-variant">Mastercard, Visa, PayPal icons</span>
+                        </div>
+                    </label>
+                    <label class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                        <input type="checkbox" id="{{ form.show_secure_checkout_badge.id_for_label }}" name="{{ form.show_secure_checkout_badge.name }}" class="toggle-checkbox" {% if form.show_secure_checkout_badge.value %}checked{% endif %}>
+                        <span class="text-xs font-bold uppercase">Secure Checkout Badge</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                        <input type="checkbox" id="{{ form.show_money_back_guarantee.id_for_label }}" name="{{ form.show_money_back_guarantee.name }}" class="toggle-checkbox" {% if form.show_money_back_guarantee.value %}checked{% endif %}>
+                        <span class="text-xs font-bold uppercase">Money Back Guarantee</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                        <input type="checkbox" id="{{ form.show_free_shipping_badge.id_for_label }}" name="{{ form.show_free_shipping_badge.name }}" class="toggle-checkbox" {% if form.show_free_shipping_badge.value %}checked{% endif %}>
+                        <span class="text-xs font-bold uppercase">Free Shipping Badge</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                        <input type="checkbox" id="{{ form.show_warranty_info.id_for_label }}" name="{{ form.show_warranty_info.name }}" class="toggle-checkbox" {% if form.show_warranty_info.value %}checked{% endif %}>
+                        <span class="text-xs font-bold uppercase">Warranty Info</span>
+                    </label>
+
+                    <!-- Badge Position -->
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-2 uppercase" for="{{ form.trust_badge_position.id_for_label }}">Badge Position</label>
+                        <select id="{{ form.trust_badge_position.id_for_label }}" name="{{ form.trust_badge_position.name }}" class="form-select">
+                            {% for value, label in form.trust_badge_position.field.choices %}
+                                <option value="{{ value }}" {% if form.trust_badge_position.value == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.trust_badge_position.errors %}
+                            {% for error in form.trust_badge_position.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Trust Badge Preview -->
+                <div class="bg-white rounded-xl p-6 border border-outline-variant/10 shadow-sm flex flex-col items-center justify-center">
+                    <div class="text-[10px] font-bold text-on-surface-variant mb-6 tracking-widest uppercase self-start">Trust Badge Preview</div>
+                    <div class="flex items-center gap-6 opacity-80 mb-6">
+                        <span class="material-symbols-outlined text-3xl text-slate-400">payments</span>
+                        <span class="material-symbols-outlined text-3xl text-slate-400">verified</span>
+                        <span class="material-symbols-outlined text-3xl text-slate-400">lock</span>
+                    </div>
+                    <div class="px-6 py-2 bg-green-50 text-green-700 text-[10px] font-bold rounded-full uppercase flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">check_circle</span>
+                        30-Day Money Back Guarantee
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 08. Recommendations -->
+        <section class="mb-16">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="material-symbols-outlined text-on-surface-variant">auto_awesome</span>
+                <h2 class="text-xl font-bold uppercase tracking-widest text-on-surface-variant">08. Recommendations</h2>
+            </div>
+            <div class="bg-surface-container-low rounded-xl p-8 grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div class="space-y-6">
+                    <!-- Related Products -->
+                    <div class="p-5 bg-surface-container-lowest rounded-xl border-l-4 border-primary">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-bold uppercase">Related Products</h3>
+                            <input type="checkbox" id="{{ form.show_related_products.id_for_label }}" name="{{ form.show_related_products.name }}" class="toggle-checkbox" {% if form.show_related_products.value %}checked{% endif %}>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-on-surface mb-2" for="{{ form.related_products_title.id_for_label }}">Title</label>
+                                {{ form.related_products_title }}
+                                {% if form.related_products_title.errors %}
+                                    {% for error in form.related_products_title.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="flex-1">
+                                    <label class="text-[10px] font-bold text-on-surface-variant block mb-1">Items Count</label>
+                                    <input type="number" id="{{ form.related_products_count.id_for_label }}" name="{{ form.related_products_count.name }}" class="form-control" value="{{ form.related_products_count.value|default:'4' }}" min="1" max="20">
+                                    {% if form.related_products_count.errors %}
+                                        {% for error in form.related_products_count.errors %}
+                                            <p class="error-message">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="flex-1">
+                                    <label class="text-[10px] font-bold text-on-surface-variant block mb-1">Algorithm</label>
+                                    <select id="{{ form.related_products_algorithm.id_for_label }}" name="{{ form.related_products_algorithm.name }}" class="form-select">
+                                        {% for value, label in form.related_products_algorithm.field.choices %}
+                                            <option value="{{ value }}" {% if form.related_products_algorithm.value == value %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% if form.related_products_algorithm.errors %}
+                                        {% for error in form.related_products_algorithm.errors %}
+                                            <p class="error-message">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recently Viewed -->
+                    <div class="p-5 bg-surface-container-lowest rounded-xl border-l-4 border-secondary">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-sm font-bold uppercase">Recently Viewed</h3>
+                            <input type="checkbox" id="{{ form.show_recently_viewed.id_for_label }}" name="{{ form.show_recently_viewed.name }}" class="toggle-checkbox" {% if form.show_recently_viewed.value %}checked{% endif %}>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-on-surface mb-2" for="{{ form.recently_viewed_title.id_for_label }}">Title</label>
+                            {{ form.recently_viewed_title }}
+                            {% if form.recently_viewed_title.errors %}
+                                {% for error in form.recently_viewed_title.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="mt-4">
+                            <label class="text-[10px] font-bold text-on-surface-variant block mb-1">Items Count</label>
+                            <input type="number" id="{{ form.recently_viewed_count.id_for_label }}" name="{{ form.recently_viewed_count.name }}" class="form-control" value="{{ form.recently_viewed_count.value|default:'4' }}" min="1" max="20">
+                            {% if form.recently_viewed_count.errors %}
+                                {% for error in form.recently_viewed_count.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Cards -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-surface-container-highest rounded-lg p-4 flex flex-col items-center justify-center text-center">
+                        <span class="material-symbols-outlined text-on-surface-variant mb-2">interests</span>
+                        <p class="text-[10px] font-bold text-on-surface-variant uppercase">Dynamic Upselling</p>
+                    </div>
+                    <div class="bg-surface-container-highest rounded-lg p-4 flex flex-col items-center justify-center text-center">
+                        <span class="material-symbols-outlined text-on-surface-variant mb-2">history</span>
+                        <p class="text-[10px] font-bold text-on-surface-variant uppercase">User History Tracking</p>
+                    </div>
+                    <div class="col-span-2 bg-white rounded-lg p-4 border border-outline-variant/10">
+                        <p class="text-[10px] font-bold text-on-surface-variant mb-4 uppercase">Carousel Preview</p>
+                        <div class="flex gap-2">
+                            <div class="flex-1 aspect-[3/4] bg-surface-container-low rounded"></div>
+                            <div class="flex-1 aspect-[3/4] bg-surface-container-low rounded"></div>
+                            <div class="flex-1 aspect-[3/4] bg-surface-container-low rounded"></div>
+                            <div class="flex-1 aspect-[3/4] bg-surface-container-low rounded"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 09. Delivery & Shipping -->
+        <section class="mb-16">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="material-symbols-outlined text-on-surface-variant">local_shipping</span>
+                <h2 class="text-xl font-bold uppercase tracking-widest text-on-surface-variant">09. Delivery &amp; Shipping</h2>
+            </div>
+            <div class="bg-surface-container-low rounded-xl p-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <label class="p-6 bg-surface-container-lowest rounded-xl text-center space-y-4 cursor-pointer">
+                        <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">timer</span>
+                        <h4 class="text-xs font-bold uppercase tracking-tight">Estimated Delivery</h4>
+                        <input type="checkbox" id="{{ form.show_estimated_delivery.id_for_label }}" name="{{ form.show_estimated_delivery.name }}" class="toggle-checkbox" {% if form.show_estimated_delivery.value %}checked{% endif %}>
+                        <p class="text-[10px] text-on-surface-variant">Displays dynamic dates based on user location.</p>
+                    </label>
+                    <label class="p-6 bg-surface-container-lowest rounded-xl text-center space-y-4 cursor-pointer">
+                        <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">calculate</span>
+                        <h4 class="text-xs font-bold uppercase tracking-tight">Shipping Calculator</h4>
+                        <input type="checkbox" id="{{ form.show_shipping_calculator.id_for_label }}" name="{{ form.show_shipping_calculator.name }}" class="toggle-checkbox" {% if form.show_shipping_calculator.value %}checked{% endif %}>
+                        <p class="text-[10px] text-on-surface-variant">In-page ZIP code calculation tool.</p>
+                    </label>
+                    <label class="p-6 bg-surface-container-lowest rounded-xl text-center space-y-4 cursor-pointer">
+                        <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">store</span>
+                        <h4 class="text-xs font-bold uppercase tracking-tight">Store Pickup</h4>
+                        <input type="checkbox" id="{{ form.show_store_pickup_option.id_for_label }}" name="{{ form.show_store_pickup_option.name }}" class="toggle-checkbox" {% if form.show_store_pickup_option.value %}checked{% endif %}>
+                        <p class="text-[10px] text-on-surface-variant">Check local inventory availability.</p>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- 10. Buttons & Interactions -->
+        <section class="mb-24">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="material-symbols-outlined text-on-surface-variant">touch_app</span>
+                <h2 class="text-xl font-bold uppercase tracking-widest text-on-surface-variant">10. Buttons &amp; Interactions</h2>
+            </div>
+            <div class="bg-surface-container-low rounded-xl p-8 flex flex-col md:flex-row gap-6">
+                <div class="flex-1 p-6 bg-surface-container-lowest rounded-xl flex items-center justify-between shadow-sm">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-pink-500">favorite</span>
+                        </div>
+                        <div>
+                            <p class="font-bold text-sm">Wishlist Button</p>
+                            <p class="text-xs text-on-surface-variant">Allow customers to save for later</p>
+                        </div>
+                    </div>
+                    <input type="checkbox" id="{{ form.show_wishlist_button.id_for_label }}" name="{{ form.show_wishlist_button.name }}" class="toggle-checkbox" {% if form.show_wishlist_button.value %}checked{% endif %}>
+                </div>
+                <div class="flex-1 p-6 bg-surface-container-lowest rounded-xl flex items-center justify-between shadow-sm">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-blue-500">compare_arrows</span>
+                        </div>
+                        <div>
+                            <p class="font-bold text-sm">Compare Button</p>
+                            <p class="text-xs text-on-surface-variant">Enable side-by-side comparison</p>
+                        </div>
+                    </div>
+                    <input type="checkbox" id="{{ form.show_compare_button.id_for_label }}" name="{{ form.show_compare_button.name }}" class="toggle-checkbox" {% if form.show_compare_button.value %}checked{% endif %}>
+                </div>
+            </div>
+        </section>
+
+    </form>
+</main>
+
+<!-- Contextual Preview Bar -->
+<div class="fixed bottom-0 left-0 w-full bg-on-surface text-on-primary py-4 px-8 z-40 flex justify-between items-center shadow-2xl">
+    <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+            <span class="material-symbols-outlined text-primary text-xl">auto_fix_high</span>
+        </div>
+        <div>
+            <p class="text-xs font-bold uppercase opacity-60">Global Setting</p>
+            <p class="text-sm font-semibold">Editing: {% if is_edit %}{{ object }}{% else %}New Configuration{% endif %}</p>
+        </div>
+    </div>
+    <div class="flex items-center gap-6">
+        <div class="hidden md:flex flex-col items-end">
+            <p class="text-[10px] font-bold uppercase tracking-widest">Last Modified</p>
+            <p class="text-xs font-mono">{% if is_edit and object.updated_at %}{{ object.updated_at|date:"M d, Y H:i" }}{% else %}Just now{% endif %}</p>
+        </div>
+        <button type="submit" form="product-form" class="bg-primary hover:bg-primary-dim text-on-primary font-bold px-8 py-3 rounded-lg text-sm shadow-xl transition-all active:scale-95">
+            Save &amp; Publish
+        </button>
+    </div>
+</div>
+
+
+</div>
+<!-- JavaScript for Dynamic Interactions -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // === Breadcrumb Style Selection ===
+        const breadcrumbBtns = document.querySelectorAll('.breadcrumb-style-btn');
+        const breadcrumbInput = document.getElementById('{{ form.breadcrumb_style.id_for_label }}');
+
+        breadcrumbBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                breadcrumbBtns.forEach(function(b) {
+                    b.classList.remove('bg-primary', 'text-on-primary');
+                    b.classList.add('bg-surface-container-lowest', 'text-on-surface-variant', 'border', 'border-outline-variant/20');
+                });
+
+                this.classList.remove('bg-surface-container-lowest', 'text-on-surface-variant', 'border', 'border-outline-variant/20');
+                this.classList.add('bg-primary', 'text-on-primary');
+
+                if (breadcrumbInput) {
+                    breadcrumbInput.value = this.getAttribute('data-style');
+                }
+                updatePreview();
+            });
+        });
+
+        // === Variant Display Selection ===
+        const variantBtns = document.querySelectorAll('.variant-btn');
+        const variantInput = document.getElementById('{{ form.variant_display.id_for_label }}');
+
+        variantBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                variantBtns.forEach(function(b) {
+                    b.classList.remove('selected');
+                    b.classList.add('bg-surface-container-lowest', 'text-on-surface-variant', 'border-outline-variant/10');
+                });
+
+                this.classList.add('selected');
+                this.classList.remove('bg-surface-container-lowest', 'text-on-surface-variant', 'border-outline-variant/10');
+
+                if (variantInput) {
+                    variantInput.value = this.getAttribute('data-variant');
+                }
+                updatePreview();
+            });
+        });
+
+        // === Description Display Selection ===
+        const displayBtns = document.querySelectorAll('.description-display-btn');
+        const displayInput = document.getElementById('{{ form.description_display.id_for_label }}');
+
+        displayBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                displayBtns.forEach(function(b) {
+                    b.classList.remove('selected', 'border-primary', 'bg-primary/5');
+                    b.classList.add('border-transparent');
+                    b.querySelector('.selection-icon')?.classList.remove('text-primary');
+                });
+
+                this.classList.add('selected', 'border-2', 'border-primary', 'bg-primary/5');
+                this.classList.remove('border-transparent');
+                this.querySelector('.selection-icon')?.classList.add('text-primary');
+
+                if (displayInput) {
+                    displayInput.value = this.getAttribute('data-display');
+                }
+                updatePreview();
+            });
+        });
+
+        // === Quantity Preview Update ===
+        const minQtyInput = document.getElementById('{{ form.min_quantity.id_for_label }}');
+        const maxQtyInput = document.getElementById('{{ form.max_quantity.id_for_label }}');
+        const qtyPreview = document.getElementById('quantity-preview');
+
+        function updateQuantityPreview() {
+            if (minQtyInput && qtyPreview) {
+                qtyPreview.textContent = minQtyInput.value || '1';
+            }
+        }
+
+        if (minQtyInput) {
+            minQtyInput.addEventListener('input', function() {
+                updateQuantityPreview();
+                updatePreview();
+            });
+        }
+
+        updateQuantityPreview();
+
+        // === Toggle Switch Styling ===
+        const toggleCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+        toggleCheckboxes.forEach(function(checkbox) {
+            checkbox.classList.add('toggle-checkbox');
+
+            checkbox.addEventListener('change', function() {
+                // Handle custom toggle divs
+                const toggleDiv = this.parentElement.querySelector('div.w-10.h-5');
+                if (toggleDiv) {
+                    const knob = toggleDiv.querySelector('div.w-4.h-4');
+                    if (knob) {
+                        knob.style.left = this.checked ? '52%' : '2%';
+                    }
+                    toggleDiv.style.backgroundColor = this.checked ? '#0053db' : '#d9e4ea';
+                }
+
+                // Handle card-style toggles
+                const card = this.closest('.p-4.bg-surface-container-lowest');
+                if (card && this.checked) {
+                    card.style.backgroundColor = '#dbe1ff';
+                } else if (card) {
+                    card.style.backgroundColor = '';
+                }
+                updatePreview();
+            });
+        });
+
+        // === Initialize Card Toggles ===
+        document.querySelectorAll('input[type="checkbox"]').forEach(function(checkbox) {
+            const card = checkbox.closest('.p-4.bg-surface-container-lowest');
+            if (card && checkbox.checked) {
+                card.style.backgroundColor = '#dbe1ff';
+            }
+        });
+
+        // === Input Change Detection for Live Preview ===
+        const allInputs = document.querySelectorAll('input[type="text"], input[type="number"], select');
+        allInputs.forEach(function(input) {
+            input.addEventListener('input', function() {
+                updatePreview();
+            });
+        });
+
+        // === Live Preview Update Function ===
+        function updatePreview() {
+            // Update breadcrumb preview
+            const breadcrumbStyle = document.getElementById('{{ form.breadcrumb_style.id_for_label }}')?.value || 'slashes';
+            const breadcrumbPreview = document.querySelector('.absolute.top-4.left-6.text-\\[10px\\]');
+            if (breadcrumbPreview) {
+                const separator = breadcrumbStyle === 'arrows' ? ' › ' : breadcrumbStyle === 'dots' ? ' • ' : ' / ';
+                breadcrumbPreview.innerHTML = `<span>Home</span>${separator}<span>Catalog</span>${separator}<span class="text-primary font-bold">Current Product</span>`;
+            }
+
+            // Update quantity preview
+            const minQty = document.getElementById('{{ form.min_quantity.id_for_label }}')?.value || '1';
+            const quantityPreviewEl = document.getElementById('quantity-preview');
+            if (quantityPreviewEl) {
+                quantityPreviewEl.textContent = minQty;
+            }
+
+            // Update button text preview
+            const addToCartText = document.getElementById('{{ form.add_to_cart_button_text.id_for_label }}')?.value || 'Add to Cart';
+            const buyNowText = document.getElementById('{{ form.buy_now_button_text.id_for_label }}')?.value || 'Buy Now';
+
+            // Update related products title preview
+            const relatedTitle = document.getElementById('{{ form.related_products_title.id_for_label }}')?.value || 'You May Also Like';
+            const relatedCount = document.getElementById('{{ form.related_products_count.id_for_label }}')?.value || '4';
+
+            // Update recently viewed title preview
+            const viewedTitle = document.getElementById('{{ form.recently_viewed_title.id_for_label }}')?.value || 'Recently Viewed';
+
+            // Update low stock threshold preview
+            const lowStockThreshold = document.getElementById('{{ form.low_stock_threshold.id_for_label }}')?.value || '5';
+
+            // Update trust badge preview based on checkbox states
+            const showTrustBadges = document.getElementById('{{ form.show_trust_badges.id_for_label }}')?.checked;
+            const showSecureBadge = document.getElementById('{{ form.show_secure_checkout_badge.id_for_label }}')?.checked;
+            const showMoneyBack = document.getElementById('{{ form.show_money_back_guarantee.id_for_label }}')?.checked;
+            const showFreeShipping = document.getElementById('{{ form.show_free_shipping_badge.id_for_label }}')?.checked;
+            const showWarranty = document.getElementById('{{ form.show_warranty_info.id_for_label }}')?.checked;
+
+            const trustBadgePreview = document.querySelector('.bg-white.rounded-xl.p-6.border.border-outline-variant\\/10.shadow-sm.flex.flex-col.items-center.justify-center');
+            if (trustBadgePreview) {
+                const badgeContainer = trustBadgePreview.querySelector('.flex.items-center.gap-6.opacity-80.mb-6');
+                const guaranteeBadge = trustBadgePreview.querySelector('.px-6.py-2.bg-green-50.text-green-700.text-\\[10px\\].font-bold.rounded-full.uppercase.flex.items-center.gap-2');
+
+                if (badgeContainer) {
+                    // Update badge visibility based on checkboxes
+                    const badges = badgeContainer.querySelectorAll('span.material-symbols-outlined');
+                    if (badges.length >= 3) {
+                        badges[0].style.display = showTrustBadges ? 'inline-block' : 'none'; // payments
+                        badges[1].style.display = showSecureBadge ? 'inline-block' : 'none'; // verified
+                        badges[2].style.display = showWarranty ? 'inline-block' : 'none'; // lock
+                    }
+                }
+
+                if (guaranteeBadge) {
+                    guaranteeBadge.style.display = showMoneyBack ? 'flex' : 'none';
+                }
+            }
+
+            // Update delivery/shipping preview based on checkbox states
+            const showEstimatedDelivery = document.getElementById('{{ form.show_estimated_delivery.id_for_label }}')?.checked;
+            const showShippingCalculator = document.getElementById('{{ form.show_shipping_calculator.id_for_label }}')?.checked;
+            const showStorePickup = document.getElementById('{{ form.show_store_pickup_option.id_for_label }}')?.checked;
+
+            const deliveryCards = document.querySelectorAll('.p-6.bg-surface-container-lowest.rounded-xl.text-center.space-y-4.cursor-pointer');
+            if (deliveryCards.length >= 3) {
+                deliveryCards[0].style.opacity = showEstimatedDelivery ? '1' : '0.5';
+                deliveryCards[1].style.opacity = showShippingCalculator ? '1' : '0.5';
+                deliveryCards[2].style.opacity = showStorePickup ? '1' : '0.5';
+            }
+        }
+
+        // === Hide Messages After 5 Seconds ===
+        setTimeout(function() {
+            const messages = document.querySelectorAll('.fixed.top-20');
+            messages.forEach(function(msg) {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    msg.remove();
+                }, 500);
+            });
+        }, 5000);
+
+        // === Form Change Detection ===
+        const form = document.getElementById('product-form');
+        let formChanged = false;
+
+        form.addEventListener('input', function() {
+            formChanged = true;
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (formChanged) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // === Quantity Validation Visual Feedback ===
+        if (minQtyInput && maxQtyInput) {
+            minQtyInput.addEventListener('change', function() {
+                if (maxQtyInput && parseInt(this.value) > parseInt(maxQtyInput.value)) {
+                    this.classList.add('form-field-error');
+                } else {
+                    this.classList.remove('form-field-error');
+                }
+            });
+
+            maxQtyInput.addEventListener('change', function() {
+                if (minQtyInput && parseInt(this.value) < parseInt(minQtyInput.value)) {
+                    this.classList.add('form-field-error');
+                } else {
+                    this.classList.remove('form-field-error');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,933 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{{ title }} | Store Admin</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "background": "#f7f9fb",
+                        "tertiary-container": "#e3dbfd",
+                        "primary-fixed-dim": "#c7d3ff",
+                        "outline-variant": "#a9b4b9",
+                        "on-secondary-container": "#435368",
+                        "on-primary-fixed": "#003798",
+                        "secondary-fixed-dim": "#c5d6f0",
+                        "on-tertiary-fixed-variant": "#5b5672",
+                        "error-container": "#fe8983",
+                        "tertiary-dim": "#54506b",
+                        "error": "#9f403d",
+                        "secondary-fixed": "#d3e4fe",
+                        "tertiary": "#605c78",
+                        "outline": "#717c82",
+                        "on-error": "#fff7f6",
+                        "inverse-primary": "#618bff",
+                        "surface-dim": "#cfdce3",
+                        "on-tertiary-fixed": "#3e3a54",
+                        "on-surface-variant": "#566166",
+                        "on-tertiary-container": "#514d68",
+                        "surface-container": "#e8eff3",
+                        "on-secondary-fixed": "#314055",
+                        "secondary-dim": "#44546a",
+                        "secondary-container": "#d3e4fe",
+                        "on-primary-container": "#0048bf",
+                        "surface-container-high": "#e1e9ee",
+                        "secondary": "#506076",
+                        "primary-fixed": "#dbe1ff",
+                        "surface": "#f7f9fb",
+                        "inverse-on-surface": "#9a9d9f",
+                        "tertiary-fixed": "#e3dbfd",
+                        "surface-bright": "#f7f9fb",
+                        "on-tertiary": "#fcf7ff",
+                        "primary": "#0053db",
+                        "on-primary": "#f8f7ff",
+                        "primary-container": "#dbe1ff",
+                        "on-surface": "#2a3439",
+                        "surface-container-low": "#f0f4f7",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#4d5d73",
+                        "on-error-container": "#752121",
+                        "on-primary-fixed-variant": "#0050d4",
+                        "surface-tint": "#0053db",
+                        "on-secondary": "#f7f9ff",
+                        "on-background": "#2a3439",
+                        "tertiary-fixed-dim": "#d4cdee",
+                        "primary-dim": "#0048c1",
+                        "inverse-surface": "#0b0f10",
+                        "error-dim": "#4e0309",
+                        "surface-container-highest": "#d9e4ea",
+                        "surface-variant": "#d9e4ea"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+        }
+
+        /* Form Error States */
+        .form-field-error {
+            border: 2px solid #9f403d !important;
+            background-color: #fef2f2 !important;
+        }
+        .error-message {
+            color: #9f403d;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Toggle Switch Styling */
+        .toggle-checkbox {
+            opacity: 0;
+            position: absolute;
+        }
+
+        /* Range Input */
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 6px;
+            background: #d9e4ea;
+            border-radius: 3px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #0053db;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Performance Score Circle */
+        .score-circle {
+            transition: all 0.5s ease;
+        }
+
+        /* Conditional Section Opacity */
+        .conditional-section {
+            transition: opacity 0.3s ease;
+        }
+        .conditional-section.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+
+<!-- Django Messages Framework -->
+{% if messages %}
+<div class="fixed top-24 right-8 z-50 space-y-2">
+    {% for message in messages %}
+    <div class="flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg" style="background-color: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#9f403d{% else %}#ffffff{% endif %}; color: {% if message.tags == 'error' %}#fff7f6{% else %}#2a3439{% endif %};">
+        <span class="material-symbols-outlined text-sm">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span class="font-medium text-sm">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- TopAppBar -->
+<nav class="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm glass-nav">
+    <div class="flex items-center justify-between px-8 py-4 max-w-full mx-auto">
+        <div class="flex items-center gap-8">
+            <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{{ title }}</span>
+            <div class="hidden md:flex items-center gap-6">
+                <a class="text-blue-700 dark:text-blue-400 font-bold border-b-2 border-blue-700 dark:border-blue-400 pb-1 hover:text-blue-600 transition-colors" href="#caching">Caching</a>
+                <a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 transition-colors" href="#images">Images</a>
+                <a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 transition-colors" href="#minification">Minification</a>
+                <a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 transition-colors" href="#cdn">CDN</a>
+                <a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 transition-colors" href="#database">Database</a>
+            </div>
+            {% if is_edit %}
+            <span class="px-3 py-1 bg-{% if performance_grade_color == 'emerald' %}emerald{% elif performance_grade_color == 'green' %}green{% elif performance_grade_color == 'yellow' %}yellow{% elif performance_grade_color == 'orange' %}orange{% else %}red{% endif %}-100 text-{% if performance_grade_color == 'emerald' %}emerald{% elif performance_grade_color == 'green' %}green{% elif performance_grade_color == 'yellow' %}yellow{% elif performance_grade_color == 'orange' %}orange{% else %}red{% endif %}-700 text-xs font-bold rounded-full">
+                Performance Grade: {{ performance_grade|default:'N/A' }}
+            </span>
+            {% endif %}
+        </div>
+        <div class="flex items-center gap-4">
+            <button type="button" class="px-5 py-2 text-sm font-semibold text-on-surface-variant hover:text-on-surface transition-colors active:scale-95 duration-150 ease-in-out" onclick="window.location.href='{% url 'manage_performance_settings' %}'">Discard</button>
+            <button type="submit" form="performance-form" class="px-6 py-2 bg-primary hover:bg-primary-dim text-on-primary text-sm font-bold rounded-md shadow-sm active:scale-95 duration-150 ease-in-out">
+                {% if is_edit %}Save Changes{% else %}Create Settings{% endif %}
+            </button>
+            {% if is_edit %}
+            <a href="{% url 'clear_performance_cache' %}" class="px-5 py-2 text-sm font-semibold text-orange-600 hover:text-orange-700 transition-colors active:scale-95 duration-150 ease-in-out" title="Clear all performance caches">
+                <span class="material-symbols-outlined text-sm align-middle">delete_sweep</span>
+                Clear Cache
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-8 py-12 space-y-24">
+    <form id="performance-form" method="post" action="{{ action_url }}" novalidate>
+        {% csrf_token %}
+
+        <!-- Header Section -->
+        <header class="space-y-4">
+            <h1 class="text-5xl font-extrabold tracking-tight text-on-surface">Performance Settings</h1>
+            <p class="text-lg text-on-surface-variant max-w-3xl leading-relaxed">Adjust your architectural engine. These settings directly impact the rendering speed, resource management, and global delivery of your digital assets.</p>
+            {% if is_edit and enabled_optimizations_count %}
+            <p class="text-xs text-on-surface-variant mt-4">
+                <span class="material-symbols-outlined text-xs align-middle">tune</span>
+                {{ enabled_optimizations_count }} optimizations enabled • Performance Score: {{ performance_score|default:0 }}/100
+            </p>
+            {% endif %}
+        </header>
+
+        <!-- 1. Caching Configuration -->
+        <section class="space-y-8" id="caching">
+            <div class="flex items-baseline justify-between border-b border-outline-variant/20 pb-4">
+                <h2 class="text-3xl font-bold tracking-tight">Caching Configuration</h2>
+                <span class="text-sm font-medium text-primary uppercase tracking-widest">Storage Tier</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Page Cache Card -->
+                <div class="lg:col-span-2 bg-surface-container-low p-8 rounded-xl space-y-6">
+                    <div class="flex items-center justify-between">
+                        <label class="text-sm font-semibold text-on-surface-variant uppercase tracking-wider" for="{{ form.enable_page_cache.id_for_label }}">Page Cache</label>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            {{ form.enable_page_cache }}
+                            <div class="w-11 h-6 bg-surface-container-highest rounded-full relative transition-colors" style="background-color: {% if form.enable_page_cache.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                <span class="absolute w-4 h-4 bg-white rounded-full transition-all" style="{% if form.enable_page_cache.value %}left: 28px;{% else %}left: 4px;{% endif %} top: 4px;"></span>
+                            </div>
+                        </label>
+                    </div>
+                    {% if form.enable_page_cache.errors %}
+                        {% for error in form.enable_page_cache.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    <div class="space-y-2 {% if not form.enable_page_cache.value %}conditional-section disabled{% endif %}" id="page-cache-section">
+                        <label class="block text-xs font-bold text-on-surface-variant" for="{{ form.cache_duration_minutes.id_for_label }}">CACHE DURATION (MINUTES)</label>
+                        {{ form.cache_duration_minutes }}
+                        {% if form.cache_duration_minutes.errors %}
+                            {% for error in form.cache_duration_minutes.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Database Cache Card -->
+                <div class="bg-surface-container-low p-8 rounded-xl flex flex-col justify-between">
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-4 uppercase" for="{{ form.enable_database_query_cache.id_for_label }}">Database Cache</label>
+                        <p class="text-sm text-on-surface-variant mb-6">Enable query result caching to reduce expensive DB hits.</p>
+                    </div>
+                    {{ form.enable_database_query_cache }}
+                    {% if form.enable_database_query_cache.errors %}
+                        {% for error in form.enable_database_query_cache.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Browser Cache Card -->
+                <div class="bg-surface-container-low p-8 rounded-xl flex flex-col justify-between">
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-4 uppercase" for="{{ form.enable_browser_cache.id_for_label }}">Browser Cache</label>
+                        {{ form.browser_cache_duration_days }}
+                        <p class="text-xs text-on-surface-variant">Expiration in days</p>
+                        {% if form.browser_cache_duration_days.errors %}
+                            {% for error in form.browser_cache_duration_days.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cache Type Toggles -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <label class="flex items-center p-6 bg-surface-container-low rounded-lg gap-4 cursor-pointer">
+                    {{ form.cache_products }}
+                    <span class="text-sm font-medium">Cache Products</span>
+                </label>
+                <label class="flex items-center p-6 bg-surface-container-low rounded-lg gap-4 cursor-pointer">
+                    {{ form.cache_categories }}
+                    <span class="text-sm font-medium">Cache Categories</span>
+                </label>
+                <label class="flex items-center p-6 bg-surface-container-low rounded-lg gap-4 cursor-pointer">
+                    {{ form.cache_settings }}
+                    <span class="text-sm font-medium">Cache Settings</span>
+                </label>
+            </div>
+        </section>
+
+        <!-- 2. Image Optimization & Impact Preview -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-12" id="images">
+            <div class="lg:col-span-7 space-y-8">
+                <div class="flex items-baseline justify-between border-b border-outline-variant/20 pb-4">
+                    <h2 class="text-3xl font-bold tracking-tight">Image Optimization</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <label class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg cursor-pointer">
+                            <span class="text-sm font-semibold">Enable Lazy Loading</span>
+                            {{ form.enable_lazy_loading }}
+                        </label>
+                        {% if form.enable_lazy_loading.errors %}
+                            {% for error in form.enable_lazy_loading.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <label class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg cursor-pointer">
+                            <span class="text-sm font-semibold">Convert to WebP</span>
+                            {{ form.enable_webp }}
+                        </label>
+                        {% if form.enable_webp.errors %}
+                            {% for error in form.enable_webp.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="space-y-2 {% if not form.enable_webp.value %}conditional-section disabled{% endif %}" id="webp-section">
+                            <div class="flex justify-between">
+                                <label class="text-xs font-bold text-on-surface-variant uppercase" for="{{ form.webp_quality.id_for_label }}">WebP Quality</label>
+                                <span class="text-xs font-bold text-primary" id="webp-quality-display">{{ form.webp_quality.value|default:85 }}%</span>
+                            </div>
+                            {{ form.webp_quality }}
+                            {% if form.webp_quality.errors %}
+                                {% for error in form.webp_quality.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <label class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg cursor-pointer">
+                            <span class="text-sm font-semibold">Image Compression</span>
+                            {{ form.enable_image_compression }}
+                        </label>
+                        {% if form.enable_image_compression.errors %}
+                            {% for error in form.enable_image_compression.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="space-y-2 {% if not form.enable_image_compression.value %}conditional-section disabled{% endif %}" id="compression-section">
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase" for="{{ form.image_quality.id_for_label }}">Image Quality</label>
+                            {{ form.image_quality }}
+                            <div class="flex justify-between text-[10px] text-on-surface-variant mt-1">
+                                <span>1%</span>
+                                <span id="image-quality-display">{{ form.image_quality.value|default:85 }}%</span>
+                                <span>100%</span>
+                            </div>
+                            {% if form.image_quality.errors %}
+                                {% for error in form.image_quality.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold text-on-surface-variant uppercase" for="{{ form.max_image_width.id_for_label }}">Max Image Width (PX)</label>
+                            {{ form.max_image_width }}
+                            {% if form.max_image_width.errors %}
+                                {% for error in form.max_image_width.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            {{ form.enable_responsive_images }}
+                            <span class="text-sm font-medium">Responsive Images</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Impact Preview -->
+            <div class="lg:col-span-5">
+                <div class="sticky top-28 bg-on-surface text-white p-8 rounded-2xl shadow-xl overflow-hidden relative">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <span class="material-symbols-outlined text-9xl">speed</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-8">Performance Impact</h3>
+                    <div class="space-y-8">
+                        <div>
+                            <div class="flex justify-between items-end mb-2">
+                                <span class="text-xs font-medium uppercase text-surface-variant">Largest Contentful Paint</span>
+                                <span class="text-2xl font-bold text-green-400">1.2s</span>
+                            </div>
+                            <div class="h-1.5 w-full bg-white/10 rounded-full">
+                                <div class="h-full bg-green-400 w-[85%] rounded-full"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-end mb-2">
+                                <span class="text-xs font-medium uppercase text-surface-variant">First Input Delay</span>
+                                <span class="text-2xl font-bold text-green-400">14ms</span>
+                            </div>
+                            <div class="h-1.5 w-full bg-white/10 rounded-full">
+                                <div class="h-full bg-green-400 w-[92%] rounded-full"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-end mb-2">
+                                <span class="text-xs font-medium uppercase text-surface-variant">Cumulative Layout Shift</span>
+                                <span class="text-2xl font-bold text-yellow-400">0.08</span>
+                            </div>
+                            <div class="h-1.5 w-full bg-white/10 rounded-full">
+                                <div class="h-full bg-yellow-400 w-[60%] rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-12 pt-8 border-t border-white/10 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full border-4 border-green-400 flex items-center justify-center font-bold text-lg score-circle" id="performance-score-circle">
+                            {{ performance_score|default:0 }}
+                        </div>
+                        <div class="text-sm">
+                            <p class="font-bold">Overall Health</p>
+                            <p class="text-surface-variant">
+                                {% if performance_grade == 'A' %}Excellent Optimization{% elif performance_grade == 'B' %}Good Optimization{% elif performance_grade == 'C' %}Average Optimization{% elif performance_grade == 'D' %}Needs Improvement{% else %}Critical Issues{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Code Minification & Compression -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Minification -->
+            <div class="space-y-8" id="minification">
+                <div class="flex items-baseline justify-between border-b border-outline-variant/20 pb-4">
+                    <h2 class="text-3xl font-bold tracking-tight">Code Minification</h2>
+                </div>
+                <div class="bg-surface-container-low p-8 rounded-xl space-y-6">
+                    <div class="grid grid-cols-1 gap-4">
+                        <label class="flex items-center justify-between py-2 border-b border-outline-variant/10 cursor-pointer">
+                            <span class="text-sm font-medium">Minify HTML</span>
+                            {{ form.minify_html }}
+                        </label>
+                        <label class="flex items-center justify-between py-2 border-b border-outline-variant/10 cursor-pointer">
+                            <span class="text-sm font-medium">Minify CSS</span>
+                            {{ form.minify_css }}
+                        </label>
+                        <label class="flex items-center justify-between py-2 border-b border-outline-variant/10 cursor-pointer">
+                            <span class="text-sm font-medium">Minify JS</span>
+                            {{ form.minify_js }}
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-6 pt-4">
+                        <div class="space-y-2">
+                            <span class="text-xs font-bold text-on-surface-variant uppercase">Combine CSS</span>
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                {{ form.combine_css }}
+                                <span class="text-xs text-on-surface-variant">Recommended</span>
+                            </label>
+                        </div>
+                        <div class="space-y-2">
+                            <span class="text-xs font-bold text-on-surface-variant uppercase">Combine JS</span>
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                {{ form.combine_js }}
+                                <span class="text-xs text-on-surface-variant">Experimental</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compression -->
+            <div class="space-y-8" id="compression">
+                <div class="flex items-baseline justify-between border-b border-outline-variant/20 pb-4">
+                    <h2 class="text-3xl font-bold tracking-tight">Compression</h2>
+                </div>
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="bg-surface-container-low p-8 rounded-xl flex items-center justify-between border-l-4 border-primary">
+                        <div class="space-y-1">
+                            <h4 class="font-bold">Gzip Encoding</h4>
+                            <p class="text-sm text-on-surface-variant">Standard compression for most browsers.</p>
+                        </div>
+                        {{ form.enable_gzip }}
+                    </div>
+                    {% if form.enable_gzip.errors %}
+                        {% for error in form.enable_gzip.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="bg-surface-container-low p-8 rounded-xl flex items-center justify-between">
+                        <div class="space-y-1">
+                            <h4 class="font-bold">Brotli Compression</h4>
+                            <p class="text-sm text-on-surface-variant">Modern, high-efficiency algorithm.</p>
+                        </div>
+                        {{ form.enable_brotli }}
+                    </div>
+                    {% if form.enable_brotli.errors %}
+                        {% for error in form.enable_brotli.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. CDN Settings -->
+        <section class="space-y-8" id="cdn">
+            <div class="flex items-baseline justify-between border-b border-outline-variant/20 pb-4">
+                <h2 class="text-3xl font-bold tracking-tight">CDN Settings</h2>
+                <div class="flex items-center gap-3">
+                    <span class="text-sm font-medium">Status</span>
+                    <div class="px-2 py-0.5 bg-{% if form.enable_cdn.value %}green{% else %}orange{% endif %}-100 text-{% if form.enable_cdn.value %}green{% else %}orange{% endif %}-700 rounded text-[10px] font-bold uppercase">
+                        {% if form.enable_cdn.value %}Active{% else %}Inactive{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="bg-surface-container-low p-10 rounded-2xl space-y-10">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-on-surface-variant uppercase" for="{{ form.cdn_provider.id_for_label }}">CDN Provider</label>
+                        {{ form.cdn_provider }}
+                        {% if form.cdn_provider.errors %}
+                            {% for error in form.cdn_provider.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="lg:col-span-2 space-y-2">
+                        <label class="block text-xs font-bold text-on-surface-variant uppercase" for="{{ form.cdn_url.id_for_label }}">CDN Endpoint URL</label>
+                        {{ form.cdn_url }}
+                        {% if form.cdn_url.errors %}
+                            {% for error in form.cdn_url.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- CDN Asset Toggles -->
+                <div class="flex flex-wrap gap-8 {% if not form.enable_cdn.value %}conditional-section disabled{% endif %}" id="cdn-section">
+                    <label class="flex items-center gap-4 px-6 py-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                        {{ form.cdn_for_images }}
+                        <span class="text-sm font-semibold">CDN for Images</span>
+                    </label>
+                    <label class="flex items-center gap-4 px-6 py-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                        {{ form.cdn_for_css }}
+                        <span class="text-sm font-semibold">CDN for CSS</span>
+                    </label>
+                    <label class="flex items-center gap-4 px-6 py-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                        {{ form.cdn_for_js }}
+                        <span class="text-sm font-semibold">CDN for JS</span>
+                    </label>
+                </div>
+
+                <!-- Enable CDN Toggle -->
+                <div class="flex items-center justify-between pt-6 border-t border-outline-variant/10">
+                    <div>
+                        <span class="block font-semibold text-on-surface">Enable CDN</span>
+                        <span class="text-xs text-on-surface-variant">Use Content Delivery Network for faster global delivery</span>
+                    </div>
+                    {{ form.enable_cdn }}
+                </div>
+                {% if form.enable_cdn.errors %}
+                    {% for error in form.enable_cdn.errors %}
+                        <p class="error-message">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- 5. Resource Preloading & Database -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Resource Preloading -->
+            <div class="space-y-8" id="preloading">
+                <div class="flex items-baseline justify-between border-b border-outline-variant/20 pb-4">
+                    <h2 class="text-3xl font-bold tracking-tight">Resource Preloading</h2>
+                </div>
+                <div class="space-y-4">
+                    <label class="flex items-center justify-between p-6 bg-surface-container-low rounded-xl cursor-pointer">
+                        <div class="flex items-center gap-4">
+                            <span class="material-symbols-outlined text-primary">dns</span>
+                            <div>
+                                <p class="font-bold">DNS Prefetch</p>
+                                <p class="text-xs text-on-surface-variant">Resolve domain names before user clicks</p>
+                            </div>
+                        </div>
+                        {{ form.enable_dns_prefetch }}
+                    </label>
+                    <label class="flex items-center justify-between p-6 bg-surface-container-low rounded-xl cursor-pointer">
+                        <div class="flex items-center gap-4">
+                            <span class="material-symbols-outlined text-primary">lan</span>
+                            <div>
+                                <p class="font-bold">Preconnect</p>
+                                <p class="text-xs text-on-surface-variant">Establish early connections to origins</p>
+                            </div>
+                        </div>
+                        {{ form.enable_preconnect }}
+                    </label>
+                    <label class="flex items-center justify-between p-6 bg-surface-container-low rounded-xl cursor-pointer">
+                        <div class="flex items-center gap-4">
+                            <span class="material-symbols-outlined text-primary">input</span>
+                            <div>
+                                <p class="font-bold">Prefetch</p>
+                                <p class="text-xs text-on-surface-variant">Download assets likely to be needed</p>
+                            </div>
+                        </div>
+                        {{ form.enable_prefetch }}
+                    </label>
+                </div>
+            </div>
+
+            <!-- Database Optimization -->
+            <div class="space-y-8" id="database">
+                <div class="flex items-baseline justify-between border-b border-outline-variant/20 pb-4">
+                    <h2 class="text-3xl font-bold tracking-tight">Database Optimization</h2>
+                </div>
+                <div class="bg-surface-container-low p-8 rounded-xl space-y-8">
+                    <div class="flex items-center justify-between">
+                        <div class="space-y-1">
+                            <h4 class="font-bold">Connection Pooling</h4>
+                            <p class="text-sm text-on-surface-variant">Maintain a cache of active connections.</p>
+                        </div>
+                        {{ form.enable_database_connection_pooling }}
+                    </div>
+                    {% if form.enable_database_connection_pooling.errors %}
+                        {% for error in form.enable_database_connection_pooling.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="space-y-4 pt-4 {% if not form.enable_database_connection_pooling.value %}conditional-section disabled{% endif %}" id="db-pooling-section">
+                        <label class="block text-xs font-bold text-on-surface-variant uppercase" for="{{ form.max_database_connections.id_for_label }}">Max Connections</label>
+                        <div class="flex items-center gap-4">
+                            {{ form.max_database_connections }}
+                            <span class="w-16 text-center py-2 bg-surface-container-lowest rounded font-mono font-bold" id="max-connections-display">{{ form.max_database_connections.value|default:20 }}</span>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-on-surface-variant mt-1">
+                            <span>5</span>
+                            <span>Max Connections</span>
+                            <span>100</span>
+                        </div>
+                        {% if form.max_database_connections.errors %}
+                            {% for error in form.max_database_connections.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. Monitoring & Logs -->
+        <section class="space-y-8 pb-32" id="monitoring">
+            <div class="flex items-baseline justify-between border-b border-outline-variant/20 pb-4">
+                <h2 class="text-3xl font-bold tracking-tight">Monitoring &amp; Logs</h2>
+            </div>
+            <div class="bg-surface-container-low p-8 rounded-xl">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Performance Monitoring -->
+                    <div class="bg-surface-container-lowest p-6 rounded-lg border-l-4 border-primary shadow-sm">
+                        <label class="block text-xs font-bold text-on-surface-variant uppercase mb-4" for="{{ form.enable_performance_monitoring.id_for_label }}">Performance Monitoring</label>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium">Capture Core Metrics</span>
+                            {{ form.enable_performance_monitoring }}
+                        </div>
+                        {% if form.enable_performance_monitoring.errors %}
+                            {% for error in form.enable_performance_monitoring.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Slow Query Threshold -->
+                    <div class="bg-surface-container-lowest p-6 rounded-lg border-l-4 border-error shadow-sm">
+                        <label class="block text-xs font-bold text-on-surface-variant uppercase mb-4" for="{{ form.slow_query_threshold_ms.id_for_label }}">Slow Query Threshold</label>
+                        <div class="flex items-center gap-3">
+                            {{ form.slow_query_threshold_ms }}
+                            <span class="text-sm font-medium">milliseconds</span>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-on-surface-variant mt-2">
+                            <span>100ms</span>
+                            <span id="slow-query-display">{{ form.slow_query_threshold_ms.value|default:1000 }}ms</span>
+                            <span>10000ms</span>
+                        </div>
+                        {% if form.slow_query_threshold_ms.errors %}
+                            {% for error in form.slow_query_threshold_ms.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Query Logging -->
+                    <div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm">
+                        <label class="block text-xs font-bold text-on-surface-variant uppercase mb-4" for="{{ form.log_slow_queries.id_for_label }}">Query Logging</label>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium">Log slow queries</span>
+                            {{ form.log_slow_queries }}
+                        </div>
+                        {% if form.log_slow_queries.errors %}
+                            {% for error in form.log_slow_queries.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </form>
+</main>
+
+<!-- Contextual Success Notification -->
+<div class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 opacity-0 translate-y-4 transition-all duration-300 pointer-events-none" id="success-notification">
+    <span class="material-symbols-outlined text-green-400">check_circle</span>
+    <span class="text-sm font-bold">Configuration saved successfully</span>
+</div>
+
+<!-- JavaScript for Dynamic Interactions -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // === Toggle Switch Styling ===
+        const toggleCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+        toggleCheckboxes.forEach(function(checkbox) {
+            checkbox.classList.add('toggle-checkbox');
+
+            checkbox.addEventListener('change', function() {
+                const toggleDiv = this.parentElement.querySelector('div.w-11.h-6');
+                if (toggleDiv) {
+                    const knob = toggleDiv.querySelector('span.absolute');
+                    if (knob) {
+                        if (this.checked) {
+                            knob.style.left = '28px';
+                            toggleDiv.style.backgroundColor = '#0053db';
+                        } else {
+                            knob.style.left = '4px';
+                            toggleDiv.style.backgroundColor = '#d9e4ea';
+                        }
+                    }
+                }
+
+                // Handle conditional sections
+                if (this.id === '{{ form.enable_page_cache.id_for_label }}') {
+                    const section = document.getElementById('page-cache-section');
+                    if (section) {
+                        section.classList.toggle('disabled', !this.checked);
+                    }
+                }
+
+                if (this.id === '{{ form.enable_webp.id_for_label }}') {
+                    const section = document.getElementById('webp-section');
+                    if (section) {
+                        section.classList.toggle('disabled', !this.checked);
+                    }
+                }
+
+                if (this.id === '{{ form.enable_image_compression.id_for_label }}') {
+                    const section = document.getElementById('compression-section');
+                    if (section) {
+                        section.classList.toggle('disabled', !this.checked);
+                    }
+                }
+
+                if (this.id === '{{ form.enable_cdn.id_for_label }}') {
+                    const section = document.getElementById('cdn-section');
+                    if (section) {
+                        section.classList.toggle('disabled', !this.checked);
+                    }
+                }
+
+                if (this.id === '{{ form.enable_database_connection_pooling.id_for_label }}') {
+                    const section = document.getElementById('db-pooling-section');
+                    if (section) {
+                        section.classList.toggle('disabled', !this.checked);
+                    }
+                }
+            });
+        });
+
+        // === WebP Quality Range Display ===
+        const webpQualityRange = document.getElementById('{{ form.webp_quality.id_for_label }}');
+        const webpQualityDisplay = document.getElementById('webp-quality-display');
+
+        if (webpQualityRange && webpQualityDisplay) {
+            webpQualityRange.addEventListener('input', function() {
+                webpQualityDisplay.textContent = this.value + '%';
+            });
+        }
+
+        // === Image Quality Range Display ===
+        const imageQualityRange = document.getElementById('{{ form.image_quality.id_for_label }}');
+        const imageQualityDisplay = document.getElementById('image-quality-display');
+
+        if (imageQualityRange && imageQualityDisplay) {
+            imageQualityRange.addEventListener('input', function() {
+                imageQualityDisplay.textContent = this.value + '%';
+            });
+        }
+
+        // === Max Database Connections Range Display ===
+        const maxConnectionsRange = document.getElementById('{{ form.max_database_connections.id_for_label }}');
+        const maxConnectionsDisplay = document.getElementById('max-connections-display');
+
+        if (maxConnectionsRange && maxConnectionsDisplay) {
+            maxConnectionsRange.addEventListener('input', function() {
+                maxConnectionsDisplay.textContent = this.value;
+            });
+        }
+
+        // === Slow Query Threshold Range Display ===
+        const slowQueryRange = document.getElementById('{{ form.slow_query_threshold_ms.id_for_label }}');
+        const slowQueryDisplay = document.getElementById('slow-query-display');
+
+        if (slowQueryRange && slowQueryDisplay) {
+            slowQueryRange.addEventListener('input', function() {
+                slowQueryDisplay.textContent = this.value + 'ms';
+            });
+        }
+
+        // === Performance Score Circle Animation ===
+        const scoreCircle = document.getElementById('performance-score-circle');
+        if (scoreCircle) {
+            const score = parseInt(scoreCircle.textContent);
+            let currentScore = 0;
+            const increment = Math.ceil(score / 50);
+
+            const animateScore = setInterval(function() {
+                if (currentScore >= score) {
+                    clearInterval(animateScore);
+                } else {
+                    currentScore += increment;
+                    if (currentScore > score) currentScore = score;
+                    scoreCircle.textContent = currentScore;
+
+                    // Update border color based on score
+                    if (currentScore >= 80) {
+                        scoreCircle.className = 'w-12 h-12 rounded-full border-4 border-green-400 flex items-center justify-center font-bold text-lg score-circle';
+                    } else if (currentScore >= 60) {
+                        scoreCircle.className = 'w-12 h-12 rounded-full border-4 border-yellow-400 flex items-center justify-center font-bold text-lg score-circle';
+                    } else {
+                        scoreCircle.className = 'w-12 h-12 rounded-full border-4 border-red-400 flex items-center justify-center font-bold text-lg score-circle';
+                    }
+                }
+            }, 20);
+        }
+
+        // === Show Success Notification on Form Submit ===
+        const form = document.getElementById('performance-form');
+        if (form) {
+            form.addEventListener('submit', function() {
+                const notification = document.getElementById('success-notification');
+                if (notification) {
+                    setTimeout(function() {
+                        notification.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+                        notification.classList.add('opacity-100', 'translate-y-0');
+
+                        setTimeout(function() {
+                            notification.classList.remove('opacity-100', 'translate-y-0');
+                            notification.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+                        }, 3000);
+                    }, 500);
+                }
+            });
+        }
+
+        // === Hide Messages After 5 Seconds ===
+        setTimeout(function() {
+            const messages = document.querySelectorAll('.fixed.top-24');
+            messages.forEach(function(msg) {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    msg.remove();
+                }, 500);
+            });
+        }, 5000);
+
+        // === Form Change Detection ===
+        let formChanged = false;
+
+        form.addEventListener('input', function() {
+            formChanged = true;
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (formChanged) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // === Smooth Scroll for Navigation ===
+        const navLinks = document.querySelectorAll('nav a[href^="#"]');
+        navLinks.forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // === Initialize Conditional Sections ===
+        const pageCacheCheckbox = document.getElementById('{{ form.enable_page_cache.id_for_label }}');
+        if (pageCacheCheckbox && !pageCacheCheckbox.checked) {
+            const section = document.getElementById('page-cache-section');
+            if (section) section.classList.add('disabled');
+        }
+
+        const webpCheckbox = document.getElementById('{{ form.enable_webp.id_for_label }}');
+        if (webpCheckbox && !webpCheckbox.checked) {
+            const section = document.getElementById('webp-section');
+            if (section) section.classList.add('disabled');
+        }
+
+        const compressionCheckbox = document.getElementById('{{ form.enable_image_compression.id_for_label }}');
+        if (compressionCheckbox && !compressionCheckbox.checked) {
+            const section = document.getElementById('compression-section');
+            if (section) section.classList.add('disabled');
+        }
+
+        const cdnCheckbox = document.getElementById('{{ form.enable_cdn.id_for_label }}');
+        if (cdnCheckbox && !cdnCheckbox.checked) {
+            const section = document.getElementById('cdn-section');
+            if (section) section.classList.add('disabled');
+        }
+
+        const dbPoolingCheckbox = document.getElementById('{{ form.enable_database_connection_pooling.id_for_label }}');
+        if (dbPoolingCheckbox && !dbPoolingCheckbox.checked) {
+            const section = document.getElementById('db-pooling-section');
+            if (section) section.classList.add('disabled');
+        }
+    });
+</script>
+
+</body>
+</html>

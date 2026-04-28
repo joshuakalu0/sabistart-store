@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="grid gap-8 xl:grid-cols-[320px,1fr]">
+    {% include "_partials/account_nav.html" %}
+    <div class="space-y-8">
+        <div class="surface-card p-8 lg:p-10">
+            <p class="eyebrow">Account Overview</p>
+            <h1 class="section-title mt-3">Everything tied to your storefront profile.</h1>
+            <p class="section-copy mt-3 text-base">Track customer activity, review recent orders, and jump into post-purchase tools from one account hub.</p>
+            <div class="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <div class="surface-card-soft p-5">
+                    <p class="text-sm text-slate-500">Orders</p>
+                    <p class="brand-font mt-3 text-4xl font-bold text-slate-950">{{ metrics.total_orders }}</p>
+                </div>
+                <div class="surface-card-soft p-5">
+                    <p class="text-sm text-slate-500">Wishlist</p>
+                    <p class="brand-font mt-3 text-4xl font-bold text-slate-950">{{ metrics.wishlist_count }}</p>
+                </div>
+                <div class="surface-card-soft p-5">
+                    <p class="text-sm text-slate-500">Recently Viewed</p>
+                    <p class="brand-font mt-3 text-4xl font-bold text-slate-950">{{ metrics.recently_viewed_count }}</p>
+                </div>
+                <div class="surface-card-soft p-5">
+                    <p class="text-sm text-slate-500">Compare</p>
+                    <p class="brand-font mt-3 text-4xl font-bold text-slate-950">{{ metrics.compare_count }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="surface-card p-8">
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <p class="eyebrow">Recent Orders</p>
+                    <h2 class="brand-font mt-3 text-3xl font-bold text-slate-950">Latest activity</h2>
+                </div>
+                <a href="{% url 'tenant:account_orders' %}" class="button-secondary">View All Orders</a>
+            </div>
+            <div class="mt-6 space-y-4">
+                {% for order in recent_orders %}
+                    <a href="{% url 'tenant:account_order_detail' order.id %}" class="surface-card-soft block p-5 transition hover:bg-slate-50">
+                        <div class="flex flex-wrap items-center justify-between gap-4">
+                            <div>
+                                <p class="brand-font text-2xl font-bold text-slate-950">{{ order.order_number }}</p>
+                                <p class="mt-1 text-sm text-slate-500">{{ order.placed_at }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-slate-500">{{ order.get_status_display }}</p>
+                                <p class="mt-1 text-base font-semibold text-slate-950">{{ order.total_price }}</p>
+                            </div>
+                        </div>
+                    </a>
+                {% empty %}
+                    <div class="surface-card-soft p-6 text-sm text-slate-500">No orders yet. Once you place an order, it will appear here with live status updates.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

@@ -1,0 +1,83 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Commission Rules</h2>
+    <p class="text-slate-600 dark:text-slate-400">Configure platform fee rates per gateway, plan, and country</p>
+  </div>
+  <a href="{% url 'dashboard:payments_system:commission_rule_create' prefix %}"
+     class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center space-x-2 text-sm">
+    <span class="material-icons-outlined text-sm">add</span><span>Add Rule</span>
+  </a>
+</div>
+
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+  <div class="p-4 border-b border-slate-200 dark:border-slate-700">
+    <form method="get" class="flex flex-wrap gap-3">
+      <input type="text" name="q" value="{{ q }}" placeholder="Search rules..."
+             class="flex-1 min-w-[180px] px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary"/>
+      <select name="status" class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white">
+        <option value="">All</option>
+        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+        <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+      </select>
+      <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg text-sm">Filter</button>
+    </form>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          {% for col in "Name,Gateway,Country,Currency,Rate,Flat Fee,Cap,Active,Actions" %}
+          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+        {% for rule in rules %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700">
+          <td class="px-4 py-3 font-medium text-slate-900 dark:text-white">{{ rule.name }}</td>
+          <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ rule.gateway.name|default:"Any" }}</td>
+          <td class="px-4 py-3 font-mono text-slate-600 dark:text-slate-400">{{ rule.country_code|default:"—" }}</td>
+          <td class="px-4 py-3 font-mono text-slate-600 dark:text-slate-400">{{ rule.currency|default:"—" }}</td>
+          <td class="px-4 py-3 font-mono text-slate-900 dark:text-white">{{ rule.percentage_rate }}%</td>
+          <td class="px-4 py-3 font-mono text-slate-600 dark:text-slate-400">{{ rule.flat_fee }}</td>
+          <td class="px-4 py-3 font-mono text-slate-500">{{ rule.cap_amount|default:"—" }}</td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-1 rounded-full text-xs {% if rule.is_active %}bg-green-100 text-green-700{% else %}bg-slate-100 text-slate-500{% endif %}">
+              {{ rule.is_active|yesno:"Active,Inactive" }}
+            </span>
+          </td>
+          <td class="px-4 py-3 space-x-2 whitespace-nowrap">
+            <a href="{% url 'dashboard:payments_system:commission_rule_edit' prefix rule.id %}" class="text-primary hover:text-blue-700">Edit</a>
+            <button class="text-red-600 hover:text-red-800 delete-btn"
+                    data-name="{{ rule.name }}" data-url="{% url 'dashboard:payments_system:commission_rule_delete' prefix rule.id %}">Delete</button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9" class="px-6 py-10 text-center text-slate-400">No commission rules found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if rules.has_other_pages %}
+  <div class="px-4 py-3 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
+    <span class="text-sm text-slate-500">Page {{ rules.number }} of {{ rules.paginator.num_pages }}</span>
+    <div class="flex space-x-2">
+      {% if rules.has_previous %}<a href="?page={{ rules.previous_page_number }}&q={{ q }}&status={{ status_filter }}" class="px-3 py-1 border border-slate-300 dark:border-slate-600 rounded text-sm hover:bg-slate-50 dark:hover:bg-slate-700">Prev</a>{% endif %}
+      {% if rules.has_next %}<a href="?page={{ rules.next_page_number }}&q={{ q }}&status={{ status_filter }}" class="px-3 py-1 border border-slate-300 dark:border-slate-600 rounded text-sm hover:bg-slate-50 dark:hover:bg-slate-700">Next</a>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+<script>
+document.querySelectorAll(".delete-btn").forEach(btn => {
+  btn.addEventListener("click", function () {
+    openDeleteModal("Delete Commission Rule",
+      `Delete rule "${this.dataset.name}"? Rules with existing commission entries cannot be deleted.`,
+      () => fetch(this.dataset.url, {method:"POST",headers:{"X-CSRFToken":"{{ csrf_token }}","Content-Type":"application/x-www-form-urlencoded"}}).then(() => location.reload())
+    );
+  });
+});
+</script>
+{% endblock %}

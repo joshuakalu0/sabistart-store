@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<section class="container-shell pt-6">
+    <div class="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+        <div class="surface-card p-6 lg:p-8">
+            <p class="eyebrow">Agency Grid</p>
+            <h1 class="mt-4 text-5xl font-bold leading-tight text-slate-950">Service-led storefront structure with denser proof and faster trust-building.</h1>
+            <p class="mt-5 max-w-3xl text-base leading-7 text-slate-500">{{ shop.description|default:"Designed for agencies, studios, and consultancies that need services, case studies, team proof, and productized offers on one surface." }}</p>
+            <div class="mt-8 flex flex-wrap gap-3">
+                <a href="{% url 'category:shop_all' %}" class="button-primary">Explore offers</a>
+                <a href="{% url 'category:deals' %}" class="button-secondary">Current campaigns</a>
+            </div>
+        </div>
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
+            {% for highlight in service_highlights|slice:":3" %}
+                <article class="surface-card-soft p-5">
+                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Service</p>
+                    <h2 class="mt-3 text-xl font-bold text-slate-950">{{ highlight.title }}</h2>
+                    <p class="mt-3 text-sm leading-6 text-slate-500">{{ highlight.description }}</p>
+                </article>
+            {% empty %}
+                <div class="surface-card-soft p-5 text-sm text-slate-500">Service highlights will appear here to frame the commercial offer quickly.</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="space-y-10">
+    <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {% for category in featured_categories|slice:":4" %}
+            <a href="/c/{{ category.slug }}/" class="surface-card-soft block min-h-[12rem] p-5">
+                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Capability</p>
+                <h2 class="mt-3 text-xl font-bold text-slate-950">{{ category.name }}</h2>
+            </a>
+        {% endfor %}
+    </section>
+
+    <section class="surface-card p-6">
+        <div class="flex items-end justify-between gap-4">
+            <div>
+                <p class="eyebrow">Case Studies</p>
+                <h2 class="mt-3 text-3xl font-bold text-slate-950">A denser grid for proof, offers, and commercial outcomes.</h2>
+            </div>
+        </div>
+        <div class="mt-6 grid gap-4 lg:grid-cols-3">
+            {% for product in featured_products|slice:":6" %}
+                <article class="rounded-[1.75rem] border border-slate-200 p-5">
+                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Case Study</p>
+                    <h3 class="mt-3 text-xl font-bold text-slate-950">{{ product.name }}</h3>
+                    <p class="mt-3 text-sm leading-6 text-slate-500">{{ product.short_description|default:product.description|truncatechars:110 }}</p>
+                    <a href="{% url 'product:detail' product.slug %}" class="mt-4 inline-flex text-sm font-semibold text-[color:var(--color-primary)]">View outcome</a>
+                </article>
+            {% empty %}
+                <div class="rounded-[1.75rem] border border-dashed border-slate-300 p-6 text-sm text-slate-500 lg:col-span-3">Featured products double as case-study cards in this theme.</div>
+            {% endfor %}
+        </div>
+    </section>
+</section>
+{% endblock %}

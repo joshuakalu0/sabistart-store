@@ -1,0 +1,107 @@
+{% load static %}
+<textarea
+    name="{{ widget.name }}"
+    {% if widget.attrs.id %}id="{{ widget.attrs.id }}"{% endif %}
+    {% if widget.attrs.class %}class="{{ widget.attrs.class }}"{% endif %}
+    {% if widget.attrs.rows %}rows="{{ widget.attrs.rows }}"{% endif %}
+    {% if widget.attrs.placeholder %}placeholder="{{ widget.attrs.placeholder }}"{% endif %}
+    {% if widget.disabled %}disabled{% endif %}
+    {% if widget.required %}required{% endif %}
+    style="font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace; font-size: 0.875rem; line-height: 1.6; tab-size: 2;"
+>{{ widget.value }}</textarea>
+{% if not widget.disabled %}
+<div class="mt-2 flex items-center gap-2">
+    <button type="button" class="text-xs px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors" onclick="formatJSON_{{ widget.attrs.id|default:'id' }}()">
+        <span class="material-symbols-outlined text-sm align-middle">format_indent_increase</span>
+        Format JSON
+    </button>
+    <button type="button" class="text-xs px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors" onclick="minifyJSON_{{ widget.attrs.id|default:'id' }}()">
+        <span class="material-symbols-outlined text-sm align-middle">format_indent_decrease</span>
+        Minify
+    </button>
+    <button type="button" class="text-xs px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors" onclick="copyJSON_{{ widget.attrs.id|default:'id' }}()">
+        <span class="material-symbols-outlined text-sm align-middle">content_copy</span>
+        Copy
+    </button>
+    <span id="json-status-{{ widget.attrs.id|default:'id' }}" class="text-xs text-slate-500 ml-2"></span>
+</div>
+<script>
+(function() {
+    const widgetId = '{{ widget.attrs.id|default:"id" }}';
+    const textarea = document.getElementById(widgetId);
+    const statusEl = document.getElementById('json-status-' + widgetId);
+
+    if (!textarea) return;
+
+    // Initial validation
+    validateJSON(textarea.value);
+
+    // Validate on input
+    textarea.addEventListener('input', function() {
+        validateJSON(this.value);
+    });
+
+    function validateJSON(value) {
+        try {
+            if (!value || value.trim() === '') {
+                setStatus('Empty', 'warning');
+                return false;
+            }
+            JSON.parse(value);
+            setStatus('Valid JSON', 'success');
+            return true;
+        } catch (e) {
+            setStatus('Invalid JSON', 'error');
+            return false;
+        }
+    }
+
+    function setStatus(message, type) {
+        if (!statusEl) return;
+        statusEl.textContent = message;
+        statusEl.className = 'text-xs ml-2 ' + (
+            type === 'success' ? 'text-green-600' :
+            type === 'error' ? 'text-red-600' :
+            'text-yellow-600'
+        );
+    }
+
+    // Expose functions globally
+    window['formatJSON_' + widgetId] = function() {
+        try {
+            const value = textarea.value;
+            if (!value.trim()) return;
+            const parsed = JSON.parse(value);
+            textarea.value = JSON.stringify(parsed, null, 4);
+            validateJSON(textarea.value);
+        } catch (e) {
+            alert('Invalid JSON: ' + e.message);
+        }
+    };
+
+    window['minifyJSON_' + widgetId] = function() {
+        try {
+            const value = textarea.value;
+            if (!value.trim()) return;
+            const parsed = JSON.parse(value);
+            textarea.value = JSON.stringify(parsed);
+            validateJSON(textarea.value);
+        } catch (e) {
+            alert('Invalid JSON: ' + e.message);
+        }
+    };
+
+    window['copyJSON_' + widgetId] = function() {
+        textarea.select();
+        document.execCommand('copy');
+        const originalText = statusEl.textContent;
+        statusEl.textContent = 'Copied!';
+        statusEl.className = 'text-xs ml-2 text-green-600';
+        setTimeout(() => {
+            statusEl.textContent = originalText;
+            statusEl.className = 'text-xs ml-2 text-slate-500';
+        }, 2000);
+    };
+})();
+</script>
+{% endif %}

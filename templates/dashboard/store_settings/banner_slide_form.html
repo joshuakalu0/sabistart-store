@@ -1,0 +1,837 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{{ title }} | Store Admin</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "error-dim": "#4e0309",
+                        "on-secondary-fixed-variant": "#4d5d73",
+                        "surface-tint": "#0053db",
+                        "inverse-surface": "#0b0f10",
+                        "on-surface": "#2a3439",
+                        "on-primary": "#f8f7ff",
+                        "primary": "#0053db",
+                        "surface-variant": "#d9e4ea",
+                        "background": "#f7f9fb",
+                        "tertiary-fixed-dim": "#d4cdee",
+                        "outline": "#717c82",
+                        "surface-container-highest": "#d9e4ea",
+                        "on-surface-variant": "#566166",
+                        "tertiary-dim": "#54506b",
+                        "error": "#9f403d",
+                        "surface-container-high": "#e1e9ee",
+                        "outline-variant": "#a9b4b9",
+                        "on-error-container": "#752121",
+                        "primary-fixed": "#dbe1ff",
+                        "tertiary": "#605c78",
+                        "on-primary-container": "#0048bf",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#0050d4",
+                        "inverse-primary": "#618bff",
+                        "surface-container": "#e8eff3",
+                        "primary-fixed-dim": "#c7d3ff",
+                        "tertiary-fixed": "#e3dbfd",
+                        "secondary-fixed": "#d3e4fe",
+                        "error-container": "#fe8983",
+                        "surface": "#f7f9fb",
+                        "on-secondary-fixed": "#314055",
+                        "surface-dim": "#cfdce3",
+                        "secondary": "#506076",
+                        "on-tertiary-container": "#514d68",
+                        "secondary-container": "#d3e4fe",
+                        "on-tertiary-fixed-variant": "#5b5672",
+                        "secondary-dim": "#44546a",
+                        "inverse-on-surface": "#9a9d9f",
+                        "secondary-fixed-dim": "#c5d6f0",
+                        "surface-bright": "#f7f9fb",
+                        "primary-dim": "#0048c1",
+                        "on-error": "#fff7f6",
+                        "on-secondary-container": "#435368",
+                        "on-primary-fixed": "#003798",
+                        "primary-container": "#dbe1ff",
+                        "on-background": "#2a3439",
+                        "surface-container-low": "#f0f4f7",
+                        "on-tertiary-fixed": "#3e3a54",
+                        "on-tertiary": "#fcf7ff",
+                        "on-secondary": "#f7f9ff",
+                        "tertiary-container": "#e3dbfd"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .architect-line:focus {
+            outline: none;
+            border-bottom: 2px solid #0053db;
+        }
+        .glass-header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+        }
+
+        /* Form Error States */
+        .form-field-error {
+            border-bottom-color: #9f403d !important;
+            background-color: #fef2f2 !important;
+        }
+        .error-message {
+            color: #9f403d;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Toggle Switch Styling */
+        .toggle-checkbox {
+            opacity: 0;
+            position: absolute;
+        }
+
+        /* Text Position Grid */
+        .position-btn.selected {
+            border-color: #0053db;
+            background-color: #dbe1ff;
+        }
+
+        /* Conditional Section Opacity */
+        .conditional-section {
+            transition: opacity 0.3s ease;
+        }
+        .conditional-section.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Range Input */
+        input[type="range"] {
+            accent-color: #0053db;
+        }
+
+        /* Color Input */
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 8px;
+        }
+
+        /* File Upload Preview */
+        .file-upload-preview {
+            transition: all 0.3s ease;
+        }
+        .file-upload-preview:hover {
+            opacity: 0.6;
+        }
+        .file-upload-preview.has-image {
+            border-style: solid;
+            border-color: #0053db;
+        }
+
+        /* Fade In Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen">
+
+<!-- Django Messages Framework -->
+{% if messages %}
+<div class="fixed top-24 right-8 z-50 space-y-2">
+    {% for message in messages %}
+    <div class="flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg" style="background-color: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#9f403d{% else %}#ffffff{% endif %}; color: {% if message.tags == 'error' %}#fff7f6{% else %}#2a3439{% endif %};">
+        <span class="material-symbols-outlined text-sm">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span class="font-medium text-sm">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Header Section -->
+<header class="fixed top-0 w-full z-50 glass-header shadow-[0_4px_24px_rgba(42,52,57,0.04)] h-20 flex justify-between items-center px-12">
+    <div class="flex items-center gap-8">
+        <span class="text-xl font-extrabold tracking-tight text-slate-900">{{ title }}</span>
+        <nav class="hidden md:flex gap-6">
+            <a class="text-slate-500 hover:text-slate-900 transition-colors font-medium text-sm" href="{% url 'banner_slide_list' %}">Dashboard</a>
+            <a class="text-slate-500 hover:text-slate-900 transition-colors font-medium text-sm" href="{% url 'banner_slide_list' %}">Banners</a>
+            <a class="text-blue-700 font-bold border-b-2 border-blue-700 pb-1 text-sm" href="{% url 'banner_slide_list' %}">Editor</a>
+        </nav>
+    </div>
+    <div class="flex items-center gap-4">
+        <button type="button" class="px-5 py-2 text-sm font-semibold text-secondary transition-all active:scale-[0.98] hover:bg-slate-50/50" onclick="window.location.href='{% url 'banner_slide_list' %}'">Discard</button>
+        <button type="submit" form="banner-form" class="px-6 py-2.5 text-sm font-bold text-on-primary bg-gradient-to-v from-primary to-primary-dim rounded-md shadow-sm transition-all active:scale-[0.98]">
+            {% if is_edit %}Save Changes{% else %}Create Slide{% endif %}
+        </button>
+        {% if is_edit %}
+        <a href="{% url 'banner_slide_preview' object.pk %}" class="px-5 py-2 text-sm font-semibold text-primary hover:bg-surface-container-low transition-all active:scale-[0.98] flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">visibility</span>
+            Preview
+        </a>
+        <a href="{% url 'banner_slide_duplicate' object.pk %}" class="px-5 py-2 text-sm font-semibold text-primary hover:bg-surface-container-low transition-all active:scale-[0.98] flex items-center gap-2" onclick="return confirm('Create a copy of this banner slide?')">
+            <span class="material-symbols-outlined text-sm">content_copy</span>
+            Duplicate
+        </a>
+        {% endif %}
+    </div>
+</header>
+
+<main class="pt-32 pb-24 px-12 max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
+    <form id="banner-form" method="post" action="{{ action_url }}" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <!-- Left Column: Form Controls -->
+        <div class="lg:col-span-7 space-y-16">
+
+            <!-- Page Identity -->
+            <section>
+                <h1 class="text-4xl font-extrabold tracking-tight text-on-surface mb-2">Banner Slide Editor</h1>
+                <p class="text-on-surface-variant font-medium">Django Model: BannerSlide</p>
+            </section>
+
+            <!-- Slide Content -->
+            <section class="bg-surface-container-low p-10 rounded-xl space-y-8">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="material-symbols-outlined text-primary">edit_note</span>
+                    <h2 class="text-lg font-bold tracking-tight">Slide Content</h2>
+                </div>
+                <div class="grid gap-8">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.title.id_for_label }}">Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            {% for error in form.title.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.subtitle.id_for_label }}">Subtitle</label>
+                        {{ form.subtitle }}
+                        {% if form.subtitle.errors %}
+                            {% for error in form.subtitle.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.description.id_for_label }}">Description</label>
+                        {{ form.description }}
+                        <div class="flex justify-between mt-1">
+                            <span class="text-xs text-on-surface-variant">Describe the slide narrative...</span>
+                            <span class="text-xs font-bold char-counter" id="description-counter">{{ form.description.value|length|default:0 }} / 300</span>
+                        </div>
+                        {% if form.description.errors %}
+                            {% for error in form.description.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Image Assets -->
+            <section class="bg-surface-container-low p-10 rounded-xl space-y-8">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="material-symbols-outlined text-primary">image</span>
+                    <h2 class="text-lg font-bold tracking-tight">Image Assets</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-3">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.image_desktop.id_for_label }}">Desktop Image (1920x1080)</label>
+                        <div class="file-upload-preview group relative aspect-video bg-surface-container-lowest rounded-lg overflow-hidden border-2 border-dashed border-outline-variant flex flex-col items-center justify-center cursor-pointer hover:bg-white transition-all" onclick="document.getElementById('{{ form.image_desktop.id_for_label }}').click()">
+                            {% if is_edit and object.image_desktop %}
+                            <img class="absolute inset-0 w-full h-auto object-cover opacity-20 group-hover:opacity-40 transition-opacity" alt="Current desktop image" src="{{ object.image_desktop.url }}"/>
+                            {% else %}
+                            <img class="absolute inset-0 w-full h-auto object-cover opacity-20 group-hover:opacity-40 transition-opacity" alt="Desktop placeholder" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClS3RRwtFO-Yf0lBvDTcQo-8u7nnefxdSrlJgn51MBzHlO3v78v_AqnvZWUfSJhiOht48W_NmpxWEuRlceHy18CVxuJDq6h5bqRtYcAk684gpsTxI8_hq3YD1780AQI6PJvcJwNH7qnRioZftG7gNN6NQfXNa0fLlNwjv-0Jgx-u8dP3JI3zhfdHEmH0NhgnpwF_y15783ZuIwSyf636tNL0so0S1CGwxIbN8GuoJ7jcclqSIfpvZ6BySCDylQiWe94hrzr60GvWU"/>
+                            {% endif %}
+                            <span class="material-symbols-outlined text-4xl text-outline mb-2">cloud_upload</span>
+                            <p class="text-sm font-medium text-on-surface-variant">Drop desktop asset here</p>
+                            {{ form.image_desktop }}
+                        </div>
+                        {% if form.image_desktop.errors %}
+                            {% for error in form.image_desktop.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="space-y-3">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.image_mobile.id_for_label }}">Mobile Image (1080x1920)</label>
+                        <div class="file-upload-preview group relative aspect-[9/16] bg-surface-container-lowest rounded-lg overflow-hidden border-2 border-dashed border-outline-variant flex flex-col items-center justify-center cursor-pointer hover:bg-white transition-all" onclick="document.getElementById('{{ form.image_mobile.id_for_label }}').click()">
+                            {% if is_edit and object.image_mobile %}
+                            <img class="absolute inset-0 w-full h-auto object-cover opacity-20 group-hover:opacity-40 transition-opacity" alt="Current mobile image" src="{{ object.image_mobile.url }}"/>
+                            {% endif %}
+                            <span class="material-symbols-outlined text-4xl text-outline mb-2">add_photo_alternate</span>
+                            <p class="text-sm font-medium text-on-surface-variant text-center px-4">Upload vertical mobile variant</p>
+                            {{ form.image_mobile }}
+                        </div>
+                        {% if form.image_mobile.errors %}
+                            {% for error in form.image_mobile.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Overlay Configuration -->
+            <section class="bg-surface-container-low p-10 rounded-xl space-y-8">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="material-symbols-outlined text-primary">layers</span>
+                    <h2 class="text-lg font-bold tracking-tight">Overlay Configuration</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="space-y-4">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.text_position.id_for_label }}">Text Position</label>
+                        <div class="grid grid-cols-3 gap-2 bg-surface-container-highest p-2 rounded-lg">
+                            <button type="button" class="position-btn aspect-square bg-surface-container-lowest {% if form.text_position.value == 'top_left' %}selected{% else %}bg-surface-container-lowest/50{% endif %} rounded shadow-sm border {% if form.text_position.value == 'top_left' %}border-primary{% else %}border-transparent{% endif %}" data-position="top_left"></button>
+                            <button type="button" class="position-btn aspect-square bg-surface-container-lowest {% if form.text_position.value == 'top_center' %}selected{% else %}bg-surface-container-lowest/50{% endif %} rounded" data-position="top_center"></button>
+                            <button type="button" class="position-btn aspect-square bg-surface-container-lowest {% if form.text_position.value == 'top_right' %}selected{% else %}bg-surface-container-lowest/50{% endif %} rounded" data-position="top_right"></button>
+                            <button type="button" class="position-btn aspect-square bg-surface-container-lowest {% if form.text_position.value == 'left' %}selected{% else %}bg-surface-container-lowest/50{% endif %} rounded" data-position="left"></button>
+                            <button type="button" class="position-btn aspect-square bg-surface-container-lowest {% if form.text_position.value == 'center' %}selected{% else %}bg-surface-container-lowest/50{% endif %} rounded" data-position="center"></button>
+                            <button type="button" class="position-btn aspect-square bg-surface-container-lowest {% if form.text_position.value == 'right' %}selected{% else %}bg-surface-container-lowest/50{% endif %} rounded" data-position="right"></button>
+                            <button type="button" class="position-btn aspect-square bg-surface-container-lowest {% if form.text_position.value == 'bottom_left' %}selected{% else %}bg-surface-container-lowest/50{% endif %} rounded" data-position="bottom_left"></button>
+                            <button type="button" class="position-btn aspect-square bg-surface-container-lowest {% if form.text_position.value == 'bottom_center' %}selected{% else %}bg-surface-container-lowest/50{% endif %} rounded" data-position="bottom_center"></button>
+                            <button type="button" class="position-btn aspect-square bg-surface-container-lowest {% if form.text_position.value == 'bottom_right' %}selected{% else %}bg-surface-container-lowest/50{% endif %} rounded" data-position="bottom_right"></button>
+                        </div>
+                        {{ form.text_position }}
+                        {% if form.text_position.errors %}
+                            {% for error in form.text_position.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="space-y-4">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.text_color.id_for_label }}">Text Color</label>
+                        <div class="flex items-center gap-3 bg-surface-container-lowest p-3 rounded-md shadow-sm">
+                            {{ form.text_color }}
+                            <span class="font-mono text-sm font-bold" id="text-color-display">{{ form.text_color.value|default:'#FFFFFF' }}</span>
+                        </div>
+                        {% if form.text_color.errors %}
+                            {% for error in form.text_color.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="space-y-4">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.overlay_opacity.id_for_label }}">Overlay Opacity</label>
+                        {{ form.overlay_opacity }}
+                        <div class="flex justify-between text-[10px] font-bold text-on-surface-variant">
+                            <span>0%</span>
+                            <span id="opacity-display">{{ form.overlay_opacity.value|default:30 }}%</span>
+                            <span>100%</span>
+                        </div>
+                        {% if form.overlay_opacity.errors %}
+                            {% for error in form.overlay_opacity.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Call to Action -->
+            <section class="bg-surface-container-low p-10 rounded-xl space-y-8">
+                <div class="flex justify-between items-center mb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">ads_click</span>
+                        <h2 class="text-lg font-bold tracking-tight">Call to Action</h2>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        {{ form.show_cta }}
+                        <div class="w-11 h-6 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" style="background-color: {% if form.show_cta.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                            <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.show_cta.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                        </div>
+                        <span class="ml-3 text-xs font-bold text-on-surface-variant">Show CTA</span>
+                    </label>
+                </div>
+                {% if form.show_cta.errors %}
+                    {% for error in form.show_cta.errors %}
+                        <p class="error-message">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 {% if not form.show_cta.value %}conditional-section disabled{% endif %}" id="cta-section">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.cta_text.id_for_label }}">CTA Text</label>
+                        {{ form.cta_text }}
+                        {% if form.cta_text.errors %}
+                            {% for error in form.cta_text.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.cta_style.id_for_label }}">CTA Style</label>
+                        {{ form.cta_style }}
+                        {% if form.cta_style.errors %}
+                            {% for error in form.cta_style.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="md:col-span-2 space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.cta_link.id_for_label }}">CTA Link</label>
+                        {{ form.cta_link }}
+                        {% if form.cta_link.errors %}
+                            {% for error in form.cta_link.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Visibility & Scheduling -->
+            <section class="bg-surface-container-low p-10 rounded-xl space-y-8">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="material-symbols-outlined text-primary">calendar_today</span>
+                    <h2 class="text-lg font-bold tracking-tight">Visibility &amp; Scheduling</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-md shadow-sm">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold">Active Status</span>
+                            <span class="text-[10px] uppercase font-bold text-on-surface-variant">Live on frontend</span>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            {{ form.is_active }}
+                            <div class="w-11 h-6 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" style="background-color: {% if form.is_active.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.is_active.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                            </div>
+                        </label>
+                    </div>
+                    {% if form.is_active.errors %}
+                        {% for error in form.is_active.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.display_order.id_for_label }}">Display Order</label>
+                        {{ form.display_order }}
+                        {% if form.display_order.errors %}
+                            {% for error in form.display_order.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.start_date.id_for_label }}">Start Date &amp; Time</label>
+                        {{ form.start_date }}
+                        {% if form.start_date.errors %}
+                            {% for error in form.start_date.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.end_date.id_for_label }}">End Date &amp; Time</label>
+                        {{ form.end_date }}
+                        {% if form.end_date.errors %}
+                            {% for error in form.end_date.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Right Column: Live Preview Sticky -->
+        <div class="lg:col-span-5">
+            <div class="sticky top-32 space-y-6">
+                <div class="flex items-center justify-between px-2">
+                    <h3 class="text-xs font-extrabold uppercase tracking-widest text-on-surface-variant">Live Preview</h3>
+                    <div class="flex gap-2">
+                        <button type="button" class="material-symbols-outlined text-lg p-1 hover:bg-surface-container-high rounded transition-colors text-primary">desktop_windows</button>
+                        <button type="button" class="material-symbols-outlined text-lg p-1 hover:bg-surface-container-high rounded transition-colors text-outline-variant">smartphone</button>
+                    </div>
+                </div>
+
+                <!-- Preview Canvas -->
+                <div class="relative w-full aspect-[4/3] bg-surface-container-high rounded-xl overflow-hidden shadow-2xl border border-white/20" id="preview-canvas">
+                    <!-- Background Asset -->
+                    {% if is_edit and object.image_desktop %}
+                    <img class="absolute inset-0 w-full h-full object-cover" alt="Banner background" src="{{ object.image_desktop.url }}" id="preview-background"/>
+                    {% else %}
+                    <img class="absolute inset-0 w-full h-full object-cover" alt="Banner background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArW8J_KcyS61iUcJtkNhCIV3NxTDExaUForbQ1pVv1YUf35WXDm8uQMkHZiQY8GmdkbNVVVSaoTdAMUfyNpPqV3FRBxXWsLSwH1lfFMBy2gpLSf278GIsxIFxJ0SHl_qS_pc3PGHKl9YpcbBQAh3nZoZZm9lpQAmENgYufMs8iIJ1f9tArKGWvHhOec1vMCaOSmWuY49eWmyQb2MpepLSAs2isv2NUAshlQLTAkuL0u4d9kAQ-LiDIuz0cThBkWFHEc6N1r5cy4yY" id="preview-background"/>
+                    {% endif %}
+
+                    <!-- Overlay Layer (controlled by opacity field) -->
+                    <div class="absolute inset-0" id="preview-overlay" style="background-color: rgba(0, 0, 0, {{ form.overlay_opacity.value|default:30 }}%);"></div>
+
+                    <!-- Content Layer (controlled by position and styling fields) -->
+                    <div class="absolute inset-0 flex {% if form.text_position.value == 'top_left' or form.text_position.value == 'left' or form.text_position.value == 'bottom_left' %}items-start justify-start{% elif form.text_position.value == 'top_center' or form.text_position.value == 'center' or form.text_position.value == 'bottom_center' %}items-start justify-center{% elif form.text_position.value == 'top_right' or form.text_position.value == 'right' or form.text_position.value == 'bottom_right' %}items-start justify-end{% endif %} {% if form.text_position.value == 'left' or form.text_position.value == 'center' or form.text_position.value == 'right' %}p-12{% elif form.text_position.value == 'bottom_left' or form.text_position.value == 'bottom_center' or form.text_position.value == 'bottom_right' %}items-end justify-start p-12{% endif %}" id="preview-content">
+                        <div class="max-w-md animate-fade-in space-y-4" id="preview-text" style="color: {{ form.text_color.value|default:'#FFFFFF' }};">
+                            {% if form.subtitle.value %}
+                            <span class="text-xs font-extrabold uppercase tracking-widest text-white/80">{{ form.subtitle.value }}</span>
+                            {% endif %}
+                            <h2 class="text-5xl font-extrabold leading-tight" id="preview-title">{{ form.title.value|default:'The New Minimalism' }}</h2>
+                            {% if form.description.value %}
+                            <p class="text-lg font-medium text-white/90 line-clamp-2" id="preview-description">{{ form.description.value }}</p>
+                            {% endif %}
+                            {% if form.show_cta.value %}
+                            <div class="pt-4">
+                                <button class="px-8 py-3 {% if form.cta_style.value == 'primary' %}bg-white text-on-surface{% elif form.cta_style.value == 'secondary' %}bg-surface-container text-on-surface{% elif form.cta_style.value == 'outline' %}bg-transparent border-2 border-white text-white{% elif form.cta_style.value == 'text' %}bg-transparent text-white underline{% endif %} font-bold rounded-sm shadow-lg hover:scale-105 transition-transform" id="preview-cta">
+                                    {{ form.cta_text.value|default:'Shop The Look' }}
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Preview Badge -->
+                    <div class="absolute top-4 right-4 bg-primary text-on-primary px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase shadow-md">
+                        Real-time
+                    </div>
+                </div>
+
+                <!-- Technical Specs Display -->
+                <div class="bg-surface-container-low p-6 rounded-xl border border-surface-container-high">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xs font-bold text-on-surface-variant uppercase">Model Snapshot</span>
+                        <span class="text-[10px] font-mono bg-on-surface/5 px-2 py-0.5 rounded text-on-surface-variant">
+                            {% if is_edit %}ID: {{ object.pk }}{% else %}New Slide{% endif %}
+                        </span>
+                    </div>
+                    <ul class="space-y-3">
+                        <li class="flex justify-between text-xs">
+                            <span class="text-on-surface-variant font-medium">Text Position:</span>
+                            <span class="font-bold" id="preview-position">{{ form.get_text_position_display|default:'Center' }}</span>
+                        </li>
+                        <li class="flex justify-between text-xs">
+                            <span class="text-on-surface-variant font-medium">Color Palette:</span>
+                            <span class="font-bold flex items-center gap-1">
+                                <div class="w-2 h-2 rounded-full border border-outline" style="background-color: {{ form.text_color.value|default:'#FFFFFF' }};"></div>
+                                {{ form.text_color.value|default:'#FFFFFF' }}
+                            </span>
+                        </li>
+                        <li class="flex justify-between text-xs">
+                            <span class="text-on-surface-variant font-medium">Scheduled Status:</span>
+                            <span class="font-bold {% if form.is_active.value %}text-primary{% else %}text-tertiary{% endif %}" id="preview-status">
+                                {% if form.is_active.value %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+
+                {% if is_edit %}
+                <div class="bg-surface-container-low p-6 rounded-xl border border-surface-container-high">
+                    <h4 class="text-xs font-bold text-on-surface-variant uppercase mb-4">Quick Actions</h4>
+                    <a href="{% url 'banner_slide_delete' object.pk %}" class="text-xs text-error font-bold hover:underline flex items-center gap-1" onclick="return confirm('Are you sure you want to delete this banner slide? This action cannot be undone.')">
+                        <span class="material-symbols-outlined text-sm">delete</span>
+                        Delete Banner Slide
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</main>
+
+<!-- Footer Space -->
+<footer class="h-24 border-t border-transparent"></footer>
+
+<!-- JavaScript for Dynamic Interactions -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // === Toggle Switch Styling ===
+        const toggleCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+        toggleCheckboxes.forEach(function(checkbox) {
+            checkbox.classList.add('toggle-checkbox');
+
+            checkbox.addEventListener('change', function() {
+                const toggleDiv = this.parentElement.querySelector('div.w-11.h-6');
+                const toggleKnob = toggleDiv?.querySelector('span.absolute');
+
+                if (toggleDiv) {
+                    toggleDiv.style.backgroundColor = this.checked ? '#0053db' : '#d9e4ea';
+                }
+                if (toggleKnob) {
+                    toggleKnob.style.left = this.checked ? '28px' : '4px';
+                }
+
+                // Handle CTA section
+                if (this.id === '{{ form.show_cta.id_for_label }}') {
+                    const ctaSection = document.getElementById('cta-section');
+                    if (ctaSection) {
+                        ctaSection.classList.toggle('disabled', !this.checked);
+                    }
+                }
+
+                // Update preview
+                updateBannerPreview();
+            });
+        });
+
+        // === Text Position Selection ===
+        const positionBtns = document.querySelectorAll('.position-btn');
+        const positionInput = document.getElementById('{{ form.text_position.id_for_label }}');
+        const previewContent = document.getElementById('preview-content');
+        const previewPosition = document.getElementById('preview-position');
+
+        positionBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                positionBtns.forEach(function(b) {
+                    b.classList.remove('selected', 'border-primary');
+                    b.classList.add('bg-surface-container-lowest/50', 'border-transparent');
+                });
+
+                this.classList.remove('bg-surface-container-lowest/50', 'border-transparent');
+                this.classList.add('selected', 'border-primary');
+
+                const position = this.getAttribute('data-position');
+                if (positionInput) {
+                    positionInput.value = position;
+                }
+                if (previewPosition) {
+                    previewPosition.textContent = position.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                }
+
+                // Update preview content position
+                if (previewContent) {
+                    // Reset all classes
+                    previewContent.className = 'absolute inset-0 flex';
+
+                    // Add position classes
+                    if (position.includes('top')) {
+                        previewContent.classList.add('items-start');
+                    } else if (position.includes('bottom')) {
+                        previewContent.classList.add('items-end');
+                    } else {
+                        previewContent.classList.add('items-center');
+                    }
+
+                    if (position.includes('left')) {
+                        previewContent.classList.add('justify-start');
+                    } else if (position.includes('right')) {
+                        previewContent.classList.add('justify-end');
+                    } else {
+                        previewContent.classList.add('justify-center');
+                    }
+
+                    // Add padding
+                    if (!position.includes('center')) {
+                        previewContent.classList.add('p-12');
+                    }
+                }
+
+                updateBannerPreview();
+            });
+        });
+
+        // === Text Color ===
+        const textColorInput = document.getElementById('{{ form.text_color.id_for_label }}');
+        const textColorDisplay = document.getElementById('text-color-display');
+        const previewText = document.getElementById('preview-text');
+        const previewColorDot = document.querySelector('#preview-position + span .w-2.h-2');
+
+        if (textColorInput && textColorDisplay) {
+            textColorDisplay.textContent = textColorInput.value;
+
+            textColorInput.addEventListener('input', function() {
+                textColorDisplay.textContent = this.value;
+                if (previewText) {
+                    previewText.style.color = this.value;
+                }
+                if (previewColorDot) {
+                    previewColorDot.style.backgroundColor = this.value;
+                }
+            });
+        }
+
+        // === Overlay Opacity ===
+        const opacityInput = document.getElementById('{{ form.overlay_opacity.id_for_label }}');
+        const opacityDisplay = document.getElementById('opacity-display');
+        const previewOverlay = document.getElementById('preview-overlay');
+
+        if (opacityInput && opacityDisplay) {
+            opacityDisplay.textContent = opacityInput.value + '%';
+
+            opacityInput.addEventListener('input', function() {
+                opacityDisplay.textContent = this.value + '%';
+                if (previewOverlay) {
+                    previewOverlay.style.backgroundColor = `rgba(0, 0, 0, ${this.value}%)`;
+                }
+            });
+        }
+
+        // === Description Character Counter ===
+        const descriptionInput = document.getElementById('{{ form.description.id_for_label }}');
+        const descriptionCounter = document.getElementById('description-counter');
+
+        if (descriptionInput && descriptionCounter) {
+            descriptionCounter.textContent = descriptionInput.value.length + ' / 300';
+
+            descriptionInput.addEventListener('input', function() {
+                descriptionCounter.textContent = this.value.length + ' / 300';
+
+                if (this.value.length > 270) {
+                    descriptionCounter.classList.add('text-error');
+                } else {
+                    descriptionCounter.classList.remove('text-error');
+                }
+
+                updateBannerPreview();
+            });
+        }
+
+        // === Image Upload Previews ===
+        const desktopInput = document.getElementById('{{ form.image_desktop.id_for_label }}');
+        const mobileInput = document.getElementById('{{ form.image_mobile.id_for_label }}');
+        const previewBackground = document.getElementById('preview-background');
+
+        if (desktopInput) {
+            desktopInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        if (previewBackground) {
+                            previewBackground.src = e.target.result;
+                        }
+                        const container = desktopInput.parentElement;
+                        container.classList.add('has-image');
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
+
+        // === Update Banner Preview ===
+        function updateBannerPreview() {
+            // Update title
+            const titleInput = document.getElementById('{{ form.title.id_for_label }}');
+            const previewTitle = document.getElementById('preview-title');
+            if (titleInput && previewTitle) {
+                previewTitle.textContent = titleInput.value || 'The New Minimalism';
+            }
+
+            // Update subtitle
+            const subtitleInput = document.getElementById('{{ form.subtitle.id_for_label }}');
+            const previewSubtitle = previewText?.querySelector('span');
+            if (subtitleInput && previewSubtitle) {
+                previewSubtitle.textContent = subtitleInput.value;
+                previewSubtitle.style.display = subtitleInput.value ? 'inline' : 'none';
+            }
+
+            // Update description
+            const descriptionInput = document.getElementById('{{ form.description.id_for_label }}');
+            const previewDescription = document.getElementById('preview-description');
+            if (descriptionInput && previewDescription) {
+                previewDescription.textContent = descriptionInput.value;
+                previewDescription.style.display = descriptionInput.value ? 'block' : 'none';
+            }
+
+            // Update CTA
+            const showCtaCheckbox = document.getElementById('{{ form.show_cta.id_for_label }}');
+            const ctaTextInput = document.getElementById('{{ form.cta_text.id_for_label }}');
+            const ctaStyleInput = document.getElementById('{{ form.cta_style.id_for_label }}');
+            const previewCta = document.getElementById('preview-cta');
+
+            if (showCtaCheckbox && previewCta) {
+                previewCta.parentElement.style.display = showCtaCheckbox.checked ? 'block' : 'none';
+
+                if (ctaTextInput) {
+                    previewCta.textContent = ctaTextInput.value || 'Shop The Look';
+                }
+
+                // Update CTA style
+                if (ctaStyleInput) {
+                    const style = ctaStyleInput.value;
+                    previewCta.className = 'px-8 py-3 font-bold rounded-sm shadow-lg hover:scale-105 transition-transform';
+
+                    if (style === 'primary') {
+                        previewCta.classList.add('bg-white', 'text-on-surface');
+                    } else if (style === 'secondary') {
+                        previewCta.classList.add('bg-surface-container', 'text-on-surface');
+                    } else if (style === 'outline') {
+                        previewCta.classList.add('bg-transparent', 'border-2', 'border-white', 'text-white');
+                    } else if (style === 'text') {
+                        previewCta.classList.add('bg-transparent', 'text-white', 'underline');
+                    }
+                }
+            }
+
+            // Update status
+            const isActiveCheckbox = document.getElementById('{{ form.is_active.id_for_label }}');
+            const previewStatus = document.getElementById('preview-status');
+            if (isActiveCheckbox && previewStatus) {
+                previewStatus.textContent = isActiveCheckbox.checked ? 'Active' : 'Inactive';
+                previewStatus.className = 'font-bold ' + (isActiveCheckbox.checked ? 'text-primary' : 'text-tertiary');
+            }
+        }
+
+        // === Hide Messages After 5 Seconds ===
+        setTimeout(function() {
+            const messages = document.querySelectorAll('.fixed.top-24');
+            messages.forEach(function(msg) {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    msg.remove();
+                }, 500);
+            });
+        }, 5000);
+
+        // === Form Change Detection ===
+        const form = document.getElementById('banner-form');
+        let formChanged = false;
+
+        form.addEventListener('input', function() {
+            formChanged = true;
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (formChanged) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // === Initialize Preview ===
+        updateBannerPreview();
+    });
+</script>
+
+</body>
+</html>

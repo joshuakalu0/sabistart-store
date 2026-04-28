@@ -1,0 +1,88 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+
+    <!-- Page header -->
+    <div class="sm:flex sm:justify-between sm:items-center mb-8">
+        <!-- Left: Title -->
+        <div class="mb-4 sm:mb-0">
+            <h1 class="text-2xl md:text-3xl text-slate-800 font-bold">{% trans "Email Bounces" %}</h1>
+        </div>
+
+        <!-- Right: Actions -->
+        <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
+            <!-- Filter button -->
+            <form method="GET" class="relative">
+                <select name="type" onchange="this.form.submit()" class="form-select text-sm py-1.5 pl-3 pr-8">
+                    <option value="">All Types</option>
+                    <option value="hard" {% if request.GET.type == 'hard' %}selected{% endif %}>Hard Bounces</option>
+                    <option value="soft" {% if request.GET.type == 'soft' %}selected{% endif %}>Soft Bounces</option>
+                    <option value="spam" {% if request.GET.type == 'spam' %}selected{% endif %}>Spam Complaints</option>
+                </select>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white shadow-lg rounded-sm border border-slate-200">
+        <div class="overflow-x-auto">
+            <table class="table-auto w-full">
+                <thead class="text-xs font-semibold uppercase text-slate-500 bg-slate-50 border-t border-b border-slate-200">
+                    <tr>
+                        <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Recipient</div></th>
+                        <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-center">Type</div></th>
+                        <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Details</div></th>
+                        <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Date</div></th>
+                        <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Context</div></th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm divide-y divide-slate-200">
+                    {% for bounce in bounces %}
+                    <tr>
+                        <td class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                            <div class="font-medium text-slate-800">{{ bounce.recipient_address }}</div>
+                        </td>
+                        <td class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                            <div class="text-center">
+                                {% if bounce.bounce_type == 'hard' %}
+                                    <div class="text-xs inline-flex font-medium bg-rose-100 text-rose-600 rounded-full text-center px-2.5 py-0.5">Hard</div>
+                                {% elif bounce.bounce_type == 'spam' %}
+                                    <div class="text-xs inline-flex font-medium bg-rose-100 text-rose-700 rounded-full text-center px-2.5 py-0.5">Spam</div>
+                                {% elif bounce.bounce_type == 'soft' %}
+                                    <div class="text-xs inline-flex font-medium bg-amber-100 text-amber-600 rounded-full text-center px-2.5 py-0.5">Soft</div>
+                                {% else %}
+                                    <div class="text-xs inline-flex font-medium bg-slate-100 text-slate-500 rounded-full text-center px-2.5 py-0.5">{{ bounce.bounce_type }}</div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap text-xs">
+                            <div class="text-slate-800 font-medium">DSN: {{ bounce.dsn_code|default:"-" }}</div>
+                            <div class="text-slate-500 truncate max-w-xs" title="{{ bounce.diagnostic_code }}">{{ bounce.diagnostic_code|default:"-" }}</div>
+                        </td>
+                        <td class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                            <div class="text-slate-500">{{ bounce.created_at|date:"M d, Y H:i" }}</div>
+                        </td>
+                        <td class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap w-px">
+                            <a class="text-indigo-500 hover:text-indigo-600" href="{% url 'dashboard:notification_log_detail' prefix=prefix pk=bounce.delivery_log_id %}">View Log</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="p-4 text-center text-slate-500">
+                            {% trans "No bounces recorded." %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% include "dashboard/partials/_pagination.html" with page_obj=bounces %}
+    </div>
+
+</div>
+{% endblock %}

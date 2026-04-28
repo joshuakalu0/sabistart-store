@@ -1,0 +1,91 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load string_utils %}
+{% load string_utils %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Currencies</h2>
+    <p class="text-slate-600 dark:text-slate-400">Manage supported currencies and formatting</p>
+  </div>
+  <a href="{{ create_url }}" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2">
+    <span class="material-icons-outlined text-sm">add</span><span>Add Currency</span>
+  </a>
+</div>
+
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+  <div class="p-6 border-b border-slate-200 dark:border-slate-700">
+    <form method="get" class="flex gap-4">
+      <div class="relative flex-1">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+          <span class="material-icons-outlined text-slate-400 text-sm">search</span>
+        </span>
+        <input type="text" name="q" value="{{ q }}" placeholder="Search currencies..."
+               class="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-primary dark:bg-slate-700 dark:text-white"/>
+      </div>
+      <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-blue-600">Search</button>
+    </form>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          {% for col in "Code,Name,Symbol,Base,Enabled,Actions"|split:"," %}
+          {% comment %} {% for col in "Code,Name,Symbol,Base,Enabled,Actions" %} {% endcomment %}
+          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+        {% for c in currencies %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="font-mono font-semibold text-slate-900 dark:text-white">{{ c.code }}</span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700 dark:text-slate-300">{{ c.name }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">{{ c.symbol }}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            {% if c.is_base_currency %}
+            <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded-full font-medium">Base</span>
+            {% else %}<span class="text-slate-400 text-xs">—</span>{% endif %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            {% if c.is_enabled %}
+            <span class="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 text-xs rounded-full">Enabled</span>
+            {% else %}
+            <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-xs rounded-full">Disabled</span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+            <a href="{% url 'dashboard:pricing:currency_edit' prefix c.id %}" class="text-primary hover:text-blue-700">Edit</a>
+            {% if not c.is_base_currency %}
+            <button class="text-red-600 hover:text-red-800 delete-btn"
+                    data-name="{{ c.code }}" data-url="{% url 'dashboard:pricing:currency_delete' prefix c.id %}">Delete</button>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="px-6 py-10 text-center text-slate-400 dark:text-slate-500">No currencies found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-400">
+    {{ currencies|length }} currency record{{ currencies|length|pluralize }}
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+      openDeleteModal("Delete Currency",
+        `Are you sure you want to delete "${this.dataset.name}"? This cannot be undone.`,
+        () => {
+          fetch(this.dataset.url, {method:"POST", headers:{"X-CSRFToken":"{{ csrf_token }}","Content-Type":"application/x-www-form-urlencoded"}})
+            .then(() => location.reload());
+        });
+    });
+  });
+});
+</script>
+{% endblock %}

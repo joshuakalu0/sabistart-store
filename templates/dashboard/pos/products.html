@@ -1,0 +1,131 @@
+{% extends 'dashboard/_partials/base.html' %}
+
+{% block content %}
+<section class="space-y-6">
+  <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-blue-600">POS Products</p>
+    <h1 class="mt-2 text-3xl font-semibold text-slate-900">Quick products for physical-store sales.</h1>
+    <p class="mt-2 max-w-3xl text-sm text-slate-600">
+      Add simple products fast, keep stock updated, and use them immediately at checkout without touching the full catalog workflow.
+    </p>
+  </div>
+
+  <div class="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_24rem]">
+    <div class="space-y-6">
+      <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <form method="get" class="grid gap-4 md:grid-cols-[minmax(0,1fr)_14rem_12rem]">
+          <div>
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Search</label>
+            <input name="q" value="{{ q }}" placeholder="Name, barcode, or SKU" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+          </div>
+          <div>
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Status</label>
+            <select name="status" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+              <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Active</option>
+              <option value="inactive" {% if selected_status == 'inactive' %}selected{% endif %}>Inactive</option>
+              <option value="all" {% if selected_status == 'all' %}selected{% endif %}>All</option>
+            </select>
+          </div>
+          <div class="flex items-end gap-3">
+            <button class="w-full rounded-2xl bg-slate-900 px-5 py-3 text-sm font-medium text-white transition hover:bg-slate-700" type="submit">Filter</button>
+            <a href="{% url 'dashboard:pos:products' prefix=prefix %}" class="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:border-blue-200 hover:text-blue-600">Reset</a>
+          </div>
+        </form>
+      </div>
+
+      <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <div class="border-b border-slate-200 px-6 py-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-semibold text-slate-900">{{ product_rows|length }} Product{{ product_rows|pluralize }}</h2>
+              <p class="mt-1 text-sm text-slate-500">Store: {{ store.name }}</p>
+            </div>
+            <a href="{% url 'dashboard:pos:inventory' prefix=prefix %}" class="rounded-full border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 transition hover:border-blue-200 hover:text-blue-600">Open inventory</a>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+              <tr>
+                <th class="px-6 py-4">Product</th>
+                <th class="px-6 py-4">Price</th>
+                <th class="px-6 py-4">Stock</th>
+                <th class="px-6 py-4">Status</th>
+                <th class="px-6 py-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 bg-white">
+              {% for row in product_rows %}
+                <tr>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-4">
+                      <div class="h-14 w-14 overflow-hidden rounded-2xl bg-slate-100">
+                        {% if row.product.image %}
+                          <img src="{{ row.product.image.url }}" alt="{{ row.product.name }}" class="h-full w-full object-cover">
+                        {% else %}
+                          <div class="flex h-full w-full items-center justify-center text-xs font-semibold text-slate-400">No image</div>
+                        {% endif %}
+                      </div>
+                      <div>
+                        <p class="font-medium text-slate-900">{{ row.product.name }}</p>
+                        {% if row.product.description %}
+                          <p class="mt-1 line-clamp-2 text-xs text-slate-500">{{ row.product.description }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-slate-400">SKU {{ row.product.sku }}{% if row.product.barcode %} · Barcode {{ row.product.barcode }}{% endif %}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 font-medium text-slate-900">NGN {{ row.product.selling_price|floatformat:2 }}</td>
+                  <td class="px-6 py-4">
+                    <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {% if row.inventory and row.inventory.quantity > 0 %}bg-emerald-50 text-emerald-700{% else %}bg-rose-50 text-rose-700{% endif %}">
+                      {{ row.inventory.quantity|default:0 }} in stock
+                    </span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {% if row.product.is_active %}bg-blue-50 text-blue-700{% else %}bg-slate-100 text-slate-600{% endif %}">
+                      {% if row.product.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-right">
+                    <div class="flex justify-end gap-2">
+                      <a href="{% url 'dashboard:pos:products' prefix=prefix %}?edit={{ row.product.id }}" class="rounded-full border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 transition hover:border-blue-200 hover:text-blue-600">Edit</a>
+                      <form method="post" action="{% url 'dashboard:pos:product_toggle' prefix=prefix product_id=row.product.id %}" class="inline">
+                        {% csrf_token %}
+                        <button class="rounded-full border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 transition hover:border-blue-200 hover:text-blue-600" type="submit">
+                          {% if row.product.is_active %}Deactivate{% else %}Activate{% endif %}
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="5" class="px-6 py-12 text-center text-sm text-slate-500">No quick POS products found yet.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <aside class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{% if edit_product %}Edit Product{% else %}Quick Add{% endif %}</p>
+      <h2 class="mt-2 text-xl font-semibold text-slate-900">{% if edit_product %}Update {{ edit_product.name }}{% else %}Create a product fast{% endif %}</h2>
+      <p class="mt-2 text-sm text-slate-600">
+        Keep this simple: name, image, price, stock, and an optional description.
+      </p>
+
+      <form method="post" enctype="multipart/form-data" action="{% if edit_product %}{{ edit_url }}{% else %}{{ create_url }}{% endif %}" class="mt-6 space-y-4">
+        {% csrf_token %}
+        {% for field in product_form %}
+          {% include "shared/forms/field.html" with field=field %}
+        {% endfor %}
+        <button class="w-full rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700" type="submit">
+          {% if edit_product %}Save changes{% else %}Create product{% endif %}
+        </button>
+      </form>
+    </aside>
+  </div>
+</section>
+{% endblock %}

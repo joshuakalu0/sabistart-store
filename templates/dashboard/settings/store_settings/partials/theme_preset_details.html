@@ -1,0 +1,152 @@
+{% extends "dashboard/_partials/base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      Theme Preset Details
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Preview and manage theme preset configuration
+    </p>
+  </div>
+  <div class="flex space-x-2">
+    <a
+      href="{% url 'dashboard:store_settings:theme_preset_edit' prefix preset.pk %}"
+      class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+    >
+      <span class="material-icons-outlined text-sm">edit</span>
+      <span>Edit</span>
+    </a>
+    <button
+      class="text-red-600 hover:text-red-800 cursor-pointer delete-btn"
+      data-name="{{ preset.name }}"
+      data-url="{% url 'dashboard:store_settings:theme_preset_delete' prefix preset.pk %}"
+    >
+      Delete
+    </button>
+  </div>
+</div>
+
+<div
+  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+>
+  <div class="p-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div>
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-2">Basic Information</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Name</label>
+                <p class="mt-1 text-slate-600 dark:text-slate-400">{{ preset.name }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Description</label>
+                <p class="mt-1 text-slate-600 dark:text-slate-400">{{ preset.description|default:"-" }}</p>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Style</label>
+                  <p class="mt-1 text-slate-600 dark:text-slate-400">{{ preset.get_style_display }}</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Industry</label>
+                  <p class="mt-1 text-slate-600 dark:text-slate-400">{{ preset.get_industry_display }}</p>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Usage Count</label>
+                  <p class="mt-1 text-slate-600 dark:text-slate-400">{{ preset.usage_count }}</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Featured</label>
+                  <p class="mt-1 text-slate-600 dark:text-slate-400">
+                    {% if preset.is_featured %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                      Featured
+                    </span>
+                    {% else %}
+                    <span class="text-slate-500">No</span>
+                    {% endif %}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-2">Theme Configuration</h3>
+            <div class="bg-slate-50 dark:bg-slate-900 rounded-lg p-4">
+              <pre class="text-sm text-slate-600 dark:text-slate-400">{{ preset.theme_config|pprint }}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-2">Preview Image</h3>
+            <div class="border border-slate-200 dark:border-slate-700 rounded-lg p-4">
+              {% if preset.preview_image %}
+              <img
+                src="{{ preset.preview_image.url }}"
+                alt="{{ preset.name }}"
+                class="w-full h-auto rounded-lg"
+                width="400"
+                height="240"
+              />
+              {% else %}
+              <div class="w-full h-48 bg-slate-200 dark:bg-slate-700 rounded-lg flex items-center justify-center">
+                <span class="material-icons-outlined text-slate-400 text-4xl">image</span>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-2">Metadata</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Created At</label>
+                <p class="mt-1 text-slate-600 dark:text-slate-400">{{ preset.created_at|date:'M d, Y H:i' }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Updated At</label>
+                <p class="mt-1 text-slate-600 dark:text-slate-400">{{ preset.updated_at|date:'M d, Y H:i' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Delete functionality
+    document.querySelectorAll(".delete-btn").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const name = this.dataset.name;
+        const url = this.dataset.url;
+
+        openDeleteModal(
+          "Delete Theme Preset",
+          `Are you sure you want to delete "${name}"? This action cannot be undone.`,
+          function () {
+            fetch(url, {
+              method: "POST",
+              headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+            }).then(() => location.reload());
+          },
+        );
+      });
+    });
+  });
+</script>
+
+{% endblock content %}

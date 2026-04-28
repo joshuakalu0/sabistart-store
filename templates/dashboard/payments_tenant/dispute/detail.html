@@ -1,0 +1,104 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="space-y-6">
+  <div class="flex items-center space-x-4">
+    <a href="{% url 'dashboard:payments_tenant:dispute_list' prefix %}"
+       class="p-2 text-slate-500 hover:text-primary rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+      <span class="material-icons-outlined">arrow_back</span>
+    </a>
+    <div>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white font-mono">{{ dispute.dispute_reference }}</h2>
+      <div class="flex items-center space-x-2 mt-1">
+        <span class="px-2 py-0.5 rounded-full text-xs {% if dispute.status == 'open' %}bg-amber-100 text-amber-700{% elif dispute.status == 'won' %}bg-green-100 text-green-700{% elif dispute.status == 'lost' %}bg-red-100 text-red-700{% else %}bg-slate-100 text-slate-600{% endif %}">
+          {{ dispute.status|capfirst }}
+        </span>
+        {% if evidence_deadline_passed and dispute.status == 'open' %}
+        <span class="px-2 py-0.5 rounded-full text-xs bg-red-100 text-red-700 font-medium">Evidence Deadline Passed</span>
+        {% endif %}
+      </div>
+    </div>
+    {% if dispute.status == 'open' and not evidence_deadline_passed %}
+    <div class="ml-auto">
+      <a href="{% url 'dashboard:payments_tenant:dispute_evidence_create' prefix dispute.id %}"
+         class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-blue-600 flex items-center space-x-2">
+        <span class="material-icons-outlined text-sm">upload_file</span><span>Submit Evidence</span>
+      </a>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Deadline countdown -->
+  {% if dispute.evidence_deadline and dispute.status == 'open' %}
+  <div class="p-4 {% if evidence_deadline_passed %}bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-700{% else %}bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-700{% endif %} border rounded-xl flex items-center space-x-3">
+    <span class="material-icons-outlined {% if evidence_deadline_passed %}text-red-500{% else %}text-amber-500{% endif %}">schedule</span>
+    <div>
+      <p class="font-medium {% if evidence_deadline_passed %}text-red-800 dark:text-red-200{% else %}text-amber-800 dark:text-amber-200{% endif %}">
+        {% if evidence_deadline_passed %}Evidence submission deadline has passed{% else %}Evidence Deadline: {{ dispute.evidence_deadline|date:"d M Y H:i" }}{% endif %}
+      </p>
+      {% if not evidence_deadline_passed %}<p class="text-xs text-amber-700 dark:text-amber-300">Submit all supporting evidence before this deadline to contest the chargeback.</p>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Dispute Info -->
+    <div class="lg:col-span-2 space-y-4">
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <h3 class="font-semibold text-slate-900 dark:text-white mb-4">Dispute Details</h3>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div><p class="text-slate-500">Dispute Amount</p><p class="font-bold text-xl dark:text-white">{{ dispute.dispute_amount }} {{ dispute.currency }}</p></div>
+          <div><p class="text-slate-500">Reason</p><p class="dark:text-white">{{ dispute.reason|capfirst }}</p></div>
+          <div><p class="text-slate-500">Transaction</p><p><a href="{% url 'dashboard:payments_tenant:transaction_detail' prefix dispute.transaction.id %}" class="font-mono text-xs text-primary hover:underline">{{ dispute.transaction.internal_reference }}</a></p></div>
+          <div><p class="text-slate-500">Gateway Dispute ID</p><p class="font-mono text-xs dark:text-white">{{ dispute.gateway_dispute_id|default:"—" }}</p></div>
+          <div><p class="text-slate-500">Opened</p><p class="dark:text-white">{{ dispute.opened_at|date:"d M Y H:i" }}</p></div>
+          {% if dispute.resolved_at %}<div><p class="text-slate-500">Resolved</p><p class="dark:text-white">{{ dispute.resolved_at|date:"d M Y H:i" }}</p></div>{% endif %}
+          {% if dispute.reason_detail %}<div class="col-span-2"><p class="text-slate-500">Reason Detail</p><p class="dark:text-slate-300">{{ dispute.reason_detail }}</p></div>{% endif %}
+        </div>
+      </div>
+
+      <!-- Evidence submitted -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-semibold text-slate-900 dark:text-white">Evidence Submitted ({{ evidence_list|length }})</h3>
+          {% if dispute.status == 'open' and not evidence_deadline_passed %}
+          <a href="{% url 'dashboard:payments_tenant:dispute_evidence_create' prefix dispute.id %}" class="text-sm text-primary hover:underline flex items-center space-x-1">
+            <span class="material-icons-outlined text-sm">add</span><span>Add</span>
+          </a>
+          {% endif %}
+        </div>
+        {% for evidence in evidence_list %}
+        <div class="py-3 border-b border-slate-100 dark:border-slate-700 last:border-0">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="font-medium text-sm dark:text-white">{{ evidence.get_evidence_type_display }}</p>
+              {% if evidence.description %}<p class="text-xs text-slate-500 mt-1">{{ evidence.description }}</p>{% endif %}
+              {% if evidence.file_url %}<a href="{{ evidence.file_url }}" target="_blank" class="text-xs text-primary hover:underline mt-1 flex items-center space-x-1"><span class="material-icons-outlined text-xs">attach_file</span><span>{{ evidence.file_type|default:"File" }}</span></a>{% endif %}
+              {% if evidence.text_content %}<p class="text-xs text-slate-400 mt-1 font-mono bg-slate-50 dark:bg-slate-700 p-2 rounded">{{ evidence.text_content|truncatechars:200 }}</p>{% endif %}
+            </div>
+            <p class="text-xs text-slate-400 whitespace-nowrap ml-4">{{ evidence.submitted_at|date:"d M Y" }}</p>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-sm text-slate-400 text-center py-4">No evidence submitted yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-4">
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 text-sm">
+        <h3 class="font-semibold dark:text-white mb-3">Quick Facts</h3>
+        <div class="space-y-2">
+          <div class="flex justify-between"><span class="text-slate-500">Evidence Pieces</span><span class="dark:text-white font-semibold">{{ evidence_list|length }}</span></div>
+          <div class="flex justify-between"><span class="text-slate-500">Days Open</span><span class="dark:text-white">{{ dispute.opened_at|timesince|truncatewords:2 }}</span></div>
+          {% if dispute.evidence_deadline %}
+          <div class="flex justify-between"><span class="text-slate-500">Evidence Deadline</span>
+            <span class="{% if evidence_deadline_passed %}text-red-600 font-semibold{% else %}text-slate-900 dark:text-white{% endif %}">{{ dispute.evidence_deadline|date:"d M Y" }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

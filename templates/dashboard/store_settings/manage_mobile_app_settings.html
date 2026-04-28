@@ -1,0 +1,1038 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{{ title }} | Store Admin</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-high": "#e1e9ee",
+              "on-error": "#fff7f6",
+              "primary-dim": "#0048c1",
+              "on-error-container": "#752121",
+              "on-surface-variant": "#566166",
+              "inverse-on-surface": "#9a9d9f",
+              "tertiary-fixed": "#e3dbfd",
+              "tertiary-dim": "#54506b",
+              "tertiary": "#605c78",
+              "surface": "#f7f9fb",
+              "primary-container": "#dbe1ff",
+              "tertiary-fixed-dim": "#d4cdee",
+              "surface-container-highest": "#d9e4ea",
+              "surface-container-lowest": "#ffffff",
+              "outline-variant": "#a9b4b9",
+              "on-primary-fixed-variant": "#0050d4",
+              "on-background": "#2a3439",
+              "on-primary-fixed": "#003798",
+              "surface-variant": "#d9e4ea",
+              "error-container": "#fe8983",
+              "on-tertiary-fixed-variant": "#5b5672",
+              "primary-fixed": "#dbe1ff",
+              "on-tertiary": "#fcf7ff",
+              "inverse-primary": "#618bff",
+              "on-secondary-fixed": "#314055",
+              "surface-container-low": "#f0f4f7",
+              "secondary-fixed-dim": "#c5d6f0",
+              "surface-tint": "#0053db",
+              "secondary": "#506076",
+              "on-secondary-fixed-variant": "#4d5d73",
+              "on-tertiary-fixed": "#3e3a54",
+              "primary-fixed-dim": "#c7d3ff",
+              "tertiary-container": "#e3dbfd",
+              "surface-container": "#e8eff3",
+              "outline": "#717c82",
+              "primary": "#0053db",
+              "on-primary": "#f8f7ff",
+              "on-primary-container": "#0048bf",
+              "surface-bright": "#f7f9fb",
+              "on-tertiary-container": "#514d68",
+              "inverse-surface": "#0b0f10",
+              "on-secondary-container": "#435368",
+              "error-dim": "#4e0309",
+              "error": "#9f403d",
+              "secondary-fixed": "#d3e4fe",
+              "background": "#f7f9fb",
+              "on-surface": "#2a3439",
+              "secondary-dim": "#44546a",
+              "on-secondary": "#f7f9ff",
+              "surface-dim": "#cfdce3",
+              "secondary-container": "#d3e4fe"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+        }
+        input[type="range"] {
+            accent-color: #0053db;
+        }
+
+        /* Form Error States */
+        .form-field-error {
+            border-bottom-color: #9f403d !important;
+            background-color: #fef2f2 !important;
+        }
+        .error-message {
+            color: #9f403d;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Toggle Switch Styling */
+        .toggle-checkbox {
+            opacity: 0;
+            position: absolute;
+        }
+
+        /* Color Input */
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 8px;
+        }
+
+        /* Conditional Section Opacity */
+        .conditional-section {
+            transition: opacity 0.3s ease;
+        }
+        .conditional-section.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+
+<!-- Django Messages Framework -->
+{% if messages %}
+<div class="fixed top-20 right-8 z-50 space-y-2">
+    {% for message in messages %}
+    <div class="flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg" style="background-color: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#9f403d{% else %}#ffffff{% endif %}; color: {% if message.tags == 'error' %}#fff7f6{% else %}#2a3439{% endif %};">
+        <span class="material-symbols-outlined text-sm">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span class="font-medium text-sm">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- TopAppBar -->
+<nav class="fixed top-0 w-full z-50 glass-nav shadow-sm px-8 h-16 flex justify-between items-center">
+    <div class="flex items-center gap-8">
+        <span class="text-xl font-bold tracking-tight text-slate-900">{{ title }}</span>
+        <div class="hidden md:flex gap-6">
+            <a class="text-blue-700 border-b-2 border-blue-700 pb-1 font-medium transition-colors" href="#app-identity">App Identity</a>
+            <a class="text-slate-500 hover:text-slate-900 transition-colors" href="#theme">Theme</a>
+            <a class="text-slate-500 hover:text-slate-900 transition-colors" href="#navigation">Navigation</a>
+            <a class="text-slate-500 hover:text-slate-900 transition-colors" href="#features">Features</a>
+            <a class="text-slate-500 hover:text-slate-900 transition-colors" href="#analytics">Analytics</a>
+        </div>
+    </div>
+    <div class="flex items-center gap-4">
+        <button type="button" class="px-4 py-2 text-on-surface-variant hover:bg-slate-100/50 transition-colors rounded-md font-medium text-sm" onclick="window.location.href='{% url 'manage_mobile_app_settings' %}'">Discard</button>
+        <button type="submit" form="mobile-app-form" class="px-5 py-2 bg-gradient-to-b from-primary to-primary-dim text-on-primary rounded-md font-semibold text-sm shadow-sm hover:scale-95 duration-150 transition-all">
+            {% if is_edit %}Save Changes{% else %}Create Settings{% endif %}
+        </button>
+        {% if is_edit %}
+        <a href="{% url 'mobile_app_preview' %}" class="px-4 py-2 text-primary hover:bg-primary/10 rounded-md font-medium text-sm flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">visibility</span>
+            Preview
+        </a>
+        {% endif %}
+    </div>
+</nav>
+
+<main class="max-w-7xl mx-auto pt-32 pb-24 px-8">
+    <form id="mobile-app-form" method="post" action="{{ action_url }}" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <header class="mb-16">
+            <h1 class="text-5xl font-extrabold tracking-tight text-on-surface mb-4">Settings Editor</h1>
+            <p class="text-on-surface-variant text-lg">Manage technical configurations for the MobileAppSettings Django model.</p>
+            {% if is_edit %}
+            <p class="text-xs text-on-surface-variant mt-4">
+                <span class="material-symbols-outlined text-xs align-middle">apps</span>
+                {{ enabled_features_count|default:0 }} features enabled •
+                <span class="material-symbols-outlined text-xs align-middle">notifications</span>
+                {{ enabled_notifications_count|default:0 }} notification types •
+                <span class="material-symbols-outlined text-xs align-middle">tab</span>
+                {{ enabled_tabs_count|default:0 }} navigation tabs
+            </p>
+            {% endif %}
+        </header>
+
+        <div class="space-y-24">
+
+            <!-- Section 1: App Identity -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start" id="app-identity">
+                <div class="lg:col-span-4">
+                    <h2 class="text-2xl font-bold text-on-surface">App Identity</h2>
+                    <p class="text-on-surface-variant mt-2">Define the core visual metadata and branding of your mobile application.</p>
+                </div>
+                <div class="lg:col-span-8 bg-surface-container-low p-10 rounded-xl space-y-10">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="{{ form.app_name.id_for_label }}">App Name</label>
+                            {{ form.app_name }}
+                            {% if form.app_name.errors %}
+                                {% for error in form.app_name.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="{{ form.app_tagline.id_for_label }}">App Tagline</label>
+                            {{ form.app_tagline }}
+                            {% if form.app_tagline.errors %}
+                                {% for error in form.app_tagline.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        <div class="space-y-4">
+                            <label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant block" for="{{ form.app_icon.id_for_label }}">App Icon</label>
+                            {% if is_edit and object.app_icon %}
+                            <div class="mb-3">
+                                <img src="{{ object.app_icon.url }}" alt="Current app icon" class="w-32 h-32 object-cover rounded-2xl border border-outline-variant/20"/>
+                            </div>
+                            {% endif %}
+                            <div class="w-32 h-32 bg-surface-container-lowest rounded-2xl flex items-center justify-center cursor-pointer hover:bg-white transition-colors border-2 border-dashed border-outline-variant/30" onclick="document.getElementById('{{ form.app_icon.id_for_label }}').click()">
+                                <span class="material-symbols-outlined text-outline text-4xl">add_photo_alternate</span>
+                            </div>
+                            {{ form.app_icon }}
+                            {% if form.app_icon.errors %}
+                                {% for error in form.app_icon.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                            <p class="text-xs text-on-surface-variant">PNG or JPG. 1024x1024px recommended.</p>
+                        </div>
+                        <div class="space-y-4">
+                            <label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant block" for="{{ form.splash_screen.id_for_label }}">Splash Screen</label>
+                            {% if is_edit and object.splash_screen %}
+                            <div class="mb-3">
+                                <img src="{{ object.splash_screen.url }}" alt="Current splash screen" class="w-full max-w-[140px] aspect-[9/16] object-cover rounded-lg border border-outline-variant/20"/>
+                            </div>
+                            {% endif %}
+                            <div class="w-full aspect-[9/16] max-w-[140px] bg-surface-container-lowest rounded-lg flex items-center justify-center cursor-pointer hover:bg-white transition-colors border-2 border-dashed border-outline-variant/30" onclick="document.getElementById('{{ form.splash_screen.id_for_label }}').click()">
+                                <span class="material-symbols-outlined text-outline text-3xl">wallpaper</span>
+                            </div>
+                            {{ form.splash_screen }}
+                            {% if form.splash_screen.errors %}
+                                {% for error in form.splash_screen.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="space-y-6 pt-6 border-t border-outline-variant/10">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-medium text-on-surface" for="{{ form.splash_screen_duration.id_for_label }}">Splash Screen Duration</label>
+                            <span class="text-sm font-bold text-primary" id="splash-duration-display">{{ form.splash_screen_duration.value|default:2 }}s</span>
+                        </div>
+                        {{ form.splash_screen_duration }}
+                        <div class="flex justify-between text-[10px] text-on-surface-variant">
+                            <span>1s</span>
+                            <span>Duration</span>
+                            <span>5s</span>
+                        </div>
+                        {% if form.splash_screen_duration.errors %}
+                            {% for error in form.splash_screen_duration.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Theme -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start" id="theme">
+                <div class="lg:col-span-4">
+                    <h2 class="text-2xl font-bold text-on-surface">Theme</h2>
+                    <p class="text-on-surface-variant mt-2">Configure the visual color palette and system styles for the entire app interface.</p>
+                    <!-- Theme Preview -->
+                    <div class="mt-8 relative mx-auto lg:mx-0 w-64 h-[480px] bg-slate-900 rounded-[3rem] p-3 border-[6px] border-slate-800 shadow-2xl overflow-hidden">
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-800 rounded-b-2xl z-20"></div>
+                        <div class="w-full h-full bg-white rounded-[2.2rem] overflow-hidden flex flex-col">
+                            <div class="h-12 flex items-center px-4 justify-between" style="background-color: {{ form.primary_color.value|default:'#0053db' }};">
+                                <div class="w-16 h-2 bg-white/20 rounded-full"></div>
+                                <div class="flex gap-1">
+                                    <div class="w-3 h-3 bg-white/40 rounded-full"></div>
+                                    <div class="w-3 h-3 bg-white/40 rounded-full"></div>
+                                </div>
+                            </div>
+                            <div class="p-4 space-y-4 flex-1">
+                                <div class="w-full h-32 bg-slate-100 rounded-xl"></div>
+                                <div class="space-y-2">
+                                    <div class="w-2/3 h-4 bg-slate-200 rounded-full"></div>
+                                    <div class="w-full h-3 bg-slate-100 rounded-full"></div>
+                                    <div class="w-5/6 h-3 bg-slate-100 rounded-full"></div>
+                                </div>
+                                <div class="w-full h-10 rounded-lg" style="background-color: {{ form.primary_color.value|default:'#0053db' }};"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-center lg:text-left text-xs font-semibold text-on-surface-variant mt-4 uppercase tracking-tighter">Live Theme Preview</p>
+                </div>
+                <div class="lg:col-span-8 bg-surface-container-low p-10 rounded-xl space-y-12">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="space-y-3">
+                            <label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="{{ form.primary_color.id_for_label }}">Primary Color</label>
+                            <div class="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg">
+                                {{ form.primary_color }}
+                                <span class="text-sm font-mono text-on-surface-variant" id="primary-color-display">{{ form.primary_color.value|default:'#0053db' }}</span>
+                            </div>
+                            {% if form.primary_color.errors %}
+                                {% for error in form.primary_color.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="{{ form.accent_color.id_for_label }}">Accent Color</label>
+                            <div class="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg">
+                                {{ form.accent_color }}
+                                <span class="text-sm font-mono text-on-surface-variant" id="accent-color-display">{{ form.accent_color.value|default:'#F59E0B' }}</span>
+                            </div>
+                            {% if form.accent_color.errors %}
+                                {% for error in form.accent_color.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="{{ form.background_color.id_for_label }}">Background</label>
+                            <div class="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg">
+                                {{ form.background_color }}
+                                <span class="text-sm font-mono text-on-surface-variant" id="background-color-display">{{ form.background_color.value|default:'#FFFFFF' }}</span>
+                            </div>
+                            {% if form.background_color.errors %}
+                                {% for error in form.background_color.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 pt-10 border-t border-outline-variant/10">
+                        <div class="space-y-4">
+                            <label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="{{ form.status_bar_style.id_for_label }}">Status Bar Style</label>
+                            {{ form.status_bar_style }}
+                            {% if form.status_bar_style.errors %}
+                                {% for error in form.status_bar_style.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="flex items-center justify-between bg-surface-container-lowest p-6 rounded-xl">
+                            <div class="space-y-1">
+                                <span class="text-sm font-bold text-on-surface">Enable Dark Mode</span>
+                                <p class="text-xs text-on-surface-variant">Automatic switching based on OS</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                {{ form.enable_dark_mode }}
+                                <div class="w-11 h-6 bg-surface-container-high rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" style="background-color: {% if form.enable_dark_mode.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                    <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.enable_dark_mode.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                                </div>
+                            </label>
+                        </div>
+                        {% if form.enable_dark_mode.errors %}
+                            {% for error in form.enable_dark_mode.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Navigation -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start" id="navigation">
+                <div class="lg:col-span-4">
+                    <h2 class="text-2xl font-bold text-on-surface">Navigation</h2>
+                    <p class="text-on-surface-variant mt-2">Manage bottom tabs and menu accessibility within the mobile shell.</p>
+                </div>
+                <div class="lg:col-span-8 bg-surface-container-low p-10 rounded-xl space-y-10">
+                    <div class="space-y-4">
+                        <label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="{{ form.bottom_nav_style.id_for_label }}">Bottom Nav Style</label>
+                        <div class="grid grid-cols-3 gap-4">
+                            <button type="button" class="nav-style-btn bg-surface-container-lowest border-2 {% if form.bottom_nav_style.value == 'icons_labels' %}border-primary{% else %}border-transparent{% endif %} p-4 rounded-xl flex flex-col items-center gap-2" data-style="icons_labels">
+                                <span class="material-symbols-outlined {% if form.bottom_nav_style.value == 'icons_labels' %}text-primary{% else %}text-on-surface-variant{% endif %}">dashboard</span>
+                                <span class="text-xs font-bold {% if form.bottom_nav_style.value == 'icons_labels' %}text-primary{% else %}text-on-surface-variant{% endif %}">Icons + Labels</span>
+                            </button>
+                            <button type="button" class="nav-style-btn bg-surface-container-lowest border-2 {% if form.bottom_nav_style.value == 'icons' %}border-primary{% else %}border-transparent{% endif %} p-4 rounded-xl flex flex-col items-center gap-2" data-style="icons">
+                                <span class="material-symbols-outlined {% if form.bottom_nav_style.value == 'icons' %}text-primary{% else %}text-on-surface-variant{% endif %}">dashboard</span>
+                                <span class="text-xs font-bold {% if form.bottom_nav_style.value == 'icons' %}text-primary{% else %}text-on-surface-variant{% endif %}">Icons Only</span>
+                            </button>
+                            <button type="button" class="nav-style-btn bg-surface-container-lowest border-2 {% if form.bottom_nav_style.value == 'labels' %}border-primary{% else %}border-transparent{% endif %} p-4 rounded-xl flex flex-col items-center gap-2" data-style="labels">
+                                <span class="text-xs font-bold {% if form.bottom_nav_style.value == 'labels' %}text-primary{% else %}text-on-surface-variant{% endif %}">Labels Only</span>
+                            </button>
+                        </div>
+                        {{ form.bottom_nav_style }}
+                        {% if form.bottom_nav_style.errors %}
+                            {% for error in form.bottom_nav_style.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 py-8 border-y border-outline-variant/10">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            {{ form.show_home_tab }}
+                            <span class="text-sm font-medium text-on-surface">Home Tab</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            {{ form.show_categories_tab }}
+                            <span class="text-sm font-medium text-on-surface">Categories</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            {{ form.show_search_tab }}
+                            <span class="text-sm font-medium text-on-surface">Search</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            {{ form.show_cart_tab }}
+                            <span class="text-sm font-medium text-on-surface">Cart</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            {{ form.show_account_tab }}
+                            <span class="text-sm font-medium text-on-surface">Account</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            {{ form.show_wishlist_tab }}
+                            <span class="text-sm font-medium text-on-surface">Wishlist</span>
+                        </label>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <div class="space-y-1">
+                            <label class="text-sm font-bold text-on-surface" for="{{ form.max_bottom_nav_items.id_for_label }}">Max Nav Items</label>
+                            <p class="text-xs text-on-surface-variant">Limits the amount of tabs shown in the bar</p>
+                        </div>
+                        {{ form.max_bottom_nav_items }}
+                        {% if form.max_bottom_nav_items.errors %}
+                            {% for error in form.max_bottom_nav_items.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Bottom Nav Preview -->
+                    <div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10">
+                        <p class="text-xs font-bold text-on-surface-variant mb-6 uppercase tracking-widest text-center">Interactive Tab Bar Preview</p>
+                        <div class="flex justify-around items-end">
+                            <div class="flex flex-col items-center gap-1 text-primary">
+                                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+                                <span class="text-[10px] font-bold">Home</span>
+                            </div>
+                            {% if form.show_categories_tab.value %}
+                            <div class="flex flex-col items-center gap-1 text-on-surface-variant opacity-60">
+                                <span class="material-symbols-outlined">category</span>
+                                <span class="text-[10px] font-bold">Categories</span>
+                            </div>
+                            {% endif %}
+                            {% if form.show_search_tab.value %}
+                            <div class="flex flex-col items-center gap-1 text-on-surface-variant opacity-60">
+                                <span class="material-symbols-outlined">search</span>
+                                <span class="text-[10px] font-bold">Search</span>
+                            </div>
+                            {% endif %}
+                            {% if form.show_cart_tab.value %}
+                            <div class="flex flex-col items-center gap-1 text-on-surface-variant opacity-60">
+                                <span class="material-symbols-outlined">shopping_cart</span>
+                                <span class="text-[10px] font-bold">Cart</span>
+                            </div>
+                            {% endif %}
+                            {% if form.show_account_tab.value %}
+                            <div class="flex flex-col items-center gap-1 text-on-surface-variant opacity-60">
+                                <span class="material-symbols-outlined">person</span>
+                                <span class="text-[10px] font-bold">Account</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Push Notifications -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start" id="push-notifications">
+                <div class="lg:col-span-4">
+                    <h2 class="text-2xl font-bold text-on-surface">Push Notifications</h2>
+                    <p class="text-on-surface-variant mt-2">Configure Firebase and APNs credentials for automated messaging.</p>
+                </div>
+                <div class="lg:col-span-8 bg-surface-container-low p-10 rounded-xl space-y-8">
+                    <div class="flex items-center justify-between bg-primary/5 p-6 rounded-xl border border-primary/10">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-on-primary">
+                                <span class="material-symbols-outlined">notifications_active</span>
+                            </div>
+                            <div>
+                                <span class="text-md font-bold text-on-surface">Enable Push Engine</span>
+                                <p class="text-xs text-on-surface-variant">Global toggle for all notification services</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            {{ form.enable_push_notifications }}
+                            <div class="w-11 h-6 bg-surface-container-high rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" style="background-color: {% if form.enable_push_notifications.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.enable_push_notifications.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                            </div>
+                        </label>
+                    </div>
+                    {% if form.enable_push_notifications.errors %}
+                        {% for error in form.enable_push_notifications.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="space-y-6 {% if not form.enable_push_notifications.value %}conditional-section disabled{% endif %}" id="push-section">
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="{{ form.firebase_server_key.id_for_label }}">Firebase Server Key</label>
+                            {{ form.firebase_server_key }}
+                            {% if form.firebase_server_key.errors %}
+                                {% for error in form.firebase_server_key.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="{{ form.apns_certificate.id_for_label }}">APNs Certificate (.p12)</label>
+                            {% if is_edit and object.apns_certificate %}
+                            <div class="mb-3 text-xs text-on-surface-variant">
+                                <span class="material-symbols-outlined text-sm align-middle">upload_file</span>
+                                Current: {{ object.apns_certificate.name|truncatechars:30 }}
+                            </div>
+                            {% endif %}
+                            <div class="w-full bg-surface-container-lowest border-2 border-dashed border-outline-variant/30 rounded-lg p-6 flex flex-col items-center gap-2 hover:bg-white transition-colors cursor-pointer" onclick="document.getElementById('{{ form.apns_certificate.id_for_label }}').click()">
+                                <span class="material-symbols-outlined text-outline">upload_file</span>
+                                <span class="text-sm font-medium text-on-surface-variant">Click to upload Apple push cert</span>
+                            </div>
+                            {{ form.apns_certificate }}
+                            {% if form.apns_certificate.errors %}
+                                {% for error in form.apns_certificate.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 pt-6">
+                        <label class="flex items-center justify-between py-3 border-b border-outline-variant/10 cursor-pointer">
+                            <span class="text-sm font-medium">Order Updates</span>
+                            {{ form.notify_order_updates }}
+                        </label>
+                        <label class="flex items-center justify-between py-3 border-b border-outline-variant/10 cursor-pointer">
+                            <span class="text-sm font-medium">Promotions</span>
+                            {{ form.notify_promotions }}
+                        </label>
+                        <label class="flex items-center justify-between py-3 border-b border-outline-variant/10 cursor-pointer">
+                            <span class="text-sm font-medium">New Products</span>
+                            {{ form.notify_new_products }}
+                        </label>
+                        <label class="flex items-center justify-between py-3 border-b border-outline-variant/10 cursor-pointer">
+                            <span class="text-sm font-medium">Price Drops</span>
+                            {{ form.notify_price_drops }}
+                        </label>
+                        <label class="flex items-center justify-between py-3 border-b border-outline-variant/10 cursor-pointer">
+                            <span class="text-sm font-medium">Back in Stock</span>
+                            {{ form.notify_back_in_stock }}
+                        </label>
+                        <label class="flex items-center justify-between py-3 border-b border-outline-variant/10 cursor-pointer">
+                            <span class="text-sm font-medium">Abandoned Cart</span>
+                            {{ form.notify_abandoned_cart }}
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: App Features -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start" id="features">
+                <div class="lg:col-span-4">
+                    <h2 class="text-2xl font-bold text-on-surface">App Features</h2>
+                    <p class="text-on-surface-variant mt-2">Toggle advanced mobile capabilities and hardware integrations.</p>
+                </div>
+                <div class="lg:col-span-8 bg-surface-container-low p-10 rounded-xl">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <label class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/5 flex items-center gap-4 cursor-pointer">
+                            <div class="p-3 bg-secondary-container rounded-lg text-on-secondary-container">
+                                <span class="material-symbols-outlined">fingerprint</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-bold">Biometric Login</p>
+                                <p class="text-[11px] text-on-surface-variant">FaceID &amp; TouchID support</p>
+                            </div>
+                            {{ form.enable_biometric_login }}
+                        </label>
+                        <label class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/5 flex items-center gap-4 cursor-pointer">
+                            <div class="p-3 bg-secondary-container rounded-lg text-on-secondary-container">
+                                <span class="material-symbols-outlined">cloud_off</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-bold">Offline Mode</p>
+                                <p class="text-[11px] text-on-surface-variant">Local database syncing</p>
+                            </div>
+                            {{ form.enable_offline_mode }}
+                        </label>
+                        <label class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/5 flex items-center gap-4 cursor-pointer">
+                            <div class="p-3 bg-secondary-container rounded-lg text-on-secondary-container">
+                                <span class="material-symbols-outlined">barcode_scanner</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-bold">Barcode Scanner</p>
+                                <p class="text-[11px] text-on-surface-variant">Camera lookup integration</p>
+                            </div>
+                            {{ form.enable_barcode_scanner }}
+                        </label>
+                        <label class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/5 flex items-center gap-4 cursor-pointer">
+                            <div class="p-3 bg-secondary-container rounded-lg text-on-secondary-container">
+                                <span class="material-symbols-outlined">view_in_ar</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-bold">AR Preview</p>
+                                <p class="text-[11px] text-on-surface-variant">Augmented reality product view</p>
+                            </div>
+                            {{ form.enable_ar_preview }}
+                        </label>
+                        <label class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/5 flex items-center gap-4 cursor-pointer">
+                            <div class="p-3 bg-secondary-container rounded-lg text-on-secondary-container">
+                                <span class="material-symbols-outlined">mic</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-bold">Voice Search</p>
+                                <p class="text-[11px] text-on-surface-variant">Voice-activated search</p>
+                            </div>
+                            {{ form.enable_voice_search }}
+                        </label>
+                        <label class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant/5 flex items-center gap-4 cursor-pointer">
+                            <div class="p-3 bg-secondary-container rounded-lg text-on-secondary-container">
+                                <span class="material-symbols-outlined">screen_rotation</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-bold">Shake to Refresh</p>
+                                <p class="text-[11px] text-on-surface-variant">Shake device to refresh</p>
+                            </div>
+                            {{ form.enable_shake_to_refresh }}
+                        </label>
+                    </div>
+
+                    <div class="mt-8 flex items-center justify-between p-6 bg-surface-container-lowest rounded-xl {% if not form.enable_offline_mode.value %}conditional-section disabled{% endif %}" id="offline-section">
+                        <div class="space-y-1">
+                            <p class="text-sm font-bold text-on-surface">Offline Cache Size (MB)</p>
+                            <p class="text-xs text-on-surface-variant">Max storage allowed for offline content</p>
+                        </div>
+                        {{ form.offline_cache_size_mb }}
+                        {% if form.offline_cache_size_mb.errors %}
+                            {% for error in form.offline_cache_size_mb.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 6: Performance -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start" id="performance">
+                <div class="lg:col-span-4">
+                    <h2 class="text-2xl font-bold text-on-surface">Performance</h2>
+                    <p class="text-on-surface-variant mt-2">Optimization settings for media delivery and memory management.</p>
+                </div>
+                <div class="lg:col-span-8 bg-surface-container-low p-10 rounded-xl space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-3">
+                            <label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="{{ form.image_quality.id_for_label }}">Image Quality</label>
+                            {{ form.image_quality }}
+                            {% if form.image_quality.errors %}
+                                {% for error in form.image_quality.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="{{ form.cache_duration_hours.id_for_label }}">Cache Duration (Hours)</label>
+                            {{ form.cache_duration_hours }}
+                            {% if form.cache_duration_hours.errors %}
+                                {% for error in form.cache_duration_hours.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
+                        <label class="flex items-center justify-between p-6 bg-surface-container-lowest rounded-xl border border-outline-variant/5 cursor-pointer">
+                            <div class="space-y-1">
+                                <p class="text-sm font-bold">Image Caching</p>
+                                <p class="text-[11px] text-on-surface-variant">Store images locally</p>
+                            </div>
+                            {{ form.enable_image_caching }}
+                        </label>
+                        <label class="flex items-center justify-between p-6 bg-surface-container-lowest rounded-xl border border-outline-variant/5 cursor-pointer">
+                            <div class="space-y-1">
+                                <p class="text-sm font-bold">Lazy Loading</p>
+                                <p class="text-[11px] text-on-surface-variant">Load content on scroll</p>
+                            </div>
+                            {{ form.enable_lazy_loading }}
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 7: Deep Linking -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start" id="deep-linking">
+                <div class="lg:col-span-4">
+                    <h2 class="text-2xl font-bold text-on-surface">Deep Linking</h2>
+                    <p class="text-on-surface-variant mt-2">Handle app-to-web redirects and store connectivity.</p>
+                </div>
+                <div class="lg:col-span-8 bg-surface-container-low p-10 rounded-xl space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="{{ form.android_package_name.id_for_label }}">Android Package Name</label>
+                            {{ form.android_package_name }}
+                            {% if form.android_package_name.errors %}
+                                {% for error in form.android_package_name.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="{{ form.ios_bundle_id.id_for_label }}">iOS Bundle ID</label>
+                            {{ form.ios_bundle_id }}
+                            {% if form.ios_bundle_id.errors %}
+                                {% for error in form.ios_bundle_id.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="{{ form.app_store_url.id_for_label }}">App Store URL</label>
+                        {{ form.app_store_url }}
+                        {% if form.app_store_url.errors %}
+                            {% for error in form.app_store_url.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="{{ form.play_store_url.id_for_label }}">Play Store URL</label>
+                        {{ form.play_store_url }}
+                        {% if form.play_store_url.errors %}
+                            {% for error in form.play_store_url.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center gap-3 pt-4">
+                        {{ form.enable_universal_links }}
+                        <span class="text-sm font-medium text-on-surface">Enable Universal Links (App-to-Web syncing)</span>
+                    </div>
+                    {% if form.enable_universal_links.errors %}
+                        {% for error in form.enable_universal_links.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Section 8: Analytics & Updates -->
+            <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start pb-24" id="analytics">
+                <div class="lg:col-span-4">
+                    <h2 class="text-2xl font-bold text-on-surface">Analytics &amp; Updates</h2>
+                    <p class="text-on-surface-variant mt-2">Monitor app health and manage mandatory version control.</p>
+                </div>
+                <div class="lg:col-span-8 bg-surface-container-low p-10 rounded-xl space-y-10">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <label class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                            <span class="text-sm font-medium">App Analytics</span>
+                            {{ form.enable_app_analytics }}
+                        </label>
+                        <label class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                            <span class="text-sm font-medium">Crash Reporting</span>
+                            {{ form.enable_crash_reporting }}
+                        </label>
+                        <label class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                            <span class="text-sm font-medium">Force Update Enabled</span>
+                            {{ form.force_update_enabled }}
+                        </label>
+                        <label class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                            <span class="text-sm font-medium">Show Update Prompt</span>
+                            {{ form.show_update_prompt }}
+                        </label>
+                    </div>
+
+                    <div class="space-y-4 pt-6 border-t border-outline-variant/10 {% if not form.force_update_enabled.value %}conditional-section disabled{% endif %}" id="force-update-section">
+                        <label class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="{{ form.minimum_app_version.id_for_label }}">Minimum App Version Required</label>
+                        <div class="flex gap-4">
+                            {{ form.minimum_app_version }}
+                            <button type="button" class="px-6 bg-surface-container-highest text-on-surface font-semibold rounded-lg hover:bg-surface-container-high transition-colors text-sm">Validate Build</button>
+                        </div>
+                        {% if form.minimum_app_version.errors %}
+                            {% for error in form.minimum_app_version.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </form>
+</main>
+
+<!-- Footer -->
+<footer class="w-full py-12 border-t border-slate-200/20 bg-slate-50 flex flex-col items-center justify-center gap-4">
+    <div class="flex gap-8">
+        <a class="text-slate-400 font-inter text-xs tracking-wide hover:text-blue-500 underline opacity-80 hover:opacity-100 transition-all" href="#">Documentation</a>
+        <a class="text-slate-400 font-inter text-xs tracking-wide hover:text-blue-500 underline opacity-80 hover:opacity-100 transition-all" href="#">System Status</a>
+        <a class="text-slate-400 font-inter text-xs tracking-wide hover:text-blue-500 underline opacity-80 hover:opacity-100 transition-all" href="#">Support</a>
+    </div>
+    <p class="text-slate-400 font-inter text-xs tracking-wide opacity-80">© 2024 App Management Ledger. Technical Precision Design.</p>
+</footer>
+
+<!-- JavaScript for Dynamic Interactions -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // === Toggle Switch Styling ===
+        const toggleCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+        toggleCheckboxes.forEach(function(checkbox) {
+            checkbox.classList.add('toggle-checkbox');
+
+            checkbox.addEventListener('change', function() {
+                const toggleDiv = this.parentElement.querySelector('div.w-11.h-6');
+                const toggleKnob = toggleDiv?.querySelector('span.absolute');
+
+                if (toggleDiv) {
+                    toggleDiv.style.backgroundColor = this.checked ? '#0053db' : '#d9e4ea';
+                }
+                if (toggleKnob) {
+                    toggleKnob.style.left = this.checked ? '28px' : '4px';
+                }
+
+                // Handle conditional sections
+                if (this.id === '{{ form.enable_push_notifications.id_for_label }}') {
+                    const section = document.getElementById('push-section');
+                    if (section) {
+                        section.classList.toggle('disabled', !this.checked);
+                    }
+                }
+
+                if (this.id === '{{ form.enable_offline_mode.id_for_label }}') {
+                    const section = document.getElementById('offline-section');
+                    if (section) {
+                        section.classList.toggle('disabled', !this.checked);
+                    }
+                }
+
+                if (this.id === '{{ form.force_update_enabled.id_for_label }}') {
+                    const section = document.getElementById('force-update-section');
+                    if (section) {
+                        section.classList.toggle('disabled', !this.checked);
+                    }
+                }
+            });
+        });
+
+        // === Color Picker Display Updates ===
+        const colorInputs = ['{{ form.primary_color.id_for_label }}', '{{ form.accent_color.id_for_label }}', '{{ form.background_color.id_for_label }}'];
+        colorInputs.forEach(function(id) {
+            const input = document.getElementById(id);
+            const display = document.getElementById(id.replace('id_', '') + '-display');
+
+            if (input && display) {
+                display.textContent = input.value;
+
+                input.addEventListener('input', function() {
+                    display.textContent = this.value;
+                });
+            }
+        });
+
+        // === Splash Duration Range Display ===
+        const splashRange = document.getElementById('{{ form.splash_screen_duration.id_for_label }}');
+        const splashDisplay = document.getElementById('splash-duration-display');
+
+        if (splashRange && splashDisplay) {
+            splashDisplay.textContent = splashRange.value + 's';
+
+            splashRange.addEventListener('input', function() {
+                splashDisplay.textContent = this.value + 's';
+            });
+        }
+
+        // === Nav Style Selection ===
+        const navStyleBtns = document.querySelectorAll('.nav-style-btn');
+        const navStyleInput = document.getElementById('{{ form.bottom_nav_style.id_for_label }}');
+
+        navStyleBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                navStyleBtns.forEach(function(b) {
+                    b.classList.remove('border-primary');
+                    b.classList.add('border-transparent');
+                    b.querySelectorAll('.material-symbols-outlined, span').forEach(function(el) {
+                        el.classList.remove('text-primary');
+                        el.classList.add('text-on-surface-variant');
+                    });
+                });
+
+                this.classList.remove('border-transparent');
+                this.classList.add('border-primary');
+                this.querySelectorAll('.material-symbols-outlined, span').forEach(function(el) {
+                    el.classList.remove('text-on-surface-variant');
+                    el.classList.add('text-primary');
+                });
+
+                if (navStyleInput) {
+                    navStyleInput.value = this.getAttribute('data-style');
+                }
+            });
+        });
+
+        // === Image Upload Previews ===
+        const appIconInput = document.getElementById('{{ form.app_icon.id_for_label }}');
+        const splashInput = document.getElementById('{{ form.splash_screen.id_for_label }}');
+
+        if (appIconInput) {
+            appIconInput.classList.add('hidden');
+            appIconInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const previewContainer = appIconInput.parentElement.querySelector('img');
+                        if (previewContainer) {
+                            previewContainer.src = e.target.result;
+                        } else {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.className = 'w-32 h-32 object-cover rounded-2xl border border-outline-variant/20 mb-3';
+                            appIconInput.parentElement.insertBefore(img, appIconInput);
+                        }
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
+
+        if (splashInput) {
+            splashInput.classList.add('hidden');
+            splashInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const previewContainer = splashInput.parentElement.querySelector('img');
+                        if (previewContainer) {
+                            previewContainer.src = e.target.result;
+                        } else {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.className = 'w-full max-w-[140px] aspect-[9/16] object-cover rounded-lg border border-outline-variant/20 mb-3';
+                            splashInput.parentElement.insertBefore(img, splashInput);
+                        }
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
+
+        // === Hide Messages After 5 Seconds ===
+        setTimeout(function() {
+            const messages = document.querySelectorAll('.fixed.top-20');
+            messages.forEach(function(msg) {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    msg.remove();
+                }, 500);
+            });
+        }, 5000);
+
+        // === Form Change Detection ===
+        const form = document.getElementById('mobile-app-form');
+        let formChanged = false;
+
+        form.addEventListener('input', function() {
+            formChanged = true;
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (formChanged) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // === Initialize Conditional Sections ===
+        const pushCheckbox = document.getElementById('{{ form.enable_push_notifications.id_for_label }}');
+        if (pushCheckbox && !pushCheckbox.checked) {
+            const section = document.getElementById('push-section');
+            if (section) section.classList.add('disabled');
+        }
+
+        const offlineCheckbox = document.getElementById('{{ form.enable_offline_mode.id_for_label }}');
+        if (offlineCheckbox && !offlineCheckbox.checked) {
+            const section = document.getElementById('offline-section');
+            if (section) section.classList.add('disabled');
+        }
+
+        const forceUpdateCheckbox = document.getElementById('{{ form.force_update_enabled.id_for_label }}');
+        if (forceUpdateCheckbox && !forceUpdateCheckbox.checked) {
+            const section = document.getElementById('force-update-section');
+            if (section) section.classList.add('disabled');
+        }
+
+        // === Smooth Scroll for Navigation ===
+        const navLinks = document.querySelectorAll('nav a[href^="#"]');
+        navLinks.forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

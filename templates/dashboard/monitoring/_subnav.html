@@ -1,0 +1,14 @@
+<div class="flex flex-wrap gap-2">
+  <a href="{% url 'dashboard:monitoring:overview' prefix %}?period={{ monitoring_bundle.filters.period }}&start={{ monitoring_bundle.filters.start }}&end={{ monitoring_bundle.filters.end }}{% if monitoring_bundle.filters.compare %}&compare=1{% endif %}{% if selected_source %}&source={{ selected_source }}{% endif %}"
+     class="inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold transition {% if active_menu == 'monitoring_overview' %}bg-slate-950 text-white{% else %}bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50{% endif %}">
+    Overview
+  </a>
+  <a href="{% url 'dashboard:monitoring:pages' prefix %}?period={{ monitoring_bundle.filters.period }}&start={{ monitoring_bundle.filters.start }}&end={{ monitoring_bundle.filters.end }}{% if monitoring_bundle.filters.compare %}&compare=1{% endif %}{% if selected_source %}&source={{ selected_source }}{% endif %}"
+     class="inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold transition {% if active_menu == 'monitoring_pages' %}bg-slate-950 text-white{% else %}bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50{% endif %}">
+    Pages
+  </a>
+  <a href="{% url 'dashboard:monitoring:sessions' prefix %}?period={{ monitoring_bundle.filters.period }}&start={{ monitoring_bundle.filters.start }}&end={{ monitoring_bundle.filters.end }}{% if monitoring_bundle.filters.compare %}&compare=1{% endif %}{% if selected_source %}&source={{ selected_source }}{% endif %}"
+     class="inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold transition {% if active_menu == 'monitoring_sessions' %}bg-slate-950 text-white{% else %}bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50{% endif %}">
+    Sessions
+  </a>
+</div>

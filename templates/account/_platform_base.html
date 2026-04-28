@@ -1,0 +1,151 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>{{ page_title|default:"Platform" }} - SABIStart</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300..700" rel="stylesheet" />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#1d4ed8",
+              ink: "#0f172a"
+            },
+            fontFamily: {
+              sans: ["Manrope", "sans-serif"]
+            },
+            boxShadow: {
+              shell: "0 24px 80px rgba(15, 23, 42, 0.10)"
+            }
+          }
+        }
+      };
+    </script>
+    <style type="text/tailwindcss">
+      body {
+        @apply bg-slate-100 text-slate-900;
+      }
+      .platform-scrollbar::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      .platform-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 9999px;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen">
+    <div class="flex min-h-screen">
+      <aside class="hidden xl:flex w-80 shrink-0 flex-col border-r border-slate-200 bg-white/95 px-6 py-8 shadow-shell">
+        <div class="mb-8">
+          <p class="text-xs font-semibold uppercase tracking-[0.35em] text-blue-600">Platform</p>
+          <h1 class="mt-3 text-2xl font-extrabold text-slate-950">SABIStart Control</h1>
+          <p class="mt-2 text-sm leading-6 text-slate-500">Run stores, feature sales, and payment infrastructure from one clean control surface.</p>
+        </div>
+
+        <nav class="flex-1 space-y-8">
+          {% for section in platform_navigation %}
+            <div class="space-y-2">
+              <p class="px-3 text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">{{ section.title }}</p>
+              <div class="space-y-1">
+                {% for item in section.items %}
+                  <a href="{{ item.url }}" class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition {% if item.active %}bg-blue-600 text-white shadow-lg shadow-blue-600/20{% else %}text-slate-600 hover:bg-slate-100 hover:text-slate-950{% endif %}">
+                    <span class="material-symbols-outlined text-[20px]">{{ item.icon }}</span>
+                    <span>{{ item.name }}</span>
+                  </a>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        </nav>
+
+        <div class="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Signed in</p>
+          <div class="mt-3 flex items-center gap-3">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-sm font-bold text-white">
+              {{ request.user.get_initials|default:"SB" }}
+            </div>
+            <div class="min-w-0">
+              <p class="truncate text-sm font-semibold text-slate-900">{{ request.user.get_full_name|default:request.user.email }}</p>
+              <p class="truncate text-xs text-slate-500">{{ request.user.email }}</p>
+            </div>
+          </div>
+          <a href="{% url 'platform:logout' %}" class="mt-4 inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-900">
+            <span class="material-symbols-outlined text-[18px]">logout</span>
+            <span>Sign out</span>
+          </a>
+        </div>
+      </aside>
+
+      <main class="min-w-0 flex-1">
+        <div class="border-b border-slate-200 bg-white/80 px-6 py-5 backdrop-blur xl:px-10">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.32em] text-slate-400">Platform Workspace</p>
+              <h2 class="mt-2 text-3xl font-extrabold text-slate-950">{{ page_title }}</h2>
+              {% block page_intro %}{% endblock %}
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+              {% block page_actions %}{% endblock %}
+            </div>
+          </div>
+        </div>
+
+        <div class="platform-scrollbar h-[calc(100vh-120px)] overflow-y-auto px-6 py-8 xl:px-10">
+          {% if messages %}
+            <div class="mb-6 space-y-3">
+              {% for message in messages %}
+                <div class="rounded-2xl border px-4 py-3 text-sm {% if message.tags == 'error' %}border-rose-200 bg-rose-50 text-rose-700{% elif message.tags == 'success' %}border-emerald-200 bg-emerald-50 text-emerald-700{% else %}border-blue-200 bg-blue-50 text-blue-700{% endif %}">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if setup_warning %}
+            <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              {{ setup_warning }}
+            </div>
+          {% endif %}
+          {% if setup_warnings %}
+            <div class="mb-6 space-y-3">
+              {% for warning in setup_warnings %}
+                <div class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                  {{ warning }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% block content %}{% endblock %}
+        </div>
+      </main>
+    </div>
+    <script>
+      (function () {
+        const startedAt = Date.now();
+        const send = () => {
+          const payload = JSON.stringify({
+            path: window.location.pathname,
+            title: document.title,
+            duration_ms: Date.now() - startedAt,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
+            language: navigator.language || "",
+            visibility_state: document.visibilityState || "",
+            screen: { width: window.innerWidth, height: window.innerHeight },
+          });
+          if (navigator.sendBeacon) {
+            navigator.sendBeacon("{% url 'monitoring:beacon' %}", new Blob([payload], { type: "application/json" }));
+            return;
+          }
+          fetch("{% url 'monitoring:beacon' %}", { method: "POST", headers: { "Content-Type": "application/json" }, body: payload, keepalive: true }).catch(() => {});
+        };
+        window.addEventListener("pagehide", send, { once: true });
+      }());
+    </script>
+  </body>
+</html>

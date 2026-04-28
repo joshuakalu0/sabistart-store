@@ -1,0 +1,146 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-4">
+      <a href="{% url 'dashboard:payments_tenant:transaction_list' prefix %}"
+         class="p-2 text-slate-500 hover:text-primary rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <span class="material-icons-outlined">arrow_back</span>
+      </a>
+      <div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white font-mono">{{ txn.internal_reference }}</h2>
+        <div class="flex items-center space-x-2 mt-1">
+          <span class="px-2 py-0.5 rounded-full text-xs font-medium
+            {% if txn.status == 'success' %}bg-green-100 text-green-700
+            {% elif txn.status == 'failed' %}bg-red-100 text-red-700
+            {% elif txn.status == 'pending' or txn.status == 'processing' %}bg-amber-100 text-amber-700
+            {% else %}bg-slate-100 text-slate-600{% endif %}">
+            {{ txn.status|capfirst }}
+          </span>
+          {% if txn.is_flagged %}<span class="px-2 py-0.5 rounded-full text-xs bg-amber-100 text-amber-700 font-medium flex items-center space-x-1"><span class="material-icons-outlined text-xs">flag</span><span>Flagged</span></span>{% endif %}
+        </div>
+      </div>
+    </div>
+    <!-- Actions -->
+    <div class="flex space-x-2">
+      {% if txn.status == 'success' and txn.refundable_amount > 0 %}
+      <a href="{% url 'dashboard:payments_tenant:refund_create' prefix txn.id %}"
+         class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center space-x-1">
+        <span class="material-icons-outlined text-sm">assignment_return</span><span>Refund</span>
+      </a>
+      {% endif %}
+      <form method="post" action="{% url 'dashboard:payments_tenant:transaction_flag' prefix txn.id %}" class="inline">
+        {% csrf_token %}
+        {% if txn.is_flagged %}
+        <input type="hidden" name="action" value="unflag"/>
+        <button type="submit" class="px-4 py-2 border border-amber-300 text-amber-700 rounded-lg text-sm hover:bg-amber-50">Clear Flag</button>
+        {% else %}
+        <input type="hidden" name="action" value="flag"/>
+        <input type="hidden" name="flag_reason" value="Manual review requested"/>
+        <button type="submit" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center space-x-1">
+          <span class="material-icons-outlined text-sm">flag</span><span>Flag</span>
+        </button>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main details -->
+    <div class="lg:col-span-2 space-y-4">
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <h3 class="font-semibold text-slate-900 dark:text-white mb-4">Transaction Details</h3>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div><p class="text-slate-500">Amount</p><p class="font-bold text-xl dark:text-white">{{ txn.amount }} {{ txn.currency }}</p></div>
+          <div><p class="text-slate-500">Net Amount</p><p class="font-semibold dark:text-white">{{ txn.net_amount }}</p></div>
+          <div><p class="text-slate-500">Commission</p><p class="dark:text-white font-mono">{{ txn.commission_amount }}</p></div>
+          <div><p class="text-slate-500">Gateway</p><p class="dark:text-white">{{ txn.gateway_provider }}</p></div>
+          <div><p class="text-slate-500">Gateway Ref</p><p class="font-mono text-xs dark:text-white break-all">{{ txn.gateway_reference|default:"—" }}</p></div>
+          <div><p class="text-slate-500">Order Number</p><p class="dark:text-white">{{ txn.order_number|default:"—" }}</p></div>
+          <div><p class="text-slate-500">Customer Email</p><p class="dark:text-white">{{ txn.customer_email }}</p></div>
+          <div><p class="text-slate-500">Customer Name</p><p class="dark:text-white">{{ txn.customer_name|default:"—" }}</p></div>
+          <div><p class="text-slate-500">IP Address</p><p class="font-mono text-xs dark:text-white">{{ txn.customer_ip_address|default:"—" }}</p></div>
+          <div><p class="text-slate-500">Country</p><p class="dark:text-white">{{ txn.customer_country|default:"—" }}</p></div>
+          <div><p class="text-slate-500">Channel</p><p class="dark:text-white">{{ txn.channel|capfirst }}</p></div>
+          <div><p class="text-slate-500">Created</p><p class="dark:text-white">{{ txn.created_at|date:"d M Y H:i:s" }}</p></div>
+          {% if txn.success_at %}<div><p class="text-slate-500">Completed</p><p class="dark:text-white">{{ txn.success_at|date:"d M Y H:i:s" }}</p></div>{% endif %}
+          {% if txn.risk_score is not None %}<div><p class="text-slate-500">Risk Score</p><p class="font-semibold {% if txn.risk_score >= 70 %}text-red-600{% elif txn.risk_score >= 40 %}text-amber-600{% else %}text-green-600{% endif %}">{{ txn.risk_score }}</p></div>{% endif %}
+        </div>
+        {% if txn.failure_reason %}<div class="mt-4 p-3 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-700 rounded-lg text-sm text-red-700 dark:text-red-400">{{ txn.failure_reason }}</div>{% endif %}
+      </div>
+
+      <!-- Event Timeline -->
+      {% if events %}
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <h3 class="font-semibold text-slate-900 dark:text-white mb-4">Timeline</h3>
+        <div class="relative">
+          {% for event in events %}
+          <div class="flex space-x-3 {% if not forloop.last %}mb-4{% endif %}">
+            <div class="flex flex-col items-center">
+              <div class="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center">
+                <div class="h-2 w-2 rounded-full bg-primary"></div>
+              </div>
+              {% if not forloop.last %}<div class="w-0.5 h-full bg-slate-200 dark:bg-slate-700 mt-1"></div>{% endif %}
+            </div>
+            <div class="pb-4 flex-1">
+              <p class="text-sm font-medium text-slate-900 dark:text-white">{{ event.event_type|capfirst }}</p>
+              {% if event.message %}<p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ event.message }}</p>{% endif %}
+              <p class="text-xs text-slate-400 mt-1">{{ event.created_at|date:"d M Y H:i:s" }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Sidebar: Refunds, Disputes, Fraud -->
+    <div class="space-y-4">
+      {% if refunds %}
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
+        <h3 class="font-semibold text-slate-900 dark:text-white mb-3">Refunds ({{ refunds|length }})</h3>
+        {% for refund in refunds %}
+        <div class="py-2 border-b border-slate-100 dark:border-slate-700 last:border-0 text-sm">
+          <div class="flex justify-between">
+            <a href="{% url 'dashboard:payments_tenant:refund_detail' prefix refund.id %}" class="font-mono text-xs text-primary hover:underline">{{ refund.refund_reference }}</a>
+            <span class="{% if refund.status == 'success' %}text-green-600{% elif refund.status == 'failed' %}text-red-600{% else %}text-slate-500{% endif %}">{{ refund.status|capfirst }}</span>
+          </div>
+          <p class="text-slate-500">{{ refund.amount }} {{ refund.currency }}</p>
+        </div>
+        {% endfor %}
+        {% if txn.refundable_amount > 0 %}
+        <a href="{% url 'dashboard:payments_tenant:refund_create' prefix txn.id %}" class="mt-2 w-full block text-center py-2 text-sm text-primary border border-dashed border-primary/50 rounded-lg hover:bg-primary/5">+ New Refund</a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {% if disputes %}
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
+        <h3 class="font-semibold text-slate-900 dark:text-white mb-3">Disputes</h3>
+        {% for dispute in disputes %}
+        <div class="text-sm">
+          <a href="{% url 'dashboard:payments_tenant:dispute_detail' prefix dispute.id %}" class="font-mono text-xs text-primary hover:underline">{{ dispute.dispute_reference }}</a>
+          <p class="text-slate-500">{{ dispute.status|capfirst }} • {{ dispute.dispute_amount }} {{ dispute.currency }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if fraud_assessments %}
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
+        <h3 class="font-semibold text-slate-900 dark:text-white mb-3">Fraud Assessments</h3>
+        {% for fa in fraud_assessments %}
+        <div class="py-2 border-b border-slate-100 dark:border-slate-700 last:border-0 text-sm">
+          <div class="flex justify-between">
+            <span class="font-medium dark:text-white">Risk: {{ fa.risk_score }}</span>
+            <span class="px-2 py-0.5 rounded text-xs {% if fa.decision == 'allow' %}bg-green-100 text-green-700{% elif fa.decision == 'block' %}bg-red-100 text-red-700{% else %}bg-amber-100 text-amber-700{% endif %}">{{ fa.decision|capfirst }}</span>
+          </div>
+          <p class="text-xs text-slate-400">{{ fa.created_at|date:"d M Y H:i" }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{
+  "name": "Meridian",
+  "description": "A restrained premium storefront theme with polished spacing, quiet contrast, and elevated product presentation for luxury and design-led retail.",
+  "version": "1.0.0",
+  "currency": "NGN",
+  "price": "0.00",
+  "is_free": true,
+  "is_published": false,
+  "is_featured": false,
+  "status": "suspended",
+  "catalog_visibility": "hidden",
+  "is_internal": true,
+  "preview_image_path": "meridian/images/preview.svg",
+  "thumbnail_path": "meridian/images/preview.svg",
+  "features": [
+    "Luxury-leaning visual restraint",
+    "Polished premium product framing",
+    "Quiet, conversion-friendly hierarchy"
+  ],
+  "category": {
+    "slug": "premium-retail",
+    "name": "Premium Retail",
+    "description": "Refined themes for polished product storytelling and high-trust merchandising.",
+    "sort_order": 30,
+    "is_active": true
+  },
+  "metadata": {
+    "tone": "premium",
+    "audience": "luxury and design retail"
+  },
+  "pages": [
+    "home.html",
+    "catalog/listing.html",
+    "catalog/product_detail.html",
+    "cart/cart.html",
+    "checkout/info.html",
+    "auth/login.html",
+    "account/dashboard.html",
+    "shared/info_page.html"
+  ]
+}

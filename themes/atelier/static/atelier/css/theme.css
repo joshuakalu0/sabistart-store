@@ -1,0 +1,28 @@
+body.theme-atelier {
+  --color-primary: #31211b;
+  --color-secondary: #7f4e3a;
+  --color-accent: #d28a62;
+  --color-background: #f8f1ea;
+  --color-surface: #f3e5d9;
+  --color-border: #d8c2ae;
+}
+
+body.theme-atelier {
+  background:
+    radial-gradient(circle at top left, rgba(210, 138, 98, 0.22), transparent 32%),
+    linear-gradient(180deg, #fbf4ee 0%, #f5ece3 100%);
+}
+
+body.theme-atelier .brand-font,
+body.theme-atelier .section-title {
+  letter-spacing: -0.045em;
+}
+
+body.theme-atelier .surface-card,
+body.theme-atelier .panel {
+  box-shadow: 0 24px 48px rgba(73, 43, 30, 0.09);
+}
+
+body.theme-atelier .button-primary {
+  background: linear-gradient(135deg, #d7a078, #93614e);
+}

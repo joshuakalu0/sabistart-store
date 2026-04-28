@@ -84,6 +84,11 @@ class ProductForm(forms.ModelForm):
         except:
             pass
 
+        # Make only name and slug required for multi-step form
+        for field_name, field in self.fields.items():
+            if field_name not in ['name', 'slug']:
+                field.required = False
+
     class Meta:
         model = Product
         fields = '__all__'

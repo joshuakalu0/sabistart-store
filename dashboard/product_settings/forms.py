@@ -2,17 +2,17 @@ from django import forms
 from django.forms import inlineformset_factory
 from public.product.models import (
     AttributeGroup, Attribute, AttributeValue, Product, ProductImage,
-    ProductVideo,  ProductAttributeValue, ProductVariant, VariantImage
+    ProductAttributeValue, ProductVariant, VariantImage
 )
 from public.category.models import Category, Tag, Brand
 import json
 
-# Base widget classes
-BASE_INPUT = 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-white transition-colors'
-BASE_SELECT = 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-white transition-colors'
-BASE_TEXTAREA = 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-white transition-colors resize-none'
-BASE_CHECKBOX = 'w-5 h-5 text-blue-600 bg-slate-100 border-slate-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-slate-800 focus:ring-2 dark:bg-slate-700 dark:border-slate-600'
-BASE_FILE = 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-white transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100'
+# Enhanced modern widget classes with glass-morphism and gradients
+BASE_INPUT = 'w-full px-6 py-4 border-0 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl focus:ring-2 focus:ring-blue-500/50 focus:bg-white/80 dark:focus:bg-slate-800/80 dark:text-white transition-all duration-300 shadow-lg shadow-slate-200/20 dark:shadow-slate-900/20 placeholder:text-slate-400'
+BASE_SELECT = 'w-full px-6 py-4 border-0 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl focus:ring-2 focus:ring-blue-500/50 focus:bg-white/80 dark:focus:bg-slate-800/80 dark:text-white transition-all duration-300 shadow-lg shadow-slate-200/20 dark:shadow-slate-900/20'
+BASE_TEXTAREA = 'w-full px-6 py-4 border-0 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl focus:ring-2 focus:ring-blue-500/50 focus:bg-white/80 dark:focus:bg-slate-800/80 dark:text-white transition-all duration-300 resize-none shadow-lg shadow-slate-200/20 dark:shadow-slate-900/20 placeholder:text-slate-400'
+BASE_CHECKBOX = 'w-5 h-5 text-blue-600 bg-white/60 border-0 rounded-lg focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-slate-800 focus:ring-2 dark:bg-slate-700/60 shadow-lg transition-all duration-300'
+BASE_FILE = 'w-full px-6 py-4 border-0 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl focus:ring-2 focus:ring-blue-500/50 focus:bg-white/80 dark:focus:bg-slate-800/80 dark:text-white transition-all duration-300 shadow-lg shadow-slate-200/20 dark:shadow-slate-900/20 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100'
 
 
 class AttributeGroupForm(forms.ModelForm):
@@ -34,24 +34,24 @@ class AttributeForm(forms.ModelForm):
         fields = '__all__'
         exclude = ['created_at', 'updated_at']
         widgets = {
-            'name': forms.TextInput(attrs={'class': BASE_INPUT, 'placeholder': 'Enter attribute name', 'id': 'id_name'}),
-            'slug': forms.TextInput(attrs={'class': BASE_INPUT, 'placeholder': 'attribute-slug', 'id': 'id_slug'}),
-            'attribute_type': forms.Select(attrs={'class': BASE_SELECT}),
-            'group': forms.Select(attrs={'class': BASE_SELECT, 'empty_label': 'Select Group'}),
-            'description': forms.Textarea(attrs={'rows': 3, 'class': BASE_TEXTAREA, 'placeholder': 'Attribute description...'}),
-            'help_text': forms.TextInput(attrs={'class': BASE_INPUT, 'placeholder': 'Help text for users'}),
-            'unit': forms.TextInput(attrs={'class': BASE_INPUT, 'placeholder': 'e.g., cm, kg, etc.'}),
-            'is_required': forms.CheckboxInput(attrs={'class': BASE_CHECKBOX}),
-            'is_unique': forms.CheckboxInput(attrs={'class': BASE_CHECKBOX}),
-            'min_value': forms.NumberInput(attrs={'class': BASE_INPUT, 'step': '0.0001'}),
-            'max_value': forms.NumberInput(attrs={'class': BASE_INPUT, 'step': '0.0001'}),
-            'regex_pattern': forms.TextInput(attrs={'class': BASE_INPUT + ' font-mono text-sm', 'placeholder': '^[A-Za-z0-9]+$'}),
-            'is_variant_option': forms.CheckboxInput(attrs={'class': BASE_CHECKBOX}),
-            'is_filterable': forms.CheckboxInput(attrs={'class': BASE_CHECKBOX}),
-            'is_searchable': forms.CheckboxInput(attrs={'class': BASE_CHECKBOX}),
-            'is_comparable': forms.CheckboxInput(attrs={'class': BASE_CHECKBOX}),
-            'display_order': forms.NumberInput(attrs={'class': BASE_INPUT, 'min': '0'}),
-            'is_visible_on_front': forms.CheckboxInput(attrs={'class': BASE_CHECKBOX}),
+            'name': forms.TextInput(attrs={'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3', 'placeholder': 'e.g., Color, Size'}),
+            'slug': forms.TextInput(attrs={'class': 'flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md focus:ring-primary-500 focus:border-primary-500 sm:text-sm border border-gray-300', 'placeholder': 'attribute-name'}),
+            'attribute_type': forms.Select(attrs={'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3', 'onchange': 'handleAttributeTypeChange()'}),
+            'group': forms.Select(attrs={'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3'}),
+            'description': forms.Textarea(attrs={'rows': 3, 'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3', 'placeholder': 'Describe what this attribute represents...'}),
+            'help_text': forms.TextInput(attrs={'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3', 'placeholder': 'Short hint shown to users'}),
+            'unit': forms.TextInput(attrs={'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3', 'placeholder': 'e.g., cm, kg, inches, liters'}),
+            'is_required': forms.CheckboxInput(attrs={'class': 'w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500'}),
+            'is_unique': forms.CheckboxInput(attrs={'class': 'w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500'}),
+            'min_value': forms.NumberInput(attrs={'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3', 'step': '0.0001'}),
+            'max_value': forms.NumberInput(attrs={'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3', 'step': '0.0001'}),
+            'regex_pattern': forms.TextInput(attrs={'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3 font-mono text-sm', 'placeholder': '^[A-Za-z0-9]+$'}),
+            'is_variant_option': forms.CheckboxInput(attrs={'class': 'w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500'}),
+            'is_filterable': forms.CheckboxInput(attrs={'class': 'w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500'}),
+            'is_searchable': forms.CheckboxInput(attrs={'class': 'w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500'}),
+            'is_comparable': forms.CheckboxInput(attrs={'class': 'w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500'}),
+            'display_order': forms.NumberInput(attrs={'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3', 'min': '0'}),
+            'is_visible_on_front': forms.CheckboxInput(attrs={'class': 'w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500'}),
         }
 
 
@@ -84,6 +84,11 @@ class ProductForm(forms.ModelForm):
         except:
             pass
 
+         # Make only name and slug required for multi-step form
+        for field_name, field in self.fields.items():
+            if field_name not in ['name', 'slug']:
+                field.required = False
+
     class Meta:
         model = Product
         fields = '__all__'
@@ -95,8 +100,6 @@ class ProductForm(forms.ModelForm):
             'slug': forms.TextInput(attrs={'class': BASE_INPUT, 'placeholder': 'product-slug', 'id': 'id_slug'}),
             'sku': forms.TextInput(attrs={'class': BASE_INPUT, 'placeholder': 'SKU-001'}),
             'product_type': forms.Select(attrs={'class': BASE_SELECT}),
-            'categories': forms.SelectMultiple(attrs={'class': BASE_SELECT, 'size': '4'}),
-            'tags': forms.SelectMultiple(attrs={'class': BASE_SELECT, 'size': '4'}),
             'brand': forms.Select(attrs={'class': BASE_SELECT, 'empty_label': 'Select Brand'}),
 
             # Content
@@ -198,34 +201,31 @@ class ProductImageForm(forms.ModelForm):
         widgets = {
             'product': forms.Select(attrs={'class': BASE_SELECT}),
             'image': forms.ClearableFileInput(attrs={'class': BASE_FILE}),
-            'thumbnail': forms.ClearableFileInput(attrs={'class': BASE_FILE}),
-            'alt_text': forms.TextInput(attrs={'class': BASE_INPUT, 'placeholder': 'Alt text for accessibility'}),
-            'title': forms.TextInput(attrs={'class': BASE_INPUT, 'placeholder': 'Image title'}),
-            'caption': forms.Textarea(attrs={'rows': 2, 'class': BASE_TEXTAREA, 'placeholder': 'Image caption...'}),
-            'is_primary': forms.CheckboxInput(attrs={'class': BASE_CHECKBOX}),
-            'display_order': forms.NumberInput(attrs={'class': BASE_INPUT, 'min': '0'}),
-            'is_zoom_enabled': forms.CheckboxInput(attrs={'class': BASE_CHECKBOX}),
-            'show_in_gallery': forms.CheckboxInput(attrs={'class': BASE_CHECKBOX}),
+            # 'title': forms.TextInput(attrs={'class': BASE_INPUT, 'placeholder': 'Image title'}),
+            # 'is_primary': forms.CheckboxInput(attrs={'class': BASE_CHECKBOX}),
+            # 'display_order': forms.NumberInput(attrs={'class': BASE_INPUT, 'min': '0'}),
+            # 'is_zoom_enabled': forms.CheckboxInput(attrs={'class': BASE_CHECKBOX}),
+            # 'show_in_gallery': forms.CheckboxInput(attrs={'class': BASE_CHECKBOX}),
         }
 
 
-class ProductVideoForm(forms.ModelForm):
-    class Meta:
-        model = ProductVideo
-        fields = '__all__'
-        exclude = ['created_at']
-        widgets = {
-            'product': forms.Select(attrs={'class': BASE_SELECT}),
-            'video_type': forms.Select(attrs={'class': BASE_SELECT}),
-            'video_url': forms.URLInput(attrs={'class': BASE_INPUT, 'placeholder': 'https://youtube.com/watch?v=...'}),
-            'video_id': forms.TextInput(attrs={'class': BASE_INPUT, 'placeholder': 'YouTube/Vimeo video ID'}),
-            'video_file': forms.ClearableFileInput(attrs={'class': BASE_FILE}),
-            'title': forms.TextInput(attrs={'class': BASE_INPUT, 'placeholder': 'Video title'}),
-            'description': forms.Textarea(attrs={'rows': 3, 'class': BASE_TEXTAREA, 'placeholder': 'Video description...'}),
-            'thumbnail': forms.ClearableFileInput(attrs={'class': BASE_FILE}),
-            'display_order': forms.NumberInput(attrs={'class': BASE_INPUT, 'min': '0'}),
-            'is_featured': forms.CheckboxInput(attrs={'class': BASE_CHECKBOX}),
-        }
+# class ProductVideoForm(forms.ModelForm):
+#     class Meta:
+#         model = ProductVideo
+#         fields = '__all__'
+#         exclude = ['created_at']
+#         widgets = {
+#             'product': forms.Select(attrs={'class': BASE_SELECT}),
+#             'video_type': forms.Select(attrs={'class': BASE_SELECT}),
+#             'video_url': forms.URLInput(attrs={'class': BASE_INPUT, 'placeholder': 'https://youtube.com/watch?v=...'}),
+#             'video_id': forms.TextInput(attrs={'class': BASE_INPUT, 'placeholder': 'YouTube/Vimeo video ID'}),
+#             'video_file': forms.ClearableFileInput(attrs={'class': BASE_FILE}),
+#             'title': forms.TextInput(attrs={'class': BASE_INPUT, 'placeholder': 'Video title'}),
+#             'description': forms.Textarea(attrs={'rows': 3, 'class': BASE_TEXTAREA, 'placeholder': 'Video description...'}),
+#             'thumbnail': forms.ClearableFileInput(attrs={'class': BASE_FILE}),
+#             'display_order': forms.NumberInput(attrs={'class': BASE_INPUT, 'min': '0'}),
+#             'is_featured': forms.CheckboxInput(attrs={'class': BASE_CHECKBOX}),
+#         }
 
 
 # class ProductDocumentForm(forms.ModelForm):
@@ -308,10 +308,6 @@ class VariantImageForm(forms.ModelForm):
 # Formsets for inline editing
 ProductImageFormSet = inlineformset_factory(
     Product, ProductImage, form=ProductImageForm, extra=1, can_delete=True)
-ProductVideoFormSet = inlineformset_factory(
-    Product, ProductVideo, form=ProductVideoForm, extra=1, can_delete=True)
-# ProductDocumentFormSet = inlineformset_factory(
-# Product, ProductDocument, form=ProductDocumentForm, extra=1, can_delete=True)
 ProductAttributeValueFormSet = inlineformset_factory(
     Product, ProductAttributeValue, form=ProductAttributeValueForm, extra=1, can_delete=True)
 ProductVariantFormSet = inlineformset_factory(

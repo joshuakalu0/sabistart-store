@@ -1,0 +1,964 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{{ title }} | Store Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "outline-variant": "#a9b4b9",
+                        "tertiary-fixed": "#e3dbfd",
+                        "on-primary-fixed": "#003798",
+                        "on-error-container": "#752121",
+                        "surface-container-highest": "#d9e4ea",
+                        "on-secondary-fixed-variant": "#4d5d73",
+                        "inverse-primary": "#618bff",
+                        "background": "#f7f9fb",
+                        "tertiary": "#605c78",
+                        "surface-dim": "#cfdce3",
+                        "on-secondary-fixed": "#314055",
+                        "on-tertiary": "#fcf7ff",
+                        "surface-container": "#e8eff3",
+                        "surface-container-high": "#e1e9ee",
+                        "on-tertiary-fixed": "#3e3a54",
+                        "tertiary-container": "#e3dbfd",
+                        "inverse-on-surface": "#9a9d9f",
+                        "inverse-surface": "#0b0f10",
+                        "tertiary-dim": "#54506b",
+                        "secondary-dim": "#44546a",
+                        "on-secondary-container": "#435368",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#f7f9fb",
+                        "on-surface": "#2a3439",
+                        "surface-bright": "#f7f9fb",
+                        "on-background": "#2a3439",
+                        "on-tertiary-fixed-variant": "#5b5672",
+                        "on-primary": "#f8f7ff",
+                        "tertiary-fixed-dim": "#d4cdee",
+                        "surface-tint": "#0053db",
+                        "secondary-fixed": "#d3e4fe",
+                        "secondary-container": "#d3e4fe",
+                        "outline": "#717c82",
+                        "primary-container": "#dbe1ff",
+                        "on-tertiary-container": "#514d68",
+                        "on-secondary": "#f7f9ff",
+                        "on-primary-fixed-variant": "#0050d4",
+                        "on-primary-container": "#0048bf",
+                        "primary-fixed": "#dbe1ff",
+                        "primary-fixed-dim": "#c7d3ff",
+                        "secondary-fixed-dim": "#c5d6f0",
+                        "surface-container-low": "#f0f4f7",
+                        "error-container": "#fe8983",
+                        "on-surface-variant": "#566166",
+                        "error-dim": "#4e0309",
+                        "secondary": "#506076",
+                        "on-error": "#fff7f6",
+                        "primary-dim": "#0048c1",
+                        "primary": "#0053db",
+                        "surface-variant": "#d9e4ea",
+                        "error": "#9f403d"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .architectural-line:focus { border-bottom: 2px solid #0053db; outline: none; }
+        .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); }
+
+        /* Form Error States */
+        .form-field-error {
+            border: 2px solid #9f403d !important;
+            background-color: #fef2f2 !important;
+        }
+        .error-message {
+            color: #9f403d;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Toggle Switch Styling */
+        .toggle-checkbox {
+            opacity: 0;
+            position: absolute;
+        }
+
+        /* Range Input */
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 6px;
+            background: #d9e4ea;
+            border-radius: 3px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #0053db;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Color Input */
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="text-on-surface">
+
+<!-- Django Messages Framework -->
+{% if messages %}
+<div class="fixed top-24 right-8 z-50 space-y-2">
+    {% for message in messages %}
+    <div class="flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg" style="background-color: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#9f403d{% else %}#ffffff{% endif %}; color: {% if message.tags == 'error' %}#fff7f6{% else %}#2a3439{% endif %};">
+        <span class="material-symbols-outlined text-sm">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span class="font-medium text-sm">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- TopAppBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-none shadow-sm dark:shadow-slate-900/20 glass-header">
+    <div class="flex justify-between items-center w-full px-8 h-20 max-w-full mx-auto">
+        <div class="flex items-center gap-8">
+            <span class="text-lg font-black tracking-tighter text-slate-900 dark:text-slate-50 uppercase">{{ title }}</span>
+            <div class="hidden md:flex gap-6 text-sm">
+                <a class="font-['Manrope'] font-bold tracking-tight text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 pb-1" href="{% url 'manage_popup_settings' %}">PopupSettings</a>
+                <a class="text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300 transition-all duration-200" href="{% url 'popup_preview' %}">Analytics</a>
+                <a class="text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-300 transition-all duration-200" href="#">Campaigns</a>
+            </div>
+            {% if is_edit and gdpr_compliant %}
+            <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">GDPR Compliant</span>
+            {% elif is_edit and not gdpr_compliant %}
+            <span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full">GDPR Review Needed</span>
+            {% endif %}
+        </div>
+        <div class="flex items-center gap-4">
+            <button type="button" class="px-5 py-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-all active:scale-95" onclick="window.location.href='{% url 'manage_popup_settings' %}'">Discard</button>
+            <button type="submit" form="popup-form" class="px-6 py-2.5 bg-primary text-on-primary rounded-lg font-semibold shadow-md shadow-primary/20 hover:bg-primary-dim transition-all active:scale-95">
+                {% if is_edit %}Save Changes{% else %}Create Settings{% endif %}
+            </button>
+        </div>
+    </div>
+</nav>
+
+<main class="pt-32 pb-24 max-w-7xl mx-auto px-8 space-y-24">
+    <form id="popup-form" method="post" action="{{ action_url }}" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <!-- Section 1: Newsletter Popup -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            <div class="lg:col-span-7 space-y-8">
+                <header>
+                    <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Newsletter Popup</h2>
+                    <p class="text-on-surface-variant mt-2">Configure your primary email capture experience.</p>
+                </header>
+                <div class="bg-surface-container-low p-10 rounded-xl space-y-10">
+                    <!-- Enable Newsletter Popup Toggle -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="block font-semibold text-on-surface">Enable Newsletter Popup</span>
+                            <span class="text-xs text-on-surface-variant">Activate the main newsletter modal</span>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            {{ form.enable_newsletter_popup }}
+                            <div class="w-12 h-6 bg-primary rounded-full relative transition-colors" style="background-color: {% if form.enable_newsletter_popup.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                <span class="absolute w-4 h-4 bg-white rounded-full transition-all" style="{% if form.enable_newsletter_popup.value %}right: 4px;{% else %}left: 4px;{% endif %} top: 4px;"></span>
+                            </div>
+                        </label>
+                    </div>
+                    {% if form.enable_newsletter_popup.errors %}
+                        {% for error in form.enable_newsletter_popup.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-1 gap-6">
+                            <!-- Popup Title -->
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.popup_title.id_for_label }}">Popup Title</label>
+                                {{ form.popup_title }}
+                                {% if form.popup_title.errors %}
+                                    {% for error in form.popup_title.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <!-- Popup Description -->
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.popup_description.id_for_label }}">Popup Description</label>
+                                {{ form.popup_description }}
+                                {% if form.popup_description.errors %}
+                                    {% for error in form.popup_description.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-6">
+                            <!-- Popup Button Text -->
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.popup_button_text.id_for_label }}">Button Text</label>
+                                {{ form.popup_button_text }}
+                                {% if form.popup_button_text.errors %}
+                                    {% for error in form.popup_button_text.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <!-- Popup Image Upload -->
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.popup_image.id_for_label }}">Popup Image</label>
+                                {% if is_edit and object.popup_image %}
+                                <div class="mb-3">
+                                    <img src="{{ object.popup_image.url }}" alt="Current popup image" class="w-full h-14 object-cover rounded-lg border border-outline-variant/20"/>
+                                </div>
+                                {% endif %}
+                                <div class="flex items-center justify-center w-full h-[56px] bg-surface-container-lowest rounded-lg border-2 border-dashed border-outline-variant/30 hover:border-primary/50 transition-colors cursor-pointer" onclick="document.getElementById('{{ form.popup_image.id_for_label }}').click()">
+                                    <span class="material-symbols-outlined text-on-surface-variant">upload_file</span>
+                                </div>
+                                {{ form.popup_image }}
+                                {% if form.popup_image.errors %}
+                                    {% for error in form.popup_image.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Discount Code Section -->
+                        <div class="pt-6 space-y-4 border-t border-outline-variant/10 {% if not form.show_discount_code.value %}opacity-50{% endif %}" id="discount-section">
+                            <div class="flex items-center justify-between">
+                                <label class="text-sm font-semibold text-on-surface" for="{{ form.show_discount_code.id_for_label }}">Show Discount Code</label>
+                                {{ form.show_discount_code }}
+                            </div>
+                            {% if form.show_discount_code.errors %}
+                                {% for error in form.show_discount_code.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.discount_code_text.id_for_label }}">Discount Code Text</label>
+                                {{ form.discount_code_text }}
+                                {% if form.discount_code_text.errors %}
+                                    {% for error in form.discount_code_text.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Card -->
+            <div class="lg:col-span-5 sticky top-32">
+                <div class="bg-surface-container-highest p-8 rounded-xl aspect-[4/5] flex items-center justify-center relative overflow-hidden">
+                    <div class="absolute inset-0 opacity-10">
+                        <div class="absolute top-0 left-0 w-64 h-64 bg-primary blur-3xl"></div>
+                        <div class="absolute bottom-0 right-0 w-64 h-64 bg-secondary blur-3xl"></div>
+                    </div>
+                    <div class="bg-white w-full max-w-sm rounded-xl shadow-2xl overflow-hidden relative z-10">
+                        {% if is_edit and object.popup_image %}
+                        <img class="w-full h-48 object-cover" alt="Popup preview image" src="{{ object.popup_image.url }}"/>
+                        {% else %}
+                        <img class="w-full h-48 object-cover" alt="Abstract vibrant lifestyle photography for popup" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOwRpP4CDPlGUjjSIakREB7o0M5sZNHGUG975gqhEDw3jCdNH61cVl4dUhkWeOJGYsSTLu4sOYFE6cgP6oFvlVeaZvNVK39KjCu6Fjxh4MZ38OlSZ7OATYSIlGt4mg-DsUBIxYvh-pw9kEysvZLZAFTGA50vWSizcWCZ3KRGRi9qT09fXHEXKbL8z2fviZMG7cRZB50Y0xDKWLy6LDUcll-V06VFyd82qCiAzvvNepsyt5gOYmO0KEVwnxmmiKArXVZeNktZKkHmg"/>
+                        {% endif %}
+                        <div class="p-8 text-center space-y-4">
+                            <h3 class="text-2xl font-bold">{{ form.popup_title.value|default:'Join our community' }}</h3>
+                            <p class="text-on-surface-variant text-sm">{{ form.popup_description.value|default:'Get the latest updates and exclusive offers delivered to your inbox.' }}</p>
+                            <input class="w-full px-4 py-3 bg-surface-container-low rounded-lg border-none text-sm focus:ring-1 focus:ring-primary" placeholder="email@example.com" type="email" readonly/>
+                            <button type="button" class="w-full py-4 bg-primary text-white font-bold rounded-lg shadow-lg shadow-primary/20">{{ form.popup_button_text.value|default:'Subscribe Now' }}</button>
+                            <button type="button" class="text-xs text-on-surface-variant hover:underline">No thanks, I'll pay full price</button>
+                        </div>
+                    </div>
+                    <div class="absolute top-4 left-4 bg-white/40 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">Live Preview</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Trigger & Frequency -->
+        <section class="space-y-8">
+            <header>
+                <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Trigger &amp; Frequency</h2>
+                <p class="text-on-surface-variant mt-2">Control when and how often users see your content.</p>
+            </header>
+            <div class="bg-surface-container-low p-10 rounded-xl">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                    <div class="space-y-6">
+                        <!-- Trigger Type -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.trigger_type.id_for_label }}">Trigger Type</label>
+                            {{ form.trigger_type }}
+                            {% if form.trigger_type.errors %}
+                                {% for error in form.trigger_type.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Delay & Scroll Percentage -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.trigger_delay_seconds.id_for_label }}">Delay (Seconds)</label>
+                                {{ form.trigger_delay_seconds }}
+                                {% if form.trigger_delay_seconds.errors %}
+                                    {% for error in form.trigger_delay_seconds.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.trigger_scroll_percentage.id_for_label }}">Scroll %</label>
+                                {{ form.trigger_scroll_percentage }}
+                                {% if form.trigger_scroll_percentage.errors %}
+                                    {% for error in form.trigger_scroll_percentage.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Frequency Toggles -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg">
+                            <span class="text-sm font-semibold">Show Once Per Session</span>
+                            {{ form.show_once_per_session }}
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg">
+                            <span class="text-sm font-semibold">Show to Subscribers</span>
+                            {{ form.show_to_subscribers }}
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg">
+                            <span class="text-sm font-semibold">Show on Mobile</span>
+                            {{ form.show_on_mobile }}
+                        </div>
+                    </div>
+
+                    <!-- Show Once Per Days -->
+                    <div class="bg-surface-container-lowest p-6 rounded-lg flex flex-col justify-center">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-4" for="{{ form.show_once_per_days.id_for_label }}">Show Once Per (Days)</label>
+                        <div class="flex items-baseline gap-2">
+                            {{ form.show_once_per_days }}
+                            <span class="text-on-surface-variant font-medium">Days</span>
+                        </div>
+                        {% if form.show_once_per_days.errors %}
+                            {% for error in form.show_once_per_days.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                        <p class="text-[11px] text-on-surface-variant mt-4">Wait time before showing the popup again to the same user.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Appearance & Animation -->
+        <section class="space-y-8">
+            <header>
+                <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Appearance &amp; Animation</h2>
+                <p class="text-on-surface-variant mt-2">Fine-tune the visual delivery and interaction.</p>
+            </header>
+            <div class="bg-surface-container-low p-10 rounded-xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Popup Position -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.popup_position.id_for_label }}">Popup Position</label>
+                    {{ form.popup_position }}
+                    {% if form.popup_position.errors %}
+                        {% for error in form.popup_position.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Popup Size -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.popup_size.id_for_label }}">Popup Size</label>
+                    {{ form.popup_size }}
+                    {% if form.popup_size.errors %}
+                        {% for error in form.popup_size.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Popup Animation -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.popup_animation.id_for_label }}">Popup Animation</label>
+                    {{ form.popup_animation }}
+                    {% if form.popup_animation.errors %}
+                        {% for error in form.popup_animation.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Overlay Opacity Range -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.overlay_opacity.id_for_label }}">Overlay Opacity</label>
+                    <div class="h-[56px] flex items-center bg-surface-container-lowest px-4 rounded-lg">
+                        {{ form.overlay_opacity }}
+                    </div>
+                    <div class="flex justify-between text-[10px] text-on-surface-variant mt-1">
+                        <span>0%</span>
+                        <span id="overlay-opacity-display">{{ form.overlay_opacity.value|default:70 }}%</span>
+                        <span>100%</span>
+                    </div>
+                    {% if form.overlay_opacity.errors %}
+                        {% for error in form.overlay_opacity.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Close Button Toggles -->
+                <div class="lg:col-span-2 flex items-center gap-12 pt-4">
+                    <div class="flex items-center gap-3">
+                        {{ form.enable_close_button }}
+                        <span class="text-sm font-semibold">Enable Close Button</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        {{ form.close_on_overlay_click }}
+                        <span class="text-sm font-semibold">Close on Overlay Click</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Cookie Consent -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <div class="lg:col-span-7 space-y-8">
+                <header>
+                    <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Cookie Consent</h2>
+                    <p class="text-on-surface-variant mt-2">Manage compliance and privacy transparency.</p>
+                </header>
+                <div class="bg-surface-container-low p-10 rounded-xl space-y-8">
+                    <!-- Enable Cookie Consent Toggle -->
+                    <div class="flex items-center justify-between">
+                        <label class="text-sm font-semibold text-on-surface" for="{{ form.enable_cookie_consent.id_for_label }}">Enable Cookie Consent</label>
+                        {{ form.enable_cookie_consent }}
+                    </div>
+                    {% if form.enable_cookie_consent.errors %}
+                        {% for error in form.enable_cookie_consent.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Cookie Message -->
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.cookie_message.id_for_label }}">Cookie Message</label>
+                        {{ form.cookie_message }}
+                        {% if form.cookie_message.errors %}
+                            {% for error in form.cookie_message.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Cookie Button & Position -->
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.cookie_button_text.id_for_label }}">Button Text</label>
+                            {{ form.cookie_button_text }}
+                            {% if form.cookie_button_text.errors %}
+                                {% for error in form.cookie_button_text.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.cookie_banner_position.id_for_label }}">Banner Position</label>
+                            {{ form.cookie_banner_position }}
+                            {% if form.cookie_banner_position.errors %}
+                                {% for error in form.cookie_banner_position.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Cookie Policy URL & Settings Toggle -->
+                    <div class="pt-6 border-t border-outline-variant/10 flex items-center justify-between">
+                        <div class="flex-1 space-y-2 mr-6">
+                            <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.cookie_policy_url.id_for_label }}">Cookie Policy URL</label>
+                            {{ form.cookie_policy_url }}
+                            {% if form.cookie_policy_url.errors %}
+                                {% for error in form.cookie_policy_url.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="flex items-center gap-3">
+                            {{ form.show_cookie_settings }}
+                            <span class="text-sm font-semibold">Show Cookie Settings</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cookie Preview -->
+            <div class="lg:col-span-5 self-end">
+                <div class="bg-white p-6 rounded-lg shadow-xl border border-outline-variant/20 flex items-center justify-between gap-6">
+                    <div class="flex-1">
+                        <p class="text-xs text-on-surface leading-relaxed">{{ form.cookie_message.value|default:'We use cookies to improve your experience and analyze our traffic.' }} <a class="text-primary font-bold" href="#">Privacy Policy</a></p>
+                    </div>
+                    <div class="flex gap-2 shrink-0">
+                        {% if form.show_cookie_settings.value %}
+                        <button type="button" class="px-4 py-2 text-[10px] font-bold uppercase bg-surface-container-high rounded">Settings</button>
+                        {% endif %}
+                        <button type="button" class="px-4 py-2 text-[10px] font-bold uppercase bg-primary text-white rounded">{{ form.cookie_button_text.value|default:'Accept All' }}</button>
+                    </div>
+                </div>
+                <p class="text-center text-[10px] uppercase font-bold tracking-widest text-on-surface-variant mt-4">Banner Preview</p>
+            </div>
+        </section>
+
+        <!-- Section 5: Promotional Banner -->
+        <section class="space-y-8">
+            <header>
+                <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Promotional Banner</h2>
+                <p class="text-on-surface-variant mt-2">Highlight active sales or urgent announcements.</p>
+            </header>
+            <div class="bg-surface-container-low p-10 rounded-xl space-y-10">
+                <!-- Banner Toggles -->
+                <div class="flex items-center gap-12">
+                    <div class="flex items-center gap-3">
+                        {{ form.enable_promo_banner }}
+                        <span class="text-sm font-semibold">Enable Promo Banner</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        {{ form.promo_banner_dismissible }}
+                        <span class="text-sm font-semibold">Dismissible</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        {{ form.promo_banner_sticky }}
+                        <span class="text-sm font-semibold">Sticky</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <div class="space-y-6">
+                        <!-- Banner Text -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.promo_banner_text.id_for_label }}">Banner Text</label>
+                            {{ form.promo_banner_text }}
+                            {% if form.promo_banner_text.errors %}
+                                {% for error in form.promo_banner_text.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Banner Link -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.promo_banner_link.id_for_label }}">Banner Link</label>
+                            {{ form.promo_banner_link }}
+                            {% if form.promo_banner_link.errors %}
+                                {% for error in form.promo_banner_link.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6">
+                        <!-- Background Color -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.promo_banner_background.id_for_label }}">Background Color</label>
+                            <div class="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg">
+                                {{ form.promo_banner_background }}
+                                <span class="text-sm font-mono">{{ form.promo_banner_background.value|default:'#000000' }}</span>
+                            </div>
+                            {% if form.promo_banner_background.errors %}
+                                {% for error in form.promo_banner_background.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Text Color -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.promo_banner_text_color.id_for_label }}">Text Color</label>
+                            <div class="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg">
+                                {{ form.promo_banner_text_color }}
+                                <span class="text-sm font-mono">{{ form.promo_banner_text_color.value|default:'#FFFFFF' }}</span>
+                            </div>
+                            {% if form.promo_banner_text_color.errors %}
+                                {% for error in form.promo_banner_text_color.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Banner Position -->
+                        <div class="col-span-2 space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.promo_banner_position.id_for_label }}">Banner Position</label>
+                            <div class="flex bg-surface-container-highest p-1 rounded-lg">
+                                <button type="button" class="banner-position-btn flex-1 py-2 text-xs font-bold {% if form.promo_banner_position.value == 'top' %}bg-white rounded shadow-sm{% else %}text-on-surface-variant{% endif %}" data-position="top">TOP</button>
+                                <button type="button" class="banner-position-btn flex-1 py-2 text-xs font-bold {% if form.promo_banner_position.value == 'bottom' %}bg-white rounded shadow-sm{% else %}text-on-surface-variant{% endif %}" data-position="bottom">BOTTOM</button>
+                            </div>
+                            {{ form.promo_banner_position }}
+                            {% if form.promo_banner_position.errors %}
+                                {% for error in form.promo_banner_position.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Exit Intent & Optimization -->
+        <section class="space-y-12">
+            <header>
+                <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Exit Intent &amp; Optimization</h2>
+                <p class="text-on-surface-variant mt-2">Advanced strategies for reducing bounce rate and increasing conversions.</p>
+            </header>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- Exit Intent -->
+                <div class="bg-surface-container-low p-10 rounded-xl space-y-8">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">logout</span>
+                            Exit Intent Modal
+                        </h3>
+                        {{ form.enable_exit_intent }}
+                    </div>
+                    {% if form.enable_exit_intent.errors %}
+                        {% for error in form.enable_exit_intent.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="space-y-6 {% if not form.enable_exit_intent.value %}opacity-50{% endif %}" id="exit-intent-section">
+                        <!-- Exit Intent Title -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.exit_intent_title.id_for_label }}">Exit Intent Title</label>
+                            {{ form.exit_intent_title }}
+                            {% if form.exit_intent_title.errors %}
+                                {% for error in form.exit_intent_title.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Exit Intent Message -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.exit_intent_message.id_for_label }}">Exit Intent Message</label>
+                            {{ form.exit_intent_message }}
+                            {% if form.exit_intent_message.errors %}
+                                {% for error in form.exit_intent_message.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Exit Intent Offer -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.exit_intent_offer.id_for_label }}">Exit Intent Offer</label>
+                            {{ form.exit_intent_offer }}
+                            {% if form.exit_intent_offer.errors %}
+                                {% for error in form.exit_intent_offer.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- A/B Testing -->
+                <div class="bg-white border-2 border-primary/10 p-10 rounded-xl space-y-8 relative overflow-hidden">
+                    <div class="absolute -top-1 -right-1 bg-primary text-on-primary text-[10px] font-black px-4 py-1.5 uppercase tracking-widest rounded-bl-lg">PRO</div>
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">splitscreen</span>
+                            A/B Testing (Optimization)
+                        </h3>
+                        {{ form.enable_ab_testing }}
+                    </div>
+                    {% if form.enable_ab_testing.errors %}
+                        {% for error in form.enable_ab_testing.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <p class="text-sm text-on-surface-variant leading-relaxed">Run multiple variations of your popups to see which performs better. Traffic will be split evenly between variants.</p>
+
+                    <div class="space-y-6 pt-4 {% if not form.enable_ab_testing.value %}opacity-50{% endif %}" id="ab-testing-section">
+                        <!-- Variant A -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.variant_a_title.id_for_label }}">Variant A Title</label>
+                                <span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded font-bold">Control</span>
+                            </div>
+                            {{ form.variant_a_title }}
+                            {% if form.variant_a_title.errors %}
+                                {% for error in form.variant_a_title.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Variant B -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.variant_b_title.id_for_label }}">Variant B Title</label>
+                                <span class="text-[10px] bg-secondary-container text-secondary px-2 py-0.5 rounded font-bold">Challenger</span>
+                            </div>
+                            {{ form.variant_b_title }}
+                            {% if form.variant_b_title.errors %}
+                                {% for error in form.variant_b_title.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </form>
+</main>
+
+<!-- Footer Action Bar -->
+<div class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-on-surface/90 backdrop-blur-xl text-white px-8 py-4 rounded-full flex items-center gap-12 shadow-2xl z-50 transition-transform hover:scale-[1.02]">
+    <div class="flex items-center gap-6">
+        <div class="flex flex-col">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-white/50">Status</span>
+            <span class="text-xs font-bold flex items-center gap-2">
+                <span class="w-2 h-2 bg-emerald-400 rounded-full"></span>
+                {% if is_edit %}EDITING{% else %}CREATING{% endif %}
+            </span>
+        </div>
+        <div class="w-px h-8 bg-white/10"></div>
+        <div class="flex flex-col">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-white/50">Features Enabled</span>
+            <span class="text-xs font-bold">{{ enabled_features_count|default:0 }} Elements</span>
+        </div>
+    </div>
+    <div class="flex gap-4">
+        <a href="{% url 'popup_preview' %}" class="px-6 py-2 text-xs font-bold hover:text-white/70 transition-colors uppercase tracking-widest">Preview Site</a>
+        <button type="submit" form="popup-form" class="px-8 py-2.5 bg-primary rounded-full text-xs font-bold uppercase tracking-widest shadow-lg shadow-primary/40 hover:bg-primary-dim active:scale-95 transition-all">Publish Live</button>
+    </div>
+</div>
+
+<!-- JavaScript for Dynamic Interactions -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // === Toggle Switch Styling ===
+        const toggleCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+        toggleCheckboxes.forEach(function(checkbox) {
+            checkbox.classList.add('toggle-checkbox');
+
+            checkbox.addEventListener('change', function() {
+                const toggleDiv = this.parentElement.querySelector('div.w-12.h-6, div.w-10.h-5');
+                if (toggleDiv) {
+                    const knob = toggleDiv.querySelector('span.absolute');
+                    if (knob) {
+                        if (this.checked) {
+                            knob.style.right = '4px';
+                            knob.style.left = '';
+                            toggleDiv.style.backgroundColor = '#0053db';
+                        } else {
+                            knob.style.left = '4px';
+                            knob.style.right = '';
+                            toggleDiv.style.backgroundColor = '#d9e4ea';
+                        }
+                    }
+                }
+
+                // Handle conditional sections
+                if (this.id === '{{ form.show_discount_code.id_for_label }}') {
+                    const discountSection = document.getElementById('discount-section');
+                    if (discountSection) {
+                        discountSection.classList.toggle('opacity-50', !this.checked);
+                    }
+                }
+
+                if (this.id === '{{ form.enable_exit_intent.id_for_label }}') {
+                    const exitIntentSection = document.getElementById('exit-intent-section');
+                    if (exitIntentSection) {
+                        exitIntentSection.classList.toggle('opacity-50', !this.checked);
+                    }
+                }
+
+                if (this.id === '{{ form.enable_ab_testing.id_for_label }}') {
+                    const abTestingSection = document.getElementById('ab-testing-section');
+                    if (abTestingSection) {
+                        abTestingSection.classList.toggle('opacity-50', !this.checked);
+                    }
+                }
+            });
+        });
+
+        // === Overlay Opacity Range Display ===
+        const opacityRange = document.getElementById('{{ form.overlay_opacity.id_for_label }}');
+        const opacityDisplay = document.getElementById('overlay-opacity-display');
+
+        if (opacityRange && opacityDisplay) {
+            opacityRange.addEventListener('input', function() {
+                opacityDisplay.textContent = this.value + '%';
+            });
+        }
+
+        // === Banner Position Selection ===
+        const positionBtns = document.querySelectorAll('.banner-position-btn');
+        const positionInput = document.getElementById('{{ form.promo_banner_position.id_for_label }}');
+
+        positionBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                positionBtns.forEach(function(b) {
+                    b.classList.remove('bg-white', 'rounded', 'shadow-sm');
+                    b.classList.add('text-on-surface-variant');
+                });
+
+                this.classList.remove('text-on-surface-variant');
+                this.classList.add('bg-white', 'rounded', 'shadow-sm');
+
+                if (positionInput) {
+                    positionInput.value = this.getAttribute('data-position');
+                }
+            });
+        });
+
+        // === Color Picker Preview ===
+        const colorInputs = document.querySelectorAll('input[type="color"]');
+        colorInputs.forEach(function(input) {
+            input.addEventListener('input', function() {
+                const previewSpan = this.parentElement.querySelector('span.font-mono');
+                if (previewSpan) {
+                    previewSpan.textContent = this.value;
+                }
+            });
+        });
+
+        // === Image Upload Preview ===
+        const imageInput = document.getElementById('{{ form.popup_image.id_for_label }}');
+        if (imageInput) {
+            imageInput.classList.add('hidden');
+            imageInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const previewContainer = imageInput.parentElement.querySelector('img');
+                        if (previewContainer) {
+                            previewContainer.src = e.target.result;
+                        } else {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.className = 'w-full h-14 object-cover rounded-lg border border-outline-variant/20 mb-3';
+                            imageInput.parentElement.insertBefore(img, imageInput);
+                        }
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
+
+        // === Hide Messages After 5 Seconds ===
+        setTimeout(function() {
+            const messages = document.querySelectorAll('.fixed.top-24');
+            messages.forEach(function(msg) {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    msg.remove();
+                }, 500);
+            });
+        }, 5000);
+
+        // === Form Change Detection ===
+        const form = document.getElementById('popup-form');
+        let formChanged = false;
+
+        form.addEventListener('input', function() {
+            formChanged = true;
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (formChanged) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // === Initialize Conditional Sections ===
+        const discountCheckbox = document.getElementById('{{ form.show_discount_code.id_for_label }}');
+        if (discountCheckbox && !discountCheckbox.checked) {
+            const discountSection = document.getElementById('discount-section');
+            if (discountSection) {
+                discountSection.classList.add('opacity-50');
+            }
+        }
+
+        const exitIntentCheckbox = document.getElementById('{{ form.enable_exit_intent.id_for_label }}');
+        if (exitIntentCheckbox && !exitIntentCheckbox.checked) {
+            const exitIntentSection = document.getElementById('exit-intent-section');
+            if (exitIntentSection) {
+                exitIntentSection.classList.add('opacity-50');
+            }
+        }
+
+        const abTestingCheckbox = document.getElementById('{{ form.enable_ab_testing.id_for_label }}');
+        if (abTestingCheckbox && !abTestingCheckbox.checked) {
+            const abTestingSection = document.getElementById('ab-testing-section');
+            if (abTestingSection) {
+                abTestingSection.classList.add('opacity-50');
+            }
+        }
+
+        // === Test Trigger Button ===
+        const testTriggerBtn = document.getElementById('test-trigger-btn');
+        if (testTriggerBtn) {
+            testTriggerBtn.addEventListener('click', function() {
+                window.location.href = "{% url 'test_popup_trigger' %}";
+            });
+        }
+    });
+</script>
+
+</body>
+</html>

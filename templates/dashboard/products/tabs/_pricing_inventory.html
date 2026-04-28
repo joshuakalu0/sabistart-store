@@ -1,47 +1,205 @@
-<h3 class="text-xl font-bold mb-6 flex items-center gap-2">
-  <span class="material-symbols-outlined text-primary">payments</span>
-  Pricing & Inventory
-</h3>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-  <div>
-    <label class="block text-sm font-semibold mb-2">Price</label>
-    {{ form.price }} {% if form.price.errors %}<span
-      class="text-red-500 text-sm"
-      >{{ form.price.errors.0 }}</span
-    >{% endif %}
-  </div>
-  <div>
-    <label class="block text-sm font-semibold mb-2">Compare at Price</label>
-    {{ form.compare_at_price }} {% if form.compare_at_price.errors %}<span
-      class="text-red-500 text-sm"
-      >{{ form.compare_at_price.errors.0 }}</span
-    >{% endif %}
-  </div>
-  <div>
-    <label class="block text-sm font-semibold mb-2">Cost Price</label>
-    {{ form.cost_price }} {% if form.cost_price.errors %}<span
-      class="text-red-500 text-sm"
-      >{{ form.cost_price.errors.0 }}</span
-    >{% endif %}
-  </div>
-  <div class="flex items-center space-x-3">
-    {{ form.manage_stock }}
-    <label class="text-sm font-medium text-slate-700 dark:text-slate-300"
-      >Manage Stock</label
+<div class="mx-auto px-8 py-8 space-y-8">
+  <!-- Pricing Card -->
+  <section
+    class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden"
+  >
+    <div
+      class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3"
     >
-  </div>
-  <div>
-    <label class="block text-sm font-semibold mb-2">Stock Quantity</label>
-    {{ form.stock_quantity }} {% if form.stock_quantity.errors %}<span
-      class="text-red-500 text-sm"
-      >{{ form.stock_quantity.errors.0 }}</span
-    >{% endif %}
-  </div>
-  <div>
-    <label class="block text-sm font-semibold mb-2">Stock Status</label>
-    {{ form.stock_status }} {% if form.stock_status.errors %}<span
-      class="text-red-500 text-sm"
-      >{{ form.stock_status.errors.0 }}</span
-    >{% endif %}
+      <div
+        class="size-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center"
+      >
+        <span class="material-symbols-outlined text-lg">payments</span>
+      </div>
+      <h3 class="font-bold text-lg">Pricing</h3>
+    </div>
+    <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="space-y-2">
+        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300"
+          >Price ($)</label
+        >
+        <div class="relative">
+          <span
+            class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"
+            >$</span
+          >
+          {{ form.price }} {% if form.price.errors %}
+          <p class="text-red-500 text-xs mt-1">{{ form.price.errors }}</p>
+          {% endif %}
+        </div>
+      </div>
+      <div class="space-y-2">
+        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300"
+          >Compare at price ($)</label
+        >
+        <div class="relative">
+          <span
+            class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"
+            >$</span
+          >
+          {{ form.compare_at_price }} {% if form.compare_at_price.errors %}
+          <p class="text-red-500 text-xs mt-1">
+            {{ form.compare_at_price.errors }}
+          </p>
+          {% endif %}
+        </div>
+      </div>
+      <div class="space-y-2">
+        <label
+          class="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1"
+          >Cost Price ($)
+          <span
+            class="material-symbols-outlined text-xs text-slate-400 cursor-help"
+            title="Customers won't see this. Used for margin calculations."
+            >info</span
+          ></label
+        >
+        <div class="relative">
+          <span
+            class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"
+            >$</span
+          >
+          {{ form.cost_price }} {% if form.cost_price.errors %}
+          <p class="text-red-500 text-xs mt-1">{{ form.cost_price.errors }}</p>
+          {% endif %}
+        </div>
+      </div>
+      <div class="space-y-2 md:col-span-1">
+        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300"
+          >Tax Class</label
+        >
+        {{ form.tax_class }} {% if form.tax_class.errors %}
+        <p class="text-red-500 text-xs mt-1">{{ form.tax_class.errors }}</p>
+        {% endif %}
+      </div>
+      <div class="space-y-2 md:col-span-2">
+        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300"
+          >Tax Status</label
+        >
+        <div class="flex gap-4 items-center h-10">
+          {% for choice in form.tax_status.field.choices %}
+          <label class="flex items-center gap-2 cursor-pointer group">
+            <input
+              {% if forloop.first %}checked=""
+              {% endif %}
+
+              class="text-primary focus:ring-primary size-4 border-slate-300 dark:border-slate-700 dark:bg-slate-800"
+              name="tax_status"
+              type="radio"
+              value="{{ choice.0 }}"
+            />
+            <span
+              class="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors"
+              >{{ choice.1 }}</span
+            >
+          </label>
+          {% endfor %}
+        </div>
+        {% if form.tax_status.errors %}
+        <p class="text-red-500 text-xs mt-1">{{ form.tax_status.errors }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Inventory Card -->
+  <section
+    class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden"
+  >
+    <div
+      class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="size-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center"
+        >
+          <span class="material-symbols-outlined text-lg">inventory_2</span>
+        </div>
+        <h3 class="font-bold text-lg">Inventory</h3>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-sm font-medium text-slate-500">Manage Stock</span>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input checked="" class="sr-only peer" type="checkbox" />
+          <div
+            class="w-11 h-6 bg-slate-300 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"
+          ></div>
+        </label>
+      </div>
+    </div>
+    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div class="space-y-6">
+        <div class="space-y-2">
+          <label
+            class="text-sm font-semibold text-slate-700 dark:text-slate-300"
+            >Stock Quantity</label
+          >
+          {{ form.stock_quantity }} {% if form.stock_quantity.errors %}
+          <p class="text-red-500 text-xs mt-1">
+            {{ form.stock_quantity.errors }}
+          </p>
+          {% endif %}
+        </div>
+        <div class="space-y-2">
+          <label
+            class="text-sm font-semibold text-slate-700 dark:text-slate-300"
+            >Stock Status</label
+          >
+          {{ form.stock_status }} {% if form.stock_status.errors %}
+          <p class="text-red-500 text-xs mt-1">
+            {{ form.stock_status.errors }}
+          </p>
+          {% endif %}
+        </div>
+      </div>
+      <div class="space-y-6">
+        <div class="space-y-2">
+          <label
+            class="text-sm font-semibold text-slate-700 dark:text-slate-300"
+            >Low Stock Threshold</label
+          >
+          {{ form.low_stock_threshold }} {% if form.low_stock_threshold.errors %}
+          <p class="text-red-500 text-xs mt-1">
+            {{ form.low_stock_threshold.errors }}
+          </p>
+          {% endif %}
+          <p class="text-xs text-slate-500">
+            You'll be notified when stock hits this number.
+          </p>
+        </div>
+        <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-semibold">Allow Backorders</p>
+              <p class="text-xs text-slate-500">
+                Customers can buy when out of stock
+              </p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input class="sr-only peer" type="checkbox" />
+              <div
+                class="w-11 h-6 bg-slate-300 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"
+              ></div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Profit Estimates Info -->
+  <div class="bg-primary/5 border border-primary/20 rounded-xl p-6 flex gap-4">
+    <span class="material-symbols-outlined text-primary">analytics</span>
+    <div>
+      <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">
+        Margin Calculation
+      </h4>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+        Based on your price of
+        <span class="font-semibold">$0.00</span> and cost of
+        <span class="font-semibold">$0.00</span>, your profit margin will be
+        <span class="text-primary font-bold">0%</span>.
+      </p>
+    </div>
   </div>
 </div>

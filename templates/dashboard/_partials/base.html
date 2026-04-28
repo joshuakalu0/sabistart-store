@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>{{ page_title }} - Business Setup</title>
+    <title>{{ page_title|default:"Dashboard" }} - SABIStart</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
@@ -27,7 +27,7 @@
               primary: "#0059E3",
               "background-light": "#F8FAFC",
               "background-dark": "#0F172A",
-              "sidebar-dark": "#111827",
+              shell: "#E2E8F0",
             },
             fontFamily: {
               display: ["Inter", "sans-serif"],
@@ -36,6 +36,9 @@
             borderRadius: {
               DEFAULT: "0.5rem",
               lg: "0.75rem",
+            },
+            boxShadow: {
+              shell: "0 24px 80px rgba(15, 23, 42, 0.10)",
             },
           },
         },
@@ -61,66 +64,58 @@
         scrollbar-width: none;
       }
     </style>
+    {% comment %} {% block extra_css %}{% endblock %} {% endcomment %}
   </head>
 
   <body
-    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex"
+    class="min-h-screen overflow-hidden bg-slate-100 text-slate-900 dark:bg-background-dark dark:text-slate-100"
   >
+    <div class="flex h-screen">
     {% if sidebar %}
     <aside
-      class="w-64 bg-sidebar-dark text-gray-300 flex-shrink-0 hidden lg:flex flex-col border-r border-gray-800"
+      id="sidebar"
+      class="fixed inset-y-0 left-0 z-50 flex h-screen w-72 flex-shrink-0 -translate-x-full flex-col border-r border-slate-200 bg-white/95 text-slate-700 shadow-shell transition-transform duration-300 ease-in-out lg:sticky lg:top-0 lg:translate-x-0 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300"
     >
       <div class="p-6">
-        <div class="relative">
-          <span
-            class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-          >
-            <span class="material-icons-outlined text-gray-500 text-sm"
-              >search</span
-            >
-          </span>
-          <input
-            class="w-full bg-gray-800 border-none rounded-lg py-2 pl-10 pr-4 text -sm focus:ring-1 focus:ring-primary text-white"
-            placeholder="Search menu"
-            type="text"
-          />
-        </div>
+        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-primary">Tenant</p>
+        <h1 class="mt-3 text-2xl font-extrabold text-slate-950 dark:text-white">Store Workspace</h1>
+        <p class="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">Operate catalog, sales, payments, marketplace entitlements, and team access from one cleaner dashboard shell.</p>
       </div>
       <nav class="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
         {% for items in sidebar %}
         <p
-          class="px-2 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider"
+          class="px-3 py-3 text-xs font-semibold uppercase tracking-[0.24em] text-slate-400"
         >
           {{ items.0 }}
         </p>
         {% for key , values in items.1.items %} {% if values.sub_menu %}
         <div class="group">
           <button
-            class="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-gray-800 hover:text-white transition-colors sidebar-collapse-btn"
+            class="sidebar-collapse-btn flex w-full items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium transition-colors {% if values.active %}bg-primary text-white shadow-lg shadow-primary/20{% else %}text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white{% endif %}"
             data-menu="{{ key }}"
           >
             <div class="flex items-center">
               <span
-                class="material-icons-outlined mr-3 text-gray-400 group-hover:text-white"
+                class="material-icons-outlined mr-3 {% if values.active %}text-white{% else %}text-slate-400 group-hover:text-slate-950 dark:group-hover:text-white{% endif %}"
               >
                 {{ values.icon }}</span
               >
               {{ values.name }}
             </div>
-            <span class="material-icons-outlined text-xs sidebar-collapse-icon"
-              >expand_more</span
+            <span class="sidebar-collapse-icon material-icons-outlined text-xs"
+              >{% if values.active %}expand_less{% else %}expand_more{% endif %}</span
             >
           </button>
           <div
-            class="sidebar-submenu hidden pl-4 space-y-1"
+            class="sidebar-submenu space-y-1 pl-4 {% if not values.active %}hidden{% endif %}"
             id="submenu-{{ key }}"
           >
             {% for sub_item in values.sub_menu %}
             <a
               href="{{ sub_item.url }}"
-              class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-gray-800 hover:text-white transition-colors"
+              class="flex items-center rounded-2xl px-4 py-3 text-sm font-medium transition-colors {% if sub_item.active %}bg-slate-900 text-white dark:bg-slate-700{% else %}text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white{% endif %}"
             >
-              <span class="material-icons-outlined mr-3 text-gray-400 text-sm"
+              <span class="material-icons-outlined mr-3 text-sm {% if sub_item.active %}text-primary dark:text-blue-300{% else %}text-slate-400{% endif %}"
                 >{{ sub_item.icon }}</span
               >
               {{ sub_item.name }}
@@ -130,11 +125,11 @@
         </div>
         {% else %}
         <a
-          class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg {% if values.active %} bg-gray-800 text-white {% else %} hover:bg-gray-800 hover:text-white{% endif %}"
+          class="flex items-center rounded-2xl px-4 py-3 text-sm font-medium {% if values.active %}bg-primary text-white shadow-lg shadow-primary/20{% else %}text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white{% endif %}"
           href="{{ values.url }}"
         >
           <span
-            class="material-icons-outlined mr-3 {% if values.active %} text-primary {% else %} text-white{% endif %}"
+            class="material-icons-outlined mr-3 {% if values.active %}text-white{% else %}text-slate-400{% endif %}"
           >
             {{ values.icon }}</span
           >
@@ -143,6 +138,20 @@
         {% endif %} {% endfor %} {% endfor %}
       </nav>
     </aside>
+
+    <!-- Mobile sidebar toggle button -->
+    <button
+      id="sidebarToggle"
+      class="fixed left-4 top-4 z-50 rounded-2xl bg-primary p-3 text-white shadow-lg lg:hidden"
+    >
+      <span class="material-icons-outlined">menu</span>
+    </button>
+
+    <!-- Sidebar overlay -->
+    <div
+      id="sidebarOverlay"
+      class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40 hidden"
+    ></div>
     {% endif %}
 
     <script>
@@ -167,6 +176,23 @@
             }
           });
         });
+
+        // Mobile sidebar toggle
+        const sidebarToggle = document.getElementById("sidebarToggle");
+        const sidebar = document.getElementById("sidebar");
+        const sidebarOverlay = document.getElementById("sidebarOverlay");
+
+        if (sidebarToggle && sidebar && sidebarOverlay) {
+          sidebarToggle.addEventListener("click", function () {
+            sidebar.classList.toggle("-translate-x-full");
+            sidebarOverlay.classList.toggle("hidden");
+          });
+
+          sidebarOverlay.addEventListener("click", function () {
+            sidebar.classList.add("-translate-x-full");
+            sidebarOverlay.classList.add("hidden");
+          });
+        }
       });
     </script>
 
@@ -199,7 +225,7 @@
     </aside>
     {% endif %}
 
-    <main class="flex-1 flex flex-col min-w-0 h-screen">
+    <main class="flex min-h-0 min-w-0 flex-1 flex-col">
       {% if sub_sidebar %}
       <header
         class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-8 pt-6 pb-6 flex-shrink-0 md:hidden"
@@ -224,12 +250,285 @@
       {% endif %}
       <div
         id="scrollable"
-        class="flex-1 overflow-y-auto custom-scrollbar p-8 space-y-8"
+        class="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-4 py-6 md:px-8 md:py-8"
       >
+      {% include 'dashboard/_partials/messages.html' %}
         {% block content %}{% endblock %}
       </div>
     </main>
 
-    {% block extra_js %}{% endblock %}
+
+
+    <!-- Reusable Delete Modal -->
+    <div
+      id="deleteModal"
+      class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-95 opacity-0"
+        id="deleteModalContent"
+      >
+        <div class="p-6">
+          <div
+            class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 dark:bg-red-900/20 rounded-full mb-4"
+          >
+            <span class="material-icons-outlined text-red-600 dark:text-red-400"
+              >delete</span
+            >
+          </div>
+          <h3
+            class="text-lg font-semibold text-center text-slate-900 dark:text-white mb-2"
+            id="deleteModalTitle"
+          >
+            Delete Item
+          </h3>
+          <p
+            class="text-sm text-slate-600 dark:text-slate-400 text-center mb-6"
+            id="deleteModalMessage"
+          >
+            Are you sure you want to delete this item? This action cannot be
+            undone.
+          </p>
+          <div class="flex gap-3">
+            <button
+              type="button"
+              class="flex-1 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors"
+              onclick="closeDeleteModal()"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+              id="confirmDeleteBtn"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reusable Right Side Details Overlay -->
+    <div
+      id="detailsOverlay"
+      class="fixed inset-y-0 right-0 w-96 bg-white dark:bg-slate-800 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out border-l border-slate-200 dark:border-slate-700"
+    >
+      <div class="h-full flex flex-col">
+        <!-- Header -->
+        <div
+          class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between"
+        >
+          <h3
+            class="text-lg font-semibold text-slate-900 dark:text-white"
+            id="detailsOverlayTitle"
+          >
+            Details
+          </h3>
+          <button
+            type="button"
+            onclick="closeDetailsOverlay()"
+            class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          >
+            <span
+              class="material-icons-outlined text-slate-500 dark:text-slate-400"
+              >close</span
+            >
+          </button>
+        </div>
+
+        <!-- Content -->
+        <div
+          class="flex-1 overflow-y-auto custom-scrollbar px-6 py-4"
+          id="detailsOverlayContent"
+        >
+          <!-- Content will be loaded here -->
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
+          <div class="flex gap-3" id="detailsOverlayActions">
+            <!-- Action buttons will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overlay Backdrop -->
+    <div
+      id="detailsOverlayBackdrop"
+      class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"
+      onclick="closeDetailsOverlay()"
+    ></div>
+
+    <script>
+      function openDeleteModal(title, message, confirmCallback) {
+        const modal = document.getElementById("deleteModal");
+        const modalContent = document.getElementById("deleteModalContent");
+        const titleEl = document.getElementById("deleteModalTitle");
+        const messageEl = document.getElementById("deleteModalMessage");
+        const confirmBtn = document.getElementById("confirmDeleteBtn");
+
+        titleEl.textContent = title || "Delete Item";
+        messageEl.textContent =
+          message ||
+          "Are you sure you want to delete this item? This action cannot be undone.";
+
+        // Remove existing event listeners
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+        // Add new event listener
+        newConfirmBtn.addEventListener("click", function () {
+          if (confirmCallback) confirmCallback();
+          closeDeleteModal();
+        });
+
+        modal.classList.remove("hidden");
+        setTimeout(() => {
+          modalContent.classList.remove("scale-95", "opacity-0");
+          modalContent.classList.add("scale-100", "opacity-100");
+        }, 10);
+      }
+
+      function closeDeleteModal() {
+        const modal = document.getElementById("deleteModal");
+        const modalContent = document.getElementById("deleteModalContent");
+
+        modalContent.classList.remove("scale-100", "opacity-100");
+        modalContent.classList.add("scale-95", "opacity-0");
+
+        setTimeout(() => {
+          modal.classList.add("hidden");
+        }, 300);
+      }
+
+      // Close modal when clicking outside
+      document
+        .getElementById("deleteModal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) {
+            closeDeleteModal();
+          }
+        });
+
+      // Details Overlay functions
+      function openDetailsOverlay(title, content, actions = []) {
+        const overlay = document.getElementById("detailsOverlay");
+        const backdrop = document.getElementById("detailsOverlayBackdrop");
+        const titleEl = document.getElementById("detailsOverlayTitle");
+        const contentEl = document.getElementById("detailsOverlayContent");
+        const actionsEl = document.getElementById("detailsOverlayActions");
+
+        // Set title and content
+        titleEl.textContent = title || "Details";
+        contentEl.innerHTML = content;
+
+        // Clear existing actions and add new ones
+        actionsEl.innerHTML = "";
+        actions.forEach((action) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className =
+            action.className ||
+            "px-4 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors";
+          button.textContent = action.label;
+          if (action.callback) {
+            button.addEventListener("click", action.callback);
+          }
+          actionsEl.appendChild(button);
+        });
+
+        // Show overlay
+        backdrop.classList.remove("hidden");
+        overlay.classList.remove("translate-x-full");
+      }
+
+      function closeDetailsOverlay() {
+        const overlay = document.getElementById("detailsOverlay");
+        const backdrop = document.getElementById("detailsOverlayBackdrop");
+
+        overlay.classList.add("translate-x-full");
+        setTimeout(() => {
+          backdrop.classList.add("hidden");
+        }, 300);
+      }
+
+      // Function to load details from server
+      function loadDetails(url) {
+        const contentEl = document.getElementById("detailsOverlayContent");
+        const actionsEl = document.getElementById("detailsOverlayActions");
+
+        // Show loading state
+        contentEl.innerHTML = `
+          <div class="flex items-center justify-center h-32">
+            <span class="material-icons-outlined text-slate-400 animate-spin">refresh</span>
+            <span class="ml-2 text-slate-500">Loading details...</span>
+          </div>
+        `;
+        actionsEl.innerHTML = "";
+
+        // Open overlay
+        document
+          .getElementById("detailsOverlayBackdrop")
+          .classList.remove("hidden");
+        document
+          .getElementById("detailsOverlay")
+          .classList.remove("translate-x-full");
+
+        // Fetch details
+        fetch(url)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+          })
+          .then((html) => {
+            contentEl.innerHTML = html;
+          })
+          .catch((error) => {
+            console.error("Error loading details:", error);
+            contentEl.innerHTML = `
+              <div class="flex flex-col items-center justify-center h-32 text-center">
+                <span class="material-icons-outlined text-red-400">error</span>
+                <span class="ml-2 text-red-500">Failed to load details</span>
+                <button
+                  class="mt-2 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                  onclick="closeDetailsOverlay()"
+                >
+                  Close
+                </button>
+              </div>
+            `;
+          });
+      }
+    </script>
+
+    <script>
+      (function () {
+        const startedAt = Date.now();
+        const send = () => {
+          const payload = JSON.stringify({
+            path: window.location.pathname,
+            title: document.title,
+            duration_ms: Date.now() - startedAt,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
+            language: navigator.language || "",
+            visibility_state: document.visibilityState || "",
+            screen: { width: window.innerWidth, height: window.innerHeight },
+          });
+          if (navigator.sendBeacon) {
+            navigator.sendBeacon("{% url 'monitoring:beacon' %}", new Blob([payload], { type: "application/json" }));
+            return;
+          }
+          fetch("{% url 'monitoring:beacon' %}", { method: "POST", headers: { "Content-Type": "application/json" }, body: payload, keepalive: true }).catch(() => {});
+        };
+        window.addEventListener("pagehide", send, { once: true });
+      }());
+    </script>
+
+    {% block js %} {% endblock %}
+    </div>
   </body>
 </html>

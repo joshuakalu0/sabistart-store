@@ -1,0 +1,75 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Disputes & Chargebacks</h2>
+    <p class="text-slate-600 dark:text-slate-400">Manage customer disputes and submit evidence</p>
+  </div>
+</div>
+
+<div class="mb-4">
+  <form method="get" class="flex flex-wrap gap-3">
+    <input type="text" name="q" value="{{ q }}" placeholder="Search by transaction ref..."
+           class="flex-1 min-w-[200px] px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary"/>
+    <select name="status" class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white">
+      <option value="">All Status</option>
+      {% for val, label in status_choices %}<option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <label class="flex items-center space-x-2 px-3 py-2 border border-red-300 bg-red-50 dark:bg-red-900/10 dark:border-red-700 rounded-lg text-sm cursor-pointer">
+      <input type="checkbox" name="overdue" value="1" {% if overdue_only %}checked{% endif %} class="h-4 w-4 rounded text-red-600"/>
+      <span class="text-red-700 dark:text-red-300">Overdue Deadline Only</span>
+    </label>
+    <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg text-sm">Filter</button>
+  </form>
+</div>
+
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          {% for col in "Reference,Transaction,Amount,Status,Evidence Deadline,Actions" %}
+          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+        {% for dispute in disputes %}
+        {% with is_overdue=dispute.status == 'open' and dispute.evidence_deadline and dispute.evidence_deadline < now %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 {% if is_overdue %}bg-red-50 dark:bg-red-900/5{% endif %}">
+          <td class="px-4 py-3 font-mono text-xs">
+            <a href="{% url 'dashboard:payments_tenant:dispute_detail' prefix dispute.id %}" class="text-primary hover:underline">{{ dispute.dispute_reference }}</a>
+          </td>
+          <td class="px-4 py-3 font-mono text-xs text-slate-500">
+            <a href="{% url 'dashboard:payments_tenant:transaction_detail' prefix dispute.transaction.id %}" class="hover:text-primary">{{ dispute.transaction.internal_reference }}</a>
+          </td>
+          <td class="px-4 py-3 font-mono text-slate-900 dark:text-white">{{ dispute.dispute_amount }} {{ dispute.currency }}</td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-1 rounded-full text-xs
+              {% if dispute.status == 'open' %}bg-amber-100 text-amber-700
+              {% elif dispute.status == 'won' %}bg-green-100 text-green-700
+              {% elif dispute.status == 'lost' %}bg-red-100 text-red-700
+              {% else %}bg-slate-100 text-slate-600{% endif %}">
+              {{ dispute.status|capfirst }}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-xs {% if is_overdue %}text-red-600 font-semibold{% else %}text-slate-500{% endif %}">
+            {{ dispute.evidence_deadline|date:"d M Y H:i"|default:"—" }}
+            {% if is_overdue %}<span class="ml-1 text-xs bg-red-100 text-red-700 px-1 rounded">OVERDUE</span>{% endif %}
+          </td>
+          <td class="px-4 py-3 space-x-2 whitespace-nowrap">
+            <a href="{% url 'dashboard:payments_tenant:dispute_detail' prefix dispute.id %}" class="text-primary hover:underline">View</a>
+            {% if dispute.status == 'open' %}
+            <a href="{% url 'dashboard:payments_tenant:dispute_evidence_create' prefix dispute.id %}" class="text-slate-600 dark:text-slate-400 hover:text-primary">Submit Evidence</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endwith %}
+        {% empty %}
+        <tr><td colspan="6" class="px-6 py-10 text-center text-slate-400">No disputes found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

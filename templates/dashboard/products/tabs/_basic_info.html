@@ -48,19 +48,220 @@
   </div>
   <div class="col-span-2">
     <label class="block text-sm font-semibold mb-2">Categories</label>
-    <div
-      class="flex flex-wrap gap-2 p-3 bg-slate-50 dark:bg-slate-800/50 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg"
-    >
-      {{ form.categories }}
+    <div class="relative">
+      <div id="categories-container" class="flex flex-wrap gap-2 p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-lg min-h-[50px] cursor-text" onclick="focusCategoryInput()">
+        <input type="text" id="category-input" class="border-none outline-none bg-transparent text-sm flex-1 min-w-[120px]" placeholder="Search categories..." onkeyup="filterCategories(event)" onkeydown="handleCategoryKeydown(event)" onfocus="showCategoryDropdown()">
+      </div>
+      <div id="category-dropdown" class="absolute z-10 w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto hidden">
+        {% for category in form.categories.field.queryset %}
+        <div class="category-option px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer text-sm" data-value="{{ category.id }}" data-name="{{ category.name }}">
+          {{ category.name }}
+        </div>
+        {% endfor %}
+      </div>
     </div>
-    {% if form.categories.errors %}<span class="text-red-500 text-sm"
-      >{{ form.categories.errors.0 }}</span
-    >{% endif %}
+    <select name="categories" id="id_categories" multiple class="hidden">
+      {% for category in form.categories.field.queryset %}
+      <option value="{{ category.id }}">{{ category.name }}</option>
+      {% endfor %}
+    </select>
   </div>
   <div class="col-span-2">
     <label class="block text-sm font-semibold mb-2">Tags</label>
-    {{ form.tags }} {% if form.tags.errors %}<span class="text-red-500 text-sm"
-      >{{ form.tags.errors.0 }}</span
-    >{% endif %}
+    <div class="relative">
+      <div id="tags-container" class="flex flex-wrap gap-2 p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-lg min-h-[50px] cursor-text" onclick="focusTagInput()">
+        <input type="text" id="tag-input" class="border-none outline-none bg-transparent text-sm flex-1 min-w-[120px]" placeholder="Search tags..." onkeyup="filterTags(event)" onkeydown="handleTagKeydown(event)" onfocus="showTagDropdown()">
+      </div>
+      <div id="tag-dropdown" class="absolute z-10 w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto hidden">
+        {% for tag in form.tags.field.queryset %}
+        <div class="tag-option px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer text-sm" data-value="{{ tag.id }}" data-name="{{ tag.name }}">
+          {{ tag.name }}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <select name="tags" id="id_tags" multiple class="hidden">
+      {% for tag in form.tags.field.queryset %}
+      <option value="{{ tag.id }}">{{ tag.name }}</option>
+      {% endfor %}
+    </select>
   </div>
 </div>
+
+<script>
+let selectedCategories = [];
+let selectedTags = [];
+
+function focusCategoryInput() {
+  document.getElementById('category-input').focus();
+}
+
+function focusTagInput() {
+  document.getElementById('tag-input').focus();
+}
+
+function showCategoryDropdown() {
+  document.getElementById('category-dropdown').classList.remove('hidden');
+  updateCategoryOptions();
+}
+
+function showTagDropdown() {
+  document.getElementById('tag-dropdown').classList.remove('hidden');
+  updateTagOptions();
+}
+
+function updateCategoryOptions() {
+  const options = document.querySelectorAll('.category-option');
+  options.forEach(option => {
+    const isSelected = selectedCategories.includes(option.dataset.value);
+    option.style.display = isSelected ? 'none' : 'block';
+  });
+}
+
+function updateTagOptions() {
+  const options = document.querySelectorAll('.tag-option');
+  options.forEach(option => {
+    const isSelected = selectedTags.includes(option.dataset.value);
+    option.style.display = isSelected ? 'none' : 'block';
+  });
+}
+
+function filterCategories(event) {
+  const input = event.target;
+  const dropdown = document.getElementById('category-dropdown');
+  const options = dropdown.querySelectorAll('.category-option');
+  
+  dropdown.classList.remove('hidden');
+  options.forEach(option => {
+    const name = option.dataset.name.toLowerCase();
+    const search = input.value.toLowerCase();
+    const isSelected = selectedCategories.includes(option.dataset.value);
+    const matchesSearch = name.includes(search) || search === '';
+    option.style.display = (matchesSearch && !isSelected) ? 'block' : 'none';
+  });
+}
+
+function filterTags(event) {
+  const input = event.target;
+  const dropdown = document.getElementById('tag-dropdown');
+  const options = dropdown.querySelectorAll('.tag-option');
+  
+  dropdown.classList.remove('hidden');
+  options.forEach(option => {
+    const name = option.dataset.name.toLowerCase();
+    const search = input.value.toLowerCase();
+    const isSelected = selectedTags.includes(option.dataset.value);
+    const matchesSearch = name.includes(search) || search === '';
+    option.style.display = (matchesSearch && !isSelected) ? 'block' : 'none';
+  });
+}
+
+function handleCategoryKeydown(event) {
+  if (event.key === 'Backspace' && event.target.value === '' && selectedCategories.length > 0) {
+    removeCategory(selectedCategories[selectedCategories.length - 1]);
+  }
+}
+
+function handleTagKeydown(event) {
+  if (event.key === 'Backspace' && event.target.value === '' && selectedTags.length > 0) {
+    removeTag(selectedTags[selectedTags.length - 1]);
+  }
+}
+
+function addCategory(id, name) {
+  if (!selectedCategories.includes(id)) {
+    selectedCategories.push(id);
+    const container = document.getElementById('categories-container');
+    const input = document.getElementById('category-input');
+    
+    const tag = document.createElement('span');
+    tag.className = 'bg-primary text-white px-3 py-1 rounded-full text-sm flex items-center gap-2';
+    tag.innerHTML = `${name} <button type="button" onclick="removeCategory('${id}')" class="material-symbols-outlined text-[16px] hover:bg-white/20 rounded-full p-0.5">close</button>`;
+    
+    container.insertBefore(tag, input);
+    updateCategorySelect();
+    updateCategoryOptions();
+  }
+  document.getElementById('category-input').value = '';
+  document.getElementById('category-dropdown').classList.add('hidden');
+}
+
+function addTag(id, name) {
+  if (!selectedTags.includes(id)) {
+    selectedTags.push(id);
+    const container = document.getElementById('tags-container');
+    const input = document.getElementById('tag-input');
+    
+    const tag = document.createElement('span');
+    tag.className = 'bg-slate-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-2';
+    tag.innerHTML = `${name} <button type="button" onclick="removeTag('${id}')" class="material-symbols-outlined text-[16px] hover:bg-white/20 rounded-full p-0.5">close</button>`;
+    
+    container.insertBefore(tag, input);
+    updateTagSelect();
+    updateTagOptions();
+  }
+  document.getElementById('tag-input').value = '';
+  document.getElementById('tag-dropdown').classList.add('hidden');
+}
+
+function removeCategory(id) {
+  selectedCategories = selectedCategories.filter(catId => catId !== id);
+  const container = document.getElementById('categories-container');
+  const tags = container.querySelectorAll('span');
+  tags.forEach(tag => {
+    if (tag.innerHTML.includes(`removeCategory('${id}')`)) {
+      tag.remove();
+    }
+  });
+  updateCategorySelect();
+  updateCategoryOptions();
+}
+
+function removeTag(id) {
+  selectedTags = selectedTags.filter(tagId => tagId !== id);
+  const container = document.getElementById('tags-container');
+  const tags = container.querySelectorAll('span');
+  tags.forEach(tag => {
+    if (tag.innerHTML.includes(`removeTag('${id}')`)) {
+      tag.remove();
+    }
+  });
+  updateTagSelect();
+  updateTagOptions();
+}
+
+function updateCategorySelect() {
+  const select = document.getElementById('id_categories');
+  Array.from(select.options).forEach(option => {
+    option.selected = selectedCategories.includes(option.value);
+  });
+}
+
+function updateTagSelect() {
+  const select = document.getElementById('id_tags');
+  Array.from(select.options).forEach(option => {
+    option.selected = selectedTags.includes(option.value);
+  });
+}
+
+document.addEventListener('click', function(event) {
+  if (!event.target.closest('#categories-container') && !event.target.closest('#category-dropdown')) {
+    document.getElementById('category-dropdown').classList.add('hidden');
+  }
+  if (!event.target.closest('#tags-container') && !event.target.closest('#tag-dropdown')) {
+    document.getElementById('tag-dropdown').classList.add('hidden');
+  }
+});
+
+document.querySelectorAll('.category-option').forEach(option => {
+  option.addEventListener('click', function() {
+    addCategory(this.dataset.value, this.dataset.name);
+  });
+});
+
+document.querySelectorAll('.tag-option').forEach(option => {
+  option.addEventListener('click', function() {
+    addTag(this.dataset.value, this.dataset.name);
+  });
+});
+</script>

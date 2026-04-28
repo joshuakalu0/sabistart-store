@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ seo.meta_title|default:page_title|default:shop.name }}</title>
+    <meta name="description" content="{{ seo.meta_description|default:page_description }}">
+    <meta property="og:title" content="{{ seo.og_title|default:page_title }}">
+    <meta property="og:description" content="{{ seo.og_description|default:page_description }}">
+    <meta property="og:image" content="{{ seo.og_image }}">
+    <link rel="canonical" href="{{ seo.canonical_url }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    {% if theme_tokens.google_fonts_url %}<link rel="preconnect" href="https://fonts.googleapis.com">{% endif %}
+    {% if theme_tokens.google_fonts_url %}<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>{% endif %}
+    {% if theme_tokens.google_fonts_url %}<link href="{{ theme_tokens.google_fonts_url }}" rel="stylesheet">{% endif %}
+    {% if theme_tokens.custom_font_url %}<link href="{{ theme_tokens.custom_font_url }}" rel="stylesheet">{% endif %}
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: {{ theme_tokens.primary_color|default:"#0F172A" }};
+            --color-secondary: {{ theme_tokens.secondary_color|default:"#9D4300" }};
+            --color-accent: {{ theme_tokens.accent_color|default:"#FD761A" }};
+            --color-background: {{ theme_tokens.background_color|default:"#F9F9F9" }};
+            --color-surface: {{ theme_tokens.secondary_background_color|default:"#F3F3F3" }};
+            --color-panel: #ffffff;
+            --color-text: {{ theme_tokens.text_color|default:"#1A1C1C" }};
+            --color-text-soft: {{ theme_tokens.secondary_text_color|default:"#45464D" }};
+            --color-border: {{ theme_tokens.border_color|default:"#C6C6CD" }};
+            --color-success: {{ theme_tokens.success_color|default:"#10B981" }};
+            --color-warning: {{ theme_tokens.warning_color|default:"#F59E0B" }};
+            --color-error: {{ theme_tokens.error_color|default:"#EF4444" }};
+            --radius-display: {{ theme_tokens.border_radius|default:18 }}px;
+            --radius-control: {{ theme_tokens.button_radius|default:12 }}px;
+            --shadow-soft: {{ theme_tokens.shadow|default:"0 20px 40px rgba(15, 23, 42, 0.06)" }};
+            --container-width: {{ theme_tokens.container_width|default:1480 }}px;
+            --space-unit: {{ theme_tokens.spacing_unit|default:10 }}px;
+            --font-heading: {{ theme_tokens.heading_font|default:'"Plus Jakarta Sans", sans-serif' }};
+            --font-body: {{ theme_tokens.body_font|default:'"Inter", sans-serif' }};
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--color-text);
+            background:
+                radial-gradient(circle at top left, color-mix(in srgb, var(--color-accent) 16%, transparent), transparent 28%),
+                radial-gradient(circle at top right, color-mix(in srgb, var(--color-primary) 10%, transparent), transparent 22%),
+                var(--color-background);
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5, h6, .brand-font {
+            font-family: var(--font-heading);
+            letter-spacing: -0.03em;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        .container-shell {
+            width: min(calc(100% - 10rem), var(--container-width));
+            margin-inline: auto;
+        }
+
+        .surface-card {
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid color-mix(in srgb, var(--color-border) 72%, white);
+            border-radius: var(--radius-display);
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(14px);
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid color-mix(in srgb, var(--color-border) 72%, white);
+            border-radius: var(--radius-display);
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(14px);
+        }
+
+        .surface-card-soft {
+            background: color-mix(in srgb, var(--color-surface) 72%, white);
+            border: 1px solid color-mix(in srgb, var(--color-border) 70%, white);
+            border-radius: calc(var(--radius-display) - 8px);
+        }
+
+        .accent-ring {
+            box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 18%, transparent), var(--shadow-soft);
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            text-transform: uppercase;
+            letter-spacing: .24em;
+            font-size: .72rem;
+            font-weight: 700;
+            color: var(--color-secondary);
+        }
+
+        .section-title {
+            font-size: clamp(1.8rem, 3vw, 3rem);
+            line-height: 1.05;
+            font-weight: 800;
+        }
+
+        .section-copy {
+            color: var(--color-text-soft);
+            line-height: 1.7;
+        }
+
+        .button-primary,
+        .button-secondary,
+        .button-ghost {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .55rem;
+            border-radius: 999px;
+            padding: .95rem 1.35rem;
+            font-size: .95rem;
+            font-weight: 700;
+            transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease, border-color .2s ease, color .2s ease;
+        }
+
+        .button-primary {
+            background: linear-gradient(135deg, var(--color-accent), var(--color-secondary));
+            color: #fff;
+            box-shadow: 0 16px 32px color-mix(in srgb, var(--color-secondary) 22%, transparent);
+        }
+
+        .button-secondary {
+            background: #fff;
+            border: 1px solid color-mix(in srgb, var(--color-border) 84%, white);
+            color: var(--color-text);
+        }
+
+        .button-ghost {
+            color: var(--color-text);
+            background: transparent;
+            border: 1px solid transparent;
+        }
+
+        .button-primary:hover,
+        .button-secondary:hover,
+        .button-ghost:hover {
+            transform: translateY(-1px);
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            padding: .55rem .85rem;
+            border-radius: 999px;
+            border: 1px solid color-mix(in srgb, var(--color-border) 84%, white);
+            background: rgba(255, 255, 255, 0.82);
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--color-text-soft);
+        }
+
+        .chip-active {
+            background: color-mix(in srgb, var(--color-accent) 12%, white);
+            color: var(--color-secondary);
+            border-color: color-mix(in srgb, var(--color-accent) 38%, white);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+            font-size: 1.2rem;
+        }
+
+        .field-shell input,
+        .field-shell select,
+        .field-shell textarea,
+        input.form-control,
+        select.form-control,
+        textarea.form-control,
+        form input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+        form select,
+        form textarea {
+            width: 100%;
+            border-radius: calc(var(--radius-control) + 6px);
+            border: 1px solid color-mix(in srgb, var(--color-border) 88%, white);
+            background: rgba(255, 255, 255, 0.94);
+            color: var(--color-text);
+            padding: .95rem 1rem;
+            outline: none;
+            transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+        }
+
+        .field-shell input:focus,
+        .field-shell select:focus,
+        .field-shell textarea:focus,
+        input.form-control:focus,
+        select.form-control:focus,
+        textarea.form-control:focus,
+        form input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):focus,
+        form select:focus,
+        form textarea:focus {
+            border-color: color-mix(in srgb, var(--color-accent) 52%, white);
+            box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 14%, transparent);
+            background: #fff;
+        }
+
+        input[type="checkbox"],
+        input[type="radio"] {
+            accent-color: var(--color-accent);
+        }
+
+        .nav-panel {
+            display: none;
+            position: absolute;
+            inset-inline-start: 0;
+            top: calc(100% + .85rem);
+            width: min(58rem, calc(100vw - 3rem));
+            padding: 1.25rem;
+            border-radius: calc(var(--radius-display) + 4px);
+            border: 1px solid color-mix(in srgb, var(--color-border) 80%, white);
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 26px 60px rgba(15, 23, 42, 0.14);
+        }
+
+        .nav-group:hover .nav-panel,
+        .nav-group:focus-within .nav-panel {
+            display: block;
+        }
+
+        .hero-grid {
+            display: grid;
+            gap: 1.25rem;
+        }
+
+        @media (min-width: 1024px) {
+            .hero-grid {
+                grid-template-columns: minmax(0, 1.35fr) minmax(300px, .85fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col">
+        {% if storefront_announcement %}
+            <div class="px-4 py-3 text-center text-sm font-semibold text-white" style="background: linear-gradient(135deg, {{ theme_tokens.secondary_color|default:'#9D4300' }}, {{ theme_tokens.accent_color|default:'#FD761A' }});">
+                {{ storefront_announcement }}
+            </div>
+        {% endif %}
+
+        <div class="border-b border-black/5 bg-white/60 backdrop-blur">
+            <div class="container-shell hidden items-center justify-between gap-4 py-3 text-sm text-slate-600 lg:flex">
+                <div class="flex items-center gap-4">
+                    {% for item in utility_navigation %}
+                        <a href="{{ item.url }}" class="transition hover:text-slate-950">{{ item.label }}</a>
+                    {% endfor %}
+                </div>
+                <div class="flex items-center gap-4">
+                    {% if shop.support_email %}<span>{{ shop.support_email }}</span>{% endif %}
+                    {% if shop.phone %}<span>{{ shop.phone }}</span>{% endif %}
+                    {% if active_flash_sale_payload %}
+                        <a href="{{ active_flash_sale_payload.url }}" class="chip chip-active">{{ active_flash_sale_payload.badge_label }}</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <header class="sticky top-0 z-40 border-b border-black/5 bg-white/85 backdrop-blur-xl">
+            <div class="container-shell flex items-center gap-4 py-4">
+                <button type="button" class="inline-flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 text-slate-700 lg:hidden" data-mobile-menu-open>
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <a href="{% url 'home:index' %}" class="flex items-center gap-3">
+                    {% if shop.logo_url %}
+                        <img src="{{ shop.logo_url }}" alt="{{ shop.name }}" class="h-11 w-11 rounded-2xl object-cover">
+                    {% endif %}
+                    <div>
+                        <div class="brand-font text-2xl font-extrabold">{{ shop.name }}</div>
+                        {% if shop.tagline %}<p class="hidden text-xs font-medium uppercase tracking-[0.22em] text-slate-400 sm:block">{{ shop.tagline }}</p>{% endif %}
+                    </div>
+                </a>
+
+                <nav class="hidden items-center gap-2 lg:flex">
+                    {% for link in navigation_links %}
+                        <a href="{{ link.url }}" class="rounded-full px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 {% if request.path == link.url %}bg-slate-950 text-white hover:bg-slate-950 hover:text-white{% endif %}">
+                            {{ link.label }}
+                        </a>
+                    {% endfor %}
+                </nav>
+
+                <form action="{% url 'search:search_results' %}" method="get" class="hidden flex-1 lg:block">
+                    <div class="relative max-w-xl">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                        <input type="search" name="q" value="{{ active_query|default:search_query|default:'' }}" placeholder="Search products, brands, and categories" class="w-full rounded-full border border-slate-200 bg-slate-50 py-3 pl-12 pr-5 text-sm">
+                    </div>
+                </form>
+
+                <div class="ml-auto flex items-center gap-2 sm:gap-3">
+                    <a href="{% url 'tenant:wishlist' %}" class="hidden items-center gap-2 rounded-full border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 md:inline-flex">
+                        <span class="material-symbols-outlined !text-base">favorite</span>
+                        <span>{{ wishlist_count }}</span>
+                    </a>
+                    <a href="{% url 'cart:cart_page' %}" class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                        <span class="material-symbols-outlined !text-base">shopping_bag</span>
+                        <span>{{ cart_summary.item_count }}</span>
+                    </a>
+                    {% if request.user.is_authenticated %}
+                        <a href="{% url 'tenant:account_overview' %}" class="button-primary hidden sm:inline-flex">My Account</a>
+                    {% else %}
+                        <a href="{% url 'tenant:login' %}" class="button-primary hidden sm:inline-flex">Sign In</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if navigation_categories %}
+                <div class="border-t border-black/5 bg-white/70 backdrop-blur hidden lg:block">
+                    <div class="container-shell flex items-center gap-3 overflow-x-auto py-3">
+                        {% for category in navigation_categories %}
+                            <div class="nav-group relative shrink-0">
+                                <a href="{{ category.url }}" class="chip {% if request.path == category.url %}chip-active{% endif %}">
+                                    {{ category.name }}
+                                    {% if category.children %}<span class="material-symbols-outlined !text-base">expand_more</span>{% endif %}
+                                </a>
+                                {% if category.children %}
+                                    <div class="nav-panel">
+                                        <div class="grid gap-5 md:grid-cols-3">
+                                            {% for child in category.children %}
+                                                <div class="space-y-3">
+                                                    <a href="{{ child.url }}" class="brand-font text-lg font-bold text-slate-950 transition hover:text-[color:var(--color-secondary)]">{{ child.name }}</a>
+                                                    {% if child.description %}<p class="text-sm leading-6 text-slate-500">{{ child.description|truncatechars:110 }}</p>{% endif %}
+                                                    {% if child.children %}
+                                                        <div class="space-y-2 text-sm text-slate-600">
+                                                            {% for grandchild in child.children %}
+                                                                <a href="{{ grandchild.url }}" class="block transition hover:text-slate-950">{{ grandchild.name }}</a>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </header>
+
+        <div class="fixed inset-0 z-50 hidden" data-mobile-menu>
+            <div class="absolute inset-0 bg-slate-950/50" data-mobile-menu-close></div>
+            <div class="absolute inset-y-0 left-0 w-[min(92vw,26rem)] overflow-y-auto bg-white px-5 py-6 shadow-2xl">
+                <div class="flex items-center justify-between">
+                    <div class="brand-font text-2xl font-extrabold">{{ shop.name }}</div>
+                    <button type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200" data-mobile-menu-close>
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <form action="{% url 'search:search_results' %}" method="get" class="mt-6">
+                    <input type="search" name="q" value="{{ active_query|default:search_query|default:'' }}" placeholder="Search the store">
+                </form>
+                <div class="mt-6 space-y-2">
+                    {% for link in navigation_links %}
+                        <a href="{{ link.url }}" class="block rounded-2xl px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">{{ link.label }}</a>
+                    {% endfor %}
+                </div>
+                {% if navigation_categories %}
+                    <div class="mt-8 space-y-3">
+                        <p class="eyebrow">Browse Categories</p>
+                        {% for category in navigation_categories %}
+                            <details class="surface-card-soft overflow-hidden p-4">
+                                <summary class="cursor-pointer list-none font-semibold text-slate-900">{{ category.name }}</summary>
+                                <div class="mt-3 space-y-2 text-sm text-slate-600">
+                                    <a href="{{ category.url }}" class="block font-semibold text-slate-900">Shop {{ category.name }}</a>
+                                    {% for child in category.children %}
+                                        <div>
+                                            <a href="{{ child.url }}" class="block">{{ child.name }}</a>
+                                            {% for grandchild in child.children %}
+                                                <a href="{{ grandchild.url }}" class="mt-1 block pl-4 text-slate-500">{{ grandchild.name }}</a>
+                                            {% endfor %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </details>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="mt-8 grid gap-3">
+                    <a href="{% url 'cart:cart_page' %}" class="button-secondary">Cart ({{ cart_summary.item_count }})</a>
+                    {% if request.user.is_authenticated %}
+                        <a href="{% url 'tenant:account_overview' %}" class="button-primary">My Account</a>
+                    {% else %}
+                        <a href="{% url 'tenant:login' %}" class="button-primary">Sign In</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if messages %}
+            <div class="container-shell pt-5">
+                <div class="space-y-3">
+                    {% for message in messages %}
+                        <div class="surface-card px-5 py-4 text-sm {% if message.tags == 'error' %}border-rose-200 text-rose-700{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% block hero %}{% endblock %}
+
+        <main class="container-shell flex-1 py-8 lg:py-10">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="mt-12 border-t border-black/5 bg-slate-950 text-slate-300">
+            <div class="container-shell grid gap-10 py-12 lg:grid-cols-[1.25fr,2fr]">
+                <div class="space-y-5">
+                    <div class="flex items-center gap-3">
+                        {% if shop.logo_url %}
+                            <img src="{{ shop.logo_url }}" alt="{{ shop.name }}" class="h-12 w-12 rounded-2xl object-cover">
+                        {% endif %}
+                        <div>
+                            <p class="brand-font text-2xl font-bold text-white">{{ shop.name }}</p>
+                            {% if shop.tagline %}<p class="text-sm text-slate-400">{{ shop.tagline }}</p>{% endif %}
+                        </div>
+                    </div>
+                    <p class="max-w-xl text-sm leading-7 text-slate-400">{{ shop.description|default:"A polished multi-tenant storefront experience driven by live catalog, promotion, account, and checkout data." }}</p>
+                    <div class="flex flex-wrap gap-3">
+                        {% for platform in social_platforms %}
+                            <a href="{{ platform.url }}" class="chip bg-white/5 text-slate-200 border-white/10 hover:bg-white/10">{{ platform.label }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                    {% for group in footer_link_groups %}
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">{{ group.title }}</p>
+                            <div class="mt-4 space-y-3 text-sm">
+                                {% for link in group.links %}
+                                    <a href="{{ link.url }}" class="block text-slate-300 transition hover:text-white">{{ link.label }}</a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="border-t border-white/10">
+                <div class="container-shell flex flex-col gap-3 py-5 text-xs text-slate-500 md:flex-row md:items-center md:justify-between">
+                    <p>&copy; 2026 {{ shop.name }}. Built for modern commerce teams.</p>
+                    <div class="flex flex-wrap gap-4">
+                        {% if shop.support_email %}<span>{{ shop.support_email }}</span>{% endif %}
+                        {% if shop.phone %}<span>{{ shop.phone }}</span>{% endif %}
+                        {% if shop.address %}<span>{{ shop.address }}</span>{% endif %}
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        (function () {
+            const menu = document.querySelector("[data-mobile-menu]");
+            if (!menu) return;
+            const openers = document.querySelectorAll("[data-mobile-menu-open]");
+            const closers = document.querySelectorAll("[data-mobile-menu-close]");
+            const openMenu = () => menu.classList.remove("hidden");
+            const closeMenu = () => menu.classList.add("hidden");
+            openers.forEach((button) => button.addEventListener("click", openMenu));
+            closers.forEach((button) => button.addEventListener("click", closeMenu));
+        }());
+    </script>
+    <script>
+        (function () {
+            const startedAt = Date.now();
+            const send = () => {
+                const payload = JSON.stringify({
+                    path: window.location.pathname,
+                    title: document.title,
+                    duration_ms: Date.now() - startedAt,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
+                    language: navigator.language || "",
+                    visibility_state: document.visibilityState || "",
+                    screen: { width: window.innerWidth, height: window.innerHeight },
+                });
+                if (navigator.sendBeacon) {
+                    navigator.sendBeacon("{% url 'monitoring:beacon' %}", new Blob([payload], { type: "application/json" }));
+                    return;
+                }
+                fetch("{% url 'monitoring:beacon' %}", { method: "POST", headers: { "Content-Type": "application/json" }, body: payload, keepalive: true }).catch(() => {});
+            };
+            window.addEventListener("pagehide", send, { once: true });
+        }());
+    </script>
+    {% block page_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,969 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{{ title }} | Store Admin</title>
+    <!-- Tailwind CSS with Plugins -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <!-- Fonts: Manrope & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@700;800&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary": "#605c78",
+              "surface-container": "#e8eff3",
+              "tertiary-container": "#e3dbfd",
+              "surface-variant": "#d9e4ea",
+              "on-secondary": "#f7f9ff",
+              "error-dim": "#4e0309",
+              "on-tertiary-container": "#514d68",
+              "tertiary-dim": "#54506b",
+              "secondary-fixed": "#d3e4fe",
+              "on-primary": "#f8f7ff",
+              "inverse-on-surface": "#9a9d9f",
+              "primary-fixed-dim": "#c7d3ff",
+              "primary-dim": "#0048c1",
+              "primary-container": "#dbe1ff",
+              "background": "#f7f9fb",
+              "on-secondary-container": "#435368",
+              "surface-container-low": "#f0f4f7",
+              "on-primary-fixed": "#003798",
+              "on-primary-fixed-variant": "#0050d4",
+              "on-tertiary-fixed": "#3e3a54",
+              "outline-variant": "#a9b4b9",
+              "on-primary-container": "#0048bf",
+              "secondary": "#506076",
+              "surface-tint": "#0053db",
+              "surface-container-lowest": "#ffffff",
+              "surface-dim": "#cfdce3",
+              "error": "#9f403d",
+              "surface": "#f7f9fb",
+              "surface-container-highest": "#d9e4ea",
+              "on-background": "#2a3439",
+              "inverse-surface": "#0b0f10",
+              "primary-fixed": "#dbe1ff",
+              "surface-bright": "#f7f9fb",
+              "outline": "#717c82",
+              "on-error": "#fff7f6",
+              "error-container": "#fe8983",
+              "on-surface-variant": "#566166",
+              "on-tertiary-fixed-variant": "#5b5672",
+              "on-tertiary": "#fcf7ff",
+              "surface-container-high": "#e1e9ee",
+              "secondary-fixed-dim": "#c5d6f0",
+              "on-surface": "#2a3439",
+              "tertiary-fixed": "#e3dbfd",
+              "inverse-primary": "#618bff",
+              "primary": "#0053db",
+              "on-secondary-fixed": "#314055",
+              "on-error-container": "#752121",
+              "secondary-dim": "#44546a",
+              "tertiary-fixed-dim": "#d4cdee",
+              "secondary-container": "#d3e4fe",
+              "on-secondary-fixed-variant": "#4d5d73"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .brand-font { font-family: 'Manrope', sans-serif; }
+        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); }
+
+        /* Form Error States */
+        .form-field-error {
+            border-color: #9f403d !important;
+            background-color: #fef2f2 !important;
+        }
+        .error-message {
+            color: #9f403d;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Toggle Switch Styling */
+        .toggle-checkbox {
+            opacity: 0;
+            position: absolute;
+        }
+
+        /* Color Input */
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 8px;
+        }
+
+        /* Layout Selection Cards */
+        .layout-option.selected {
+            border-color: #0053db;
+        }
+        .layout-option.selected .bg-primary\/20 {
+            background-color: rgba(0, 83, 219, 0.2);
+        }
+
+        /* Conditional Section Opacity */
+        .conditional-section {
+            transition: opacity 0.3s ease;
+        }
+        .conditional-section.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Payment Tag */
+        .payment-tag {
+            transition: all 0.2s ease;
+        }
+        .payment-tag:hover {
+            transform: scale(1.05);
+        }
+
+        /* Trust Badge Upload */
+        .badge-upload {
+            transition: all 0.3s ease;
+        }
+        .badge-upload:hover {
+            border-color: #0053db;
+        }
+        .badge-upload.has-image {
+            border-style: solid;
+            border-color: #0053db;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col">
+
+<!-- Django Messages Framework -->
+{% if messages %}
+<div class="fixed top-24 right-8 z-50 space-y-2">
+    {% for message in messages %}
+    <div class="flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg" style="background-color: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#9f403d{% else %}#ffffff{% endif %}; color: {% if message.tags == 'error' %}#fff7f6{% else %}#2a3439{% endif %};">
+        <span class="material-symbols-outlined text-sm">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span class="font-medium text-sm">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/20 shadow-sm glass-nav">
+    <div class="flex justify-between items-center px-8 py-3 w-full">
+        <div class="flex items-center gap-4">
+            <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{{ title }}</span>
+            <nav class="hidden md:flex gap-6 ml-8 items-center">
+                <a class="text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 pb-1 font-manrope text-sm font-medium" href="{% url 'manage_footer_settings' %}">Dashboard</a>
+                <a class="text-slate-500 dark:text-slate-400 font-manrope text-sm font-medium hover:bg-slate-50 transition-colors" href="#">Templates</a>
+                <a class="text-slate-500 dark:text-slate-400 font-manrope text-sm font-medium hover:bg-slate-50 transition-colors" href="#">Global Settings</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-3">
+            <button type="button" class="px-4 py-2 text-sm font-medium text-slate-500 hover:bg-slate-50 transition-colors active:scale-95 duration-150" onclick="window.location.href='{% url 'manage_footer_settings' %}'">Discard</button>
+            <button type="submit" form="footer-form" class="px-6 py-2 bg-primary text-on-primary rounded-md text-sm font-semibold shadow-sm hover:opacity-90 active:scale-95 transition-all">
+                {% if is_edit %}Save Changes{% else %}Create Settings{% endif %}
+            </button>
+            {% if is_edit %}
+            <a href="{% url 'reset_footer_settings' %}" class="px-4 py-2 text-sm font-medium text-orange-600 hover:bg-orange-50 rounded-md transition-all" title="Reset to defaults" onclick="return confirm('Are you sure you want to reset to default settings?')">
+                <span class="material-symbols-outlined text-sm align-middle">refresh</span>
+                Reset
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+<main class="mt-20 flex-grow px-8 pb-24 max-w-[1600px] mx-auto w-full grid grid-cols-12 gap-12">
+    <form id="footer-form" method="post" action="{{ action_url }}" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <!-- Main Form Canvas -->
+        <div class="col-span-12 lg:col-span-7 space-y-16">
+
+            <!-- Header Section -->
+            <header class="pt-8">
+                <h1 class="text-4xl font-extrabold text-on-surface tracking-tight mb-2">Footer Configuration</h1>
+                <p class="text-on-surface-variant text-lg">Manage the visual identity and structural layout of your website's global footer.</p>
+                {% if is_edit and enabled_features_count %}
+                <p class="text-xs text-on-surface-variant mt-4">
+                    <span class="material-symbols-outlined text-xs align-middle">view_agenda</span>
+                    {{ enabled_features_count|default:0 }} features enabled •
+                    <span class="material-symbols-outlined text-xs align-middle">payment</span>
+                    {{ payment_methods_count|default:0 }} payment methods •
+                    <span class="material-symbols-outlined text-xs align-middle">verified</span>
+                    {{ trust_badges_count|default:0 }} trust badges
+                </p>
+                {% endif %}
+            </header>
+
+            <!-- Section 1: Appearance & Layout -->
+            <section class="p-10 bg-surface-container-low rounded-xl">
+                <div class="flex items-center gap-3 mb-8">
+                    <span class="material-symbols-outlined text-primary">dashboard_customize</span>
+                    <h2 class="text-xl font-bold text-on-surface">Appearance &amp; Layout</h2>
+                </div>
+                <div class="space-y-10">
+                    <!-- Layout Selection -->
+                    <div>
+                        <label class="block text-sm font-semibold text-on-surface-variant mb-4">Layout Structure</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                            <!-- 4 Columns -->
+                            <label class="layout-option relative group cursor-pointer {% if form.layout.value == '4_columns' %}selected{% endif %}">
+                                <input type="radio" name="layout_visual" value="4_columns" class="peer hidden" {% if form.layout.value == '4_columns' %}checked{% endif %}/>
+                                <div class="p-4 bg-surface-container-lowest border-2 {% if form.layout.value == '4_columns' %}border-primary{% else %}border-transparent{% endif %} rounded-lg transition-all peer-checked:border-primary group-hover:bg-surface-container-high">
+                                    <div class="h-16 w-full flex gap-1 mb-2">
+                                        <div class="w-1/4 {% if form.layout.value == '4_columns' %}bg-primary/20{% else %}bg-slate-200{% endif %} rounded-sm"></div>
+                                        <div class="w-1/4 {% if form.layout.value == '4_columns' %}bg-primary/20{% else %}bg-slate-200{% endif %} rounded-sm"></div>
+                                        <div class="w-1/4 {% if form.layout.value == '4_columns' %}bg-primary/20{% else %}bg-slate-200{% endif %} rounded-sm"></div>
+                                        <div class="w-1/4 {% if form.layout.value == '4_columns' %}bg-primary/20{% else %}bg-slate-200{% endif %} rounded-sm"></div>
+                                    </div>
+                                    <span class="text-xs font-medium text-center block {% if form.layout.value == '4_columns' %}text-primary{% else %}text-on-surface{% endif %}">4 Columns</span>
+                                </div>
+                            </label>
+
+                            <!-- 3 Columns -->
+                            <label class="layout-option relative group cursor-pointer {% if form.layout.value == '3_columns' %}selected{% endif %}">
+                                <input type="radio" name="layout_visual" value="3_columns" class="peer hidden" {% if form.layout.value == '3_columns' %}checked{% endif %}/>
+                                <div class="p-4 bg-surface-container-lowest border-2 {% if form.layout.value == '3_columns' %}border-primary{% else %}border-transparent{% endif %} rounded-lg transition-all peer-checked:border-primary group-hover:bg-surface-container-high">
+                                    <div class="h-16 w-full flex gap-1 mb-2">
+                                        <div class="w-1/3 {% if form.layout.value == '3_columns' %}bg-primary/20{% else %}bg-slate-200{% endif %} rounded-sm"></div>
+                                        <div class="w-1/3 {% if form.layout.value == '3_columns' %}bg-primary/20{% else %}bg-slate-200{% endif %} rounded-sm"></div>
+                                        <div class="w-1/3 {% if form.layout.value == '3_columns' %}bg-primary/20{% else %}bg-slate-200{% endif %} rounded-sm"></div>
+                                    </div>
+                                    <span class="text-xs font-medium text-center block {% if form.layout.value == '3_columns' %}text-primary{% else %}text-on-surface{% endif %}">3 Columns</span>
+                                </div>
+                            </label>
+
+                            <!-- 2 Columns -->
+                            <label class="layout-option relative group cursor-pointer {% if form.layout.value == '2_columns' %}selected{% endif %}">
+                                <input type="radio" name="layout_visual" value="2_columns" class="peer hidden" {% if form.layout.value == '2_columns' %}checked{% endif %}/>
+                                <div class="p-4 bg-surface-container-lowest border-2 {% if form.layout.value == '2_columns' %}border-primary{% else %}border-transparent{% endif %} rounded-lg transition-all peer-checked:border-primary group-hover:bg-surface-container-high">
+                                    <div class="h-16 w-full flex gap-1 mb-2">
+                                        <div class="w-1/2 {% if form.layout.value == '2_columns' %}bg-primary/20{% else %}bg-slate-200{% endif %} rounded-sm"></div>
+                                        <div class="w-1/2 {% if form.layout.value == '2_columns' %}bg-primary/20{% else %}bg-slate-200{% endif %} rounded-sm"></div>
+                                    </div>
+                                    <span class="text-xs font-medium text-center block {% if form.layout.value == '2_columns' %}text-primary{% else %}text-on-surface{% endif %}">2 Columns</span>
+                                </div>
+                            </label>
+
+                            <!-- Minimal -->
+                            <label class="layout-option relative group cursor-pointer {% if form.layout.value == 'minimal' %}selected{% endif %}">
+                                <input type="radio" name="layout_visual" value="minimal" class="peer hidden" {% if form.layout.value == 'minimal' %}checked{% endif %}/>
+                                <div class="p-4 bg-surface-container-lowest border-2 {% if form.layout.value == 'minimal' %}border-primary{% else %}border-transparent{% endif %} rounded-lg transition-all peer-checked:border-primary group-hover:bg-surface-container-high">
+                                    <div class="h-16 w-full flex flex-col gap-1 mb-2 items-center justify-center">
+                                        <div class="h-2 w-3/4 {% if form.layout.value == 'minimal' %}bg-primary/20{% else %}bg-slate-200{% endif %} rounded-sm"></div>
+                                        <div class="h-2 w-1/2 {% if form.layout.value == 'minimal' %}bg-primary/20{% else %}bg-slate-200{% endif %} rounded-sm"></div>
+                                    </div>
+                                    <span class="text-xs font-medium text-center block {% if form.layout.value == 'minimal' %}text-primary{% else %}text-on-surface{% endif %}">Minimal</span>
+                                </div>
+                            </label>
+                        </div>
+                        {{ form.layout }}
+                        {% if form.layout.errors %}
+                            {% for error in form.layout.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Colors -->
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <label class="block text-sm font-semibold text-on-surface-variant mb-3" for="{{ form.background_color.id_for_label }}">Background Color</label>
+                            <div class="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg">
+                                {{ form.background_color }}
+                                <input class="flex-grow bg-transparent border-none text-sm font-mono focus:ring-0 uppercase" type="text" value="{{ form.background_color.value|default:'#1F2937' }}" id="background-color-text"/>
+                            </div>
+                            {% if form.background_color.errors %}
+                                {% for error in form.background_color.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-on-surface-variant mb-3" for="{{ form.text_color.id_for_label }}">Text Color</label>
+                            <div class="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg">
+                                {{ form.text_color }}
+                                <input class="flex-grow bg-transparent border-none text-sm font-mono focus:ring-0 uppercase" type="text" value="{{ form.text_color.value|default:'#FFFFFF' }}" id="text-color-text"/>
+                            </div>
+                            {% if form.text_color.errors %}
+                                {% for error in form.text_color.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Content & Branding -->
+            <section class="p-10 bg-surface-container-low rounded-xl">
+                <div class="flex items-center gap-3 mb-8">
+                    <span class="material-symbols-outlined text-primary">branding_watermark</span>
+                    <h2 class="text-xl font-bold text-on-surface">Content &amp; Branding</h2>
+                </div>
+                <div class="space-y-8">
+                    <div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg">
+                        <div>
+                            <p class="font-semibold text-on-surface">Show Logo</p>
+                            <p class="text-xs text-on-surface-variant">Include the company brandmark in the footer</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            {{ form.show_logo }}
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" style="background-color: {% if form.show_logo.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.show_logo.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                            </div>
+                        </label>
+                    </div>
+                    {% if form.show_logo.errors %}
+                        {% for error in form.show_logo.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-on-surface-variant" for="{{ form.about_text.id_for_label }}">About Text</label>
+                        {{ form.about_text }}
+                        {% if form.about_text.errors %}
+                            {% for error in form.about_text.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-on-surface-variant" for="{{ form.copyright_text.id_for_label }}">Copyright Text</label>
+                        {{ form.copyright_text }}
+                        {% if form.copyright_text.errors %}
+                            {% for error in form.copyright_text.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Newsletter Settings -->
+            <section class="p-10 bg-surface-container-low rounded-xl">
+                <div class="flex items-center gap-3 mb-8">
+                    <span class="material-symbols-outlined text-primary">mail</span>
+                    <h2 class="text-xl font-bold text-on-surface">Newsletter Settings</h2>
+                </div>
+                <div class="space-y-8">
+                    <div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg">
+                        <div>
+                            <p class="font-semibold text-on-surface">Show Newsletter</p>
+                            <p class="text-xs text-on-surface-variant">Enable subscription form in the footer</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            {{ form.show_newsletter }}
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" style="background-color: {% if form.show_newsletter.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.show_newsletter.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                            </div>
+                        </label>
+                    </div>
+                    {% if form.show_newsletter.errors %}
+                        {% for error in form.show_newsletter.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="grid md:grid-cols-2 gap-6 {% if not form.show_newsletter.value %}conditional-section disabled{% endif %}" id="newsletter-section">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-on-surface-variant" for="{{ form.newsletter_title.id_for_label }}">Newsletter Title</label>
+                            {{ form.newsletter_title }}
+                            {% if form.newsletter_title.errors %}
+                                {% for error in form.newsletter_title.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-on-surface-variant" for="{{ form.newsletter_description.id_for_label }}">Newsletter Description</label>
+                            {{ form.newsletter_description }}
+                            {% if form.newsletter_description.errors %}
+                                {% for error in form.newsletter_description.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Social & Payment -->
+            <section class="p-10 bg-surface-container-low rounded-xl">
+                <div class="flex items-center gap-3 mb-8">
+                    <span class="material-symbols-outlined text-primary">payments</span>
+                    <h2 class="text-xl font-bold text-on-surface">Social &amp; Payment</h2>
+                </div>
+                <div class="grid md:grid-cols-2 gap-12">
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-semibold text-on-surface-variant">Payment Icons</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                {{ form.show_payment_icons }}
+                                <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary" style="background-color: {% if form.show_payment_icons.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                    <span class="absolute h-4 w-4 bg-white rounded-full transition-all" style="left: {% if form.show_payment_icons.value %}20px{% else %}4px{% endif %}; top: 2px;"></span>
+                                </div>
+                            </label>
+                        </div>
+                        {% if form.show_payment_icons.errors %}
+                            {% for error in form.show_payment_icons.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="space-y-2 {% if not form.show_payment_icons.value %}conditional-section disabled{% endif %}" id="payment-section">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-outline" for="{{ form.accepted_payments.id_for_label }}">Accepted Payments</label>
+                            {{ form.accepted_payments }}
+                            <div class="flex flex-wrap gap-2 p-3 bg-surface-container-lowest rounded-lg border border-transparent hover:border-primary/20 transition-all" id="payment-tags-container">
+                                {% if is_edit and object.accepted_payments %}
+                                    {% for payment in object.accepted_payments %}
+                                    <span class="payment-tag px-2 py-1 bg-primary-container text-on-primary-container text-xs rounded-full flex items-center gap-1 cursor-pointer" onclick="removePaymentTag(this, '{{ payment }}')">
+                                        {{ payment|title }}
+                                        <span class="material-symbols-outlined text-xs">close</span>
+                                    </span>
+                                    {% endfor %}
+                                {% endif %}
+                                <button type="button" class="text-xs text-primary font-medium px-2" onclick="addPaymentTag()">+ Add</button>
+                            </div>
+                            <p class="text-xs text-on-surface-variant">Comma-separated list: visa, mastercard, paypal, apple_pay, google_pay</p>
+                            {% if form.accepted_payments.errors %}
+                                {% for error in form.accepted_payments.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-semibold text-on-surface-variant">Social Links</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                {{ form.show_social_links }}
+                                <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary" style="background-color: {% if form.show_social_links.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                    <span class="absolute h-4 w-4 bg-white rounded-full transition-all" style="left: {% if form.show_social_links.value %}20px{% else %}4px{% endif %}; top: 2px;"></span>
+                                </div>
+                            </label>
+                        </div>
+                        {% if form.show_social_links.errors %}
+                            {% for error in form.show_social_links.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="space-y-2 {% if not form.show_social_links.value %}conditional-section disabled{% endif %}" id="social-section">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-outline" for="{{ form.social_links_style.id_for_label }}">Links Style</label>
+                            {{ form.social_links_style }}
+                            {% if form.social_links_style.errors %}
+                                {% for error in form.social_links_style.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Trust & Compliance -->
+            <section class="p-10 bg-surface-container-low rounded-xl">
+                <div class="flex items-center gap-3 mb-8">
+                    <span class="material-symbols-outlined text-primary">verified_user</span>
+                    <h2 class="text-xl font-bold text-on-surface">Trust &amp; Compliance</h2>
+                </div>
+                <div class="space-y-10">
+                    <div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg">
+                        <div>
+                            <p class="font-semibold text-on-surface">Trust Badges</p>
+                            <p class="text-xs text-on-surface-variant">Display certifications or security logos</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            {{ form.show_trust_badges }}
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" style="background-color: {% if form.show_trust_badges.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.show_trust_badges.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                            </div>
+                        </label>
+                    </div>
+                    {% if form.show_trust_badges.errors %}
+                        {% for error in form.show_trust_badges.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 {% if not form.show_trust_badges.value %}conditional-section disabled{% endif %}" id="trust-badges-section">
+                        <!-- Badge 1 -->
+                        <div class="badge-upload p-4 bg-surface-container-lowest border-2 border-dashed border-outline-variant rounded-lg flex flex-col items-center justify-center text-center group hover:border-primary transition-all cursor-pointer" onclick="document.getElementById('{{ form.trust_badge_1.id_for_label }}').click()">
+                            {% if is_edit and object.trust_badge_1 %}
+                            <img src="{{ object.trust_badge_1.url }}" alt="Trust badge 1" class="h-16 w-16 object-contain mb-2"/>
+                            {% else %}
+                            <span class="material-symbols-outlined text-outline group-hover:text-primary mb-2">cloud_upload</span>
+                            {% endif %}
+                            <span class="text-xs font-medium text-on-surface-variant">Badge 1</span>
+                            {{ form.trust_badge_1 }}
+                        </div>
+
+                        <!-- Badge 2 -->
+                        <div class="badge-upload p-4 bg-surface-container-lowest border-2 border-dashed border-outline-variant rounded-lg flex flex-col items-center justify-center text-center group hover:border-primary transition-all cursor-pointer" onclick="document.getElementById('{{ form.trust_badge_2.id_for_label }}').click()">
+                            {% if is_edit and object.trust_badge_2 %}
+                            <img src="{{ object.trust_badge_2.url }}" alt="Trust badge 2" class="h-16 w-16 object-contain mb-2"/>
+                            {% else %}
+                            <span class="material-symbols-outlined text-outline group-hover:text-primary mb-2">cloud_upload</span>
+                            {% endif %}
+                            <span class="text-xs font-medium text-on-surface-variant">Badge 2</span>
+                            {{ form.trust_badge_2 }}
+                        </div>
+
+                        <!-- Badge 3 -->
+                        <div class="badge-upload p-4 bg-surface-container-lowest border-2 border-dashed border-outline-variant rounded-lg flex flex-col items-center justify-center text-center group hover:border-primary transition-all cursor-pointer" onclick="document.getElementById('{{ form.trust_badge_3.id_for_label }}').click()">
+                            {% if is_edit and object.trust_badge_3 %}
+                            <img src="{{ object.trust_badge_3.url }}" alt="Trust badge 3" class="h-16 w-16 object-contain mb-2"/>
+                            {% else %}
+                            <span class="material-symbols-outlined text-outline group-hover:text-primary mb-2">cloud_upload</span>
+                            {% endif %}
+                            <span class="text-xs font-medium text-on-surface-variant">Badge 3</span>
+                            {{ form.trust_badge_3 }}
+                        </div>
+                    </div>
+                    {% if form.trust_badge_1.errors or form.trust_badge_2.errors or form.trust_badge_3.errors %}
+                        {% for error in form.trust_badge_1.errors|add:form.trust_badge_2.errors|add:form.trust_badge_3.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg">
+                        <div>
+                            <p class="font-semibold text-on-surface">Legal Links</p>
+                            <p class="text-xs text-on-surface-variant">Show Privacy, Terms, and Cookie policy links</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            {{ form.show_legal_links }}
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" style="background-color: {% if form.show_legal_links.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.show_legal_links.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                            </div>
+                        </label>
+                    </div>
+                    {% if form.show_legal_links.errors %}
+                        {% for error in form.show_legal_links.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Live Footer Preview Sidebar -->
+        <aside class="hidden lg:block lg:col-span-5 sticky top-24 h-[calc(100vh-120px)]">
+            <div class="bg-surface-container-highest h-full rounded-2xl overflow-hidden flex flex-col border border-white/40 shadow-xl">
+                <div class="p-4 bg-white/50 backdrop-blur-sm border-b border-surface-variant flex items-center justify-between">
+                    <span class="text-sm font-bold text-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">visibility</span>
+                        Live Preview
+                    </span>
+                    <div class="flex gap-2">
+                        <div class="h-2 w-2 rounded-full bg-red-400"></div>
+                        <div class="h-2 w-2 rounded-full bg-amber-400"></div>
+                        <div class="h-2 w-2 rounded-full bg-green-400"></div>
+                    </div>
+                </div>
+                <div class="flex-grow flex flex-col justify-end p-8 bg-[#f0f4f7]">
+                    <div class="text-center mb-12">
+                        <p class="text-xs font-medium text-slate-400 uppercase tracking-[0.2em] mb-4">Page Content Preview</p>
+                        <div class="space-y-3">
+                            <div class="h-4 w-full bg-white rounded-full"></div>
+                            <div class="h-4 w-5/6 bg-white rounded-full mx-auto"></div>
+                            <div class="h-4 w-4/6 bg-white rounded-full mx-auto"></div>
+                        </div>
+                    </div>
+                    <!-- The Live Mockup -->
+                    <div class="rounded-t-xl overflow-hidden shadow-2xl transition-all duration-500" id="footer-preview" style="background-color: {{ form.background_color.value|default:'#1F2937' }}; color: {{ form.text_color.value|default:'#FFFFFF' }};">
+                        <div class="p-8 {% if form.layout.value == '4_columns' %}grid grid-cols-4{% elif form.layout.value == '3_columns' %}grid grid-cols-3{% elif form.layout.value == '2_columns' %}grid grid-cols-2{% else %}grid grid-cols-1{% endif %} gap-8">
+                            {% if form.show_logo.value %}
+                            <div class="space-y-4">
+                                <div class="h-8 w-24 bg-white/10 rounded flex items-center justify-center">
+                                    <span class="text-[10px] font-bold">LOGO</span>
+                                </div>
+                                <p class="text-[10px] leading-relaxed opacity-60">{{ form.about_text.value|default:'We are dedicated to providing the best digital solutions for modern businesses worldwide.'|truncatechars:100 }}</p>
+                                {% if form.show_social_links.value %}
+                                <div class="flex gap-2">
+                                    <div class="h-6 w-6 rounded-full bg-white/10"></div>
+                                    <div class="h-6 w-6 rounded-full bg-white/10"></div>
+                                    <div class="h-6 w-6 rounded-full bg-white/10"></div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
+                            {% if form.show_newsletter.value %}
+                            <div class="space-y-4">
+                                <h4 class="text-[10px] font-bold uppercase tracking-wider">{{ form.newsletter_title.value|default:'Stay in the loop' }}</h4>
+                                <div class="flex">
+                                    <div class="flex-grow h-8 bg-white/10 rounded-l px-2 flex items-center">
+                                        <span class="text-[9px] opacity-40">Email address</span>
+                                    </div>
+                                    <div class="h-8 w-12 bg-primary rounded-r flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-xs">send</span>
+                                    </div>
+                                </div>
+                                {% if form.show_payment_icons.value and is_edit and object.accepted_payments %}
+                                <div class="flex gap-2 pt-2">
+                                    {% for payment in object.accepted_payments|slice:":2" %}
+                                    <div class="h-4 rounded-sm opacity-50 bg-white/20"></div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="px-8 py-4 border-t border-white/10 flex justify-between items-center bg-black/20">
+                            <p class="text-[9px] opacity-40">{{ form.copyright_text.value|default:'© 2024 Footer Manager. All rights reserved.' }}</p>
+                            {% if form.show_legal_links.value %}
+                            <div class="flex gap-3 opacity-40">
+                                <span class="text-[9px]">Privacy</span>
+                                <span class="text-[9px]">Terms</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </form>
+</main>
+
+<!-- Shared Footer Component -->
+<footer class="bg-slate-50 dark:bg-slate-950 w-full mt-auto py-12">
+    <div class="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div>
+            <span class="font-manrope font-bold text-slate-900 dark:text-slate-100 mb-2 block">{{ title }}</span>
+            <p class="font-inter text-xs text-slate-500 dark:text-slate-400">© 2024 Footer Manager. All rights reserved.</p>
+        </div>
+        <div class="flex flex-wrap gap-x-8 gap-y-4 md:justify-end">
+            <a class="font-inter text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 underline decoration-blue-500/30 underline-offset-4 transition-all duration-300" href="#">Documentation</a>
+            <a class="font-inter text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 underline decoration-blue-500/30 underline-offset-4 transition-all duration-300" href="#">API Reference</a>
+            <a class="font-inter text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 underline decoration-blue-500/30 underline-offset-4 transition-all duration-300" href="#">Support</a>
+            <a class="font-inter text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 underline decoration-blue-500/30 underline-offset-4 transition-all duration-300" href="#">Privacy Policy</a>
+        </div>
+    </div>
+</footer>
+
+<!-- JavaScript for Dynamic Interactions -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // === Toggle Switch Styling ===
+        const toggleCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+        toggleCheckboxes.forEach(function(checkbox) {
+            checkbox.classList.add('toggle-checkbox');
+
+            checkbox.addEventListener('change', function() {
+                const toggleDiv = this.parentElement.querySelector('div.w-11.h-6, div.w-9.h-5');
+                const toggleKnob = toggleDiv?.querySelector('span.absolute');
+
+                if (toggleDiv) {
+                    toggleDiv.style.backgroundColor = this.checked ? '#0053db' : '#d9e4ea';
+                }
+                if (toggleKnob) {
+                    toggleKnob.style.left = this.checked ? (toggleDiv.classList.contains('w-11') ? '28px' : '20px') : '4px';
+                }
+
+                // Handle conditional sections
+                const sectionMap = {
+                    '{{ form.show_newsletter.id_for_label }}': 'newsletter-section',
+                    '{{ form.show_payment_icons.id_for_label }}': 'payment-section',
+                    '{{ form.show_social_links.id_for_label }}': 'social-section',
+                    '{{ form.show_trust_badges.id_for_label }}': 'trust-badges-section'
+                };
+
+                Object.keys(sectionMap).forEach(function(id) {
+                    if (this.id === id) {
+                        const section = document.getElementById(sectionMap[id]);
+                        if (section) {
+                            section.classList.toggle('disabled', !this.checked);
+                        }
+                    }
+                }, checkbox);
+
+                // Update preview
+                updateFooterPreview();
+            });
+        });
+
+        // === Layout Selection ===
+        const layoutOptions = document.querySelectorAll('input[name="layout_visual"]');
+        const layoutInput = document.getElementById('{{ form.layout.id_for_label }}');
+
+        layoutOptions.forEach(function(option) {
+            option.addEventListener('change', function() {
+                document.querySelectorAll('.layout-option').forEach(function(el) {
+                    el.classList.remove('selected', 'border-primary');
+                    el.classList.add('border-transparent');
+                    el.querySelector('div.h-16').querySelectorAll('div').forEach(function(col) {
+                        col.classList.remove('bg-primary/20');
+                        col.classList.add('bg-slate-200');
+                    });
+                    el.querySelector('span.text-xs').classList.remove('text-primary');
+                    el.querySelector('span.text-xs').classList.add('text-on-surface');
+                });
+
+                const parent = this.closest('.layout-option');
+                parent.classList.add('selected', 'border-primary');
+                parent.classList.remove('border-transparent');
+                parent.querySelector('div.h-16').querySelectorAll('div').forEach(function(col) {
+                    col.classList.remove('bg-slate-200');
+                    col.classList.add('bg-primary/20');
+                });
+                parent.querySelector('span.text-xs').classList.remove('text-on-surface');
+                parent.querySelector('span.text-xs').classList.add('text-primary');
+
+                if (layoutInput) {
+                    layoutInput.value = this.value;
+                }
+
+                updateFooterPreview();
+            });
+        });
+
+        // === Color Picker Display Updates ===
+        const colorInputs = [
+            {id: '{{ form.background_color.id_for_label }}', textId: 'background-color-text', preview: 'footer-preview', property: 'backgroundColor'},
+            {id: '{{ form.text_color.id_for_label }}', textId: 'text-color-text', preview: 'footer-preview', property: 'color'}
+        ];
+
+        colorInputs.forEach(function(config) {
+            const input = document.getElementById(config.id);
+            const textDisplay = document.getElementById(config.textId);
+
+            if (input && textDisplay) {
+                textDisplay.value = input.value;
+
+                input.addEventListener('input', function() {
+                    textDisplay.value = this.value;
+                    if (config.preview) {
+                        const preview = document.getElementById(config.preview);
+                        if (preview) {
+                            preview.style[config.property] = this.value;
+                        }
+                    }
+                    updateFooterPreview();
+                });
+
+                textDisplay.addEventListener('input', function() {
+                    input.value = this.value;
+                    if (config.preview) {
+                        const preview = document.getElementById(config.preview);
+                        if (preview) {
+                            preview.style[config.property] = this.value;
+                        }
+                    }
+                    updateFooterPreview();
+                });
+            }
+        });
+
+        // === Payment Tags Management ===
+        window.addPaymentTag = function() {
+            const container = document.getElementById('payment-tags-container');
+            const input = document.getElementById('{{ form.accepted_payments.id_for_label }}');
+            const payment = prompt('Enter payment method (e.g., visa, mastercard, paypal):');
+
+            if (payment && payment.trim()) {
+                const normalizedPayment = payment.trim().toLowerCase();
+                const tag = document.createElement('span');
+                tag.className = 'payment-tag px-2 py-1 bg-primary-container text-on-primary-container text-xs rounded-full flex items-center gap-1 cursor-pointer';
+                tag.onclick = function() { removePaymentTag(this, normalizedPayment); };
+                tag.innerHTML = normalizedPayment.charAt(0).toUpperCase() + normalizedPayment.slice(1).replace('_', ' ') + ' <span class="material-symbols-outlined text-xs">close</span>';
+
+                // Insert before the Add button
+                const addButton = container.querySelector('button');
+                container.insertBefore(tag, addButton);
+
+                // Update hidden input
+                updatePaymentInput();
+            }
+        };
+
+        window.removePaymentTag = function(tagElement, payment) {
+            tagElement.remove();
+            updatePaymentInput();
+        };
+
+        function updatePaymentInput() {
+            const container = document.getElementById('payment-tags-container');
+            const tags = container.querySelectorAll('.payment-tag');
+            const payments = Array.from(tags).map(function(tag) {
+                return tag.textContent.replace('close', '').trim().toLowerCase().replace(' ', '_');
+            });
+
+            const input = document.getElementById('{{ form.accepted_payments.id_for_label }}');
+            if (input) {
+                input.value = payments.join(', ');
+            }
+        }
+
+        // === Trust Badge Image Preview ===
+        const badgeInputs = ['{{ form.trust_badge_1.id_for_label }}', '{{ form.trust_badge_2.id_for_label }}', '{{ form.trust_badge_3.id_for_label }}'];
+        badgeInputs.forEach(function(id) {
+            const input = document.getElementById(id);
+            if (input) {
+                input.classList.add('hidden');
+                input.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const container = input.parentElement;
+                            const existingImg = container.querySelector('img');
+                            if (existingImg) {
+                                existingImg.src = e.target.result;
+                            } else {
+                                const img = document.createElement('img');
+                                img.src = e.target.result;
+                                img.className = 'h-16 w-16 object-contain mb-2';
+                                img.alt = 'Trust badge preview';
+                                const icon = container.querySelector('.material-symbols-outlined');
+                                if (icon) {
+                                    container.insertBefore(img, icon);
+                                    icon.remove();
+                                }
+                            }
+                            container.classList.add('has-image');
+                        };
+                        reader.readAsDataURL(this.files[0]);
+                    }
+                });
+            }
+        });
+
+        // === Update Footer Preview ===
+        function updateFooterPreview() {
+            const footerPreview = document.getElementById('footer-preview');
+            if (!footerPreview) return;
+
+            // Update layout classes
+            const layoutInput = document.getElementById('{{ form.layout.id_for_label }}');
+            if (layoutInput) {
+                footerPreview.querySelector('.p-8').className = 'p-8 ' +
+                    (layoutInput.value === '4_columns' ? 'grid grid-cols-4' :
+                     layoutInput.value === '3_columns' ? 'grid grid-cols-3' :
+                     layoutInput.value === '2_columns' ? 'grid grid-cols-2' :
+                     'grid grid-cols-1') + ' gap-8';
+            }
+
+            // Update newsletter visibility
+            const newsletterCheckbox = document.getElementById('{{ form.show_newsletter.id_for_label }}');
+            const newsletterSection = footerPreview.querySelector('.space-y-4:nth-child(2)');
+            if (newsletterSection) {
+                newsletterSection.style.display = newsletterCheckbox?.checked ? 'block' : 'none';
+            }
+
+            // Update social links visibility
+            const socialCheckbox = document.getElementById('{{ form.show_social_links.id_for_label }}');
+            const socialLinks = footerPreview.querySelector('.flex.gap-2');
+            if (socialLinks) {
+                socialLinks.style.display = socialCheckbox?.checked ? 'flex' : 'none';
+            }
+
+            // Update payment icons visibility
+            const paymentCheckbox = document.getElementById('{{ form.show_payment_icons.id_for_label }}');
+            const paymentIcons = footerPreview.querySelector('.flex.gap-2.pt-2');
+            if (paymentIcons) {
+                paymentIcons.style.display = paymentCheckbox?.checked ? 'flex' : 'none';
+            }
+
+            // Update legal links visibility
+            const legalCheckbox = document.getElementById('{{ form.show_legal_links.id_for_label }}');
+            const legalLinks = footerPreview.querySelector('.flex.gap-3.opacity-40');
+            if (legalLinks) {
+                legalLinks.style.display = legalCheckbox?.checked ? 'flex' : 'none';
+            }
+        }
+
+        // === Initialize Conditional Sections ===
+        const sectionMap = {
+            '{{ form.show_newsletter.id_for_label }}': 'newsletter-section',
+            '{{ form.show_payment_icons.id_for_label }}': 'payment-section',
+            '{{ form.show_social_links.id_for_label }}': 'social-section',
+            '{{ form.show_trust_badges.id_for_label }}': 'trust-badges-section'
+        };
+
+        Object.keys(sectionMap).forEach(function(id) {
+            const checkbox = document.getElementById(id);
+            const sectionId = sectionMap[id];
+            if (checkbox && !checkbox.checked) {
+                const section = document.getElementById(sectionId);
+                if (section) section.classList.add('disabled');
+            }
+        });
+
+        // === Initialize Preview ===
+        updateFooterPreview();
+
+        // === Hide Messages After 5 Seconds ===
+        setTimeout(function() {
+            const messages = document.querySelectorAll('.fixed.top-24');
+            messages.forEach(function(msg) {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    msg.remove();
+                }, 500);
+            });
+        }, 5000);
+
+        // === Form Change Detection ===
+        const form = document.getElementById('footer-form');
+        let formChanged = false;
+
+        form.addEventListener('input', function() {
+            formChanged = true;
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (formChanged) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

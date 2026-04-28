@@ -1,0 +1,223 @@
+{% extends "dashboard/_partials/base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      Wishlist Settings
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Configure wishlist functionality and sharing options
+    </p>
+  </div>
+  <a
+    href="{% url 'dashboard:store_settings:manage_wishlist_settings' prefix %}"
+    class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+  >
+    <span class="material-icons-outlined text-sm mr-2">refresh</span>
+    Refresh
+  </a>
+</div>
+
+<div
+  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+>
+  <div class="p-6">
+    <form method="post">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Wishlist Features</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_wishlist.name }}" {% if form.enable_wishlist.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Wishlist</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_wishlist_sharing.name }}" {% if form.enable_wishlist_sharing.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Wishlist Sharing</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_wishlist_notifications.name }}" {% if form.enable_wishlist_notifications.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Wishlist Notifications</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_wishlist_reminders.name }}" {% if form.enable_wishlist_reminders.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Wishlist Reminders</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_wishlist_coupons.name }}" {% if form.enable_wishlist_coupons.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Wishlist Coupons</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_wishlist_import.name }}" {% if form.enable_wishlist_import.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Wishlist Import</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_wishlist_export.name }}" {% if form.enable_wishlist_export.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Wishlist Export</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_multiple_wishlists.name }}" {% if form.enable_multiple_wishlists.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Multiple Wishlists</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Wishlist Limits</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Max Items per Wishlist
+                </label>
+                {{ form.max_items_per_wishlist }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Max Wishlists per User
+                </label>
+                {{ form.max_wishlists_per_user }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Wishlist Expiration (days)
+                </label>
+                {{ form.wishlist_expiration }}
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_wishlist_cleanup.name }}" {% if form.enable_wishlist_cleanup.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Wishlist Cleanup</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_duplicate_prevention.name }}" {% if form.enable_duplicate_prevention.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Prevent Duplicate Items</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_wishlist_privacy.name }}" {% if form.enable_wishlist_privacy.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Wishlist Privacy</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Wishlist Sharing</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_social_sharing.name }}" {% if form.enable_social_sharing.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Social Sharing</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_email_sharing.name }}" {% if form.enable_email_sharing.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Email Sharing</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_link_sharing.name }}" {% if form.enable_link_sharing.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Link Sharing</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_wishlist_comments.name }}" {% if form.enable_wishlist_comments.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Wishlist Comments</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_wishlist_ratings.name }}" {% if form.enable_wishlist_ratings.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Wishlist Ratings</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_wishlist_collaboration.name }}" {% if form.enable_wishlist_collaboration.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Wishlist Collaboration</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Wishlist Notifications</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_price_drop_alerts.name }}" {% if form.enable_price_drop_alerts.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Price Drop Alerts</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_back_in_stock_alerts.name }}" {% if form.enable_back_in_stock_alerts.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Back in Stock Alerts</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_wishlist_reminders.name }}" {% if form.enable_wishlist_reminders.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Wishlist Reminders</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_wishlist_updates.name }}" {% if form.enable_wishlist_updates.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Wishlist Updates</span>
+                </label>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Notification Frequency
+                </label>
+                {{ form.notification_frequency }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Reminder Interval (days)
+                </label>
+                {{ form.reminder_interval }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-8 flex justify-end space-x-4">
+        <button
+          type="submit"
+          class="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+        >
+          <span class="material-icons-outlined text-sm">save</span>
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

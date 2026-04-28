@@ -23,15 +23,15 @@ from django_tenants.models import TenantMixin, DomainMixin
 from decimal import Decimal
 import uuid
 import secrets
-from system.account.models import Owner
+from django.conf import settings
 
 
 class Shop(TenantMixin):
     owner = models.ForeignKey(
-        Owner,
+        settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
-        related_name='owned_clients',
-        help_text="Platform user who owns this client"
+        related_name='owned_shops',
+        help_text="PlatformUser who owns this tenant shop"
     )
     name = models.CharField(max_length=100)
     created_on = models.DateField(auto_now_add=True)
@@ -46,103 +46,6 @@ class Shop(TenantMixin):
 class Domain(DomainMixin):
     pass
 
-
-# class ClientDetails(models.Model):
-#     """Additional client information (one-to-one with Client)"""
-#     client = models.OneToOneField(
-#         Client,
-#         on_delete=models.CASCADE,
-#         primary_key=True,
-#         related_name='details'
-#     )
-
-#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
-#     # Identity
-#     slug = models.SlugField(max_length=100, unique=True,
-#                             db_index=True, help_text="URL-safe identifier")
-
-#     # Ownership
-#     owner = models.ForeignKey(
-#         Owner,
-#         on_delete=models.PROTECT,
-#         related_name='owned_clients',
-#         help_text="Platform user who owns this client"
-#     )
-
-#     # Status
-#     is_active = models.BooleanField(
-#         default=True, db_index=True, help_text="Client is operational")
-#     is_suspended = models.BooleanField(
-#         default=False, db_index=True, help_text="Temporarily suspended")
-#     suspended_reason = models.CharField(max_length=255, blank=True)
-
-#     # Trial
-#     trial_ends_at = models.DateTimeField(null=True, blank=True, db_index=True)
-
-#     # Timestamps
-#     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
-#     updated_at = models.DateTimeField(auto_now=True)
-
-#     class Meta:
-#         db_table = 'client_details'
-#         verbose_name = 'Client Details'
-#         verbose_name_plural = 'Client Details'
-#         ordering = ['-created_at']
-#         indexes = [
-#             models.Index(fields=['is_active', 'is_suspended']),
-#             models.Index(fields=['owner', 'is_active']),
-#             models.Index(fields=['trial_ends_at']),
-#         ]
-
-#     def __str__(self):
-#         return f"Details for {self.client.name}"
-
-#     @property
-#     def is_accessible(self):
-#         """Check if client can be accessed"""
-#         if not self.is_active or self.is_suspended:
-#             return False
-#         if self.client.on_trial and self.trial_ends_at and timezone.now() > self.trial_ends_at:
-#             return False
-#         return True
-
-
-# class StoreSettings(models.Model):
-#     """Store-level settings including dynamic dashboard prefix for security."""
-
-#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#     dashboard_prefix = models.CharField(
-#         max_length=32,
-#         unique=True,
-#         db_index=True,
-#         help_text="Dynamic URL prefix for dashboard access (e.g., 'x7h3k9')"
-#     )
-
-#     created_at = models.DateTimeField(default=timezone.now)
-#     updated_at = models.DateTimeField(auto_now=True)
-
-#     class Meta:
-#         db_table = 'store_settings'
-#         verbose_name = 'Store Settings'
-#         verbose_name_plural = 'Store Settings'
-
-#     def __str__(self):
-#         return f"Settings (prefix: {self.dashboard_prefix})"
-
-#     @staticmethod
-#     def generate_prefix(length=8):
-#         """Generate a secure random prefix."""
-#         return secrets.token_urlsafe(length)[:length].replace('-', '').replace('_', '').lower()
-
-#     @classmethod
-#     def get_settings(cls):
-#         """Get or create store settings (singleton pattern per tenant)."""
-#         settings = cls.objects.first()
-#         if not settings:
-#             settings = cls.objects.create(
-#                 dashboard_prefix=cls.generate_prefix())
-#         return settings
 
 
 # ============================================

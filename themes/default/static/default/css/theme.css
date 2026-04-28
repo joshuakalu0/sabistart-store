@@ -1,0 +1,7 @@
+body.theme-default {
+  --color-accent: #fd761a;
+}
+
+body.theme-default .section-title {
+  max-width: 18ch;
+}

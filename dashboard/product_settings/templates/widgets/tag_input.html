@@ -1,0 +1,314 @@
+{% load static %}
+<div
+  class="multi-select-container"
+  id="{{ widget.attrs.id|default:widget.name }}-container"
+>
+  <div
+    class="multi-select-input border border-gray-300 rounded-lg p-3 bg-white cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+    onclick="toggleTagDropdown('{{ widget.attrs.id|default:widget.name }}')"
+    id="{{ widget.attrs.id|default:widget.name }}-input"
+  >
+    <div class="flex items-center justify-between">
+      <span
+        class="text-gray-500 text-sm"
+        id="{{ widget.attrs.id|default:widget.name }}-placeholder"
+        >Click to select tags...</span
+      >
+      <svg
+        class="w-5 h-5 text-gray-400"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M19 9l-7 7-7-7"
+        ></path>
+      </svg>
+    </div>
+  </div>
+
+  <input
+    type="hidden"
+    name="{{ widget.name }}"
+    id="{{ widget.attrs.id|default:widget.name }}"
+    value="{{ widget.value|join:','|default:'' }}"
+    {%
+    for
+    name,
+    value
+    in
+    widget.attrs.items
+    %}
+    {%
+    if
+    name
+    !="id"
+    and
+    name
+    !="class"
+    %}{{
+    name
+    }}="{{ value }}"
+    {%
+    endif
+    %}
+    {%
+    endfor
+    %}
+  />
+
+  <div
+    class="multi-select-dropdown"
+    id="{{ widget.attrs.id|default:widget.name }}-dropdown"
+  >
+    <div class="p-2 border-b border-gray-200">
+      <input
+        type="text"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+        placeholder="Search tags..."
+        oninput="filterTags('{{ widget.attrs.id|default:widget.name }}', this.value)"
+      />
+    </div>
+    <div
+      class="max-h-60 overflow-y-auto"
+      id="{{ widget.attrs.id|default:widget.name }}-options"
+    >
+      {% for group_name, group_choices in widget.optgroups %} {% if group_name
+      %}
+      <div
+        class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50"
+      >
+        {{ group_name }}
+      </div>
+      {% endif %} {% for option in group_choices %}
+      <div
+        class="multi-select-option {% if option.value in widget.value %}selected{% endif %}"
+        onclick="toggleTagOption('{{ widget.attrs.id|default:widget.name }}', '{{ option.value }}', '{{ option.label }}', this)"
+        data-value="{{ option.value }}"
+      >
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-gray-700">{{ option.label }}</span>
+          {% if option.value in widget.value %}
+          <svg
+            class="w-4 h-4 text-primary-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            ></path>
+          </svg>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %} {% endfor %}
+    </div>
+    {% if widget.attrs.data_allow_create == 'true' %}
+    <div class="p-2 border-t border-gray-200">
+      <div class="flex items-center space-x-2">
+        <input
+          type="text"
+          class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          placeholder="Create new tag..."
+          onkeypress="if(event.key==='Enter'){event.preventDefault(); createNewTag('{{ widget.attrs.id|default:widget.name }}', this.value)}"
+        />
+        <button
+          type="button"
+          onclick="createNewTag('{{ widget.attrs.id|default:widget.name }}')"
+          class="px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
+        >
+          Create
+        </button>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div
+    class="mt-2 flex flex-wrap gap-1"
+    id="{{ widget.attrs.id|default:widget.name }}-selected"
+  >
+    {% for value in widget.value %}
+    <span
+      class="selected-item inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-700"
+    >
+      {{ value }}
+      <button
+        type="button"
+        onclick="removeTagOption('{{ widget.attrs.id|default:widget.name }}', '{{ value }}')"
+        class="ml-2 hover:text-green-900"
+      >
+        <svg
+          class="w-3 h-3"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
+        </svg>
+      </button>
+    </span>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  function toggleTagDropdown(id) {
+    const dropdown = document.getElementById(id + "-dropdown");
+    dropdown.classList.toggle("show");
+  }
+
+  function filterTags(id, searchTerm) {
+    const options = document.querySelectorAll(
+      `#${id}-options .multi-select-option`,
+    );
+    options.forEach((option) => {
+      const text = option.textContent.toLowerCase();
+      if (text.includes(searchTerm.toLowerCase())) {
+        option.style.display = "";
+      } else {
+        option.style.display = "none";
+      }
+    });
+  }
+
+  function toggleTagOption(id, value, label, element) {
+    const selectedContainer = document.getElementById(id + "-selected");
+    const hiddenInput = document.getElementById(id);
+    const placeholder = document.getElementById(id + "-placeholder");
+
+    let values = hiddenInput.value ? hiddenInput.value.split(",") : [];
+    let labels = selectedContainer.querySelectorAll(".selected-item");
+    let labelArray = Array.from(labels).map((l) =>
+      l.childNodes[0].textContent.trim(),
+    );
+
+    if (values.includes(value)) {
+      values = values.filter((v) => v !== value);
+      labelArray = labelArray.filter((l) => l !== label);
+      element.classList.remove("selected");
+      const svg = element.querySelector("svg");
+      if (svg) svg.remove();
+    } else {
+      values.push(value);
+      labelArray.push(label);
+      element.classList.add("selected");
+      if (!element.querySelector("svg")) {
+        const checkIcon = document.createElement("svg");
+        checkIcon.classList.add("w-4", "h-4", "text-primary-600");
+        checkIcon.setAttribute("fill", "none");
+        checkIcon.setAttribute("stroke", "currentColor");
+        checkIcon.setAttribute("viewBox", "0 0 24 24");
+        checkIcon.innerHTML =
+          '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
+        element.querySelector(".flex").appendChild(checkIcon);
+      }
+    }
+
+    hiddenInput.value = values.join(",");
+
+    // Update selected display
+    selectedContainer.innerHTML = labelArray
+      .map(
+        (lbl, idx) => `
+        <span class="selected-item inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-700">
+            ${lbl}
+            <button type="button" onclick="removeTagOption('${id}', '${values[idx]}')" class="ml-2 hover:text-green-900">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </span>
+    `,
+      )
+      .join("");
+
+    // Update placeholder
+    if (values.length === 0) {
+      placeholder.textContent = "Click to select tags...";
+    } else {
+      placeholder.textContent = values.length + " tags selected";
+    }
+  }
+
+  function removeTagOption(id, value) {
+    const element = document.querySelector(
+      `#${id}-options [data-value="${value}"]`,
+    );
+    if (element) {
+      const label = element.querySelector(".text-sm").textContent;
+      toggleTagOption(id, value, label, element);
+    }
+  }
+
+  function createNewTag(id, value) {
+    if (value && value.trim()) {
+      // Add to selected
+      const selectedContainer = document.getElementById(id + "-selected");
+      const hiddenInput = document.getElementById(id);
+      const placeholder = document.getElementById(id + "-placeholder");
+
+      let values = hiddenInput.value ? hiddenInput.value.split(",") : [];
+      values.push(value.trim());
+      hiddenInput.value = values.join(",");
+
+      selectedContainer.innerHTML += `
+            <span class="selected-item inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-700">
+                ${value.trim()}
+                <button type="button" onclick="this.parentElement.remove(); updateTagInput('${id}')" class="ml-2 hover:text-green-900">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </span>
+        `;
+
+      placeholder.textContent = values.length + " tags selected";
+
+      // Clear input
+      event.target.value = "";
+    }
+  }
+
+  function updateTagInput(id) {
+    const selectedContainer = document.getElementById(id + "-selected");
+    const hiddenInput = document.getElementById(id);
+    const labels = selectedContainer.querySelectorAll(".selected-item");
+    const values = Array.from(labels).map((l) =>
+      l.childNodes[0].textContent.trim(),
+    );
+    hiddenInput.value = values.join(",");
+
+    const placeholder = document.getElementById(id + "-placeholder");
+    if (values.length === 0) {
+      placeholder.textContent = "Click to select tags...";
+    } else {
+      placeholder.textContent = values.length + " tags selected";
+    }
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener("click", function (event) {
+    const containers = document.querySelectorAll(".multi-select-container");
+    containers.forEach((container) => {
+      if (!container.contains(event.target)) {
+        const dropdown = container.querySelector(".multi-select-dropdown");
+        if (dropdown) {
+          dropdown.classList.remove("show");
+        }
+      }
+    });
+  });
+</script>

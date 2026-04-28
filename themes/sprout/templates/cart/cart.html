@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="space-y-8">
+    <div class="surface-card overflow-hidden p-8 lg:p-10">
+        <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            {% for crumb in breadcrumbs %}
+                {% if crumb.url %}<a href="{{ crumb.url }}" class="transition hover:text-slate-900">{{ crumb.label }}</a>{% else %}<span>{{ crumb.label }}</span>{% endif %}
+                {% if not forloop.last %}<span>/</span>{% endif %}
+            {% endfor %}
+        </div>
+        <div class="hero-grid mt-6 items-start">
+            <div>
+                <p class="eyebrow">Cart Review</p>
+                <h1 class="section-title">Review your bag before checkout.</h1>
+                <p class="section-copy mt-3 text-base">Adjust quantities, apply a discount code, and move into the secure multi-step checkout flow when you are ready.</p>
+            </div>
+            <div class="surface-card-soft p-6">
+                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">At a glance</p>
+                <div class="mt-4 space-y-3 text-sm text-slate-600">
+                    <div class="flex justify-between"><span>Items</span><span>{{ cart.item_count }}</span></div>
+                    <div class="flex justify-between"><span>Subtotal</span><span>{{ cart.subtotal_display }}</span></div>
+                    <div class="flex justify-between font-semibold text-slate-950"><span>Total</span><span>{{ cart.grand_total_display }}</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if not cart.is_empty %}
+        <div class="grid gap-8 xl:grid-cols-[1.4fr,0.8fr]">
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                {% for item in cart.items %}
+                    <div class="surface-card grid gap-4 p-5 md:grid-cols-[140px,1fr,140px,130px] md:items-center">
+                        <div class="overflow-hidden rounded-[1.5rem] bg-slate-100">
+                            {% if item.image_url %}
+                                <img src="{{ item.image_url }}" alt="{{ item.product_name }}" class="h-32 w-full object-cover">
+                            {% else %}
+                                <div class="flex h-32 items-center justify-center text-sm text-slate-400">Image</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <a href="{{ item.product_url }}" class="brand-font text-2xl font-bold text-slate-950">{{ item.product_name }}</a>
+                            {% if item.variant_name %}<p class="mt-2 text-sm text-slate-500">{{ item.variant_name }}</p>{% endif %}
+                            {% if item.compare_at_price_display %}<p class="mt-2 text-sm text-slate-400 line-through">{{ item.compare_at_price_display }}</p>{% endif %}
+                            <p class="mt-2 text-sm font-semibold text-slate-900">{{ item.unit_price_display }}</p>
+                        </div>
+                        <div>
+                            <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Quantity</label>
+                            <input type="number" name="quantity_{{ item.id }}" min="0" value="{{ item.quantity }}">
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-slate-500">Line total</p>
+                            <p class="mt-2 text-xl font-semibold text-slate-950">{{ item.line_total_display }}</p>
+                            <button type="submit" name="remove_item" value="{{ item.id }}" class="mt-3 text-sm font-semibold text-rose-600">Remove</button>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="flex flex-wrap gap-3">
+                    <button type="submit" class="button-secondary">Update Cart</button>
+                    <a href="{% url 'category:shop_all' %}" class="button-ghost">Continue Shopping</a>
+                </div>
+            </form>
+
+            <div class="space-y-5">
+                <div class="surface-card p-6">
+                    <p class="eyebrow">Order Summary</p>
+                    <h2 class="brand-font mt-3 text-3xl font-bold text-slate-950">Checkout totals</h2>
+                    <div class="mt-6 space-y-3 text-sm text-slate-600">
+                        <div class="flex justify-between"><span>Subtotal</span><span>{{ cart.subtotal_display }}</span></div>
+                        <div class="flex justify-between"><span>Discounts</span><span>{{ cart.discount_total_display }}</span></div>
+                        <div class="flex justify-between"><span>Shipping</span><span>{{ cart.shipping_total_display }}</span></div>
+                        <div class="flex justify-between"><span>Tax</span><span>{{ cart.tax_total_display }}</span></div>
+                        <div class="flex justify-between border-t border-slate-200 pt-3 text-base font-semibold text-slate-950"><span>Total</span><span>{{ cart.grand_total_display }}</span></div>
+                    </div>
+                    <a href="{% url 'checkout:checkout_auth' %}" class="button-primary mt-6 w-full">Proceed to Checkout</a>
+                </div>
+
+                <div class="surface-card p-6">
+                    <p class="eyebrow">Promotions</p>
+                    <form method="post" action="{% url 'cart:apply_coupon' %}" class="mt-4 space-y-4">
+                        {% csrf_token %}
+                        <div>
+                            <label class="mb-2 block text-sm font-semibold text-slate-700">Discount code</label>
+                            <input type="text" name="coupon_code" value="{{ cart.discount_code }}" placeholder="Enter coupon code">
+                        </div>
+                        <button type="submit" class="button-secondary">Apply Code</button>
+                    </form>
+                    {% if active_discount_campaigns %}
+                        <div class="mt-5 space-y-3">
+                            {% for campaign in active_discount_campaigns %}
+                                <div class="surface-card-soft p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">{{ campaign.code }}</p>
+                                    <p class="mt-2 brand-font text-xl font-bold text-slate-950">{{ campaign.title }}</p>
+                                    <p class="mt-2 text-sm text-slate-500">{{ campaign.detail|default:campaign.description }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="surface-card p-10 text-center">
+            <p class="eyebrow">Cart Empty</p>
+            <h2 class="brand-font mt-3 text-4xl font-bold text-slate-950">Your shopping bag is currently empty.</h2>
+            <p class="mt-3 text-sm leading-7 text-slate-500">Explore featured collections, flash-sale offers, and new arrivals to start building your order.</p>
+            <a href="{% url 'category:shop_all' %}" class="button-primary mt-6">Browse Products</a>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
+

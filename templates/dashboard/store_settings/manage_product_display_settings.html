@@ -1,0 +1,813 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{{ title }} | Store Admin</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-high": "#e1e9ee",
+                        "inverse-on-surface": "#9a9d9f",
+                        "on-background": "#2a3439",
+                        "inverse-surface": "#0b0f10",
+                        "outline-variant": "#a9b4b9",
+                        "surface-container-lowest": "#ffffff",
+                        "error-dim": "#4e0309",
+                        "inverse-primary": "#618bff",
+                        "on-secondary-fixed-variant": "#4d5d73",
+                        "primary": "#0053db",
+                        "surface": "#f7f9fb",
+                        "tertiary-fixed": "#e3dbfd",
+                        "on-primary": "#f8f7ff",
+                        "on-secondary-fixed": "#314055",
+                        "error": "#9f403d",
+                        "secondary-dim": "#44546a",
+                        "on-tertiary": "#fcf7ff",
+                        "surface-container-highest": "#d9e4ea",
+                        "secondary-fixed-dim": "#c5d6f0",
+                        "surface-bright": "#f7f9fb",
+                        "on-tertiary-fixed": "#3e3a54",
+                        "on-primary-fixed": "#003798",
+                        "surface-dim": "#cfdce3",
+                        "on-primary-container": "#0048bf",
+                        "on-secondary": "#f7f9ff",
+                        "on-error-container": "#752121",
+                        "on-error": "#fff7f6",
+                        "surface-container": "#e8eff3",
+                        "primary-container": "#dbe1ff",
+                        "on-primary-fixed-variant": "#0050d4",
+                        "primary-fixed": "#dbe1ff",
+                        "on-tertiary-container": "#514d68",
+                        "secondary-container": "#d3e4fe",
+                        "tertiary-dim": "#54506b",
+                        "surface-container-low": "#f0f4f7",
+                        "on-tertiary-fixed-variant": "#5b5672",
+                        "on-secondary-container": "#435368",
+                        "tertiary-container": "#e3dbfd",
+                        "on-surface-variant": "#566166",
+                        "surface-variant": "#d9e4ea",
+                        "on-surface": "#2a3439",
+                        "secondary": "#506076",
+                        "primary-dim": "#0048c1",
+                        "primary-fixed-dim": "#c7d3ff",
+                        "error-container": "#fe8983",
+                        "secondary-fixed": "#d3e4fe",
+                        "outline": "#717c82",
+                        "tertiary": "#605c78",
+                        "background": "#f7f9fb",
+                        "tertiary-fixed-dim": "#d4cdee",
+                        "surface-tint": "#0053db"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-manrope { font-family: 'Manrope', sans-serif; }
+
+        /* Form Error States */
+        .form-field-error {
+            border: 2px solid #9f403d !important;
+            background-color: #fef2f2 !important;
+        }
+        .error-message {
+            color: #9f403d;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Card Style Selection */
+        .card-style-option.selected {
+            border-color: #0053db;
+            background-color: #dbe1ff;
+        }
+
+        /* Toggle Styling */
+        .toggle-checkbox {
+            opacity: 0;
+            position: absolute;
+        }
+
+        /* Range Input */
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 8px;
+            background: #e8eff3;
+            border-radius: 4px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #0053db;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+
+<!-- Django Messages Framework -->
+{% if messages %}
+<div class="fixed top-24 right-8 z-50 space-y-2">
+    {% for message in messages %}
+    <div class="flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg" style="background-color: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#9f403d{% else %}#ffffff{% endif %}; color: {% if message.tags == 'error' %}#fff7f6{% else %}#2a3439{% endif %};">
+        <span class="material-symbols-outlined text-sm">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span class="font-medium text-sm">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex justify-between items-center px-8 h-20 max-w-full mx-auto">
+    <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary text-2xl">settings</span>
+        <span class="text-xl font-bold font-manrope text-slate-900 dark:text-slate-50 tracking-tight">{{ title }}</span>
+    </div>
+    <div class="flex items-center gap-6">
+        <button type="button" class="text-slate-500 font-medium hover:text-[#0053db] transition-all duration-200 active:scale-95 transform" onclick="window.location.href='{% url 'manage_product_display_settings' %}'">Discard</button>
+        <button type="submit" form="display-form" class="bg-primary text-on-primary px-6 py-2.5 rounded-lg font-bold font-manrope shadow-sm hover:bg-primary-dim transition-all active:scale-95 transform">
+            {% if is_edit %}Save{% else %}Create{% endif %}
+        </button>
+    </div>
+</nav>
+
+<!-- Main Content Canvas -->
+<main class="pt-32 pb-24 px-8 max-w-7xl mx-auto space-y-16">
+    <form id="display-form" method="post" action="{{ action_url }}" novalidate>
+        {% csrf_token %}
+
+        <!-- Header Section -->
+        <header class="max-w-3xl">
+            <h1 class="text-5xl font-extrabold font-manrope tracking-tight text-on-surface mb-4">Product Display Configuration</h1>
+            <p class="text-lg text-on-surface-variant leading-relaxed">Manage how products are presented across your storefront, from individual cards to global grid layouts. These settings reflect globally across your catalog and search results.</p>
+            {% if is_edit and card_style_display %}
+            <p class="text-xs text-on-surface-variant mt-4">
+                <span class="material-symbols-outlined text-xs align-middle">info</span>
+                Current: {{ card_style_display }} • {{ pagination_style_display }} • {{ enabled_badges_count }} badges enabled
+            </p>
+            {% endif %}
+        </header>
+
+        <!-- Product Card Style Section -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            <div class="lg:col-span-7 space-y-8 bg-surface-container-low p-10 rounded-xl">
+                <div>
+                    <h3 class="text-xl font-bold font-manrope mb-2">Product Card Style</h3>
+                    <p class="text-sm text-on-surface-variant mb-8">Select the foundational aesthetic for individual product cards.</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Classic -->
+                    <label class="card-style-option relative cursor-pointer group {% if form.card_style.value == 'classic' %}selected{% endif %}">
+                        <input type="radio" name="card_style" value="classic" class="peer sr-only" {% if form.card_style.value == 'classic' %}checked{% endif %}/>
+                        <div class="p-4 bg-surface-container-lowest border-2 border-transparent peer-checked:border-primary rounded-xl transition-all group-hover:bg-white">
+                            <div class="aspect-[4/3] bg-surface-container rounded-lg mb-3 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-outline">auto_awesome_motion</span>
+                            </div>
+                            <span class="block font-semibold text-center text-sm">Classic</span>
+                        </div>
+                    </label>
+
+                    <!-- Minimal -->
+                    <label class="card-style-option relative cursor-pointer group {% if form.card_style.value == 'minimal' %}selected{% endif %}">
+                        <input type="radio" name="card_style" value="minimal" class="peer sr-only" {% if form.card_style.value == 'minimal' %}checked{% endif %}/>
+                        <div class="p-4 bg-surface-container-lowest border-2 border-transparent peer-checked:border-primary rounded-xl transition-all group-hover:bg-white">
+                            <div class="aspect-[4/3] bg-surface-container rounded-lg mb-3 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-outline">square</span>
+                            </div>
+                            <span class="block font-semibold text-center text-sm">Minimal</span>
+                        </div>
+                    </label>
+
+                    <!-- Modern -->
+                    <label class="card-style-option relative cursor-pointer group {% if form.card_style.value == 'modern' %}selected{% endif %}">
+                        <input type="radio" name="card_style" value="modern" class="peer sr-only" {% if form.card_style.value == 'modern' %}checked{% endif %}/>
+                        <div class="p-4 bg-surface-container-lowest border-2 border-transparent peer-checked:border-primary rounded-xl transition-all group-hover:bg-white">
+                            <div class="aspect-[4/3] bg-surface-container rounded-lg mb-3 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-outline">grid_view</span>
+                            </div>
+                            <span class="block font-semibold text-center text-sm">Modern</span>
+                        </div>
+                    </label>
+
+                    <!-- Compact -->
+                    <label class="card-style-option relative cursor-pointer group {% if form.card_style.value == 'compact' %}selected{% endif %}">
+                        <input type="radio" name="card_style" value="compact" class="peer sr-only" {% if form.card_style.value == 'compact' %}checked{% endif %}/>
+                        <div class="p-4 bg-surface-container-lowest border-2 border-transparent peer-checked:border-primary rounded-xl transition-all group-hover:bg-white">
+                            <div class="aspect-[4/3] bg-surface-container rounded-lg mb-3 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-outline">view_agenda</span>
+                            </div>
+                            <span class="block font-semibold text-center text-sm">Compact</span>
+                        </div>
+                    </label>
+                </div>
+                {{ form.card_style }}
+                {% if form.card_style.errors %}
+                    {% for error in form.card_style.errors %}
+                        <p class="error-message">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Live Preview -->
+            <div class="lg:col-span-5 sticky top-32">
+                <div class="bg-surface-container-highest/30 p-8 rounded-xl border border-outline-variant/10">
+                    <span class="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant mb-6 block">Live Preview</span>
+                    <div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm">
+                        <div class="aspect-square bg-slate-100 rounded-md mb-4 flex items-center justify-center overflow-hidden">
+                            <img class="w-full h-full object-cover" alt="Minimalist white ceramic watch on a neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHf5TyEUz_sNSMkdHcf127fQI373wazBbrOq8k14HaMCArWQgNOlmKpr1s5KQL31ucbYOVqFioDujtEpaz_sLqU_L0dvaB0YFw-zCtnj7ykTxi8v-Si20ZGtoBwhKRctBXGiKfikDPmWKQ8ztW7BAlw9Aetjs7DwVAq0R7kVw7JaQ2UV9hbJ0cHKUWTTmCkduR3fQmLiT5yzFRsXPOcOHalj4FjZxkh_MUB2rMxYYwytQECE2tzdn0zC9Thli7TlOA895kMUjRObY"/>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-start">
+                                <span class="text-xs text-on-surface-variant font-medium uppercase tracking-tight">Accessories</span>
+                                {% if is_edit and object.show_new_badge %}
+                                <span class="text-xs font-bold text-primary bg-primary-container px-2 py-0.5 rounded">NEW</span>
+                                {% endif %}
+                            </div>
+                            <h4 class="font-bold text-lg text-on-surface">Premium Chronograph</h4>
+                            <p class="text-xl font-manrope font-extrabold text-on-surface">$249.00</p>
+                            {% if is_edit and object.show_add_to_cart_button %}
+                            <button type="button" class="w-full py-2 bg-on-surface text-surface rounded-md text-sm font-semibold mt-4">Add to Cart</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Grid Layout Section -->
+        <section class="bg-surface-container-low p-10 rounded-xl">
+            <div class="mb-10">
+                <h3 class="text-xl font-bold font-manrope mb-2">Grid Layout</h3>
+                <p class="text-sm text-on-surface-variant">Define the density of your product catalog across different devices.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.products_per_row_desktop.id_for_label }}">Desktop (Items/Row)</label>
+                    {{ form.products_per_row_desktop }}
+                    {% if form.products_per_row_desktop.errors %}
+                        {% for error in form.products_per_row_desktop.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.products_per_row_tablet.id_for_label }}">Tablet (Items/Row)</label>
+                    {{ form.products_per_row_tablet }}
+                    {% if form.products_per_row_tablet.errors %}
+                        {% for error in form.products_per_row_tablet.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.products_per_row_mobile.id_for_label }}">Mobile (Items/Row)</label>
+                    {{ form.products_per_row_mobile }}
+                    {% if form.products_per_row_mobile.errors %}
+                        {% for error in form.products_per_row_mobile.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.products_per_page.id_for_label }}">Products Per Page</label>
+                    {{ form.products_per_page }}
+                    {% if form.products_per_page.errors %}
+                        {% for error in form.products_per_page.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Product Information & Badges (Asymmetric Split) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Product Info -->
+            <section class="bg-surface-container-low p-10 rounded-xl space-y-8">
+                <div>
+                    <h3 class="text-xl font-bold font-manrope mb-2">Product Information</h3>
+                    <p class="text-sm text-on-surface-variant">Control the visibility of metadata on your product cards.</p>
+                </div>
+                <div class="space-y-4">
+                    <label class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg group cursor-pointer">
+                        <span class="font-medium text-sm">Show Product Vendor</span>
+                        {{ form.show_product_vendor }}
+                    </label>
+                    <label class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg group cursor-pointer">
+                        <span class="font-medium text-sm">Show Product SKU</span>
+                        {{ form.show_product_sku }}
+                    </label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg group cursor-pointer">
+                            <span class="font-medium text-sm">Product Rating</span>
+                            {{ form.show_product_rating }}
+                        </label>
+                        <label class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg group cursor-pointer">
+                            <span class="font-medium text-sm">Review Count</span>
+                            {{ form.show_review_count }}
+                        </label>
+                    </div>
+                    <div class="space-y-4 p-4 bg-surface-container-lowest rounded-lg">
+                        <label class="flex items-center justify-between group cursor-pointer">
+                            <span class="font-medium text-sm">Show Short Description</span>
+                            {{ form.show_short_description }}
+                        </label>
+                        <div class="pt-2 {% if not form.show_short_description.value %}opacity-50{% endif %}">
+                            <label class="text-[10px] uppercase font-bold text-on-surface-variant block mb-1">Max Character Length</label>
+                            {{ form.short_description_length }}
+                            {% if form.short_description_length.errors %}
+                                {% for error in form.short_description_length.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Badges & Labels -->
+            <section class="bg-surface-container-low p-10 rounded-xl space-y-8">
+                <div>
+                    <h3 class="text-xl font-bold font-manrope mb-2">Badges &amp; Labels</h3>
+                    <p class="text-sm text-on-surface-variant">Configure visual indicators for specific product states.</p>
+                </div>
+                <div class="grid grid-cols-1 gap-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                            {{ form.show_sale_badge }}
+                            <span class="font-medium text-sm">Sale Badge</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                            {{ form.show_new_badge }}
+                            <span class="font-medium text-sm">New Badge</span>
+                        </label>
+                    </div>
+                    <label class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                        <span class="font-medium text-sm">Show Discount Percentage</span>
+                        {{ form.show_discount_percentage }}
+                    </label>
+                    <label class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                        <span class="font-medium text-sm">Stock Status Indicator</span>
+                        {{ form.show_stock_status }}
+                    </label>
+                    <div class="p-4 bg-surface-container-lowest rounded-lg">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant block mb-2" for="{{ form.new_badge_days.id_for_label }}">"New" Status Duration (Days)</label>
+                        {{ form.new_badge_days }}
+                        <div class="flex justify-between mt-2 text-[10px] font-bold text-outline">
+                            <span>1 Day</span>
+                            <span id="new-badge-days-display">{{ form.new_badge_days.value|default:14 }} Days</span>
+                            <span>90 Days</span>
+                        </div>
+                        {% if form.new_badge_days.errors %}
+                            {% for error in form.new_badge_days.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Pricing & Images Section -->
+        <section class="bg-surface-container-low p-10 rounded-xl">
+            <div class="mb-10">
+                <h3 class="text-xl font-bold font-manrope mb-2">Pricing &amp; Imagery</h3>
+                <p class="text-sm text-on-surface-variant">Fine-tune the visual delivery of product media and cost information.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="space-y-6">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.price_display.id_for_label }}">Price Display</label>
+                        {{ form.price_display }}
+                        {% if form.price_display.errors %}
+                            {% for error in form.price_display.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <label class="flex items-center justify-between p-3 bg-surface-container-lowest rounded-lg cursor-pointer">
+                        <span class="font-medium text-sm">Show Tax Label</span>
+                        {{ form.show_tax_label }}
+                    </label>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.image_ratio.id_for_label }}">Image Aspect Ratio</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" class="image-ratio-btn py-2 px-3 text-xs font-bold rounded {% if form.image_ratio.value == 'square' %}bg-primary text-on-primary{% else %}bg-surface-container-lowest text-on-surface-variant hover:bg-white{% endif %}" data-ratio="square">Square (1:1)</button>
+                            <button type="button" class="image-ratio-btn py-2 px-3 text-xs font-bold rounded {% if form.image_ratio.value == 'portrait' %}bg-primary text-on-primary{% else %}bg-surface-container-lowest text-on-surface-variant hover:bg-white{% endif %}" data-ratio="portrait">Portrait (3:4)</button>
+                            <button type="button" class="image-ratio-btn py-2 px-3 text-xs font-bold rounded {% if form.image_ratio.value == 'landscape' %}bg-primary text-on-primary{% else %}bg-surface-container-lowest text-on-surface-variant hover:bg-white{% endif %}" data-ratio="landscape">Landscape (4:3)</button>
+                            <button type="button" class="image-ratio-btn py-2 px-3 text-xs font-bold rounded {% if form.image_ratio.value == 'auto' %}bg-primary text-on-primary{% else %}bg-surface-container-lowest text-on-surface-variant hover:bg-white{% endif %}" data-ratio="auto">Auto</button>
+                        </div>
+                        {{ form.image_ratio }}
+                        {% if form.image_ratio.errors %}
+                            {% for error in form.image_ratio.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.image_hover_effect.id_for_label }}">Hover Effect</label>
+                        {{ form.image_hover_effect }}
+                        {% if form.image_hover_effect.errors %}
+                            {% for error in form.image_hover_effect.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <label class="flex items-center justify-between p-3 bg-surface-container-lowest rounded-lg cursor-pointer">
+                        <span class="font-medium text-sm">Enable Gallery Carousel</span>
+                        {{ form.show_multiple_images }}
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Actions & Interactivity -->
+        <section class="bg-surface-container-low p-10 rounded-xl space-y-10">
+            <div>
+                <h3 class="text-xl font-bold font-manrope mb-2">Interaction Rules</h3>
+                <p class="text-sm text-on-surface-variant">Define how users engage with products from the catalog view.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Add to Cart Card -->
+                <div class="bg-surface-container-lowest p-6 rounded-xl space-y-4 shadow-sm {% if form.show_add_to_cart_button.value %}border-b-2 border-primary{% else %}border-b-2 border-transparent{% endif %}">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-sm uppercase tracking-wide">Add to Cart Button</span>
+                        {{ form.show_add_to_cart_button }}
+                    </div>
+                    <div class="space-y-2 {% if not form.show_add_to_cart_button.value %}opacity-50{% endif %}">
+                        <label class="text-[10px] uppercase font-extrabold text-on-surface-variant">Visibility Style</label>
+                        <div class="flex gap-2">
+                            <button type="button" class="add-to-cart-style-btn flex-1 py-2 text-xs font-semibold rounded {% if form.add_to_cart_style.value == 'always' %}bg-primary text-on-primary{% else %}bg-surface-container-low hover:bg-primary-container hover:text-on-primary-container{% endif %}" data-style="always">Always</button>
+                            <button type="button" class="add-to-cart-style-btn flex-1 py-2 text-xs font-semibold rounded {% if form.add_to_cart_style.value == 'hover' %}bg-primary text-on-primary{% else %}bg-surface-container-low hover:bg-primary-container hover:text-on-primary-container{% endif %}" data-style="hover">On Hover</button>
+                            <button type="button" class="add-to-cart-style-btn flex-1 py-2 text-xs font-semibold rounded {% if form.add_to_cart_style.value == 'icon' %}bg-primary text-on-primary{% else %}bg-surface-container-low hover:bg-primary-container hover:text-on-primary-container{% endif %}" data-style="icon">Icon Only</button>
+                        </div>
+                        {{ form.add_to_cart_style }}
+                        {% if form.add_to_cart_style.errors %}
+                            {% for error in form.add_to_cart_style.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Toggle Grid -->
+                <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <label class="flex flex-col items-center justify-center p-6 bg-surface-container-lowest rounded-xl cursor-pointer hover:shadow-md transition-shadow group">
+                        <span class="material-symbols-outlined text-outline group-hover:text-primary mb-3">visibility</span>
+                        <span class="font-bold text-sm">Quick View</span>
+                        {{ form.show_quick_view }}
+                    </label>
+                    <label class="flex flex-col items-center justify-center p-6 bg-surface-container-lowest rounded-xl cursor-pointer hover:shadow-md transition-shadow group">
+                        <span class="material-symbols-outlined text-outline group-hover:text-primary mb-3">favorite</span>
+                        <span class="font-bold text-sm">Wishlist</span>
+                        {{ form.show_wishlist_button }}
+                    </label>
+                    <label class="flex flex-col items-center justify-center p-6 bg-surface-container-lowest rounded-xl cursor-pointer hover:shadow-md transition-shadow group">
+                        <span class="material-symbols-outlined text-outline group-hover:text-primary mb-3">compare_arrows</span>
+                        <span class="font-bold text-sm">Compare</span>
+                        {{ form.show_compare_button }}
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sorting, Filtering & Pagination -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <div class="lg:col-span-8 bg-surface-container-low p-10 rounded-xl">
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold font-manrope mb-2">Navigation &amp; Refinement</h3>
+                    <p class="text-sm text-on-surface-variant">Global controls for how products are filtered and sorted.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.default_sort_order.id_for_label }}">Default Sort Order</label>
+                            {{ form.default_sort_order }}
+                            {% if form.default_sort_order.errors %}
+                                {% for error in form.default_sort_order.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-on-surface-variant" for="{{ form.filters_position.id_for_label }}">Filter Sidebar Position</label>
+                            <div class="flex bg-surface-container-lowest p-1 rounded-lg">
+                                <button type="button" class="filters-position-btn flex-1 py-2 text-xs font-bold {% if form.filters_position.value == 'left' %}bg-primary text-on-primary rounded shadow-sm{% else %}text-on-surface-variant{% endif %}" data-position="left">Left</button>
+                                <button type="button" class="filters-position-btn flex-1 py-2 text-xs font-bold {% if form.filters_position.value == 'right' %}bg-primary text-on-primary rounded shadow-sm{% else %}text-on-surface-variant{% endif %}" data-position="right">Right</button>
+                                <button type="button" class="filters-position-btn flex-1 py-2 text-xs font-bold {% if form.filters_position.value == 'top' %}bg-primary text-on-primary rounded shadow-sm{% else %}text-on-surface-variant{% endif %}" data-position="top">Top Bar</button>
+                            </div>
+                            {{ form.filters_position }}
+                            {% if form.filters_position.errors %}
+                                {% for error in form.filters_position.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <label class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg cursor-pointer">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-sm">Enable Filters Sidebar</span>
+                                <span class="text-[10px] text-on-surface-variant">Allows users to refine results by attribute</span>
+                            </div>
+                            {{ form.show_filters_sidebar }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination Block -->
+            <div class="lg:col-span-4 bg-surface-container-low p-10 rounded-xl flex flex-col justify-between">
+                <div>
+                    <h3 class="text-xl font-bold font-manrope mb-2">Pagination</h3>
+                    <p class="text-sm text-on-surface-variant mb-6">Choose how users load more content.</p>
+                    <div class="space-y-3">
+                        <label class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-lg cursor-pointer {% if form.pagination_style.value == 'numbers' %}border-2 border-primary{% else %}border-2 border-transparent hover:border-outline-variant/30{% endif %}">
+                            <input type="radio" name="pagination_style" value="numbers" class="text-primary focus:ring-primary" {% if form.pagination_style.value == 'numbers' %}checked{% endif %}/>
+                            <div class="flex flex-col">
+                                <span class="font-bold text-sm">Page Numbers</span>
+                                <span class="text-[10px] text-on-surface-variant italic">Traditional 1, 2, 3...</span>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-lg cursor-pointer {% if form.pagination_style.value == 'load_more' %}border-2 border-primary{% else %}border-2 border-transparent hover:border-outline-variant/30{% endif %}">
+                            <input type="radio" name="pagination_style" value="load_more" class="text-primary focus:ring-primary" {% if form.pagination_style.value == 'load_more' %}checked{% endif %}/>
+                            <div class="flex flex-col">
+                                <span class="font-bold text-sm">Load More Button</span>
+                                <span class="text-[10px] text-on-surface-variant italic">Manual trigger for next page</span>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-3 p-4 bg-surface-container-lowest rounded-lg cursor-pointer {% if form.pagination_style.value == 'infinite' %}border-2 border-primary{% else %}border-2 border-transparent hover:border-outline-variant/30{% endif %}">
+                            <input type="radio" name="pagination_style" value="infinite" class="text-primary focus:ring-primary" {% if form.pagination_style.value == 'infinite' %}checked{% endif %}/>
+                            <div class="flex flex-col">
+                                <span class="font-bold text-sm">Infinite Scroll</span>
+                                <span class="text-[10px] text-on-surface-variant italic">Continuous loading on scroll</span>
+                            </div>
+                        </label>
+                    </div>
+                    {{ form.pagination_style }}
+                    {% if form.pagination_style.errors %}
+                        {% for error in form.pagination_style.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="pt-8 border-t border-outline-variant/10 mt-8">
+                    <p class="text-[10px] text-on-surface-variant font-medium text-center uppercase tracking-[0.2em]">End of Configuration</p>
+                </div>
+            </div>
+        </section>
+
+    </form>
+</main>
+
+<!-- Floating Action Bar (Responsive Mobile/Contextual Save) -->
+<div class="fixed bottom-8 left-1/2 -translate-x-1/2 md:hidden">
+    <button type="submit" form="display-form" class="bg-primary text-on-primary px-8 py-4 rounded-full font-bold font-manrope shadow-xl flex items-center gap-3 active:scale-95 transition-transform">
+        <span class="material-symbols-outlined">save</span>
+        Save Changes
+    </button>
+</div>
+
+<footer class="bg-surface py-12 px-8 border-t border-outline-variant/10">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="text-on-surface-variant text-sm font-medium">
+            © 2024 Product Management System. All rights reserved.
+        </div>
+        <div class="flex gap-8 text-xs font-bold uppercase tracking-widest text-on-surface-variant/60">
+            <a class="hover:text-primary transition-colors" href="#">Documentation</a>
+            <a class="hover:text-primary transition-colors" href="#">Support</a>
+            <a class="hover:text-primary transition-colors" href="#">API Keys</a>
+        </div>
+    </div>
+</footer>
+
+<!-- JavaScript for Dynamic Interactions -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // === Card Style Selection ===
+        const cardStyleOptions = document.querySelectorAll('.card-style-option');
+        const cardStyleInput = document.getElementById('{{ form.card_style.id_for_label }}');
+
+        cardStyleOptions.forEach(function(option) {
+            option.addEventListener('click', function() {
+                cardStyleOptions.forEach(function(o) {
+                    o.classList.remove('selected');
+                });
+                this.classList.add('selected');
+
+                if (cardStyleInput) {
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) radio.checked = true;
+                }
+            });
+        });
+
+        // === Image Ratio Selection ===
+        const ratioBtns = document.querySelectorAll('.image-ratio-btn');
+        const ratioInput = document.getElementById('{{ form.image_ratio.id_for_label }}');
+
+        ratioBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                ratioBtns.forEach(function(b) {
+                    b.classList.remove('bg-primary', 'text-on-primary');
+                    b.classList.add('bg-surface-container-lowest', 'text-on-surface-variant');
+                });
+
+                this.classList.remove('bg-surface-container-lowest', 'text-on-surface-variant');
+                this.classList.add('bg-primary', 'text-on-primary');
+
+                if (ratioInput) {
+                    ratioInput.value = this.getAttribute('data-ratio');
+                }
+            });
+        });
+
+        // === Add to Cart Style Selection ===
+        const cartStyleBtns = document.querySelectorAll('.add-to-cart-style-btn');
+        const cartStyleInput = document.getElementById('{{ form.add_to_cart_style.id_for_label }}');
+
+        cartStyleBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                cartStyleBtns.forEach(function(b) {
+                    b.classList.remove('bg-primary', 'text-on-primary');
+                    b.classList.add('bg-surface-container-low');
+                });
+
+                this.classList.remove('bg-surface-container-low');
+                this.classList.add('bg-primary', 'text-on-primary');
+
+                if (cartStyleInput) {
+                    cartStyleInput.value = this.getAttribute('data-style');
+                }
+            });
+        });
+
+        // === Filters Position Selection ===
+        const positionBtns = document.querySelectorAll('.filters-position-btn');
+        const positionInput = document.getElementById('{{ form.filters_position.id_for_label }}');
+
+        positionBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                positionBtns.forEach(function(b) {
+                    b.classList.remove('bg-primary', 'text-on-primary', 'rounded', 'shadow-sm');
+                });
+
+                this.classList.add('bg-primary', 'text-on-primary', 'rounded', 'shadow-sm');
+
+                if (positionInput) {
+                    positionInput.value = this.getAttribute('data-position');
+                }
+            });
+        });
+
+        // === New Badge Days Range Display ===
+        const newBadgeDaysRange = document.getElementById('{{ form.new_badge_days.id_for_label }}');
+        const newBadgeDaysDisplay = document.getElementById('new-badge-days-display');
+
+        if (newBadgeDaysRange && newBadgeDaysDisplay) {
+            newBadgeDaysRange.addEventListener('input', function() {
+                newBadgeDaysDisplay.textContent = this.value + ' Days';
+            });
+        }
+
+        // === Toggle Styling ===
+        const toggleCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+        toggleCheckboxes.forEach(function(checkbox) {
+            checkbox.classList.add('toggle-checkbox');
+
+            checkbox.addEventListener('change', function() {
+                // Handle card-style toggles
+                const card = this.closest('.bg-surface-container-lowest');
+                if (card) {
+                    if (this.checked) {
+                        card.style.backgroundColor = '#dbe1ff';
+                    } else {
+                        card.style.backgroundColor = '';
+                    }
+                }
+
+                // Handle opacity for dependent fields
+                const parentSection = this.closest('.space-y-4');
+                if (parentSection) {
+                    const dependentDiv = parentSection.querySelector('.opacity-50');
+                    if (dependentDiv) {
+                        if (this.checked) {
+                            dependentDiv.classList.remove('opacity-50');
+                        } else {
+                            dependentDiv.classList.add('opacity-50');
+                        }
+                    }
+                }
+            });
+        });
+
+        // === Initialize Card Toggle States ===
+        document.querySelectorAll('input[type="checkbox"]').forEach(function(checkbox) {
+            const card = checkbox.closest('.bg-surface-container-lowest');
+            if (card && checkbox.checked) {
+                card.style.backgroundColor = '#dbe1ff';
+            }
+        });
+
+        // === Add to Cart Button Toggle ===
+        const addToCartCheckbox = document.getElementById('{{ form.show_add_to_cart_button.id_for_label }}');
+        const addToCartCard = addToCartCheckbox?.closest('.bg-surface-container-lowest');
+
+        if (addToCartCheckbox && addToCartCard) {
+            addToCartCheckbox.addEventListener('change', function() {
+                const dependentDiv = addToCartCard.querySelector('.opacity-50');
+                if (dependentDiv) {
+                    if (this.checked) {
+                        dependentDiv.classList.remove('opacity-50');
+                        addToCartCard.classList.remove('border-transparent');
+                        addToCartCard.classList.add('border-primary');
+                    } else {
+                        dependentDiv.classList.add('opacity-50');
+                        addToCartCard.classList.remove('border-primary');
+                        addToCartCard.classList.add('border-transparent');
+                    }
+                }
+            });
+        }
+
+        // === Hide Messages After 5 Seconds ===
+        setTimeout(function() {
+            const messages = document.querySelectorAll('.fixed.top-24');
+            messages.forEach(function(msg) {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    msg.remove();
+                }, 500);
+            });
+        }, 5000);
+
+        // === Form Change Detection ===
+        const form = document.getElementById('display-form');
+        let formChanged = false;
+
+        form.addEventListener('input', function() {
+            formChanged = true;
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (formChanged) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // === Short Description Toggle ===
+        const shortDescCheckbox = document.getElementById('{{ form.show_short_description.id_for_label }}');
+        const shortDescLengthDiv = shortDescCheckbox?.closest('.space-y-4')?.querySelector('.pt-2');
+
+        if (shortDescCheckbox && shortDescLengthDiv) {
+            if (!shortDescCheckbox.checked) {
+                shortDescLengthDiv.classList.add('opacity-50');
+            }
+
+            shortDescCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    shortDescLengthDiv.classList.remove('opacity-50');
+                } else {
+                    shortDescLengthDiv.classList.add('opacity-50');
+                }
+            });
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,38 @@
+{% extends "system/default/templates/base.html" %}
+
+{% block content %}
+<section class="mx-auto max-w-5xl space-y-8">
+    <div class="surface-card overflow-hidden p-8 lg:p-10">
+        <p class="eyebrow">Checkout</p>
+        <h1 class="section-title mt-3">Choose how you want to continue.</h1>
+        <p class="section-copy mt-3 text-base">Sign in to use saved account details or continue with a guest email to keep the order moving.</p>
+    </div>
+    <div class="grid gap-6 lg:grid-cols-2">
+        <div class="surface-card p-6">
+            <p class="eyebrow">Returning Customer</p>
+            <h2 class="brand-font mt-3 text-3xl font-bold text-slate-950">Use your account.</h2>
+            <p class="mt-3 text-sm leading-7 text-slate-500">Keep your orders, addresses, wishlist, and post-purchase tracking connected to the same customer profile.</p>
+            <a href="{% url 'tenant:login' %}?next={% url 'checkout:checkout_info' %}" class="button-primary mt-6">Sign In</a>
+        </div>
+        <div class="surface-card p-6">
+            <p class="eyebrow">Guest Checkout</p>
+            <h2 class="brand-font mt-3 text-3xl font-bold text-slate-950">Continue with email.</h2>
+            {% if allow_guest_checkout %}
+                <form method="post" class="mt-5 space-y-4">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div>
+                            <label class="mb-2 block text-sm font-semibold text-slate-700">{{ field.label }}</label>
+                            <div class="field-shell">{{ field }}</div>
+                            {% if field.errors %}<p class="mt-2 text-sm text-rose-600">{{ field.errors|join:", " }}</p>{% endif %}
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="button-secondary">Continue as Guest</button>
+                </form>
+            {% else %}
+                <p class="mt-4 text-sm text-slate-500">Guest checkout is disabled for this store.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

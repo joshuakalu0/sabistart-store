@@ -1,312 +1,169 @@
-from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from django.db import transaction
-from django.core.paginator import Paginator
-from django.db.models import Q
-from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods
-from django.contrib.auth.decorators import login_required
-from django.utils.text import slugify
-from .models import (
-    AttributeGroup, Attribute, AttributeValue, Product, ProductImage,
-    ProductVideo, ProductAttributeValue, ProductVariant, VariantImage
+from django.db.models import F
+from django.shortcuts import get_object_or_404, redirect
+
+from public.product.models import Product
+from public.storefront.forms import GuestCheckoutForm
+from public.storefront.services import (
+    annotate_product_pricing,
+    build_breadcrumbs,
+    build_flash_sale_lookup,
+    get_active_flash_sale,
+    get_compare_products,
+    get_product_queryset,
+    get_recently_viewed_products,
+    get_related_product_cards,
+    get_social_platforms,
+    get_wishlist_products,
+    push_recently_viewed_product,
+    render_info_page,
+    render_storefront,
+    serialize_product_detail,
+    toggle_session_product,
+    get_or_create_cart,
+    add_variant_to_cart,
 )
-from .forms import (
-    AttributeGroupForm, AttributeForm, AttributeValueForm, ProductForm,
-    ProductImageForm, ProductVideoForm,
-    ProductAttributeValueForm, ProductVariantForm, VariantImageForm,
-    ProductImageFormSet, ProductVideoFormSet,
-    ProductAttributeValueFormSet, ProductVariantFormSet, VariantImageFormSet
-)
-from dashboard.decorators import dashboard_prefix_required
-import json
 
 
-@login_required
-@dashboard_prefix_required
-def attribute_group_list(request, prefix):
-    search_query = request.GET.get('search', '')
-    groups = AttributeGroup.objects.all()
-
-    if search_query:
-        groups = groups.filter(Q(name__icontains=search_query) | Q(
-            description__icontains=search_query))
-
-    paginator = Paginator(groups, 20)
-    page_obj = paginator.get_page(request.GET.get('page'))
-
-    return render(request, 'dashboard/products/attribute_groups/list.html', {
-        'page_obj': page_obj, 'search_query': search_query, 'prefix': prefix, 'title': 'Attribute Groups'
-    })
+def _resolve_product(product_slug):
+    return get_object_or_404(annotate_product_pricing(get_product_queryset()), slug=product_slug)
 
 
-@login_required
-@dashboard_prefix_required
-def attribute_group_create(request, prefix):
-    if request.method == 'POST':
-        form = AttributeGroupForm(request.POST)
-        if form.is_valid():
-            try:
-                with transaction.atomic():
-                    group = form.save()
-                    messages.success(
-                        request, f'Attribute group "{group.name}" created successfully.')
-                    return redirect('product:attribute_group_list', prefix=prefix)
-            except Exception as e:
-                messages.error(
-                    request, f'Error creating attribute group: {str(e)}')
-    else:
-        form = AttributeGroupForm()
+def _handle_product_actions(request, product):
+    action = request.POST.get("action")
+    if action == "add_to_cart":
+        cart = get_or_create_cart(request)
+        variant_id = request.POST.get("variant_id") or request.POST.get("product_id")
+        variant = product.variants.filter(id=variant_id, is_active=True).first() if variant_id else None
+        if variant is None:
+            variant = product.variants.filter(is_active=True).order_by("-is_default", "price").first()
+        if variant is None:
+            messages.error(request, "This product does not currently have an available variant.")
+            return redirect("product:product_detail", product_slug=product.slug)
+        add_variant_to_cart(cart, variant, quantity=request.POST.get("quantity", 1))
+        messages.success(request, f"{product.name} was added to your cart.")
+        return redirect("cart:cart_page")
 
-    return render(request, 'dashboard/products/attribute_groups/form.html', {
-        'form': form, 'prefix': prefix, 'title': 'Create Attribute Group', 'action': 'Create'
-    })
+    if action == "toggle_wishlist":
+        added = toggle_session_product(request, "wishlist", str(product.id))
+        messages.success(request, "Saved to wishlist." if added else "Removed from wishlist.")
+        return redirect("product:product_detail", product_slug=product.slug)
 
+    if action == "toggle_compare":
+        added = toggle_session_product(request, "compare", str(product.id))
+        messages.success(request, "Added to compare." if added else "Removed from compare.")
+        return redirect("product:product_detail", product_slug=product.slug)
 
-@login_required
-@dashboard_prefix_required
-def attribute_group_edit(request, prefix, pk):
-    group = get_object_or_404(AttributeGroup, pk=pk)
-
-    if request.method == 'POST':
-        form = AttributeGroupForm(request.POST, instance=group)
-        if form.is_valid():
-            try:
-                with transaction.atomic():
-                    group = form.save()
-                    messages.success(
-                        request, f'Attribute group "{group.name}" updated successfully.')
-                    return redirect('product:attribute_group_list', prefix=prefix)
-            except Exception as e:
-                messages.error(
-                    request, f'Error updating attribute group: {str(e)}')
-    else:
-        form = AttributeGroupForm(instance=group)
-
-    return render(request, 'dashboard/products/attribute_groups/form.html', {
-        'form': form, 'group': group, 'prefix': prefix, 'title': f'Edit {group.name}', 'action': 'Update'
-    })
+    return None
 
 
-@login_required
-@dashboard_prefix_required
-def attribute_group_delete(request, prefix, pk):
-    group = get_object_or_404(AttributeGroup, pk=pk)
-
-    if request.method == 'POST':
-        try:
-            with transaction.atomic():
-                group_name = group.name
-                group.delete()
-                messages.success(
-                    request, f'Attribute group "{group_name}" deleted successfully.')
-        except Exception as e:
-            messages.error(
-                request, f'Error deleting attribute group: {str(e)}')
-
-    return redirect('product:attribute_group_list', prefix=prefix)
-
-
-@login_required
-@dashboard_prefix_required
-def attribute_list(request, prefix):
-    search_query = request.GET.get('search', '')
-    group_filter = request.GET.get('group', '')
-    type_filter = request.GET.get('type', '')
-
-    attributes = Attribute.objects.select_related('group')
-
-    if search_query:
-        attributes = attributes.filter(
-            Q(name__icontains=search_query) | Q(description__icontains=search_query))
-    if group_filter:
-        attributes = attributes.filter(group_id=group_filter)
-    if type_filter:
-        attributes = attributes.filter(attribute_type=type_filter)
-
-    paginator = Paginator(attributes, 20)
-    page_obj = paginator.get_page(request.GET.get('page'))
-
-    return render(request, 'dashboard/products/attributes/list.html', {
-        'page_obj': page_obj, 'search_query': search_query, 'group_filter': group_filter,
-        'type_filter': type_filter, 'groups': AttributeGroup.objects.all(),
-        'types': Attribute.TYPE_CHOICES, 'prefix': prefix, 'title': 'Attributes'
-    })
+def _render_product_page(request, product, *, quick_view_mode=False):
+    Product.objects.filter(pk=product.pk).update(view_count=F("view_count") + 1)
+    push_recently_viewed_product(request, str(product.id))
+    flash_sale_lookup = build_flash_sale_lookup(get_active_flash_sale(request))
+    detail = serialize_product_detail(product, request, flash_sale_lookup=flash_sale_lookup)
+    wishlist_ids = {item["id"] for item in get_wishlist_products(request)}
+    compare_ids = {item["id"] for item in get_compare_products(request)}
+    context = {
+        "product": detail,
+        "breadcrumbs": build_breadcrumbs(
+            ("Home", "/"),
+            ("Shop All", "/shop/"),
+            (product.name, ""),
+        ),
+        "related_products": get_related_product_cards(product, request, limit=4),
+        "recently_viewed_products": [item for item in get_recently_viewed_products(request) if item["id"] != str(product.id)][:4],
+        "share_platforms": get_social_platforms(request),
+        "quick_view_mode": quick_view_mode,
+        "in_wishlist": str(product.id) in wishlist_ids,
+        "in_compare": str(product.id) in compare_ids,
+    }
+    return render_storefront(
+        request,
+        "catalog/product_detail.html",
+        context,
+        page_title=product.meta_title or product.name,
+        page_description=product.meta_description or product.short_description or product.description[:160],
+    )
 
 
-@login_required
-@dashboard_prefix_required
-def attribute_create(request, prefix):
-    if request.method == 'POST':
-        form = AttributeForm(request.POST)
-        if form.is_valid():
-            try:
-                with transaction.atomic():
-                    attribute = form.save()
-                    messages.success(
-                        request, f'Attribute "{attribute.name}" created successfully.')
-                    return redirect('product:attribute_list', prefix=prefix)
-            except Exception as e:
-                messages.error(request, f'Error creating attribute: {str(e)}')
-    else:
-        form = AttributeForm()
-
-    return render(request, 'dashboard/products/attributes/form.html', {
-        'form': form, 'prefix': prefix, 'title': 'Create Attribute', 'action': 'Create'
-    })
+def product_detail_view(request, product_slug):
+    product = _resolve_product(product_slug)
+    if request.method == "POST":
+        response = _handle_product_actions(request, product)
+        if response is not None:
+            return response
+    return _render_product_page(request, product)
 
 
-@login_required
-@dashboard_prefix_required
-def attribute_edit(request, prefix, pk):
-    attribute = get_object_or_404(Attribute, pk=pk)
-
-    if request.method == 'POST':
-        form = AttributeForm(request.POST, instance=attribute)
-        if form.is_valid():
-            try:
-                with transaction.atomic():
-                    attribute = form.save()
-                    messages.success(
-                        request, f'Attribute "{attribute.name}" updated successfully.')
-                    return redirect('product:attribute_list', prefix=prefix)
-            except Exception as e:
-                messages.error(request, f'Error updating attribute: {str(e)}')
-    else:
-        form = AttributeForm(instance=attribute)
-
-    return render(request, 'dashboard/products/attributes/form.html', {
-        'form': form, 'attribute': attribute, 'prefix': prefix, 'title': f'Edit {attribute.name}', 'action': 'Update'
-    })
+def product_quick_view(request, product_slug):
+    return _render_product_page(request, _resolve_product(product_slug), quick_view_mode=True)
 
 
-@login_required
-@dashboard_prefix_required
-def attribute_delete(request, prefix, pk):
-    attribute = get_object_or_404(Attribute, pk=pk)
+def product_compare_view(request):
+    if request.method == "POST":
+        product_id = request.POST.get("product_id")
+        if product_id:
+            added = toggle_session_product(request, "compare", product_id)
+            messages.success(request, "Added to compare." if added else "Removed from compare.")
+        return redirect("product:product_compare")
 
-    if request.method == 'POST':
-        try:
-            with transaction.atomic():
-                attribute_name = attribute.name
-                attribute.delete()
-                messages.success(
-                    request, f'Attribute "{attribute_name}" deleted successfully.')
-        except Exception as e:
-            messages.error(request, f'Error deleting attribute: {str(e)}')
-
-    return redirect('product:attribute_list', prefix=prefix)
-
-
-@login_required
-@dashboard_prefix_required
-def product_list(request, prefix):
-    search_query = request.GET.get('search', '')
-    status_filter = request.GET.get('status', '')
-    type_filter = request.GET.get('type', '')
-
-    products = Product.objects.select_related(
-        'brand').prefetch_related('categories', 'tags')
-
-    if search_query:
-        products = products.filter(
-            Q(name__icontains=search_query) | Q(sku__icontains=search_query))
-    if status_filter:
-        products = products.filter(status=status_filter)
-    if type_filter:
-        products = products.filter(product_type=type_filter)
-
-    paginator = Paginator(products, 20)
-    page_obj = paginator.get_page(request.GET.get('page'))
-
-    from public.category.models import Category, Brand
-
-    return render(request, 'dashboard/products/list.html', {
-        'page_obj': page_obj, 'search_query': search_query, 'status_filter': status_filter,
-        'type_filter': type_filter, 'categories': Category.objects.all(), 'brands': Brand.objects.all(),
-        'statuses': Product._meta.get_field('status').choices, 'types': Product.TYPE_CHOICES,
-        'prefix': prefix, 'title': 'Products'
-    })
+    context = {
+        "products": get_compare_products(request),
+        "breadcrumbs": build_breadcrumbs(("Home", "/"), ("Compare", "")),
+    }
+    return render_storefront(
+        request,
+        "catalog/compare.html",
+        context,
+        page_title="Compare Products",
+        page_description="Review products side by side using the tenant-scoped compare list.",
+    )
 
 
-@login_required
-@dashboard_prefix_required
-def product_create(request, prefix):
-    if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES)
-        image_formset = ProductImageFormSet(request.POST, request.FILES)
-
-        if form.is_valid() and image_formset.is_valid():
-            try:
-                with transaction.atomic():
-                    product = form.save()
-                    image_formset.instance = product
-                    image_formset.save()
-                    messages.success(
-                        request, f'Product "{product.name}" created successfully.')
-                    return redirect('product:product_list', prefix=prefix)
-            except Exception as e:
-                messages.error(request, f'Error creating product: {str(e)}')
-    else:
-        form = ProductForm()
-        image_formset = ProductImageFormSet()
-
-    return render(request, 'dashboard/products/create.html', {
-        'form': form, 'image_formset': image_formset, 'prefix': prefix,
-        'title': 'Create Product', 'action': 'Create'
-    })
+def bundle_detail_view(request, bundle_slug):
+    return product_detail_view(request, bundle_slug)
 
 
-@login_required
-@dashboard_prefix_required
-def product_edit(request, prefix, pk):
-    product = get_object_or_404(Product, pk=pk)
-
-    if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES, instance=product)
-        image_formset = ProductImageFormSet(
-            request.POST, request.FILES, instance=product)
-
-        if form.is_valid() and image_formset.is_valid():
-            try:
-                with transaction.atomic():
-                    product = form.save()
-                    image_formset.save()
-                    messages.success(
-                        request, f'Product "{product.name}" updated successfully.')
-                    return redirect('product:product_list', prefix=prefix)
-            except Exception as e:
-                messages.error(request, f'Error updating product: {str(e)}')
-    else:
-        form = ProductForm(instance=product)
-        image_formset = ProductImageFormSet(instance=product)
-
-    return render(request, 'dashboard/products/form.html', {
-        'form': form, 'image_formset': image_formset, 'product': product, 'prefix': prefix,
-        'title': f'Edit {product.name}', 'action': 'Update'
-    })
+def digital_product_view(request, digital_slug):
+    return product_detail_view(request, digital_slug)
 
 
-@login_required
-@dashboard_prefix_required
-def product_delete(request, prefix, pk):
-    product = get_object_or_404(Product, pk=pk)
-
-    if request.method == 'POST':
-        try:
-            with transaction.atomic():
-                product_name = product.name
-                product.delete()
-                messages.success(
-                    request, f'Product "{product_name}" deleted successfully.')
-        except Exception as e:
-            messages.error(request, f'Error deleting product: {str(e)}')
-
-    return redirect('product:product_list', prefix=prefix)
+def subscription_product_view(request, sub_slug):
+    return product_detail_view(request, sub_slug)
 
 
-@require_http_methods(["GET"])
-def generate_slug(request):
-    name = request.GET.get('name', '')
-    slug = slugify(name)
-    return JsonResponse({'slug': slug})
+def configurable_product_view(request, conf_slug):
+    return product_detail_view(request, conf_slug)
+
+
+def notify_me_view(request, product_slug):
+    product = _resolve_product(product_slug)
+    form = GuestCheckoutForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        messages.success(request, f"We recorded a restock alert request for {product.name}.")
+        return redirect("product:product_detail", product_slug=product.slug)
+    return render_info_page(
+        request,
+        title=f"Notify Me: {product.name}",
+        body="Submit your email to receive a restock alert when inventory is available again.",
+        form=form,
+        form_action=request.path,
+        extra_context={"product": serialize_product_detail(product, request)},
+    )
+
+
+def pre_order_view(request, product_slug):
+    product = _resolve_product(product_slug)
+    form = GuestCheckoutForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        messages.success(request, f"We recorded your pre-order interest for {product.name}.")
+        return redirect("product:product_detail", product_slug=product.slug)
+    return render_info_page(
+        request,
+        title=f"Pre-Order: {product.name}",
+        body="This product is being offered on a pre-order basis. Leave your email to be contacted about launch timing.",
+        form=form,
+        form_action=request.path,
+        extra_context={"product": serialize_product_detail(product, request)},
+    )

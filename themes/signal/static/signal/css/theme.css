@@ -1,0 +1,27 @@
+body.theme-signal {
+  --color-primary: #0b1323;
+  --color-secondary: #0f3a74;
+  --color-accent: #13c5d3;
+  --color-background: #eef4fb;
+  --color-surface: #dfe9f8;
+  --color-border: #b7c8df;
+}
+
+body.theme-signal {
+  background:
+    linear-gradient(180deg, #eff5fd 0%, #e6eef8 100%);
+}
+
+body.theme-signal .surface-card,
+body.theme-signal .panel {
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 42px rgba(11, 19, 35, 0.08);
+}
+
+body.theme-signal .button-primary {
+  background: linear-gradient(135deg, #13c5d3, #0f5ecf);
+}
+
+body.theme-signal .chip {
+  border-radius: 1rem;
+}

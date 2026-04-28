@@ -1,0 +1,115 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Users</h2>
+    <p class="text-slate-500 dark:text-slate-400 text-sm">Manage tenant users — customers and staff</p>
+  </div>
+  <a href="{% url 'dashboard:user_settings:user_create' prefix %}"
+     class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center space-x-2 text-sm">
+    <span class="material-icons-outlined text-sm">person_add</span><span>New User</span>
+  </a>
+</div>
+
+<!-- Filters -->
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mb-1">
+  <div class="p-4 border-b border-slate-200 dark:border-slate-700">
+    <form method="get" class="flex flex-wrap gap-3">
+      <input type="text" name="q" value="{{ q }}" placeholder="Search by name, email or phone…"
+             class="flex-1 min-w-[200px] px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary"/>
+      <select name="user_type" class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white">
+        <option value="">All Types</option>
+        {% for val, label in user_type_choices %}
+        <option value="{{ val }}" {% if user_type == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <select name="status" class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white">
+        <option value="">All Statuses</option>
+        {% for val, label in status_choices %}
+        <option value="{{ val }}" {% if status == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg text-sm">Filter</button>
+      {% if q or user_type or status %}
+      <a href="{% url 'dashboard:user_settings:user_list' prefix %}" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">Clear</a>
+      {% endif %}
+    </form>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">User</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Type</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Verified</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">2FA</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Last Login</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Joined</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+        {% for u in users %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+          <td class="px-4 py-3">
+            <a href="{% url 'dashboard:user_settings:user_detail' prefix u.pk %}" class="font-medium text-slate-900 dark:text-white hover:text-primary">
+              {{ u.get_full_name }}
+            </a>
+            <div class="text-xs text-slate-500 dark:text-slate-400">{{ u.email }}</div>
+          </td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-1 rounded-full text-xs {% if u.user_type == 'STAFF' %}bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300{% else %}bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300{% endif %}">
+              {{ u.get_user_type_display }}
+            </span>
+          </td>
+          <td class="px-4 py-3">
+            {% if u.account_status == 'ACTIVE' %}
+              <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">Active</span>
+            {% elif u.account_status == 'PENDING' %}
+              <span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">Pending</span>
+            {% elif u.account_status == 'SUSPENDED' %}
+              <span class="px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300">Suspended</span>
+            {% elif u.account_status == 'DELETED' %}
+              <span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">Deleted</span>
+            {% else %}
+              <span class="px-2 py-1 rounded-full text-xs bg-slate-100 text-slate-500">{{ u.get_account_status_display }}</span>
+            {% endif %}
+            {% if u.is_locked %}<span class="ml-1 text-xs text-red-500" title="Locked">🔒</span>{% endif %}
+          </td>
+          <td class="px-4 py-3 text-center">
+            {% if u.is_verified %}<span class="text-green-500 material-icons-outlined text-base">verified</span>{% else %}<span class="text-slate-400 material-icons-outlined text-base">cancel</span>{% endif %}
+          </td>
+          <td class="px-4 py-3 text-center text-slate-400 text-xs">
+            {{ u.totp_enabled|yesno:"✓,—" }}
+          </td>
+          <td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap">
+            {{ u.last_login_at|date:"M d, Y"|default:"Never" }}
+          </td>
+          <td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap">
+            {{ u.created_at|date:"M d, Y" }}
+          </td>
+          <td class="px-4 py-3 space-x-2 whitespace-nowrap">
+            <a href="{% url 'dashboard:user_settings:user_detail' prefix u.pk %}" class="text-primary hover:text-blue-700 text-xs">View</a>
+            <a href="{% url 'dashboard:user_settings:user_edit' prefix u.pk %}" class="text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 text-xs">Edit</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="px-6 py-10 text-center text-slate-400">No users found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if users.has_other_pages %}
+  <div class="px-4 py-3 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
+    <span class="text-sm text-slate-500">Page {{ users.number }} of {{ users.paginator.num_pages }} — {{ users.paginator.count }} users</span>
+    <div class="flex space-x-2">
+      {% if users.has_previous %}<a href="?page={{ users.previous_page_number }}&q={{ q }}&user_type={{ user_type }}&status={{ status }}" class="px-3 py-1 border border-slate-300 dark:border-slate-600 rounded text-sm hover:bg-slate-50 dark:hover:bg-slate-700">Prev</a>{% endif %}
+      {% if users.has_next %}<a href="?page={{ users.next_page_number }}&q={{ q }}&user_type={{ user_type }}&status={{ status }}" class="px-3 py-1 border border-slate-300 dark:border-slate-600 rounded text-sm hover:bg-slate-50 dark:hover:bg-slate-700">Next</a>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

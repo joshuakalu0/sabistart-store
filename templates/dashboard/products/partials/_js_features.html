@@ -1,0 +1,37 @@
+<script>
+    console.log('feat')
+  // Features (Tag-style)
+  function addFeature() {
+    const input = document.getElementById('featureInput');
+    const feature = input.value.trim();
+    if (feature && !features.includes(feature)) {
+      features.push(feature);
+      renderFeatures();
+      input.value = '';
+    }
+  }
+
+  function addExistingFeature(feature) {
+    if (!features.includes(feature)) {
+      features.push(feature);
+      renderFeatures();
+    }
+  }
+
+  function removeFeature(index) {
+    features.splice(index, 1);
+    renderFeatures();
+  }
+
+  function renderFeatures() {
+    const container = document.getElementById('featuresList');
+    container.innerHTML = features.map((feature, index) => `
+          <span class="feature-tag inline-flex items-center px-3 py-1.5 rounded-full text-sm bg-green-100 text-green-700">
+              ${feature}
+              <button type="button" onclick="removeFeature(${index})" class="ml-2 hover:text-green-900">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </button>
+          </span>
+      `).join('');
+  }
+</script>

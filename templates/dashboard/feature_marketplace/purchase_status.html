@@ -1,0 +1,13 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<section class="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
+  <p class="text-sm uppercase tracking-[0.25em] text-slate-400">{% if cancelled %}Cancelled{% else %}Completed{% endif %}</p>
+  <h1 class="mt-3 text-3xl font-semibold text-slate-900">{{ purchase.feature_name|default:purchase.bundle_name }}</h1>
+  <p class="mt-2 text-sm text-slate-600">Reference {{ purchase.purchase_reference }} · {{ purchase.get_status_display }}</p>
+  <div class="mt-6 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+    {{ purchase.currency }} {{ purchase.total_amount }}
+  </div>
+  <a class="mt-6 inline-flex rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white" href="{% url 'dashboard:feature_marketplace:purchases' prefix=prefix %}">Back to purchases</a>
+</section>
+{% endblock %}
+

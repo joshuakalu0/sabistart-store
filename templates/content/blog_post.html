@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <section class="space-y-8">
+    <div class="surface-card p-8 lg:p-10">
+      <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+        {% for crumb in breadcrumbs %}
+          {% if crumb.url %}<a href="{{ crumb.url }}" class="transition hover:text-slate-900">{{ crumb.label }}</a>{% else %}<span>{{ crumb.label }}</span>{% endif %}
+          {% if not forloop.last %}<span>/</span>{% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="mt-6 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+        <div class="space-y-5">
+          <p class="eyebrow">{{ blog_config.blog_title }}</p>
+          <h1 class="section-title">{{ entry.title }}</h1>
+          {% if entry.excerpt %}<p class="section-copy text-base">{{ entry.excerpt }}</p>{% endif %}
+          <div class="flex flex-wrap gap-3 text-sm text-slate-500">
+            {% if entry.published_at %}<span>{{ entry.published_at|date:"F j, Y" }}</span>{% endif %}
+            <span>Article</span>
+          </div>
+        </div>
+        {% if entry.featured_image %}
+          <img src="{{ entry.featured_image.url }}" alt="{{ entry.title }}" class="w-full rounded-[2rem] object-cover">
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="grid gap-8 lg:grid-cols-[1fr_320px]">
+      <article class="surface-card p-8">
+        <div class="prose prose-slate max-w-none text-slate-700">{{ entry.content|safe }}</div>
+      </article>
+
+      <aside class="space-y-6">
+        <div class="surface-card-soft p-6">
+          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">More from the store</p>
+          <h2 class="brand-font mt-3 text-2xl font-bold text-slate-950">Keep reading</h2>
+          <div class="mt-5 space-y-4">
+            {% for related in related_entries %}
+              <a href="{% url 'content:blog_post' post_slug=related.slug %}" class="block rounded-2xl border border-slate-200 bg-white px-4 py-4 transition hover:border-slate-300">
+                <p class="font-semibold text-slate-900">{{ related.title }}</p>
+                <p class="mt-2 text-sm text-slate-500">{{ related.excerpt|default:related.content|striptags|truncatechars:100 }}</p>
+              </a>
+            {% empty %}
+              <p class="text-sm text-slate-500">No related posts yet.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+{% endblock %}

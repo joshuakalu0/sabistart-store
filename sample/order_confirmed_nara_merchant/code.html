@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Order Confirmation | Nara Merchant</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "inverse-primary": "#bec6e0",
+              "error-container": "#ffdad6",
+              "surface-dim": "#dadada",
+              "tertiary-fixed": "#fcdeb5",
+              "on-primary-fixed": "#131b2e",
+              "surface-container-lowest": "#ffffff",
+              "on-error": "#ffffff",
+              "tertiary-container": "#271901",
+              "secondary-fixed-dim": "#ffb690",
+              "inverse-on-surface": "#f0f1f1",
+              "surface-container-high": "#e8e8e8",
+              "on-surface-variant": "#45464d",
+              "on-secondary-fixed-variant": "#783200",
+              "on-background": "#1a1c1c",
+              "outline": "#76777d",
+              "on-secondary-fixed": "#341100",
+              "secondary": "#9d4300",
+              "surface": "#f9f9f9",
+              "primary": "#000000",
+              "on-tertiary-fixed": "#271901",
+              "on-tertiary": "#ffffff",
+              "tertiary": "#000000",
+              "on-primary-fixed-variant": "#3f465c",
+              "surface-tint": "#565e74",
+              "secondary-fixed": "#ffdbca",
+              "on-primary": "#ffffff",
+              "primary-fixed-dim": "#bec6e0",
+              "outline-variant": "#c6c6cd",
+              "inverse-surface": "#2f3131",
+              "surface-variant": "#e2e2e2",
+              "secondary-container": "#fd761a",
+              "error": "#ba1a1a",
+              "on-tertiary-fixed-variant": "#574425",
+              "on-primary-container": "#7c839b",
+              "on-surface": "#1a1c1c",
+              "background": "#f9f9f9",
+              "on-secondary": "#ffffff",
+              "on-secondary-container": "#5c2400",
+              "surface-container-highest": "#e2e2e2",
+              "surface-container": "#eeeeee",
+              "tertiary-fixed-dim": "#dec29a",
+              "surface-container-low": "#f3f3f3",
+              "on-error-container": "#93000a",
+              "primary-container": "#131b2e",
+              "surface-bright": "#f9f9f9",
+              "primary-fixed": "#dae2fd",
+              "on-tertiary-container": "#98805d"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- Top Navigation (Shared Component Integration) -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm">
+<nav class="flex justify-between items-center px-6 h-16 w-full max-w-7xl mx-auto">
+<div class="text-xl font-bold text-slate-900 dark:text-slate-50 font-['Plus_Jakarta_Sans'] tracking-tight">Nara Merchant</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-slate-500 dark:text-slate-400 hover:text-orange-600 transition-colors font-['Plus_Jakarta_Sans'] tracking-tight" href="#">Shop</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-orange-600 transition-colors font-['Plus_Jakarta_Sans'] tracking-tight" href="#">Categories</a>
+<a class="text-slate-900 dark:text-white border-b-2 border-orange-600 transition-colors font-['Plus_Jakarta_Sans'] tracking-tight" href="#">Orders</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-slate-900 dark:text-slate-50 scale-95 active:opacity-80 transition-all">
+<span class="material-symbols-outlined">shopping_bag</span>
+</button>
+<button class="text-slate-900 dark:text-slate-50 scale-95 active:opacity-80 transition-all">
+<span class="material-symbols-outlined">person</span>
+</button>
+</div>
+</nav>
+</header>
+<main class="pt-24 pb-32 max-w-5xl mx-auto px-6">
+<!-- Success Hero Section -->
+<section class="text-center mb-16">
+<div class="inline-flex items-center justify-center w-20 h-20 bg-secondary-container text-white rounded-full mb-6 shadow-xl shadow-secondary/20">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<h1 class="text-4xl md:text-5xl font-extrabold text-primary mb-4 tracking-tight">Thank you for your order, Amina!</h1>
+<p class="text-on-surface-variant text-lg font-medium">Order #ORD-2025-004821</p>
+<p class="text-on-surface-variant mt-2">A confirmation email has been sent to <span class="text-primary font-semibold">amina@merchant.ng</span></p>
+<div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+<button class="w-full sm:w-auto px-8 py-4 bg-primary text-on-primary rounded-xl font-bold text-base hover:opacity-90 transition-all shadow-lg shadow-primary/10">
+                    Track Your Order
+                </button>
+<button class="w-full sm:w-auto px-8 py-4 border-2 border-primary text-primary rounded-xl font-bold text-base hover:bg-surface-container-low transition-all">
+                    Continue Shopping
+                </button>
+</div>
+</section>
+<!-- Order Info Grid -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+<!-- Order Summary Card (Visual Surface Shift) -->
+<div class="md:col-span-7 bg-surface-container-lowest rounded-xl p-8 shadow-sm">
+<h2 class="text-xl font-bold mb-8 text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">inventory_2</span>
+                    Order Summary
+                </h2>
+<div class="space-y-6">
+<div class="flex items-center gap-4 group">
+<div class="w-20 h-24 bg-surface-container-low rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Red premium running sneaker" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCx7C_SCu29srTk7tWhq3icOVTlHVrj0zD9tbL_FcbQL4KUKy1HH4eMWMrBqeGmj5eCjgfh6PJBrcCdnv41kN6EjCku3qK8ptX6wIdcG94HuUOUxUXAwuomltch-domwJT9S2jXffJYjTz56ac0aoG8Kjdvh5qL1UNR4sTCqy5u2k8aLuP6Q5CtlBi3TWMYMSMHm3Dw3KH2HWsljP_yk7crMoCFVqDKHaOAK0Gf8ReRW-YXaXqYF7zR4eOCnrirQegU2d95jbfYJVU"/>
+</div>
+<div class="flex-grow">
+<h3 class="font-bold text-primary">Ultra-Swift Runner Pro</h3>
+<p class="text-sm text-on-surface-variant">Size: 42 • Color: Crimson Red</p>
+<p class="text-sm text-on-surface-variant mt-1">Qty: 1</p>
+</div>
+<div class="text-right">
+<p class="font-bold text-primary">₦ 85,000</p>
+</div>
+</div>
+<div class="flex items-center gap-4 group">
+<div class="w-20 h-24 bg-surface-container-low rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Minimalist luxury wristwatch" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgqBhTdbv5wZWxzBsEei_6Z3ss6LearHmEzHOg2hHQemGuCwg6hogKeMg7SuPIDAssckq9rV33nNq3GbVNcgsQ2jYU_xM-fCGUlf1Nw85mDkxfDEzm0Z8VDAo5vdxDqjCBgFXVDPbwe0LZMEzn4G_5aJVNn9i2j6wzf13TRFAcivQYp9sLb2nAAY8RHAzENbxNzJmRznHzJ5qWNVTgey5VQQl6wmXTcKYAz3svZ-37398z-z0ZeDooENKEAX2hHJx0nv2iAHr8KP0"/>
+</div>
+<div class="flex-grow">
+<h3 class="font-bold text-primary">Signature Series Watch</h3>
+<p class="text-sm text-on-surface-variant">Style: Minimalist Silver</p>
+<p class="text-sm text-on-surface-variant mt-1">Qty: 1</p>
+</div>
+<div class="text-right">
+<p class="font-bold text-primary">₦ 41,500</p>
+</div>
+</div>
+</div>
+<div class="mt-10 pt-8 border-t border-outline-variant/30 space-y-3">
+<div class="flex justify-between text-on-surface-variant">
+<span>Subtotal</span>
+<span class="font-medium text-primary">₦ 126,500</span>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<span>Shipping</span>
+<span class="text-secondary font-medium">Free</span>
+</div>
+<div class="flex justify-between text-xl font-extrabold text-primary pt-4">
+<span>Total Paid</span>
+<span>₦ 126,500</span>
+</div>
+</div>
+</div>
+<!-- Delivery & Payment -->
+<div class="md:col-span-5 space-y-6">
+<!-- Payment Card -->
+<div class="bg-surface-container-low rounded-xl p-8">
+<h2 class="text-lg font-bold mb-4 text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">payments</span>
+                        Payment Method
+                    </h2>
+<div class="flex items-center gap-4">
+<div class="bg-white p-2 rounded-lg shadow-sm border border-outline-variant/20">
+<img class="h-4 w-auto" data-alt="Visa payment network logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALGiBZ-u0vCpbpehmmz4VL04NGk7LLRgXrG5vesNIzP5MKH8WxoqGax6l4cqZVIaJJQzUXXOQ6NJUn3uIJQAr5hnmQRvQUOXyUghh_Ul2Gmk3rkEtpqeNUogJOSXlJ-dGWrIGQnyGAYEZQ3D0ZYx_fK9pHn7KNxP1rR0zWHuQnLQ62OMSgYgvyAjDM0E_gA-mxq2O2IHpgioErcgdvTxFeKroxaCt2gP7C4QcnCCuodEKIW00YFxIHNBTOiVZhVXHU3NkIBIAaZx4"/>
+</div>
+<div>
+<p class="font-semibold text-primary">Visa ending in 4482</p>
+<p class="text-xs text-on-surface-variant">Processed securely</p>
+</div>
+</div>
+</div>
+<!-- Shipping Card -->
+<div class="bg-surface-container-low rounded-xl p-8">
+<h2 class="text-lg font-bold mb-4 text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">local_shipping</span>
+                        Delivery Details
+                    </h2>
+<div class="space-y-4">
+<div>
+<p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Shipping Address</p>
+<p class="text-primary font-medium leading-relaxed">
+                                Amina Suleiman<br/>
+                                14 Admiralty Way, Phase 1<br/>
+                                Lekki, Lagos State<br/>
+                                +234 812 345 6789
+                            </p>
+</div>
+<div class="pt-4 border-t border-outline-variant/20">
+<p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Estimated Arrival</p>
+<p class="text-secondary font-bold text-lg">Thursday, Oct 12th</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Related Items Section (Bento Grid Style) -->
+<section class="mt-24">
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-2xl font-extrabold text-primary tracking-tight">You might also like</h2>
+<a class="text-primary font-bold text-sm underline underline-offset-4 hover:text-secondary transition-colors" href="#">View All Recommendations</a>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+<!-- Product Card 1 -->
+<div class="group">
+<div class="aspect-[4/5] bg-surface-container-low rounded-xl overflow-hidden mb-4 relative">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Classic black t-shirt model shot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_LZDju1W1K3pr9SX5hgQ-AC7ToIGmzWwZqnl4ilXpak2HYL8F9NI6izQeswQfMeml5EY8_PfxSy3KFFb4z0uGol1DTqsNf7OioeL548n3XbM92Gbf5HM9hyVSCX9BsRtXfAowJUVaRIY6xjdogv6Gde6vg2GgdG_gUfDXDTDv0GawHhpRpmILR3U3f5SIBZGbSvJcs1yeHSMQCvAFs-mIVgYzAND-YecOLkNiFJ-4Tr36JJgjDuKJwXStLFFKS4FjniQ90jGGgvg"/>
+<button class="absolute bottom-4 right-4 bg-white/90 backdrop-blur p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-primary">add_shopping_cart</span>
+</button>
+</div>
+<p class="text-xs font-bold text-secondary uppercase tracking-widest mb-1">Essentials</p>
+<h3 class="font-bold text-primary group-hover:text-secondary transition-colors">Tailored Cotton Tee</h3>
+<p class="font-extrabold text-primary mt-1">₦ 12,500</p>
+</div>
+<!-- Product Card 2 -->
+<div class="group">
+<div class="aspect-[4/5] bg-surface-container-low rounded-xl overflow-hidden mb-4 relative">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Premium fabric clothing set" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXNqhpkJy0SVBpvgLcbfYqluf16-rzJbAIkr1_kYzcjnokLcd5lDs6oQkLUBMOkx6k0HlLK0MOS4585E-Q6eqvJWr_Fg9XRBJfNR2GDqnGonmkNBb_2COA051zk080q4MFmjl8BwzSUoy7vQlysn-CnlgColxc1XzxfQvCL8RpzZvVig_hhI4RZLiX2u-yohaUWJ9LRKJ6uz2WdEnFFuyVvoxzwZH95OUb8tS37gZXh23hIBo-b_xFeR8bjLmoapa9HCYxc3ZLzC0"/>
+<button class="absolute bottom-4 right-4 bg-white/90 backdrop-blur p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-primary">add_shopping_cart</span>
+</button>
+<span class="absolute top-4 left-4 bg-secondary text-white text-[10px] font-bold px-2 py-1 rounded">NEW IN</span>
+</div>
+<p class="text-xs font-bold text-secondary uppercase tracking-widest mb-1">Collection</p>
+<h3 class="font-bold text-primary group-hover:text-secondary transition-colors">Linen Blend Jacket</h3>
+<p class="font-extrabold text-primary mt-1">₦ 45,000</p>
+</div>
+<!-- Product Card 3 -->
+<div class="group">
+<div class="aspect-[4/5] bg-surface-container-low rounded-xl overflow-hidden mb-4 relative">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="High-end headphones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYZM2DNWGmianFbf8-q_dM79ayXbllnuDeHsDGTXahlCijP-kl0Ub4tUC-AgqVgLr9cGeMWW_yQIXtcyj9-KKyL5iUYVo16eowG62ywvpcWEp9Qb6NmCCB-beJWYcTybn7fEwRO2qG6WDEzBMIegRFfK27BHpcO_q_GJgJ6eR0OGObg_plLUhlhJwNfWgDgPS3RdAIIFLOJHp4fXOdFU6poYdcAX2yCq9Q3DSQ0k_TQCVHgHsFdTOAOHUgvCCvkaif4T0o4P6tuGI"/>
+<button class="absolute bottom-4 right-4 bg-white/90 backdrop-blur p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-primary">add_shopping_cart</span>
+</button>
+</div>
+<p class="text-xs font-bold text-secondary uppercase tracking-widest mb-1">Tech</p>
+<h3 class="font-bold text-primary group-hover:text-secondary transition-colors">Acoustic Over-Ear</h3>
+<p class="font-extrabold text-primary mt-1">₦ 98,000</p>
+</div>
+<!-- Product Card 4 -->
+<div class="group">
+<div class="aspect-[4/5] bg-surface-container-low rounded-xl overflow-hidden mb-4 relative">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Modern leather backpack" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgdI2U-90Hxtq63vHj3kf-lfBxyVIrRLxBa2_qDBfO-67MP4OtZV8_qOPi8GqVt2q5mmIUlb0VKhv27Lf_ZfA4k7yIgQB3l6pdGS-9XujfzzxY8pCOSfJEZxPkEBd2XhIVctwr0NJ7iuUJxNP2ZlEcwz5MAcI_odtyxbm8mUAE8xo471D5MyPzyVpANqw8rPbWj6oF7ceMWCS86PFGT3OXkT9lwIsUk6a8yX3vBs_sqpsO0S5qZo-WNZYmk5oSurUUFnRM9oVw2QI"/>
+<button class="absolute bottom-4 right-4 bg-white/90 backdrop-blur p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-primary">add_shopping_cart</span>
+</button>
+</div>
+<p class="text-xs font-bold text-secondary uppercase tracking-widest mb-1">Travel</p>
+<h3 class="font-bold text-primary group-hover:text-secondary transition-colors">Urban Commuter Bag</h3>
+<p class="font-extrabold text-primary mt-1">₦ 32,500</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation (Mobile Only - Shared Component) -->
+<footer class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-safe bg-white dark:bg-slate-900 shadow-[0px_-4px_20px_rgba(15,23,42,0.06)] rounded-t-2xl z-50">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-90 tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[11px] font-semibold font-['Plus_Jakarta_Sans']">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-90 tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="text-[11px] font-semibold font-['Plus_Jakarta_Sans']">Search</span>
+</a>
+<a class="flex flex-col items-center justify-center text-orange-600 dark:text-orange-500 bg-orange-50 dark:bg-orange-900/20 rounded-xl px-3 py-1 transition-all active:scale-90 tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+<span class="text-[11px] font-semibold font-['Plus_Jakarta_Sans']">Cart</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-90 tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[11px] font-semibold font-['Plus_Jakarta_Sans']">Profile</span>
+</a>
+</footer>
+</body></html>

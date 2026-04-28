@@ -1,0 +1,66 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">{{ page_title }}</h2>
+  </div>
+  <a href="{% url 'dashboard:user_settings:group_list' prefix %}" class="text-sm text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 flex items-center space-x-1">
+    <span class="material-icons-outlined text-sm">arrow_back</span><span>Back to groups</span>
+  </a>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2">
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 space-y-5">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Name *</label>
+          {{ form.name }}
+          {% if form.name.errors %}<p class="text-red-500 text-xs mt-1">{{ form.name.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Slug</label>
+          {{ form.slug }}
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Leave blank to auto-generate</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Description</label>
+          {{ form.description }}
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Type</label>
+            {{ form.group_type }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Colour</label>
+            {{ form.color }}
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Sort Order</label>
+          {{ form.sort_order }}
+        </div>
+      </div>
+    </div>
+    <div class="space-y-4">
+      {% if form.non_field_errors %}
+      <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">
+        {% for error in form.non_field_errors %}<p class="text-red-600 text-sm">{{ error }}</p>{% endfor %}
+      </div>
+      {% endif %}
+      <button type="submit" class="w-full bg-primary text-white py-2.5 rounded-lg font-medium hover:bg-blue-600 transition-colors">
+        {% if is_edit %}Save Group{% else %}Create Group{% endif %}
+      </button>
+      <a href="{% url 'dashboard:user_settings:group_list' prefix %}"
+         class="block w-full text-center py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</a>
+    </div>
+  </div>
+</form>
+<script>
+  document.querySelectorAll("input[type=text], input[type=number], textarea, select").forEach(el => {
+    el.classList.add("w-full","px-3","py-2","border","border-slate-300","dark:border-slate-600","rounded-lg","text-sm","dark:bg-slate-700","dark:text-white","focus:ring-2","focus:ring-primary","focus:outline-none");
+  });
+</script>
+{% endblock %}

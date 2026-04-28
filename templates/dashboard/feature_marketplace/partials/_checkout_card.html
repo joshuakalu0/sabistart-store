@@ -1,0 +1,159 @@
+{% load i18n %}
+<aside class="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-slate-200" id="checkout-card">
+
+  <h2 class="text-lg font-semibold text-slate-900">{% trans "Buy now" %}</h2>
+
+  <div id="checkout-error" class="mt-4 hidden rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-600 ring-1 ring-red-200"></div>
+
+  <form id="checkout-form"
+        method="post"
+        action="{% url 'dashboard:feature_marketplace:checkout_direct' prefix=prefix %}"
+        class="mt-6 space-y-4"
+        novalidate>
+    {% csrf_token %}
+
+    {% for field in form %}{% if field.is_hidden %}{{ field }}{% endif %}{% endfor %}
+
+    {% for field in form %}
+      {% if not field.is_hidden %}
+      <div class="space-y-1">
+        <label for="{{ field.id_for_label }}" class="block text-xs font-medium text-slate-500 uppercase tracking-wide">
+          {{ field.label }}
+        </label>
+        {{ field }}
+        {% if field.errors %}<p class="text-xs text-red-500">{{ field.errors.0 }}</p>{% endif %}
+      </div>
+      {% endif %}
+    {% endfor %}
+
+    <div id="price-summary" class="rounded-2xl bg-slate-50 p-4 space-y-2 transition-opacity duration-200">
+      {% if preview and preview.success %}
+        <div class="flex items-center justify-between text-sm">
+          <span class="text-slate-500">{% trans "Subtotal" %}</span>
+          <span id="ps-subtotal" class="tabular-nums text-slate-700">{{ preview.currency }} {{ preview.subtotal }}</span>
+        </div>
+        {% if preview.discount_amount %}
+        <div class="flex items-center justify-between text-sm">
+          <span class="text-slate-500">{% trans "Discount" %}</span>
+          <span id="ps-discount" class="tabular-nums text-green-600">– {{ preview.currency }} {{ preview.discount_amount }}</span>
+        </div>
+        {% endif %}
+        <div class="flex items-center justify-between text-sm border-t border-slate-200 pt-2 mt-1">
+          <span class="font-semibold text-slate-900">{% trans "Total" %}</span>
+          <span id="ps-total" class="font-semibold tabular-nums text-slate-900">{{ preview.currency }} {{ preview.total_amount }}</span>
+        </div>
+        <p id="ps-gateways" class="text-xs text-slate-400 pt-1">
+          {{ preview.gateways|length }} {% trans "gateway" %}{{ preview.gateways|length|pluralize }} {% trans "available" %}
+        </p>
+      {% else %}
+        <p class="text-sm text-slate-400 text-center py-2">{% trans "Select options to see pricing" %}</p>
+      {% endif %}
+    </div>
+
+    <button id="checkout-btn" type="submit"
+            class="relative w-full rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white
+                   transition-all hover:opacity-90 focus:outline-none disabled:opacity-60
+                   disabled:cursor-not-allowed flex items-center justify-center gap-2">
+      <span id="checkout-btn-text">{% trans "Continue to checkout" %} →</span>
+      <svg id="checkout-spinner" class="hidden h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+      </svg>
+    </button>
+  </form>
+</aside>
+
+<script>
+(function () {
+  "use strict";
+
+  const form    = document.getElementById("checkout-form");
+  const btn     = document.getElementById("checkout-btn");
+  const btnText = document.getElementById("checkout-btn-text");
+  const spinner = document.getElementById("checkout-spinner");
+  const errBox  = document.getElementById("checkout-error");
+  const summary = document.getElementById("price-summary");
+  const PREVIEW_URL = "{% url 'dashboard:feature_marketplace:preview_api' prefix=prefix %}";
+
+  const WATCH_NAMES = ["currency", "billing_cycle", "quantity", "coupon_code"];
+
+  let debounceTimer = null;
+  function debounce(fn, ms) { clearTimeout(debounceTimer); debounceTimer = setTimeout(fn, ms); }
+
+  const SKIP_IN_QS = new Set(["csrfmiddlewaretoken", "gateway_provider"]);
+
+  function buildPreviewQS() {
+    const fd = new FormData(form);
+    const p  = new URLSearchParams();
+    for (const [k, v] of fd.entries()) {
+      if (!SKIP_IN_QS.has(k) && v) p.set(k, v);
+    }
+    return p.toString();
+  }
+
+  function applyPreview(data) {
+    const fmt = v => parseFloat(v || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    const get = id => document.getElementById(id);
+
+    if (get("ps-subtotal")) get("ps-subtotal").textContent = data.currency + " " + fmt(data.subtotal);
+    if (get("ps-discount")) get("ps-discount").textContent = "– " + data.currency + " " + fmt(data.discount);
+    if (get("ps-total"))    get("ps-total").textContent    = data.currency + " " + fmt(data.total_amount);
+
+    const gwEl = get("ps-gateways");
+    if (gwEl) { const n = (data.gateways||[]).length; gwEl.textContent = n + " gateway" + (n!==1?"s":"") + " available"; }
+
+    const gwSel = form.querySelector('[name="gateway_provider"]');
+    if (gwSel && data.gateways && data.gateways.length) {
+      const prev = gwSel.value;
+      gwSel.innerHTML = '<option value="">Select a payment gateway</option>';
+      data.gateways.forEach(gw => {
+        const o = document.createElement("option");
+        o.value = gw.provider; o.textContent = gw.name;
+        if (gw.provider === prev || data.gateways.length === 1) o.selected = true;
+        gwSel.appendChild(o);
+      });
+    }
+    summary.classList.remove("opacity-50");
+  }
+
+  function refreshPreview() {
+    summary.classList.add("opacity-50");
+    fetch(PREVIEW_URL + "?" + buildPreviewQS(), {credentials:"same-origin"})
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(data => { if (data.success) applyPreview(data); else summary.classList.remove("opacity-50"); })
+      .catch(() => summary.classList.remove("opacity-50"));
+  }
+
+  WATCH_NAMES.forEach(name => {
+    const el = form.querySelector('[name="' + name + '"]');
+    if (!el) return;
+    el.addEventListener(el.tagName==="SELECT" ? "change" : "input", () => debounce(refreshPreview, 450));
+  });
+
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    errBox.classList.add("hidden");
+    btn.disabled = true;
+    btnText.textContent = "Processing…";
+    spinner.classList.remove("hidden");
+    try {
+      const res  = await fetch(form.action, {method:"POST", body:new FormData(form), credentials:"same-origin", headers:{"X-Requested-With":"XMLHttpRequest"}});
+      const data = await res.json();
+      if (data.success && data.redirect_url) {
+        btnText.textContent = "Redirecting…";
+        window.location.href = data.redirect_url;
+        return;
+      }
+      errBox.textContent = data.error || "Something went wrong. Please try again.";
+      errBox.classList.remove("hidden");
+    } catch {
+      errBox.textContent = "Network error — please check your connection and retry.";
+      errBox.classList.remove("hidden");
+    } finally {
+      btn.disabled = false;
+      btnText.textContent = "Continue to checkout →";
+      spinner.classList.add("hidden");
+    }
+  });
+})();
+</script>

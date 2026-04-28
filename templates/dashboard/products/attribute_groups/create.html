@@ -1,0 +1,165 @@
+{% extends "dashboard/_partials/base.html" %} {% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      Create Attribute Group
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Add a new attribute group to organize your product attributes
+    </p>
+  </div>
+  <a
+    href="{% url 'dashboard:product_settings:attribute_group_list' prefix %}"
+    class="bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors flex items-center space-x-2"
+  >
+    <span class="material-icons-outlined text-sm">arrow_back</span>
+    <span>Back to List</span>
+  </a>
+</div>
+
+<div class="space-y-6">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- Basic Information Section -->
+    <div
+      class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+    >
+      <div
+        class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600"
+      >
+        <h3
+          class="text-lg font-semibold text-slate-900 dark:text-white flex items-center"
+        >
+          <span
+            class="material-icons-outlined text-lg mr-3 text-blue-600 dark:text-blue-400"
+            >info</span
+          >
+          Basic Information
+        </h3>
+        <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+          Enter the basic details for your attribute group
+        </p>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              >Name <span class="text-red-500">*</span></label
+            >
+            {{ form.name }} {% if form.name.errors %}<span
+              class="text-red-500 text-sm"
+              >{{ form.name.errors.0 }}</span
+            >{% endif %}
+          </div>
+          <div>
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              >Slug <span class="text-red-500">*</span></label
+            >
+            <div class="flex space-x-2">
+              {{ form.slug }}
+              <button
+                type="button"
+                onclick="generateSlug()"
+                class="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center"
+                title="Generate slug from name"
+              >
+                <span class="material-icons-outlined text-sm">refresh</span>
+              </button>
+            </div>
+            {% if form.slug.errors %}<span class="text-red-500 text-sm"
+              >{{ form.slug.errors.0 }}</span
+            >{% endif %}
+          </div>
+          <div>
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              >Display Order</label
+            >
+            {{ form.display_order }} {% if form.display_order.errors %}<span
+              class="text-red-500 text-sm"
+              >{{ form.display_order.errors.0 }}</span
+            >{% endif %}
+          </div>
+          <div class="md:col-span-2">
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              >Description</label
+            >
+            {{ form.description }} {% if form.description.errors %}<span
+              class="text-red-500 text-sm"
+              >{{ form.description.errors.0 }}</span
+            >{% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6"
+    >
+      <div class="flex items-center justify-end space-x-4">
+        <button
+          type="button"
+          onclick="window.location.href='{% url 'dashboard:product_settings:attribute_group_list' prefix %}'"
+          class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+        >
+          <span class="material-icons-outlined text-sm">save</span>
+          <span>Create Attribute Group</span>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  function slugify(text) {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w\-]+/g, "")
+      .replace(/\-\-+/g, "-")
+      .replace(/^-+/, "")
+      .replace(/-+$/, "");
+  }
+
+  function generateSlug() {
+    const nameField = document.getElementById("id_name");
+    const slugField = document.getElementById("id_slug");
+
+    if (nameField && slugField && nameField.value) {
+      slugField.value = slugify(nameField.value);
+    }
+  }
+
+  // Auto-generate slug as user types
+  document.addEventListener("DOMContentLoaded", function () {
+    const nameField = document.getElementById("id_name");
+    const slugField = document.getElementById("id_slug");
+
+    if (nameField && slugField) {
+      nameField.addEventListener("input", function () {
+        if (!slugField.value || slugField.dataset.autoGenerated !== "false") {
+          slugField.value = slugify(this.value);
+          slugField.dataset.autoGenerated = "true";
+        }
+      });
+
+      // Mark as manually edited if user types in slug field
+      slugField.addEventListener("input", function () {
+        this.dataset.autoGenerated = "false";
+      });
+    }
+  });
+</script>
+{% endblock %}

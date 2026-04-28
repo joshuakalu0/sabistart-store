@@ -1,0 +1,1084 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{{ title }} | Store Admin</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "surface": "#f7f9fb",
+                "inverse-primary": "#618bff",
+                "on-primary-fixed-variant": "#0050d4",
+                "error-dim": "#4e0309",
+                "on-tertiary-container": "#514d68",
+                "on-surface-variant": "#566166",
+                "on-primary-container": "#0048bf",
+                "inverse-on-surface": "#9a9d9f",
+                "outline-variant": "#a9b4b9",
+                "on-primary": "#f8f7ff",
+                "surface-container-high": "#e1e9ee",
+                "primary-dim": "#0048c1",
+                "background": "#f7f9fb",
+                "tertiary-container": "#e3dbfd",
+                "secondary": "#506076",
+                "surface-container-lowest": "#ffffff",
+                "on-background": "#2a3439",
+                "surface-bright": "#f7f9fb",
+                "secondary-dim": "#44546a",
+                "surface-tint": "#0053db",
+                "on-tertiary-fixed": "#3e3a54",
+                "secondary-container": "#d3e4fe",
+                "primary": "#0053db",
+                "surface-container-highest": "#d9e4ea",
+                "on-secondary": "#f7f9ff",
+                "tertiary-dim": "#54506b",
+                "surface-container": "#e8eff3",
+                "on-error": "#fff7f6",
+                "surface-container-low": "#f0f4f7",
+                "primary-fixed-dim": "#c7d3ff",
+                "primary-fixed": "#dbe1ff",
+                "on-tertiary": "#fcf7ff",
+                "error-container": "#fe8983",
+                "on-secondary-container": "#435368",
+                "tertiary-fixed": "#e3dbfd",
+                "on-secondary-fixed-variant": "#4d5d73",
+                "on-error-container": "#752121",
+                "tertiary": "#605c78",
+                "inverse-surface": "#0b0f10",
+                "secondary-fixed": "#d3e4fe",
+                "error": "#9f403d",
+                "outline": "#717c82",
+                "primary-container": "#dbe1ff",
+                "on-tertiary-fixed-variant": "#5b5672",
+                "on-primary-fixed": "#003798",
+                "on-surface": "#2a3439",
+                "on-secondary-fixed": "#314055",
+                "tertiary-fixed-dim": "#d4cdee",
+                "secondary-fixed-dim": "#c5d6f0",
+                "surface-dim": "#cfdce3",
+                "surface-variant": "#d9e4ea"
+              },
+              fontFamily: {
+                "headline": ["Manrope"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+            },
+          },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+
+        /* Form Error States */
+        .form-field-error {
+            border-bottom-color: #9f403d !important;
+            background-color: #fef2f2 !important;
+        }
+        .error-message {
+            color: #9f403d;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Toggle Switch Styling */
+        .toggle-checkbox {
+            opacity: 0;
+            position: absolute;
+        }
+
+        /* Color Input */
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 4px;
+        }
+
+        /* Layout Selection Cards */
+        .layout-option.selected {
+            border-color: #0053db;
+        }
+        .layout-option.selected .material-symbols-outlined {
+            color: #0053db;
+        }
+        .layout-option.selected span {
+            color: #0053db;
+        }
+
+        /* Logo Alignment Selection */
+        .logo-align-option.selected {
+            border-color: #0053db;
+        }
+        .logo-align-option.selected .material-symbols-outlined {
+            color: #0053db;
+        }
+        .logo-align-option.selected span {
+            color: #0053db;
+        }
+
+        /* Cart Icon Selection */
+        .cart-icon-option.selected {
+            border-color: #0053db;
+        }
+        .cart-icon-option.selected .material-symbols-outlined {
+            color: #0053db;
+        }
+
+        /* Conditional Section Opacity */
+        .conditional-section {
+            transition: opacity 0.3s ease;
+        }
+        .conditional-section.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Range Input */
+        input[type="range"] {
+            accent-color: #0053db;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-background min-h-screen">
+
+<!-- Django Messages Framework -->
+{% if messages %}
+<div class="fixed top-24 right-8 z-50 space-y-2">
+    {% for message in messages %}
+    <div class="flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg" style="background-color: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#9f403d{% else %}#ffffff{% endif %}; color: {% if message.tags == 'error' %}#fff7f6{% else %}#2a3439{% endif %};">
+        <span class="material-symbols-outlined text-sm">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span class="font-medium text-sm">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md ambient shadow-sm dark:shadow-none">
+    <div class="flex items-center justify-between px-8 py-4 max-w-full mx-auto">
+        <div class="flex items-center gap-8">
+            <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{{ title }}</span>
+            <nav class="hidden md:flex items-center gap-6">
+                <a class="text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-400 pb-1 font-medium" href="#layout">Layout</a>
+                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors font-medium" href="#logo">Logo</a>
+                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors font-medium" href="#announcement">Announcement</a>
+                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors font-medium" href="#navigation">Navigation</a>
+                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors font-medium" href="#search">Search</a>
+                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors font-medium" href="#cart">Cart</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="{% url 'header_preview' %}" class="px-4 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-all">Preview</a>
+            <button type="submit" form="header-form" class="px-6 py-2 bg-primary text-on-primary rounded-md font-bold shadow-sm hover:bg-primary-dim active:scale-95 duration-150 ease-in-out">
+                {% if is_edit %}Save Changes{% else %}Create Settings{% endif %}
+            </button>
+            {% if is_edit %}
+            <a href="{% url 'reset_header_settings' %}" class="px-4 py-2 text-sm font-medium text-orange-600 hover:bg-orange-50 rounded-md transition-all" title="Reset to defaults" onclick="return confirm('Are you sure you want to reset to default settings?')">
+                <span class="material-symbols-outlined text-sm align-middle">refresh</span>
+                Reset
+            </a>
+            {% endif %}
+            <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden ml-2">
+                <img alt="Administrator Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfw0J6C0s6Snz-7Pbu0B4ZSfu3VtFK7oJ95IjWK5-nlu656xPvBlLYs6BdmVj4bTgp2LgqXXetOlvH2G69ego0EvmevYDc5S1tj4PM2eUe0QMDNfb6UR8P3v8R7KHBAK0PTEIs0-IOYGYqAFBnxOZbarc-vyPbOgvESoJXSO3do_MsiLjrUz4Wb16q_0lDx7agiZigXUUTybi9yfmOCNRCCwc8efw1TcZTFz_hPIzLt8KEOKuqUHh586yjiXx_wioLxL5mRGkF3Ks"/>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="pt-24 px-8 pb-20 max-w-[1600px] mx-auto grid grid-cols-12 gap-8">
+    <form id="header-form" method="post" action="{{ action_url }}" novalidate>
+        {% csrf_token %}
+
+        <!-- Configuration Canvas -->
+        <div class="col-span-12 lg:col-span-7 space-y-12">
+
+            <!-- Section: Header Layout -->
+            <section class="bg-surface-container-low p-10 rounded-xl space-y-8" id="layout">
+                <div class="flex items-center justify-between border-b border-outline-variant/20 pb-4">
+                    <h2 class="text-2xl font-extrabold text-on-surface tracking-tight">Header Layout</h2>
+                    <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant/60">Module 01</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Layout Select -->
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-on-surface-variant">Layout Architecture</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="layout-option flex flex-col items-center justify-center p-4 bg-surface-container-lowest {% if form.layout.value == 'default' %}border-2 border-primary{% else %}border border-transparent hover:border-outline-variant/30{% endif %} rounded-xl cursor-pointer">
+                                <input type="radio" name="layout_visual" value="default" class="hidden" {% if form.layout.value == 'default' %}checked{% endif %}/>
+                                <span class="material-symbols-outlined {% if form.layout.value == 'default' %}text-primary{% else %}text-on-surface-variant{% endif %} mb-2">view_headline</span>
+                                <span class="text-xs font-bold {% if form.layout.value == 'default' %}text-primary{% else %}text-on-surface-variant{% endif %}">Default</span>
+                            </label>
+                            <label class="layout-option flex flex-col items-center justify-center p-4 bg-surface-container-lowest {% if form.layout.value == 'centered' %}border-2 border-primary{% else %}border border-transparent hover:border-outline-variant/30{% endif %} rounded-xl cursor-pointer">
+                                <input type="radio" name="layout_visual" value="centered" class="hidden" {% if form.layout.value == 'centered' %}checked{% endif %}/>
+                                <span class="material-symbols-outlined {% if form.layout.value == 'centered' %}text-primary{% else %}text-on-surface-variant{% endif %} mb-2">format_align_center</span>
+                                <span class="text-xs font-bold {% if form.layout.value == 'centered' %}text-primary{% else %}text-on-surface-variant{% endif %}">Centered</span>
+                            </label>
+                            <label class="layout-option flex flex-col items-center justify-center p-4 bg-surface-container-lowest {% if form.layout.value == 'minimal' %}border-2 border-primary{% else %}border border-transparent hover:border-outline-variant/30{% endif %} rounded-xl cursor-pointer">
+                                <input type="radio" name="layout_visual" value="minimal" class="hidden" {% if form.layout.value == 'minimal' %}checked{% endif %}/>
+                                <span class="material-symbols-outlined {% if form.layout.value == 'minimal' %}text-primary{% else %}text-on-surface-variant{% endif %} mb-2">minimize</span>
+                                <span class="text-xs font-bold {% if form.layout.value == 'minimal' %}text-primary{% else %}text-on-surface-variant{% endif %}">Minimal</span>
+                            </label>
+                            <label class="layout-option flex flex-col items-center justify-center p-4 bg-surface-container-lowest {% if form.layout.value == 'sidebar' %}border-2 border-primary{% else %}border border-transparent hover:border-outline-variant/30{% endif %} rounded-xl cursor-pointer">
+                                <input type="radio" name="layout_visual" value="sidebar" class="hidden" {% if form.layout.value == 'sidebar' %}checked{% endif %}/>
+                                <span class="material-symbols-outlined {% if form.layout.value == 'sidebar' %}text-primary{% else %}text-on-surface-variant{% endif %} mb-2">dock_to_left</span>
+                                <span class="text-xs font-bold {% if form.layout.value == 'sidebar' %}text-primary{% else %}text-on-surface-variant{% endif %}">Sidebar</span>
+                            </label>
+                        </div>
+                        {{ form.layout }}
+                        {% if form.layout.errors %}
+                            {% for error in form.layout.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Toggles -->
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-xl">
+                            <div>
+                                <p class="text-sm font-bold">Sticky Header</p>
+                                <p class="text-xs text-on-surface-variant">Fixes header to top on scroll</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                {{ form.is_sticky }}
+                                <div class="w-12 h-6 bg-primary rounded-full relative" style="background-color: {% if form.is_sticky.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                    <div class="absolute w-4 h-4 bg-white rounded-full transition-all" style="{% if form.is_sticky.value %}right: 4px;{% else %}left: 4px;{% endif %} top: 4px;"></div>
+                                </div>
+                            </label>
+                        </div>
+                        {% if form.is_sticky.errors %}
+                            {% for error in form.is_sticky.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-xl">
+                            <div>
+                                <p class="text-sm font-bold">Transparent</p>
+                                <p class="text-xs text-on-surface-variant">Overlays header on hero image</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                {{ form.is_transparent }}
+                                <div class="w-12 h-6 bg-surface-container-highest rounded-full relative" style="background-color: {% if form.is_transparent.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                    <div class="absolute w-4 h-4 bg-white rounded-full transition-all" style="{% if form.is_transparent.value %}right: 4px;{% else %}left: 4px;{% endif %} top: 4px;"></div>
+                                </div>
+                            </label>
+                        </div>
+                        {% if form.is_transparent.errors %}
+                            {% for error in form.is_transparent.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Color & Height -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-on-surface-variant uppercase" for="{{ form.background_color.id_for_label }}">Background Color</label>
+                        <div class="flex items-center gap-2 p-3 bg-surface-container-lowest rounded-md border-b-2 border-primary">
+                            {{ form.background_color }}
+                            <input class="bg-transparent border-none text-sm font-mono w-full focus:ring-0" type="text" value="{{ form.background_color.value|default:'#FFFFFF' }}" id="background-color-text"/>
+                        </div>
+                        {% if form.background_color.errors %}
+                            {% for error in form.background_color.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-on-surface-variant uppercase" for="{{ form.text_color.id_for_label }}">Text Color</label>
+                        <div class="flex items-center gap-2 p-3 bg-surface-container-lowest rounded-md border-b-2 border-primary">
+                            {{ form.text_color }}
+                            <input class="bg-transparent border-none text-sm font-mono w-full focus:ring-0" type="text" value="{{ form.text_color.value|default:'#000000' }}" id="text-color-text"/>
+                        </div>
+                        {% if form.text_color.errors %}
+                            {% for error in form.text_color.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-on-surface-variant uppercase" for="{{ form.height.id_for_label }}">Height (px)</label>
+                        <div class="p-3 bg-surface-container-lowest rounded-md border-b-2 border-primary">
+                            {{ form.height }}
+                            <div class="flex justify-between mt-1 text-[10px] font-bold text-on-surface-variant">
+                                <span>60px</span>
+                                <span id="height-display">{{ form.height.value|default:80 }}px</span>
+                                <span>150px</span>
+                            </div>
+                        </div>
+                        {% if form.height.errors %}
+                            {% for error in form.height.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Logo Settings -->
+            <section class="bg-surface-container-low p-10 rounded-xl space-y-8" id="logo">
+                <div class="flex items-center justify-between border-b border-outline-variant/20 pb-4">
+                    <h2 class="text-2xl font-extrabold text-on-surface tracking-tight">Logo Settings</h2>
+                    <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant/60">Module 02</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="space-y-4">
+                        <label class="text-sm font-bold text-on-surface" for="{{ form.logo_max_width.id_for_label }}">Max Width</label>
+                        <div class="p-6 bg-surface-container-lowest rounded-2xl border-b-2 border-primary space-y-4">
+                            <div class="flex justify-center mb-4">
+                                <div class="bg-surface-container p-2 rounded w-48 h-12 flex items-center justify-center overflow-hidden">
+                                    <span class="text-xs text-on-surface-variant font-mono">LOGO_PREVIEW</span>
+                                </div>
+                            </div>
+                            {{ form.logo_max_width }}
+                            <div class="text-center text-sm font-bold text-primary" id="logo-width-display">{{ form.logo_max_width.value|default:180 }}px</div>
+                        </div>
+                        {% if form.logo_max_width.errors %}
+                            {% for error in form.logo_max_width.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="space-y-4">
+                        <label class="text-sm font-bold text-on-surface">Logo Alignment</label>
+                        <div class="grid grid-cols-3 gap-4 h-full">
+                            <label class="logo-align-option flex flex-col items-center justify-center bg-surface-container-lowest {% if form.logo_position.value == 'left' %}border-2 border-primary{% else %}border border-transparent hover:border-outline-variant/30{% endif %} rounded-xl cursor-pointer">
+                                <input type="radio" name="logo_position_visual" value="left" class="hidden" {% if form.logo_position.value == 'left' %}checked{% endif %}/>
+                                <span class="material-symbols-outlined {% if form.logo_position.value == 'left' %}text-primary{% else %}text-on-surface-variant{% endif %}">align_horizontal_left</span>
+                                <span class="text-xs mt-2 font-bold {% if form.logo_position.value == 'left' %}text-primary{% else %}text-on-surface-variant{% endif %}">Left</span>
+                            </label>
+                            <label class="logo-align-option flex flex-col items-center justify-center bg-surface-container-lowest {% if form.logo_position.value == 'center' %}border-2 border-primary{% else %}border border-transparent hover:border-outline-variant/30{% endif %} rounded-xl cursor-pointer">
+                                <input type="radio" name="logo_position_visual" value="center" class="hidden" {% if form.logo_position.value == 'center' %}checked{% endif %}/>
+                                <span class="material-symbols-outlined {% if form.logo_position.value == 'center' %}text-primary{% else %}text-on-surface-variant{% endif %}">align_horizontal_center</span>
+                                <span class="text-xs mt-2 font-bold {% if form.logo_position.value == 'center' %}text-primary{% else %}text-on-surface-variant{% endif %}">Center</span>
+                            </label>
+                            <label class="logo-align-option flex flex-col items-center justify-center bg-surface-container-lowest {% if form.logo_position.value == 'right' %}border-2 border-primary{% else %}border border-transparent hover:border-outline-variant/30{% endif %} rounded-xl cursor-pointer">
+                                <input type="radio" name="logo_position_visual" value="right" class="hidden" {% if form.logo_position.value == 'right' %}checked{% endif %}/>
+                                <span class="material-symbols-outlined {% if form.logo_position.value == 'right' %}text-primary{% else %}text-on-surface-variant{% endif %}">align_horizontal_right</span>
+                                <span class="text-xs mt-2 font-bold {% if form.logo_position.value == 'right' %}text-primary{% else %}text-on-surface-variant{% endif %}">Right</span>
+                            </label>
+                        </div>
+                        {{ form.logo_position }}
+                        {% if form.logo_position.errors %}
+                            {% for error in form.logo_position.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Announcement Bar -->
+            <section class="bg-surface-container-low p-10 rounded-xl space-y-8" id="announcement">
+                <div class="flex items-center justify-between border-b border-outline-variant/20 pb-4">
+                    <h2 class="text-2xl font-extrabold text-on-surface tracking-tight">Announcement Bar</h2>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-bold text-on-surface-variant uppercase">Enabled</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            {{ form.show_announcement_bar }}
+                            <div class="w-10 h-5 bg-primary rounded-full relative" style="background-color: {% if form.show_announcement_bar.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                <div class="absolute w-4 h-4 bg-white rounded-full transition-all" style="{% if form.show_announcement_bar.value %}right: 4px;{% else %}left: 4px;{% endif %} top: 4px;"></div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                {% if form.show_announcement_bar.errors %}
+                    {% for error in form.show_announcement_bar.errors %}
+                        <p class="error-message">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="bg-primary/10 border border-primary/20 rounded-lg p-3 flex items-center justify-center gap-4 {% if not form.show_announcement_bar.value %}conditional-section disabled{% endif %}" id="announcement-preview-section">
+                    <span class="text-sm font-bold text-primary">PREVIEW:</span>
+                    <div class="bg-primary text-on-primary text-[10px] font-bold px-4 py-1.5 rounded-full flex items-center gap-2">
+                        {{ form.announcement_text.value|default:'Free shipping on all orders over $150' }}
+                        <span class="material-symbols-outlined text-xs">arrow_forward</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 {% if not form.show_announcement_bar.value %}conditional-section disabled{% endif %}" id="announcement-section">
+                    <div class="col-span-2 space-y-2">
+                        <label class="text-xs font-bold text-on-surface-variant uppercase" for="{{ form.announcement_text.id_for_label }}">Announcement Text</label>
+                        {{ form.announcement_text }}
+                        {% if form.announcement_text.errors %}
+                            {% for error in form.announcement_text.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-on-surface-variant uppercase" for="{{ form.announcement_background_color.id_for_label }}">Bar Background</label>
+                        <div class="flex items-center gap-2 p-3 bg-surface-container-lowest rounded-md">
+                            {{ form.announcement_background_color }}
+                            <input class="bg-transparent border-none text-sm font-mono w-full focus:ring-0" type="text" value="{{ form.announcement_background_color.value|default:'#000000' }}" id="announcement-bg-text"/>
+                        </div>
+                        {% if form.announcement_background_color.errors %}
+                            {% for error in form.announcement_background_color.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-on-surface-variant uppercase" for="{{ form.announcement_text_color.id_for_label }}">Text Color</label>
+                        <div class="flex items-center gap-2 p-3 bg-surface-container-lowest rounded-md">
+                            {{ form.announcement_text_color }}
+                            <input class="bg-transparent border-none text-sm font-mono w-full focus:ring-0" type="text" value="{{ form.announcement_text_color.value|default:'#FFFFFF' }}" id="announcement-text-color-text"/>
+                        </div>
+                        {% if form.announcement_text_color.errors %}
+                            {% for error in form.announcement_text_color.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="col-span-2 space-y-2">
+                        <label class="text-xs font-bold text-on-surface-variant uppercase" for="{{ form.announcement_link.id_for_label }}">Announcement Link (Optional)</label>
+                        {{ form.announcement_link }}
+                        {% if form.announcement_link.errors %}
+                            {% for error in form.announcement_link.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Search & Cart (Combined Logic) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Search -->
+                <section class="bg-surface-container-low p-8 rounded-xl space-y-6" id="search">
+                    <h3 class="text-xl font-bold">Search Settings</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium">Show Search</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                {{ form.show_search }}
+                                <div class="w-8 h-4 bg-primary rounded-full relative" style="background-color: {% if form.show_search.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                    <div class="absolute w-3 h-3 bg-white rounded-full transition-all" style="{% if form.show_search.value %}right: 4px;{% else %}left: 4px;{% endif %} top: 4px;"></div>
+                                </div>
+                            </label>
+                        </div>
+                        {% if form.show_search.errors %}
+                            {% for error in form.show_search.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="space-y-2 {% if not form.show_search.value %}conditional-section disabled{% endif %}" id="search-section">
+                            <label class="text-[10px] font-bold text-on-surface-variant uppercase" for="{{ form.search_style.id_for_label }}">Style</label>
+                            {{ form.search_style }}
+                            {% if form.search_style.errors %}
+                                {% for error in form.search_style.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="p-4 bg-surface-container-lowest rounded-xl {% if not form.show_search.value %}conditional-section disabled{% endif %}">
+                            <div class="flex items-center gap-2 px-3 py-2 bg-surface-container rounded-full text-on-surface-variant/50">
+                                <span class="material-symbols-outlined text-sm">search</span>
+                                <span class="text-[11px] font-medium italic">{{ form.search_placeholder.value|default:'Search products...' }}</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 {% if not form.show_search.value %}conditional-section disabled{% endif %}">
+                            <label class="text-[10px] font-bold text-on-surface-variant uppercase" for="{{ form.search_placeholder.id_for_label }}">Placeholder Text</label>
+                            {{ form.search_placeholder }}
+                            {% if form.search_placeholder.errors %}
+                                {% for error in form.search_placeholder.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Cart & Account -->
+                <section class="bg-surface-container-low p-8 rounded-xl space-y-6" id="cart">
+                    <h3 class="text-xl font-bold">Cart &amp; Identity</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium">Show Cart Icon</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                {{ form.show_cart_icon }}
+                                <div class="w-8 h-4 bg-primary rounded-full relative" style="background-color: {% if form.show_cart_icon.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                    <div class="absolute w-3 h-3 bg-white rounded-full transition-all" style="{% if form.show_cart_icon.value %}right: 4px;{% else %}left: 4px;{% endif %} top: 4px;"></div>
+                                </div>
+                            </label>
+                        </div>
+                        {% if form.show_cart_icon.errors %}
+                            {% for error in form.show_cart_icon.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="flex items-center gap-4 py-2 {% if not form.show_cart_icon.value %}conditional-section disabled{% endif %}" id="cart-icon-section">
+                            <label class="cart-icon-option w-10 h-10 flex items-center justify-center bg-surface-container-lowest {% if form.cart_icon_style.value == 'bag' %}border-2 border-primary{% else %}border border-transparent{% endif %} rounded-lg cursor-pointer">
+                                <input type="radio" name="cart_icon_visual" value="bag" class="hidden" {% if form.cart_icon_style.value == 'bag' %}checked{% endif %}/>
+                                <span class="material-symbols-outlined {% if form.cart_icon_style.value == 'bag' %}text-primary{% else %}text-on-surface-variant{% endif %}">shopping_bag</span>
+                            </label>
+                            <label class="cart-icon-option w-10 h-10 flex items-center justify-center bg-surface-container-lowest {% if form.cart_icon_style.value == 'cart' %}border-2 border-primary{% else %}border border-transparent{% endif %} rounded-lg cursor-pointer">
+                                <input type="radio" name="cart_icon_visual" value="cart" class="hidden" {% if form.cart_icon_style.value == 'cart' %}checked{% endif %}/>
+                                <span class="material-symbols-outlined {% if form.cart_icon_style.value == 'cart' %}text-primary{% else %}text-on-surface-variant{% endif %}">shopping_cart</span>
+                            </label>
+                            <label class="cart-icon-option w-10 h-10 flex items-center justify-center bg-surface-container-lowest {% if form.cart_icon_style.value == 'basket' %}border-2 border-primary{% else %}border border-transparent{% endif %} rounded-lg cursor-pointer">
+                                <input type="radio" name="cart_icon_visual" value="basket" class="hidden" {% if form.cart_icon_style.value == 'basket' %}checked{% endif %}/>
+                                <span class="material-symbols-outlined {% if form.cart_icon_style.value == 'basket' %}text-primary{% else %}text-on-surface-variant{% endif %}">shopping_basket</span>
+                            </label>
+                        </div>
+                        {{ form.cart_icon_style }}
+                        {% if form.cart_icon_style.errors %}
+                            {% for error in form.cart_icon_style.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="flex items-center justify-between {% if not form.show_cart_icon.value %}conditional-section disabled{% endif %}">
+                            <span class="text-sm font-medium">Show Cart Count</span>
+                            {{ form.show_cart_count }}
+                        </div>
+                        {% if form.show_cart_count.errors %}
+                            {% for error in form.show_cart_count.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="flex items-center justify-between {% if not form.show_cart_icon.value %}conditional-section disabled{% endif %}">
+                            <span class="text-sm font-medium">Cart Preview on Hover</span>
+                            {{ form.cart_preview_on_hover }}
+                        </div>
+                        {% if form.cart_preview_on_hover.errors %}
+                            {% for error in form.cart_preview_on_hover.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="flex items-center justify-between pt-2">
+                            <span class="text-sm font-medium">Account Icon</span>
+                            {{ form.show_account_icon }}
+                        </div>
+                        {% if form.show_account_icon.errors %}
+                            {% for error in form.show_account_icon.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium">Wishlist</span>
+                            {{ form.show_wishlist_icon }}
+                        </div>
+                        {% if form.show_wishlist_icon.errors %}
+                            {% for error in form.show_wishlist_icon.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </section>
+            </div>
+
+            <!-- Section: Navigation -->
+            <section class="bg-surface-container-low p-10 rounded-xl space-y-8" id="navigation">
+                <div class="flex items-center justify-between border-b border-outline-variant/20 pb-4">
+                    <h2 class="text-2xl font-extrabold text-on-surface tracking-tight">Navigation</h2>
+                    <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant/60">Module 04</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <label class="text-sm font-bold text-on-surface" for="{{ form.nav_style.id_for_label }}">Navigation Style</label>
+                        {{ form.nav_style }}
+                        {% if form.nav_style.errors %}
+                            {% for error in form.nav_style.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="space-y-4">
+                        <label class="text-sm font-bold text-on-surface" for="{{ form.max_nav_items.id_for_label }}">Max Nav Items</label>
+                        {{ form.max_nav_items }}
+                        <div class="flex justify-between text-[10px] text-on-surface-variant">
+                            <span>3</span>
+                            <span id="max-nav-display">{{ form.max_nav_items.value|default:7 }}</span>
+                            <span>12</span>
+                        </div>
+                        {% if form.max_nav_items.errors %}
+                            {% for error in form.max_nav_items.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="col-span-2">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            {{ form.show_categories_in_nav }}
+                            <span class="text-sm font-medium">Show Categories in Navigation</span>
+                        </label>
+                        {% if form.show_categories_in_nav.errors %}
+                            {% for error in form.show_categories_in_nav.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Mobile Menu -->
+            <section class="bg-surface-container-low p-10 rounded-xl space-y-8">
+                <div class="flex items-center justify-between border-b border-outline-variant/20 pb-4">
+                    <h2 class="text-2xl font-extrabold text-on-surface tracking-tight">Mobile Menu</h2>
+                    <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant/60">Module 07</span>
+                </div>
+                <div class="space-y-4">
+                    <label class="text-sm font-bold text-on-surface" for="{{ form.mobile_menu_style.id_for_label }}">Mobile Menu Style</label>
+                    {{ form.mobile_menu_style }}
+                    {% if form.mobile_menu_style.errors %}
+                        {% for error in form.mobile_menu_style.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Sticky Preview Sidebar -->
+        <div class="hidden lg:block lg:col-span-5 relative">
+            <div class="sticky top-24 space-y-6">
+                <div class="bg-inverse-surface text-white p-4 rounded-t-xl">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-sm">Live Header Preview</h3>
+                        <div class="flex gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500/30"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500/30"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500/30"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-b-xl shadow-2xl overflow-hidden border border-outline-variant/10 min-h-[600px] flex flex-col" id="header-preview" style="background-color: {{ form.background_color.value|default:'#FFFFFF' }}; color: {{ form.text_color.value|default:'#000000' }};">
+                    <!-- Preview Announcement -->
+                    {% if form.show_announcement_bar.value %}
+                    <div class="py-2 text-center text-[10px] font-bold tracking-wide" style="background-color: {{ form.announcement_background_color.value|default:'#000000' }}; color: {{ form.announcement_text_color.value|default:'#FFFFFF' }};">
+                        {{ form.announcement_text.value|default:'Free shipping on all orders over $150' }}
+                    </div>
+                    {% endif %}
+                    <!-- Preview Header -->
+                    <div class="px-8 py-6 flex items-center justify-between border-b border-surface-container" style="height: {{ form.height.value|default:80 }}px;">
+                        <div class="font-black text-xl tracking-tighter" style="max-width: {{ form.logo_max_width.value|default:180 }}px;">BRAND_LOGO</div>
+                        <nav class="flex items-center gap-6 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
+                            <a class="text-primary border-b border-primary pb-0.5" href="#">Shop</a>
+                            <a href="#">About</a>
+                            <a href="#">Stories</a>
+                            <a href="#">Contact</a>
+                        </nav>
+                        <div class="flex items-center gap-4">
+                            {% if form.show_search.value %}
+                            <span class="material-symbols-outlined text-xl">search</span>
+                            {% endif %}
+                            {% if form.show_cart_icon.value %}
+                            <div class="relative">
+                                <span class="material-symbols-outlined text-xl">{% if form.cart_icon_style.value == 'bag' %}shopping_bag{% elif form.cart_icon_style.value == 'cart' %}shopping_cart{% else %}shopping_basket{% endif %}</span>
+                                {% if form.show_cart_count.value %}
+                                <span class="absolute -top-1 -right-1 bg-primary text-on-primary text-[8px] w-3.5 h-3.5 flex items-center justify-center rounded-full">2</span>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- Mock Content -->
+                    <div class="p-12 space-y-8 flex-1 bg-surface">
+                        <div class="space-y-4">
+                            <div class="h-10 w-2/3 bg-surface-container-high rounded-lg"></div>
+                            <div class="h-4 w-full bg-surface-container rounded"></div>
+                            <div class="h-4 w-5/6 bg-surface-container rounded"></div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 pt-8">
+                            <div class="aspect-[4/5] bg-surface-container-high rounded-2xl flex flex-col justify-end p-4">
+                                <div class="h-4 w-1/2 bg-surface-container-highest rounded mb-2"></div>
+                                <div class="h-3 w-1/3 bg-surface-container-highest rounded opacity-60"></div>
+                            </div>
+                            <div class="aspect-[4/5] bg-surface-container-high rounded-2xl flex flex-col justify-end p-4">
+                                <div class="h-4 w-1/2 bg-surface-container-highest rounded mb-2"></div>
+                                <div class="h-3 w-1/3 bg-surface-container-highest rounded opacity-60"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Preview Controls -->
+                <div class="bg-surface-container-low p-4 rounded-xl flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <button type="button" class="p-2 bg-surface-container-lowest rounded-lg text-primary">
+                            <span class="material-symbols-outlined">desktop_windows</span>
+                        </button>
+                        <button type="button" class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg">
+                            <span class="material-symbols-outlined">tablet_mac</span>
+                        </button>
+                        <button type="button" class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg">
+                            <span class="material-symbols-outlined">smartphone</span>
+                        </button>
+                    </div>
+                    <div class="text-xs font-bold text-on-surface-variant">Zoom: 100%</div>
+                </div>
+            </div>
+        </div>
+    </form>
+</main>
+
+<!-- Bottom Action Bar -->
+<div class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-on-surface/90 backdrop-blur-xl text-white px-8 py-4 rounded-full flex items-center gap-8 shadow-2xl z-50 border border-white/10">
+    <div class="flex items-center gap-3 pr-8 border-r border-white/20">
+        <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+        <span class="text-sm font-medium">Unsaved changes detected</span>
+    </div>
+    <div class="flex items-center gap-4">
+        <button type="button" class="text-sm font-bold text-white/60 hover:text-white transition-colors" onclick="window.location.href='{% url 'manage_header_settings' %}'">Discard</button>
+        <button type="submit" form="header-form" class="bg-primary hover:bg-primary-dim text-white text-sm font-bold px-6 py-2 rounded-full transition-all active:scale-95">Save {% if is_edit %}Version 2.1{% else %}Settings{% endif %}</button>
+    </div>
+</div>
+
+<!-- JavaScript for Dynamic Interactions -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // === Toggle Switch Styling ===
+        const toggleCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+        toggleCheckboxes.forEach(function(checkbox) {
+            checkbox.classList.add('toggle-checkbox');
+
+            checkbox.addEventListener('change', function() {
+                const toggleDiv = this.parentElement.querySelector('div.w-12.h-6, div.w-10.h-5, div.w-8.h-4');
+                const toggleKnob = toggleDiv?.querySelector('div.absolute');
+
+                if (toggleDiv) {
+                    toggleDiv.style.backgroundColor = this.checked ? '#0053db' : '#d9e4ea';
+                }
+                if (toggleKnob) {
+                    toggleKnob.style.left = this.checked ? '' : '4px';
+                    toggleKnob.style.right = this.checked ? '4px' : '';
+                }
+
+                // Handle conditional sections
+                const sectionMap = {
+                    '{{ form.show_announcement_bar.id_for_label }}': ['announcement-section', 'announcement-preview-section'],
+                    '{{ form.show_search.id_for_label }}': ['search-section'],
+                    '{{ form.show_cart_icon.id_for_label }}': ['cart-icon-section']
+                };
+
+                Object.keys(sectionMap).forEach(function(id) {
+                    if (this.id === id) {
+                        sectionMap[id].forEach(function(sectionId) {
+                            const section = document.getElementById(sectionId);
+                            if (section) {
+                                section.classList.toggle('disabled', !this.checked);
+                            }
+                        }, this);
+                    }
+                }, checkbox);
+
+                // Update preview
+                updateHeaderPreview();
+            });
+        });
+
+        // === Layout Selection ===
+        const layoutOptions = document.querySelectorAll('input[name="layout_visual"]');
+        const layoutInput = document.getElementById('{{ form.layout.id_for_label }}');
+
+        layoutOptions.forEach(function(option) {
+            option.addEventListener('change', function() {
+                document.querySelectorAll('.layout-option').forEach(function(el) {
+                    el.classList.remove('selected', 'border-primary');
+                    el.classList.add('border-transparent');
+                    el.querySelector('.material-symbols-outlined').classList.remove('text-primary');
+                    el.querySelector('.material-symbols-outlined').classList.add('text-on-surface-variant');
+                    el.querySelector('span.text-xs').classList.remove('text-primary');
+                    el.querySelector('span.text-xs').classList.add('text-on-surface-variant');
+                });
+
+                const parent = this.closest('.layout-option');
+                parent.classList.add('selected', 'border-primary');
+                parent.classList.remove('border-transparent');
+                parent.querySelector('.material-symbols-outlined').classList.remove('text-on-surface-variant');
+                parent.querySelector('.material-symbols-outlined').classList.add('text-primary');
+                parent.querySelector('span.text-xs').classList.remove('text-on-surface-variant');
+                parent.querySelector('span.text-xs').classList.add('text-primary');
+
+                if (layoutInput) {
+                    layoutInput.value = this.value;
+                }
+
+                updateHeaderPreview();
+            });
+        });
+
+        // === Logo Alignment Selection ===
+        const logoAlignOptions = document.querySelectorAll('input[name="logo_position_visual"]');
+        const logoPositionInput = document.getElementById('{{ form.logo_position.id_for_label }}');
+
+        logoAlignOptions.forEach(function(option) {
+            option.addEventListener('change', function() {
+                document.querySelectorAll('.logo-align-option').forEach(function(el) {
+                    el.classList.remove('selected', 'border-primary');
+                    el.classList.add('border-transparent');
+                    el.querySelector('.material-symbols-outlined').classList.remove('text-primary');
+                    el.querySelector('.material-symbols-outlined').classList.add('text-on-surface-variant');
+                    el.querySelector('span.text-xs').classList.remove('text-primary');
+                    el.querySelector('span.text-xs').classList.add('text-on-surface-variant');
+                });
+
+                const parent = this.closest('.logo-align-option');
+                parent.classList.add('selected', 'border-primary');
+                parent.classList.remove('border-transparent');
+                parent.querySelector('.material-symbols-outlined').classList.remove('text-on-surface-variant');
+                parent.querySelector('.material-symbols-outlined').classList.add('text-primary');
+                parent.querySelector('span.text-xs').classList.remove('text-on-surface-variant');
+                parent.querySelector('span.text-xs').classList.add('text-primary');
+
+                if (logoPositionInput) {
+                    logoPositionInput.value = this.value;
+                }
+
+                updateHeaderPreview();
+            });
+        });
+
+        // === Cart Icon Selection ===
+        const cartIconOptions = document.querySelectorAll('input[name="cart_icon_visual"]');
+        const cartIconInput = document.getElementById('{{ form.cart_icon_style.id_for_label }}');
+
+        cartIconOptions.forEach(function(option) {
+            option.addEventListener('change', function() {
+                document.querySelectorAll('.cart-icon-option').forEach(function(el) {
+                    el.classList.remove('selected', 'border-primary');
+                    el.classList.add('border-transparent');
+                    el.querySelector('.material-symbols-outlined').classList.remove('text-primary');
+                    el.querySelector('.material-symbols-outlined').classList.add('text-on-surface-variant');
+                });
+
+                const parent = this.closest('.cart-icon-option');
+                parent.classList.add('selected', 'border-primary');
+                parent.classList.remove('border-transparent');
+                parent.querySelector('.material-symbols-outlined').classList.remove('text-on-surface-variant');
+                parent.querySelector('.material-symbols-outlined').classList.add('text-primary');
+
+                if (cartIconInput) {
+                    cartIconInput.value = this.value;
+                }
+
+                updateHeaderPreview();
+            });
+        });
+
+        // === Color Picker Display Updates ===
+        const colorInputs = [
+            {id: '{{ form.background_color.id_for_label }}', textId: 'background-color-text', preview: 'header-preview', property: 'backgroundColor'},
+            {id: '{{ form.text_color.id_for_label }}', textId: 'text-color-text', preview: 'header-preview', property: 'color'},
+            {id: '{{ form.announcement_background_color.id_for_label }}', textId: 'announcement-bg-text'},
+            {id: '{{ form.announcement_text_color.id_for_label }}', textId: 'announcement-text-color-text'}
+        ];
+
+        colorInputs.forEach(function(config) {
+            const input = document.getElementById(config.id);
+            const textDisplay = document.getElementById(config.textId);
+
+            if (input && textDisplay) {
+                textDisplay.value = input.value;
+
+                input.addEventListener('input', function() {
+                    textDisplay.value = this.value;
+                    if (config.preview) {
+                        const preview = document.getElementById(config.preview);
+                        if (preview) {
+                            preview.style[config.property] = this.value;
+                        }
+                    }
+                    updateHeaderPreview();
+                });
+
+                textDisplay.addEventListener('input', function() {
+                    input.value = this.value;
+                    if (config.preview) {
+                        const preview = document.getElementById(config.preview);
+                        if (preview) {
+                            preview.style[config.property] = this.value;
+                        }
+                    }
+                    updateHeaderPreview();
+                });
+            }
+        });
+
+        // === Height Range Display ===
+        const heightRange = document.getElementById('{{ form.height.id_for_label }}');
+        const heightDisplay = document.getElementById('height-display');
+        const headerPreview = document.getElementById('header-preview');
+
+        if (heightRange && heightDisplay) {
+            heightDisplay.textContent = heightRange.value + 'px';
+
+            heightRange.addEventListener('input', function() {
+                heightDisplay.textContent = this.value + 'px';
+                if (headerPreview) {
+                    const headerDiv = headerPreview.querySelector('.px-8.py-6');
+                    if (headerDiv) {
+                        headerDiv.style.height = this.value + 'px';
+                    }
+                }
+            });
+        }
+
+        // === Logo Width Range Display ===
+        const logoWidthRange = document.getElementById('{{ form.logo_max_width.id_for_label }}');
+        const logoWidthDisplay = document.getElementById('logo-width-display');
+
+        if (logoWidthRange && logoWidthDisplay) {
+            logoWidthDisplay.textContent = logoWidthRange.value + 'px';
+
+            logoWidthRange.addEventListener('input', function() {
+                logoWidthDisplay.textContent = this.value + 'px';
+                updateHeaderPreview();
+            });
+        }
+
+        // === Max Nav Items Display ===
+        const maxNavRange = document.getElementById('{{ form.max_nav_items.id_for_label }}');
+        const maxNavDisplay = document.getElementById('max-nav-display');
+
+        if (maxNavRange && maxNavDisplay) {
+            maxNavDisplay.textContent = maxNavRange.value;
+
+            maxNavRange.addEventListener('input', function() {
+                maxNavDisplay.textContent = this.value;
+            });
+        }
+
+        // === Update Header Preview ===
+        function updateHeaderPreview() {
+            const headerPreview = document.getElementById('header-preview');
+            if (!headerPreview) return;
+
+            // Update announcement bar visibility
+            const announcementCheckbox = document.getElementById('{{ form.show_announcement_bar.id_for_label }}');
+            const announcementBar = headerPreview.querySelector('.py-2.text-center');
+            if (announcementBar) {
+                announcementBar.style.display = announcementCheckbox?.checked ? 'block' : 'none';
+            }
+
+            // Update search icon visibility
+            const searchCheckbox = document.getElementById('{{ form.show_search.id_for_label }}');
+            const searchIcon = headerPreview.querySelector('span.material-symbols-outlined');
+            if (searchIcon) {
+                searchIcon.style.display = searchCheckbox?.checked ? 'inline-block' : 'none';
+            }
+
+            // Update cart icon visibility and style
+            const cartCheckbox = document.getElementById('{{ form.show_cart_icon.id_for_label }}');
+            const cartContainer = headerPreview.querySelector('div.relative');
+            if (cartContainer) {
+                cartContainer.style.display = cartCheckbox?.checked ? 'inline-block' : 'none';
+            }
+
+            // Update cart count badge
+            const cartCountCheckbox = document.getElementById('{{ form.show_cart_count.id_for_label }}');
+            const cartCountBadge = headerPreview.querySelector('span.absolute');
+            if (cartCountBadge) {
+                cartCountBadge.style.display = cartCountCheckbox?.checked ? 'flex' : 'none';
+            }
+        }
+
+        // === Initialize Conditional Sections ===
+        const announcementCheckbox = document.getElementById('{{ form.show_announcement_bar.id_for_label }}');
+        if (announcementCheckbox && !announcementCheckbox.checked) {
+            ['announcement-section', 'announcement-preview-section'].forEach(function(id) {
+                const section = document.getElementById(id);
+                if (section) section.classList.add('disabled');
+            });
+        }
+
+        const searchCheckbox = document.getElementById('{{ form.show_search.id_for_label }}');
+        if (searchCheckbox && !searchCheckbox.checked) {
+            const section = document.getElementById('search-section');
+            if (section) section.classList.add('disabled');
+        }
+
+        const cartCheckbox = document.getElementById('{{ form.show_cart_icon.id_for_label }}');
+        if (cartCheckbox && !cartCheckbox.checked) {
+            const section = document.getElementById('cart-icon-section');
+            if (section) section.classList.add('disabled');
+        }
+
+        // === Initialize Preview ===
+        updateHeaderPreview();
+
+        // === Hide Messages After 5 Seconds ===
+        setTimeout(function() {
+            const messages = document.querySelectorAll('.fixed.top-24');
+            messages.forEach(function(msg) {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    msg.remove();
+                }, 500);
+            });
+        }, 5000);
+
+        // === Form Change Detection ===
+        const form = document.getElementById('header-form');
+        let formChanged = false;
+
+        form.addEventListener('input', function() {
+            formChanged = true;
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (formChanged) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // === Smooth Scroll for Navigation ===
+        const navLinks = document.querySelectorAll('nav a[href^="#"]');
+        navLinks.forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

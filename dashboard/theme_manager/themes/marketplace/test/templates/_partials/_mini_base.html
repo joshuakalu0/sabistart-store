@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ seo.meta_title|default:page_title|default:shop.name }}</title>
+    <meta name="description" content="{{ seo.meta_description|default:page_description }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700;900&family=Cinzel:wght@400;500;600&display=swap" rel="stylesheet">
+    {% if theme_tokens.google_fonts_url %}<link href="{{ theme_tokens.google_fonts_url }}" rel="stylesheet">{% endif %}
+    {% if theme_tokens.custom_font_url %}<link href="{{ theme_tokens.custom_font_url }}" rel="stylesheet">{% endif %}
+    <style>
+        :root {
+            --color-primary: {{ theme_tokens.primary_color|default:"#1B1B1B" }};
+            --color-secondary: {{ theme_tokens.secondary_color|default:"#7A3B19" }};
+            --color-accent: {{ theme_tokens.accent_color|default:"#B89A60" }};
+            --color-background: {{ theme_tokens.background_color|default:"#F8F5F0" }};
+            --color-surface: {{ theme_tokens.secondary_background_color|default:"#F0EBE3" }};
+            --color-text: {{ theme_tokens.text_color|default:"#1B1B1B" }};
+            --color-border: {{ theme_tokens.border_color|default:"#D6CFC4" }};
+            --color-border-dark: #B8AF9F;
+            --font-heading: {{ theme_tokens.heading_font|default:'"Cormorant Garamond", Georgia, serif' }};
+            --font-display: "Cinzel", serif;
+            --font-body: {{ theme_tokens.body_font|default:'"Lato", sans-serif' }};
+            --shadow-soft: {{ theme_tokens.shadow|default:"0 4px 24px rgba(27, 27, 27, 0.08)" }};
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--color-text);
+            background-color: var(--color-background);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, .brand-font {
+            font-family: var(--font-heading);
+            letter-spacing: .01em;
+        }
+
+        .display-font { font-family: var(--font-display); }
+        a { color: inherit; text-decoration: none; }
+
+        .mini-card {
+            background: #fff;
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .eyebrow {
+            font-family: var(--font-body);
+            text-transform: uppercase;
+            letter-spacing: .22em;
+            font-size: .7rem;
+            font-weight: 700;
+            color: var(--color-accent);
+        }
+
+        .accent-bar {
+            width: 3rem;
+            height: 2px;
+            background: var(--color-accent);
+        }
+
+        .button-primary, .button-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: .85rem 1.75rem;
+            font-family: var(--font-body);
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            transition: background-color .2s, border-color .2s, color .2s;
+        }
+
+        .button-primary {
+            background: var(--color-primary);
+            color: #fff;
+            border: 1px solid var(--color-primary);
+        }
+
+        .button-primary:hover {
+            background: var(--color-secondary);
+            border-color: var(--color-secondary);
+        }
+
+        .button-secondary {
+            background: transparent;
+            color: var(--color-primary);
+            border: 1px solid var(--color-border-dark);
+        }
+
+        .button-secondary:hover {
+            border-color: var(--color-primary);
+        }
+
+        form input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+        form select,
+        form textarea {
+            width: 100%;
+            border: 1px solid var(--color-border-dark);
+            background: #fff;
+            color: var(--color-text);
+            padding: .85rem 1rem;
+            outline: none;
+            font-family: var(--font-body);
+            font-size: .9rem;
+        }
+
+        form input:focus, form select:focus, form textarea:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(27,27,27,.07);
+        }
+
+        input[type="checkbox"], input[type="radio"] {
+            accent-color: var(--color-primary);
+        }
+    </style>
+</head>
+<body class="flex min-h-screen flex-col">
+    <header class="px-6 py-7 border-b bg-white" style="border-color:var(--color-border)">
+        <div class="mx-auto flex w-full max-w-6xl items-center justify-between gap-4">
+            <a href="{% url 'home:index' %}" class="flex items-center gap-4">
+                {% if shop.logo_url %}
+                    <img src="{{ shop.logo_url }}" alt="{{ shop.name }}" class="h-11 w-11 object-cover" style="border:1px solid var(--color-border)">
+                {% endif %}
+                <div>
+                    <div class="display-font text-xl font-semibold tracking-widest uppercase" style="color:var(--color-primary);letter-spacing:.18em">{{ shop.name }}</div>
+                    {% if shop.tagline %}<p class="text-xs uppercase tracking-widest mt-0.5" style="color:#9c9489;letter-spacing:.22em;font-size:.6rem">{{ shop.tagline }}</p>{% endif %}
+                </div>
+            </a>
+            <div class="hidden items-center gap-6 md:flex">
+                {% for link in mini_footer_links %}
+                    <a href="{{ link.url }}" class="text-xs font-bold uppercase tracking-widest text-stone-500 hover:text-stone-900 transition" style="letter-spacing:.16em">{{ link.label }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </header>
+
+    <main class="mx-auto flex w-full max-w-6xl flex-1 items-center px-6 py-12 md:px-14">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="border-t bg-white" style="border-color:var(--color-border)">
+        <div class="mx-auto flex w-full max-w-6xl flex-col gap-3 px-6 py-6 text-xs text-stone-400 md:flex-row md:items-center md:justify-between md:px-14">
+            <p class="uppercase tracking-widest font-semibold" style="letter-spacing:.18em;font-size:.65rem">{{ shop.name }}</p>
+            <div class="flex flex-wrap gap-5">
+                {% for link in mini_footer_links %}
+                    <a href="{{ link.url }}" class="hover:text-stone-700 uppercase tracking-widest transition" style="letter-spacing:.14em">{{ link.label }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

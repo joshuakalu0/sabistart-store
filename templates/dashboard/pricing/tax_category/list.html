@@ -1,0 +1,111 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load string_utils %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Tax Categories</h2>
+    <p class="text-slate-600 dark:text-slate-400">Manage categories used to assign different tax rates to products</p>
+  </div>
+  <a href="{{ create_url }}" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2">
+    <span class="material-icons-outlined text-sm">add</span><span>Create Category</span>
+  </a>
+</div>
+
+<div class="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 p-4 rounded-xl text-sm mb-6 flex shadow-sm border border-blue-100 dark:border-blue-900/50">
+  <span class="material-icons-outlined text-[20px] mr-3 mt-0.5">info</span>
+  <div>
+    <strong>Tax Engine Basics:</strong>
+    <p class="mt-1">Every product must be assigned to a Tax Category (e.g., "Standard Goods", "Digital Products", "Exempt"). When combined with a Tax Zone (where the customer is located), the system determines the final Tax Rate to apply at checkout.</p>
+  </div>
+</div>
+
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mb-6">
+  <div class="p-6 border-b border-slate-200 dark:border-slate-700">
+    <form method="get" class="flex flex-col sm:flex-row gap-4">
+      <div class="relative flex-1">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+          <span class="material-icons-outlined text-slate-400 text-sm">search</span>
+        </span>
+        <input type="text" name="q" value="{{ q }}" placeholder="Search categories..."
+               class="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-primary dark:bg-slate-700 dark:text-white"/>
+      </div>
+      <button type="submit" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+        Filter
+      </button>
+    </form>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          {% for col in "Name,Code,Description,Status,Actions"|split:"," %}
+          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+        {% for cat in categories %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 dark:text-white">
+            {{ cat.name }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-slate-600 dark:text-slate-400">
+            {{ cat.code }}
+          </td>
+          <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+            {{ cat.description|truncatewords:15|default:"-" }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            {% if cat.is_active %}
+            <span class="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 text-xs rounded-full">Active</span>
+            {% else %}
+            <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-xs rounded-full">Inactive</span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+            <a href="{% url 'dashboard:pricing:tax_category_edit' prefix cat.id %}" class="text-primary hover:text-blue-700">Edit</a>
+            <button class="text-red-600 hover:text-red-800 delete-btn"
+                    data-name="{{ cat.name }}"
+                    data-url="{% url 'dashboard:pricing:tax_category_delete' prefix cat.id %}">Delete</button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="px-6 py-10 text-center text-slate-400 dark:text-slate-500">No tax categories defined.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if categories.has_other_pages %}
+  <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800">
+    <div class="text-sm text-slate-500">
+      Showing {{ categories.start_index }} to {{ categories.end_index }} of {{ categories.paginator.count }} categories
+    </div>
+    <div class="flex space-x-2">
+      {% if categories.has_previous %}
+      <a href="?q={{ q|default:'' }}&page={{ categories.previous_page_number }}" class="px-3 py-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-md hover:bg-slate-50 dark:hover:bg-slate-600">Prev</a>
+      {% endif %}
+      {% if categories.has_next %}
+      <a href="?q={{ q|default:'' }}&page={{ categories.next_page_number }}" class="px-3 py-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-md hover:bg-slate-50 dark:hover:bg-slate-600">Next</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+      openDeleteModal("Delete Tax Category",
+        `Are you sure you want to delete "${this.dataset.name}"? Products assigned to this category may lose their tax calculation rules.`,
+        () => {
+          fetch(this.dataset.url, {method:"POST", headers:{"X-CSRFToken":"{{ csrf_token }}","Content-Type":"application/x-www-form-urlencoded"}})
+            .then(() => location.reload());
+        });
+    });
+  });
+});
+</script>
+{% endblock %}

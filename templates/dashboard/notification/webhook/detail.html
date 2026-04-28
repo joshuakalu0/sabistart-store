@@ -1,0 +1,159 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+
+    <!-- Page header -->
+    <div class="mb-8">
+        <div class="mb-4">
+            <a href="{% url 'dashboard:notification_webhook_list' prefix=prefix %}" class="text-sm font-medium text-indigo-500 hover:text-indigo-600">&larr; Back to Endpoints</a>
+        </div>
+        <div class="sm:flex sm:justify-between sm:items-center">
+            <div class="mb-4 sm:mb-0">
+                <h1 class="text-2xl md:text-3xl text-slate-800 font-bold break-all">{{ endpoint.url }}</h1>
+                <div class="text-sm text-slate-500 mt-1">Webhook Endpoint Detail</div>
+            </div>
+            <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
+                <a href="{% url 'dashboard:notification_webhook_update' prefix=prefix pk=endpoint.pk %}" class="btn bg-white border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-600">
+                    <svg class="w-4 h-4 fill-current text-slate-500 shrink-0 mr-2" viewBox="0 0 16 16">
+                        <path d="M11.7.3c-.4-.4-1-.4-1.4 0l-10 10c-.2.2-.3.4-.3.7v4c0 .6.4 1 1 1h4c.3 0 .5-.1.7-.3l10-10c.4-.4.4-1 0-1.4l-4-4zM4.6 14H2v-2.6l6-6L10.6 8l-6 6zM12 6.6L9.4 4 11 2.4 13.6 5 12 6.6z" />
+                    </svg>
+                    <span>Edit</span>
+                </a>
+                <button class="btn bg-rose-500 hover:bg-rose-600 text-white">Disable</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Health & Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Status -->
+        <div class="bg-white p-5 rounded-sm border border-slate-200 shadow-sm flex items-center">
+            <div class="w-12 h-12 rounded-full mr-4 flex items-center justify-center {% if endpoint.is_active and endpoint.consecutive_failures == 0 %}bg-emerald-100 text-emerald-500{% elif endpoint.is_active %}bg-amber-100 text-amber-500{% else %}bg-slate-100 text-slate-500{% endif %}">
+                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                    {% if endpoint.is_active and endpoint.consecutive_failures == 0 %}
+                    <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                    {% elif endpoint.is_active %}
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    {% else %}
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+                    {% endif %}
+                </svg>
+            </div>
+            <div>
+                <div class="text-sm font-medium text-slate-400 uppercase">Status</div>
+                <div class="text-xl font-bold text-slate-800">
+                    {% if endpoint.is_active %}
+                        {% if endpoint.consecutive_failures > 0 %}Degraded{% else %}Healthy{% endif %}
+                    {% else %}
+                        Inactive
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- Error Rate -->
+        <div class="bg-white p-5 rounded-sm border border-slate-200 shadow-sm flex flex-col justify-center">
+            <div class="text-sm font-medium text-slate-400 uppercase mb-1">Error Rate</div>
+            <div class="text-2xl font-bold {% if endpoint.error_rate > 10 %}text-rose-600{% elif endpoint.error_rate > 0 %}text-amber-600{% else %}text-emerald-600{% endif %}">
+                {{ endpoint.error_rate|default:"0.00" }}%
+            </div>
+            <div class="text-xs text-slate-500 mt-1">{{ endpoint.consecutive_failures }} consecutive errors</div>
+        </div>
+        <!-- Total Successes -->
+        <div class="bg-white p-5 rounded-sm border border-slate-200 shadow-sm flex flex-col justify-center">
+            <div class="text-sm font-medium text-slate-400 uppercase mb-1">Success Ratio</div>
+            <div class="text-2xl font-bold text-slate-800">
+                {{ endpoint.total_successes }} / <span class="text-slate-500 font-medium text-lg">{{ endpoint.total_successes|add:endpoint.total_failures }}</span>
+            </div>
+            <div class="text-xs text-slate-500 mt-1">all time</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-12 gap-6">
+
+        <!-- Endpoint Configuration Details -->
+        <div class="col-span-12 lg:col-span-4 space-y-6">
+            <div class="bg-white shadow-sm rounded-sm border border-slate-200 p-5">
+                <h2 class="font-semibold text-slate-800 mb-4">Configuration</h2>
+                <ul class="space-y-3 text-sm">
+                    <li>
+                        <div class="text-slate-500 font-medium mb-1">Description</div>
+                        <div class="text-slate-800">{{ endpoint.description|default:"-" }}</div>
+                    </li>
+                    <li>
+                        <div class="text-slate-500 font-medium mb-1">Topics</div>
+                        <div class="bg-slate-50 p-2 rounded text-xs font-mono border border-slate-100 text-slate-600">
+                            {% for topic in endpoint.topics %}
+                            <div>{{ topic }}</div>
+                            {% endfor %}
+                        </div>
+                    </li>
+                    <li>
+                        <div class="text-slate-500 font-medium mb-1">Created At</div>
+                        <div class="text-slate-800">{{ endpoint.created_at|date:"M d, Y H:i" }}</div>
+                    </li>
+                    <li>
+                        <div class="text-slate-500 font-medium mb-1">Auth Secret</div>
+                        <div class="flex items-center">
+                            <code class="text-xs text-slate-800 bg-slate-100 px-2 py-1 rounded">whsec_{{ endpoint.secret|slice:":4" }}...{{ endpoint.secret|slice:"-4:" }}</code>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            {% if endpoint.consecutive_failures >= 10 %}
+            <div class="bg-rose-50 border border-rose-200 rounded p-4 text-sm">
+                <div class="font-bold text-rose-800 mb-1">High Error Rate detected</div>
+                <div class="text-rose-700">This endpoint will be automatically disabled if it reaches 20 consecutive failures. Please check the delivery logs to debug the issue.</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Recent Logs Table -->
+        <div class="col-span-12 lg:col-span-8 bg-white shadow-sm rounded-sm border border-slate-200">
+            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center">
+                <h2 class="font-semibold text-slate-800">Recent Delivery Logs</h2>
+                <a href="{% url 'dashboard:notification_webhook_delivery_log' prefix=prefix pk=endpoint.pk %}" class="text-sm text-indigo-500 hover:text-indigo-600 font-medium">View All</a>
+            </div>
+            <div class="p-0 overflow-x-auto">
+                <table class="table-auto w-full">
+                    <thead class="text-xs uppercase text-slate-400 bg-slate-50 rounded-sm">
+                        <tr>
+                            <th class="p-3 text-left w-10">Status</th>
+                            <th class="p-3 text-left">Event/Topic</th>
+                            <th class="p-3 text-left">Timing</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm divide-y divide-slate-100">
+                        {% for log in logs|slice:":10" %}
+                        <tr>
+                            <td class="p-3 text-center">
+                                {% if log.status == 'success' %}
+                                    <span class="inline-flex w-2 h-2 rounded-full bg-emerald-500" title="Success: {{ log.response_status }}"></span>
+                                {% else %}
+                                    <span class="inline-flex w-2 h-2 rounded-full bg-rose-500" title="Failed: {{ log.response_status|default:'Error' }}"></span>
+                                {% endif %}
+                            </td>
+                            <td class="p-3">
+                                <div class="font-medium text-slate-800">{{ log.event.event_slug }}</div>
+                                <div class="text-xs text-slate-500">{{ log.event.id|slice:":8" }}</div>
+                            </td>
+                            <td class="p-3">
+                                <div class="text-slate-800">{{ log.created_at|date:"M d H:i" }}</div>
+                                <div class="text-xs text-slate-500">{{ log.duration_ms }} ms</div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="p-6 text-center text-slate-500">No delivery logs recorded yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

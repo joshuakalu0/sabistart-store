@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="mx-auto max-w-6xl space-y-8">
+    <div class="surface-card p-8 lg:p-10">
+        <div class="flex flex-wrap gap-3">
+            <span class="chip chip-active">1. Information</span>
+            <span class="chip">2. Shipping</span>
+            <span class="chip">3. Payment</span>
+            <span class="chip">4. Review</span>
+        </div>
+        <h1 class="section-title mt-5">Delivery and contact details.</h1>
+        <p class="section-copy mt-3 text-base">Tell the store where this order should go and how to reach you about dispatch, support, and fulfillment.</p>
+    </div>
+
+    <div class="grid gap-8 xl:grid-cols-[1.15fr,0.85fr]">
+        <div class="surface-card p-6">
+            <form method="post" class="grid gap-5 md:grid-cols-2">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="{% if field.name == 'address1' or field.name == 'address2' or field.name == 'delivery_instructions' %}md:col-span-2{% endif %}">
+                        <label class="mb-2 block text-sm font-semibold text-slate-700">{{ field.label }}</label>
+                        <div class="field-shell">{{ field }}</div>
+                        {% if field.errors %}<p class="mt-2 text-sm text-rose-600">{{ field.errors|join:", " }}</p>{% endif %}
+                    </div>
+                {% endfor %}
+                <div class="md:col-span-2">
+                    <button type="submit" class="button-primary">Continue to Shipping</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="space-y-5">
+            <div class="surface-card p-6">
+                <p class="eyebrow">Order Summary</p>
+                <div class="mt-5 space-y-3 text-sm text-slate-600">
+                    <div class="flex justify-between"><span>Items</span><span>{{ cart.item_count }}</span></div>
+                    <div class="flex justify-between"><span>Subtotal</span><span>{{ cart.subtotal_display }}</span></div>
+                    <div class="flex justify-between font-semibold text-slate-950"><span>Total</span><span>{{ cart.grand_total_display }}</span></div>
+                </div>
+            </div>
+
+            <div class="surface-card p-6">
+                <p class="eyebrow">Store Support</p>
+                <div class="mt-4 space-y-3 text-sm leading-7 text-slate-500">
+                    {% for item in service_highlights|slice:":3" %}
+                        <div class="surface-card-soft p-4">
+                            <p class="font-semibold text-slate-900">{{ item.title }}</p>
+                            <p class="mt-1">{{ item.body }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

@@ -1,0 +1,87 @@
+<script>
+    console.log('main')
+  // Character Count
+  // Product Preview
+  function updatePreview() {
+    const name = document.getElementById('{{ form.basic_form.name.id_for_label }}').value || 'Product Name';
+    const price = document.getElementById('{{ form.pricing_form.price.id_for_label }}').value || '0.00';
+    const stock = document.getElementById('{{ form.inventory_form.stock_quantity.id_for_label }}').value || 0;
+    const status = document.getElementById('{{ form.visibility_form.status.id_for_label }}').value || 'draft';
+
+    document.getElementById('previewName').textContent = name;
+    document.getElementById('previewPrice').textContent = `$${parseFloat(price).toFixed(2)}`;
+    document.getElementById('previewStock').textContent = stock > 0 ? 'In Stock' : 'Out of Stock';
+    document.getElementById('previewStock').className = stock > 0 ? 'text-green-600' : 'text-red-600';
+    document.getElementById('previewStatus').textContent = status.charAt(0).toUpperCase() + status.slice(1);
+    document.getElementById('previewStatus').className = status === 'published' ? 'text-green-600' : 'text-gray-500';
+  }
+
+
+  document.getElementById('{{ form.basic_form.short_description.id_for_label }}').addEventListener('input',
+  function () {
+    document.getElementById('shortDescCount').textContent = this.value.length;
+  });
+
+  document.getElementById('{{ form.seo_form.meta_title.id_for_label }}').addEventListener('input', function () {
+    document.getElementById('metaTitleCount').textContent = this.value.length;
+  });
+
+  document.getElementById('{{ form.seo_form.meta_description.id_for_label }}').addEventListener('input', function () {
+    document.getElementById('metaDescCount').textContent = this.value.length;
+  });
+
+  // Save Product
+  function saveProduct(status) {
+    // Update hidden inputs
+    updateCategoriesInput();
+    updateTagsInput();
+
+    // Update form status field
+    document.getElementById('{{ form.visibility_form.status.id_for_label }}').value = status;
+
+    // Submit form
+    document.getElementById('productForm').submit();
+  }
+
+  function closeModal() {
+    document.getElementById('saveModal').classList.add('hidden');
+  }
+
+  // Quick Actions
+  function duplicateProduct() {
+    if (confirm('Are you sure you want to duplicate this product?')) {
+      fetch('{ url "product_duplicate" product.pk %}', {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrfToken
+          }
+        })
+        .then(response => {
+          if (response.ok) {
+            window.location.reload();
+          } else {
+            alert('Error duplicating product');
+          }
+        });
+    }
+  }
+
+  // Add event listeners for live preview updates
+  ['{{ form.basic_form.name.id_for_label }}', '{{ form.pricing_form.price.id_for_label }}',
+    '{{ form.inventory_form.stock_quantity.id_for_label }}', '{{ form.visibility_form.status.id_for_label }}'
+  ].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', updatePreview);
+      el.addEventListener('change', updatePreview);
+    }
+  });
+
+  // Initialize
+  handleProductTypeChange();
+  updatePreview();
+  renderSelectedCategories();
+  renderSelectedTags();
+  renderSpecifications();
+  renderFeatures();
+</script>

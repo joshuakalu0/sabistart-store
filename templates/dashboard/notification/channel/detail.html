@@ -1,0 +1,142 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+
+    <!-- Page header -->
+    <div class="mb-8">
+        <div class="mb-4">
+            <a href="{% url 'dashboard:notification_channel_list' prefix=prefix %}" class="text-sm font-medium text-indigo-500 hover:text-indigo-600">&larr; Back to Channels</a>
+        </div>
+        <div class="sm:flex sm:justify-between sm:items-center">
+            <div class="mb-4 sm:mb-0">
+                <h1 class="text-2xl md:text-3xl text-slate-800 font-bold">{{ channel.name }}</h1>
+            </div>
+            <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
+                <a href="{% url 'dashboard:notification_channel_update' prefix=prefix pk=channel.pk %}" class="btn bg-white border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-600">
+                    <svg class="w-4 h-4 fill-current text-slate-500 shrink-0 mr-2" viewBox="0 0 16 16">
+                        <path d="M11.7.3c-.4-.4-1-.4-1.4 0l-10 10c-.2.2-.3.4-.3.7v4c0 .6.4 1 1 1h4c.3 0 .5-.1.7-.3l10-10c.4-.4.4-1 0-1.4l-4-4zM4.6 14H2v-2.6l6-6L10.6 8l-6 6zM12 6.6L9.4 4 11 2.4 13.6 5 12 6.6z" />
+                    </svg>
+                    <span>Edit Channel</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overview -->
+    <div class="bg-white shadow-lg rounded-sm border border-slate-200 mb-8 p-5">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div>
+                <div class="text-sm text-slate-500 mb-1">Status</div>
+                {% if channel.status == 'active' %}
+                    <div class="text-sm font-medium text-emerald-600">Active</div>
+                {% elif channel.status == 'inactive' %}
+                    <div class="text-sm font-medium text-slate-500">Inactive</div>
+                {% elif channel.status == 'degraded' %}
+                    <div class="text-sm font-medium text-amber-600">Degraded</div>
+                {% elif channel.status == 'failing' %}
+                    <div class="text-sm font-medium text-rose-600">Failing</div>
+                {% endif %}
+            </div>
+            <div>
+                <div class="text-sm text-slate-500 mb-1">Type</div>
+                <div class="text-sm font-medium text-slate-800">{{ channel.get_channel_type_display }}</div>
+            </div>
+            <div>
+                <div class="text-sm text-slate-500 mb-1">Priority</div>
+                <div class="text-sm font-medium text-slate-800">{{ channel.priority }}</div>
+            </div>
+            <div>
+                <div class="text-sm text-slate-500 mb-1">Created At</div>
+                <div class="text-sm font-medium text-slate-800">{{ channel.created_at|date:"M d, Y" }}</div>
+            </div>
+        </div>
+        <hr class="border-slate-100 mb-4" />
+        <div>
+            <div class="text-sm text-slate-500 mb-1">Health Metrics</div>
+            <div class="text-sm text-slate-800">
+                <span class="mr-4">Consecutive Failures: <strong class="{% if channel.consecutive_failures >= channel.failure_threshold %}text-rose-500{% endif %}">{{ channel.consecutive_failures }}</strong> / {{ channel.failure_threshold }}</span>
+                <span>Last Failure: {% if channel.last_failure_at %}{{ channel.last_failure_at|timesince }} ago{% else %}Never{% endif %}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delivery Output (Jobs & Logs) -->
+    <div class="grid grid-cols-12 gap-6">
+
+        <!-- Recent Jobs -->
+        <div class="col-span-12 xl:col-span-6 bg-white shadow-sm rounded-sm border border-slate-200">
+            <header class="px-5 py-4 border-b border-slate-100 flex justify-between items-center">
+                <h2 class="font-semibold text-slate-800">Recent Jobs</h2>
+            </header>
+            <div class="p-3">
+                <div class="overflow-x-auto">
+                    <table class="table-auto w-full">
+                        <thead class="text-xs uppercase text-slate-400 bg-slate-50 rounded-sm">
+                            <tr>
+                                <th class="p-2 whitespace-nowrap"><div class="font-semibold text-left">Status</div></th>
+                                <th class="p-2 whitespace-nowrap"><div class="font-semibold text-left">Template</div></th>
+                                <th class="p-2 whitespace-nowrap"><div class="font-semibold text-left">Date</div></th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm divide-y divide-slate-100">
+                            {% for job in recent_jobs %}
+                            <tr>
+                                <td class="p-2 whitespace-nowrap">
+                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full {% if job.status == 'failed' %}bg-rose-100 text-rose-600{% elif job.status == 'completed' %}bg-emerald-100 text-emerald-600{% else %}bg-slate-100 text-slate-600{% endif %}">
+                                        {{ job.status|title }}
+                                    </span>
+                                </td>
+                                <td class="p-2 whitespace-nowrap text-slate-800">{{ job.template.name }}</td>
+                                <td class="p-2 whitespace-nowrap text-slate-500">{{ job.created_at|date:"M d, Y H:i" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="3" class="p-4 text-center text-slate-500">No jobs recorded yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Delivery Logs -->
+        <div class="col-span-12 xl:col-span-6 bg-white shadow-sm rounded-sm border border-slate-200">
+            <header class="px-5 py-4 border-b border-slate-100 flex justify-between items-center">
+                <h2 class="font-semibold text-slate-800">Recent Delivered Logs</h2>
+            </header>
+            <div class="p-3">
+                <div class="overflow-x-auto">
+                    <table class="table-auto w-full">
+                        <thead class="text-xs uppercase text-slate-400 bg-slate-50 rounded-sm">
+                            <tr>
+                                <th class="p-2 whitespace-nowrap"><div class="font-semibold text-left">Recipient</div></th>
+                                <th class="p-2 whitespace-nowrap"><div class="font-semibold text-left">Status</div></th>
+                                <th class="p-2 whitespace-nowrap"><div class="font-semibold text-left">Date</div></th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm divide-y divide-slate-100">
+                            {% for log in recent_logs %}
+                            <tr>
+                                <td class="p-2 whitespace-nowrap font-medium text-slate-800">{{ log.recipient_address|default:"N/A" }}</td>
+                                <td class="p-2 whitespace-nowrap">
+                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full {% if log.status == 'bounced' %}bg-rose-100 text-rose-600{% elif log.status == 'delivered' %}bg-emerald-100 text-emerald-600{% else %}bg-slate-100 text-slate-600{% endif %}">
+                                        {{ log.status|title }}
+                                    </span>
+                                </td>
+                                <td class="p-2 whitespace-nowrap text-slate-500">{{ log.created_at|date:"M d, Y H:i" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="3" class="p-4 text-center text-slate-500">No logs recorded yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Your Cart | Nara Merchant</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "inverse-primary": "#bec6e0",
+                "error-container": "#ffdad6",
+                "surface-dim": "#dadada",
+                "tertiary-fixed": "#fcdeb5",
+                "on-primary-fixed": "#131b2e",
+                "surface-container-lowest": "#ffffff",
+                "on-error": "#ffffff",
+                "tertiary-container": "#271901",
+                "secondary-fixed-dim": "#ffb690",
+                "inverse-on-surface": "#f0f1f1",
+                "surface-container-high": "#e8e8e8",
+                "on-surface-variant": "#45464d",
+                "on-secondary-fixed-variant": "#783200",
+                "on-background": "#1a1c1c",
+                "outline": "#76777d",
+                "on-secondary-fixed": "#341100",
+                "secondary": "#9d4300",
+                "surface": "#f9f9f9",
+                "primary": "#000000",
+                "on-tertiary-fixed": "#271901",
+                "on-tertiary": "#ffffff",
+                "tertiary": "#000000",
+                "on-primary-fixed-variant": "#3f465c",
+                "surface-tint": "#565e74",
+                "secondary-fixed": "#ffdbca",
+                "on-primary": "#ffffff",
+                "primary-fixed-dim": "#bec6e0",
+                "outline-variant": "#c6c6cd",
+                "inverse-surface": "#2f3131",
+                "surface-variant": "#e2e2e2",
+                "secondary-container": "#fd761a",
+                "error": "#ba1a1a",
+                "on-tertiary-fixed-variant": "#574425",
+                "on-primary-container": "#7c839b",
+                "on-surface": "#1a1c1c",
+                "background": "#f9f9f9",
+                "on-secondary": "#ffffff",
+                "on-secondary-container": "#5c2400",
+                "surface-container-highest": "#e2e2e2",
+                "surface-container": "#eeeeee",
+                "tertiary-fixed-dim": "#dec29a",
+                "surface-container-low": "#f3f3f3",
+                "on-error-container": "#93000a",
+                "primary-container": "#131b2e",
+                "surface-bright": "#f9f9f9",
+                "primary-fixed": "#dae2fd",
+                "on-tertiary-container": "#98805d"
+              },
+              fontFamily: {
+                "headline": ["Plus Jakarta Sans"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-background min-h-screen">
+<!-- TopNavBar (Shared Component) -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm">
+<div class="flex justify-between items-center px-6 h-16 w-full max-w-7xl mx-auto">
+<div class="text-xl font-bold text-slate-900 dark:text-slate-50 tracking-tight font-headline">Nara Merchant</div>
+<div class="hidden md:flex items-center space-x-8">
+<a class="text-slate-500 dark:text-slate-400 hover:text-orange-600 transition-colors font-medium" href="#">Shop</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-orange-600 transition-colors font-medium" href="#">Categories</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-orange-600 transition-colors font-medium" href="#">Orders</a>
+</div>
+<div class="flex items-center space-x-5">
+<button class="text-slate-900 dark:text-slate-50 hover:text-orange-600 transition-all scale-95 active:opacity-80">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button class="text-orange-600 dark:text-white border-b-2 border-orange-600 transition-all scale-95 active:opacity-80 flex items-center gap-1">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+<span class="text-xs font-bold bg-orange-600 text-white rounded-full w-4 h-4 flex items-center justify-center">2</span>
+</button>
+<button class="text-slate-900 dark:text-slate-50 hover:text-orange-600 transition-all scale-95 active:opacity-80">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-24 pb-32 px-6 max-w-7xl mx-auto">
+<header class="mb-12">
+<h1 class="text-4xl font-extrabold tracking-tight text-primary-container mb-2">Your Shopping Cart</h1>
+<p class="text-on-surface-variant font-medium">Review your items before proceeding to checkout.</p>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+<!-- Left: Cart Items (2/3) -->
+<div class="lg:col-span-2 space-y-8">
+<!-- Cart Header (Desktop Only) -->
+<div class="hidden md:grid grid-cols-12 pb-4 border-b border-outline-variant/30 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+<div class="col-span-6">Product Details</div>
+<div class="col-span-2 text-center">Quantity</div>
+<div class="col-span-2 text-right">Price</div>
+<div class="col-span-2 text-right">Total</div>
+</div>
+<!-- Cart Item 1 -->
+<div class="group relative bg-surface-container-lowest p-6 rounded-xl shadow-sm transition-all hover:shadow-md">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+<div class="md:col-span-6 flex gap-6 items-center">
+<div class="w-24 h-24 bg-surface-container-low rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Aura Chronograph Watch" class="w-full h-full object-cover" data-alt="Minimalist luxury silver chronograph watch on white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_YiAh4UUTAFNW2-wEzJTWYGY5s5gPFdIyNyzuS0w2jc-7SHEPZaRZoLdCFCU2xN8HEfGpfsKR5jj4Tp11zw9Tr95gB8p9TrgACz0ZQWaURJMSJug6mYJp7sO4lPnCRvtIh10960L8cyJMPWCidqzpvM2xGKs6QjWvBd7alIprvZdm4Flm6xeZT9ZxamD1y_NdlBpuvYcgod11VnBQocIxtKpXWtH4U6ij0_xqL5YjSJSjQhs0ARfQLTrE4rU4j15bw5_RVAbnHNQ"/>
+</div>
+<div class="flex flex-col">
+<h3 class="text-lg font-bold text-primary-container font-headline leading-tight mb-1">Aura Chronograph</h3>
+<div class="text-sm text-on-surface-variant space-y-0.5 mb-3">
+<p>Color: <span class="text-on-surface font-medium">Silver</span></p>
+<p>Size: <span class="text-on-surface font-medium">40mm</span></p>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-xs font-semibold text-secondary flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-sm" data-icon="favorite">favorite</span>
+                                        Save for later
+                                    </button>
+<button class="text-xs font-semibold text-error/80 flex items-center gap-1 hover:text-error">
+<span class="material-symbols-outlined text-sm" data-icon="delete">delete</span>
+                                        Remove
+                                    </button>
+</div>
+</div>
+</div>
+<!-- Quantity Selector -->
+<div class="md:col-span-2 flex justify-center">
+<div class="flex items-center border border-outline-variant/30 rounded-lg bg-surface-container-low overflow-hidden">
+<button class="px-3 py-1.5 hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="remove">remove</span>
+</button>
+<span class="px-4 py-1.5 text-sm font-bold text-primary-container">1</span>
+<button class="px-3 py-1.5 hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+</button>
+</div>
+</div>
+<div class="md:col-span-2 text-right">
+<span class="text-sm text-on-surface-variant md:hidden">Unit Price: </span>
+<span class="font-medium text-on-surface">₦ 85,000</span>
+</div>
+<div class="md:col-span-2 text-right">
+<span class="text-sm text-on-surface-variant md:hidden">Subtotal: </span>
+<span class="text-lg font-bold text-primary-container">₦ 85,000</span>
+</div>
+</div>
+</div>
+<!-- Cart Item 2 -->
+<div class="group relative bg-surface-container-lowest p-6 rounded-xl shadow-sm transition-all hover:shadow-md">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+<div class="md:col-span-6 flex gap-6 items-center">
+<div class="w-24 h-24 bg-surface-container-low rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Elite Running Shoes" class="w-full h-full object-cover" data-alt="Premium vibrant red athletic sneakers on minimal background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlR3CdykCTi--C22JTEMMfxMYMLo4LtpEUcsdibFcYDNLjEn6xqe_96Q-oJTvKLzTAVRLNcOKKr5de5GO1VPWHDZ1DAoPi3_D4-BAXBG_KGny9sclJaY4fsGaQT72NJ31kqx2Yy9JD41MyZ6Qkn62QpKJuga_FzNfpTBvxLNQNyH4TDNuQOpX7h4_43i6w7XpNJPih9XThGKqYMyB4fJQvDRESj6z19gPrCeCNqJcJgy3mwVQMAdgTnXrqEJhg-1QTFs7CU_9cuSs"/>
+</div>
+<div class="flex flex-col">
+<h3 class="text-lg font-bold text-primary-container font-headline leading-tight mb-1">Elite V-Stride</h3>
+<div class="text-sm text-on-surface-variant space-y-0.5 mb-3">
+<p>Color: <span class="text-on-surface font-medium">Crimson Red</span></p>
+<p>Size: <span class="text-on-surface font-medium">UK 9</span></p>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-xs font-semibold text-secondary flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-sm" data-icon="favorite">favorite</span>
+                                        Save for later
+                                    </button>
+<button class="text-xs font-semibold text-error/80 flex items-center gap-1 hover:text-error">
+<span class="material-symbols-outlined text-sm" data-icon="delete">delete</span>
+                                        Remove
+                                    </button>
+</div>
+</div>
+</div>
+<div class="md:col-span-2 flex justify-center">
+<div class="flex items-center border border-outline-variant/30 rounded-lg bg-surface-container-low overflow-hidden">
+<button class="px-3 py-1.5 hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="remove">remove</span>
+</button>
+<span class="px-4 py-1.5 text-sm font-bold text-primary-container">1</span>
+<button class="px-3 py-1.5 hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+</button>
+</div>
+</div>
+<div class="md:col-span-2 text-right">
+<span class="text-sm text-on-surface-variant md:hidden">Unit Price: </span>
+<span class="font-medium text-on-surface">₦ 42,500</span>
+</div>
+<div class="md:col-span-2 text-right">
+<span class="text-sm text-on-surface-variant md:hidden">Subtotal: </span>
+<span class="text-lg font-bold text-primary-container">₦ 42,500</span>
+</div>
+</div>
+</div>
+<!-- Coupon Section -->
+<div class="mt-8 bg-surface-container-low p-6 rounded-xl border border-outline-variant/10">
+<h4 class="text-sm font-bold text-primary-container mb-4 uppercase tracking-wider">Promotional Code</h4>
+<div class="flex gap-3">
+<div class="flex-grow">
+<input class="w-full bg-surface-container-lowest border-none rounded-lg py-3 px-4 focus:ring-1 focus:ring-primary text-sm font-medium transition-all" placeholder="Enter coupon code" type="text"/>
+</div>
+<button class="px-6 py-3 bg-primary-container text-white font-bold rounded-lg hover:bg-primary transition-colors text-sm">
+                            Apply
+                        </button>
+</div>
+</div>
+</div>
+<!-- Right: Order Summary (1/3) -->
+<aside class="sticky top-24">
+<div class="bg-surface-container-lowest rounded-xl shadow-xl p-8 border border-outline-variant/10">
+<h2 class="text-2xl font-bold text-primary-container font-headline mb-8">Order Summary</h2>
+<div class="space-y-5 mb-8 border-b border-outline-variant/30 pb-8">
+<div class="flex justify-between items-center text-sm font-medium">
+<span class="text-on-surface-variant">Subtotal</span>
+<span class="text-primary-container">₦ 127,500</span>
+</div>
+<div class="flex justify-between items-center text-sm font-medium">
+<span class="text-on-surface-variant">Discount</span>
+<span class="text-secondary">− ₦ 0</span>
+</div>
+<div class="flex justify-between items-center text-sm font-medium">
+<span class="text-on-surface-variant">Shipping Estimate</span>
+<span class="text-primary-container font-semibold">Free</span>
+</div>
+<div class="flex justify-between items-center text-sm font-medium">
+<span class="text-on-surface-variant">Tax (VAT 7.5%)</span>
+<span class="text-primary-container">₦ 9,562</span>
+</div>
+</div>
+<div class="flex justify-between items-end mb-8">
+<div class="flex flex-col">
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Total Amount</span>
+<span class="text-3xl font-extrabold text-primary-container font-headline tracking-tight">₦ 137,062</span>
+</div>
+</div>
+<button class="w-full py-4 bg-secondary-container text-white font-extrabold rounded-xl shadow-lg shadow-secondary/20 hover:scale-[1.02] active:scale-95 transition-all text-center flex items-center justify-center gap-2 mb-8">
+                        Proceed to Checkout
+                        <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<div class="space-y-6">
+<div class="flex flex-col items-center gap-4">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em]">Secure Payments Accepted</span>
+<div class="flex justify-center gap-4 opacity-70 grayscale hover:grayscale-0 transition-all">
+<span class="material-symbols-outlined text-2xl" data-icon="credit_card">credit_card</span>
+<span class="material-symbols-outlined text-2xl" data-icon="account_balance">account_balance</span>
+<span class="material-symbols-outlined text-2xl" data-icon="qr_code_2">qr_code_2</span>
+</div>
+</div>
+<div class="flex items-center justify-center gap-2 text-xs font-semibold text-emerald-600 bg-emerald-50 py-2 rounded-full">
+<span class="material-symbols-outlined text-sm" data-icon="lock" data-weight="fill">lock</span>
+                            Secure SSL Checkout
+                        </div>
+</div>
+</div>
+<!-- Helper/Trust Note -->
+<div class="mt-6 px-4">
+<p class="text-[11px] text-center text-on-surface-variant leading-relaxed">
+                        Prices include applicable taxes. Final shipping and exact tax calculated at checkout based on delivery location.
+                    </p>
+</div>
+</aside>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-safe bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 shadow-[0px_-4px_20px_rgba(15,23,42,0.06)] z-50 rounded-t-2xl">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="text-[11px] font-semibold font-headline">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="text-[11px] font-semibold font-headline">Search</span>
+</a>
+<a class="flex flex-col items-center justify-center text-orange-600 dark:text-orange-500 bg-orange-50 dark:bg-orange-900/20 rounded-xl px-3 py-1 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+<span class="text-[11px] font-semibold font-headline">Cart</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-[11px] font-semibold font-headline">Profile</span>
+</a>
+</nav>
+</body></html>

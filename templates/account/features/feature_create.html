@@ -1,0 +1,15 @@
+{% extends "account/features/base.html" %}
+{% block page_intro %}<p class="mt-2 text-sm text-slate-500">Create a new platform feature definition with runtime defaults and billing metadata.</p>{% endblock %}
+{% block feature_content %}
+  <div class="mx-auto max-w-4xl rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+    <form method="post" class="grid gap-4">
+      {% csrf_token %}
+      {% for field in form %}
+        {% include "shared/forms/field.html" with field=field %}
+      {% endfor %}
+      <div class="flex justify-end">
+        <button type="submit" class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white">Create feature</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "account/_platform_base.html" %}
+{% block page_intro %}<p class="mt-2 text-sm text-slate-500">Cross-tenant dispute visibility, evidence deadlines, and operational risk review.</p>{% endblock %}
+{% block content %}
+  {% include "system_pay/_subnav.html" %}
+  <div class="rounded-[1.75rem] border border-slate-200 bg-white shadow-sm">
+    <div class="border-b border-slate-200 px-6 py-5"><h3 class="text-lg font-bold text-slate-950">Disputes</h3></div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <thead class="bg-slate-50"><tr><th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Reference</th><th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Tenant</th><th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Reason</th><th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Status</th><th class="px-6 py-4 text-right font-semibold uppercase tracking-[0.18em] text-slate-400">Amount</th></tr></thead>
+        <tbody class="divide-y divide-slate-200">
+          {% for dispute in disputes %}
+            <tr>
+              <td class="px-6 py-4"><p class="font-semibold text-slate-950">{{ dispute.dispute_reference }}</p><p class="mt-1 text-xs text-slate-500">{{ dispute.opened_at|date:"M j, Y H:i" }}</p></td>
+              <td class="px-6 py-4 text-slate-500">{{ dispute.schema_name }}</td>
+              <td class="px-6 py-4 text-slate-500">{{ dispute.reason|default:"-" }}</td>
+              <td class="px-6 py-4 text-slate-500">{{ dispute.status|title }}</td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-950">{{ dispute.amount }} {{ dispute.currency }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5" class="px-6 py-10 text-center text-sm text-slate-500">No disputes indexed yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

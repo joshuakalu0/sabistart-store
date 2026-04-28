@@ -1,0 +1,28 @@
+body.theme-agency-grid {
+  --color-primary: #194b42;
+  --color-secondary: #2f7a69;
+  --color-accent: #ff8a56;
+  --color-background: #fff9ef;
+  --color-surface: #f6f1d9;
+  --color-border: #d8d8b1;
+}
+
+body.theme-agency-grid {
+  background:
+    radial-gradient(circle at top left, rgba(255, 138, 86, 0.17), transparent 26%),
+    radial-gradient(circle at bottom right, rgba(47, 122, 105, 0.16), transparent 26%),
+    #fff9ef;
+}
+
+body.theme-agency-grid .surface-card,
+body.theme-agency-grid .panel {
+  border-radius: 2rem;
+}
+
+body.theme-agency-grid .button-primary {
+  background: linear-gradient(135deg, #ff8a56, #e45e3a);
+}
+
+body.theme-agency-grid .chip-active {
+  background: rgba(255, 138, 86, 0.16);
+}

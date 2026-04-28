@@ -1,0 +1,1237 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'scale-in': 'scaleIn 0.3s ease-out',
+                        'toggle-on': 'toggleOn 0.2s ease-out',
+                        'toggle-off': 'toggleOff 0.2s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        scaleIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.95)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' },
+                        },
+                        toggleOn: {
+                            '0%': { transform: 'translateX(0)' },
+                            '100%': { transform: 'translateX(1.5rem)' },
+                        },
+                        toggleOff: {
+                            '0%': { transform: 'translateX(1.5rem)' },
+                            '100%': { transform: 'translateX(0)' },
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+    {% endblock %}
+{% block content %}
+<div class="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 min-h-screen font-sans antialiased">
+
+<!-- Django Messages -->
+{% if messages %}
+<div class="fixed top-24 right-8 z-50 space-y-3 animate-fade-in">
+    {% for message in messages %}
+    <div class="flex items-center gap-3 px-5 py-4 rounded-2xl shadow-xl border backdrop-blur-sm transition-all hover:shadow-2xl hover:-translate-y-0.5"
+         style="background: {% if message.tags == 'success' %}linear-gradient(135deg, #10B981 0%, #059669 100%){% elif message.tags == 'error' %}linear-gradient(135deg, #ef4444 0%, #dc2626 100%){% else %}linear-gradient(135deg, #ffffff 0%, #f8fafc 100%){% endif %};
+                 color: {% if message.tags == 'error' %}#ffffff{% else %}#1e293b{% endif %};
+                 border: {% if message.tags == 'error' %}none{% else %}1px solid rgba(255,255,255,0.3){% endif %};">
+        <span class="material-symbols-outlined text-lg">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span class="font-semibold text-sm">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Main Container -->
+<div class="relative">
+
+
+    <!-- Tab Navigation -->
+    <div class="bg-white/60 backdrop-blur-sm border-b border-slate-200/60 sticky -top-9 z-30">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex gap-2 py-3 overflow-x-auto scrollbar-hide">
+                <button type="button" class="tab-link active flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm whitespace-nowrap transition-all" data-tab="general">
+                    <span class="material-symbols-outlined text-base">settings</span>
+                    General
+                </button>
+                <button type="button" class="tab-link flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm whitespace-nowrap transition-all" data-tab="branding">
+                    <span class="material-symbols-outlined text-base">palette</span>
+                    Branding
+                </button>
+                <button type="button" class="tab-link flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm whitespace-nowrap transition-all" data-tab="seo">
+                    <span class="material-symbols-outlined text-base">seo</span>
+                    SEO
+                </button>
+                <button type="button" class="tab-link flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm whitespace-nowrap transition-all" data-tab="shipping">
+                    <span class="material-symbols-outlined text-base">local_shipping</span>
+                    Shipping
+                </button>
+                <button type="button" class="tab-link flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm whitespace-nowrap transition-all" data-tab="taxes">
+                    <span class="material-symbols-outlined text-base">account_balance</span>
+                    Taxes
+                </button>
+                <button type="button" class="tab-link flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm whitespace-nowrap transition-all" data-tab="checkout">
+                    <span class="material-symbols-outlined text-base">shopping_cart_checkout</span>
+                    Checkout
+                </button>
+                <button type="button" class="tab-link flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm whitespace-nowrap transition-all" data-tab="features">
+                    <span class="material-symbols-outlined text-base">bolt</span>
+                    Features
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 lg:px-8 py-10">
+        <form id="settings-form" method="post" action="{{ action_url }}" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <!-- ==================== GENERAL SECTION ==================== -->
+            <section class="settings-section active space-y-8 animate-fade-in" id="general-section">
+
+                <!-- Store Identity Card -->
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-slate-200/60">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                                <span class="material-symbols-outlined text-blue-600">store</span>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900 font-display">Store Identity</h2>
+                                <p class="text-sm text-slate-500">Basic information about your store</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-slate-700" for="{{ form.store_name.id_for_label }}">Store Name</label>
+                                {{ form.store_name }}
+                                {% if form.store_name.errors %}
+                                    {% for error in form.store_name.errors %}
+                                        <p class="error-message flex items-center gap-1 text-red-600 text-xs font-medium mt-1.5"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                                <p class="text-xs text-slate-500">The public name of your store.</p>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-slate-700" for="{{ form.store_tagline.id_for_label }}">Tagline</label>
+                                {{ form.store_tagline }}
+                                {% if form.store_tagline.errors %}
+                                    {% for error in form.store_tagline.errors %}
+                                        <p class="error-message flex items-center gap-1 text-red-600 text-xs font-medium mt-1.5"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                                <p class="text-xs text-slate-500">A short catchphrase shown in the header.</p>
+                            </div>
+                            <div class="md:col-span-2 space-y-2">
+                                <label class="block text-sm font-semibold text-slate-700" for="{{ form.store_description.id_for_label }}">Description</label>
+                                {{ form.store_description }}
+                                {% if form.store_description.errors %}
+                                    {% for error in form.store_description.errors %}
+                                        <p class="error-message flex items-center gap-1 text-red-600 text-xs font-medium mt-1.5"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Information Card -->
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 px-8 py-6 border-b border-slate-200/60">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                                <span class="material-symbols-outlined text-emerald-600">mail</span>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900 font-display">Contact Information</h2>
+                                <p class="text-sm text-slate-500">How customers can reach you</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-slate-700" for="{{ form.contact_email.id_for_label }}">Primary Email</label>
+                                {{ form.contact_email }}
+                                {% if form.contact_email.errors %}
+                                    {% for error in form.contact_email.errors %}
+                                        <p class="error-message flex items-center gap-1 text-red-600 text-xs font-medium mt-1.5"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-slate-700" for="{{ form.support_email.id_for_label }}">Support Email</label>
+                                {{ form.support_email }}
+                                {% if form.support_email.errors %}
+                                    {% for error in form.support_email.errors %}
+                                        <p class="error-message flex items-center gap-1 text-red-600 text-xs font-medium mt-1.5"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-slate-700" for="{{ form.phone.id_for_label }}">Phone Number</label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}
+                                    {% for error in form.phone.errors %}
+                                        <p class="error-message flex items-center gap-1 text-red-600 text-xs font-medium mt-1.5"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-slate-700" for="{{ form.whatsapp_number.id_for_label }}">WhatsApp Business</label>
+                                {{ form.whatsapp_number }}
+                                {% if form.whatsapp_number.errors %}
+                                    {% for error in form.whatsapp_number.errors %}
+                                        <p class="error-message flex items-center gap-1 text-red-600 text-xs font-medium mt-1.5"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Physical Address Card -->
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 px-8 py-6 border-b border-slate-200/60">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                                <span class="material-symbols-outlined text-amber-600">location_on</span>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900 font-display">Physical Address & Localization</h2>
+                                <p class="text-sm text-slate-500">Where your business is located</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="md:col-span-2 space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.address_line1.id_for_label }}">Address Line 1</label>
+                                    {{ form.address_line1 }}
+                                </div>
+                                <div class="md:col-span-2 space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.address_line2.id_for_label }}">Address Line 2</label>
+                                    {{ form.address_line2 }}
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.city.id_for_label }}">City</label>
+                                    {{ form.city }}
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.state.id_for_label }}">State / Province</label>
+                                    {{ form.state }}
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.postal_code.id_for_label }}">Postal Code</label>
+                                    {{ form.postal_code }}
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.country.id_for_label }}">Country</label>
+                                    {{ form.country }}
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.currency.id_for_label }}">Currency</label>
+                                    {{ form.currency }}
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.timezone.id_for_label }}">Timezone</label>
+                                    {{ form.timezone }}
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.currency_position.id_for_label }}">Currency Position</label>
+                                    {{ form.currency_position }}
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.pagination_items_per_page.id_for_label }}">Items Per Page</label>
+                                    {{ form.pagination_items_per_page }}
+                                </div>
+                            </div>
+                            <div class="lg:col-span-1 space-y-4">
+                                <label class="block text-sm font-semibold text-slate-700">Location Preview</label>
+                                <div class="w-full aspect-square bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl overflow-hidden relative border border-slate-200 shadow-inner">
+                                    <img alt="Map" class="w-full h-full object-cover grayscale opacity-50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdP0D8KVhWMiCj3EJ4_yzLurF7KULuB4i18ku7zpsujKts43GBMPNVyWrMseyRO_gb5Ml4A_xwzODVFOH1UMRQSzibfLiZZhVBJreK9ULp50B9gsW1Cfq3QiZJDrWxf3QbCnN1DPG_5X8H8llzGUw3YOwO2Ifs60f4z6iDFeoiBJqBE3m0Ln5e5B8sNCqPN5JZnFchA3nnpKhMa7maMDTN34NKSFesu-fNuBlcK0pm3Pbx6Oj8bQ-qnkWYZp51Prk12PQSYFXUS64"/>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                                            <span class="material-symbols-outlined text-white text-2xl" style="font-variation-settings: 'FILL' 1;">location_on</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.latitude.id_for_label }}">Latitude</label>
+                                    {{ form.latitude }}
+                                    {% if form.latitude.errors %}
+                                        {% for error in form.latitude.errors %}
+                                            <p class="error-message flex items-center gap-1 text-red-600 text-xs font-medium mt-1.5"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.longitude.id_for_label }}">Longitude</label>
+                                    {{ form.longitude }}
+                                    {% if form.longitude.errors %}
+                                        {% for error in form.longitude.errors %}
+                                            <p class="error-message flex items-center gap-1 text-red-600 text-xs font-medium mt-1.5"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Maintenance Mode Card -->
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-8 py-6 border-b border-slate-200/60">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                                <span class="material-symbols-outlined text-purple-600">build</span>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900 font-display">Operational Status</h2>
+                                <p class="text-sm text-slate-500">Control your store availability</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-between p-5 bg-slate-50 rounded-2xl border border-slate-200">
+                                <div>
+                                    <span class="text-sm font-bold text-slate-900">Maintenance Mode</span>
+                                    <p class="text-xs text-slate-500 mt-0.5">Take your store offline for maintenance</p>
+                                </div>
+                                <div class="relative inline-block w-14 h-8">
+                                    {{ form.maintenance_mode }}
+                                    <span class="toggle-slider absolute inset-0 bg-slate-300 rounded-full transition-colors duration-300" style="background-color: {% if form.maintenance_mode.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
+                                        <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 flex items-center justify-center" style="transform: {% if form.maintenance_mode.value %}translateX(1.5rem){% else %}translateX(0){% endif %};">
+                                            {% if form.maintenance_mode.value %}
+                                            <span class="material-symbols-outlined text-xs text-blue-600">check</span>
+                                            {% endif %}
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-slate-700" for="{{ form.maintenance_message.id_for_label }}">Maintenance Message</label>
+                                {{ form.maintenance_message }}
+                                <p class="text-xs text-slate-500">Message shown to visitors during maintenance</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- App Links Card -->
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-cyan-50 to-blue-50 px-8 py-6 border-b border-slate-200/60">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                                <span class="material-symbols-outlined text-cyan-600">phone_android</span>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900 font-display">Mobile App Links</h2>
+                                <p class="text-sm text-slate-500">Links to your mobile applications</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-slate-700" for="{{ form.apple_store_link.id_for_label }}">Apple App Store</label>
+                                {{ form.apple_store_link }}
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-slate-700" for="{{ form.play_store_link.id_for_label }}">Google Play Store</label>
+                                {{ form.play_store_link }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ==================== BRANDING SECTION ==================== -->
+            <section class="settings-section space-y-8 animate-fade-in" id="branding-section">
+
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-pink-50 to-rose-50 px-8 py-6 border-b border-slate-200/60">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                                <span class="material-symbols-outlined text-pink-600">palette</span>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900 font-display">Logos & Assets</h2>
+                                <p class="text-sm text-slate-500">Visual identity for your store</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                            <!-- Main Logo -->
+                            <div class="space-y-3">
+                                <label class="block text-sm font-semibold text-slate-700" for="{{ form.logo.id_for_label }}">Main Logo</label>
+                                {% if is_edit and object.logo %}
+                                <div class="mb-3">
+                                    <img src="{{ object.logo.url }}" alt="Current logo" class="w-24 h-24 object-contain rounded-xl border border-slate-200 shadow-sm bg-white"/>
+                                </div>
+                                {% endif %}
+                                <div class="w-24 h-24 rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 hover:from-blue-50 hover:to-indigo-50 hover:border-blue-400 cursor-pointer transition-all duration-300 group" onclick="document.getElementById('{{ form.logo.id_for_label }}').click()">
+                                    <span class="material-symbols-outlined text-slate-400 group-hover:text-blue-500 transition-colors">upload_file</span>
+                                    <span class="text-xs text-slate-500 mt-1.5 group-hover:text-blue-600 transition-colors">Upload</span>
+                                </div>
+                                {{ form.logo }}
+                                {% if form.logo.errors %}
+                                    {% for error in form.logo.errors %}
+                                        <p class="error-message flex items-center gap-1 text-red-600 text-xs font-medium mt-1.5"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <!-- Dark Mode Logo -->
+                            <div class="space-y-3">
+                                <label class="block text-sm font-semibold text-slate-700" for="{{ form.logo_dark.id_for_label }}">Dark Mode Logo</label>
+                                {% if is_edit and object.logo_dark %}
+                                <div class="mb-3">
+                                    <img src="{{ object.logo_dark.url }}" alt="Current dark logo" class="w-24 h-24 object-contain rounded-xl border border-slate-200 shadow-sm bg-slate-900"/>
+                                </div>
+                                {% endif %}
+                                <div class="w-24 h-24 rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 hover:border-blue-400 cursor-pointer transition-all duration-300 group" onclick="document.getElementById('{{ form.logo_dark.id_for_label }}').click()">
+                                    <span class="material-symbols-outlined text-slate-400 group-hover:text-white transition-colors">upload_file</span>
+                                    <span class="text-xs text-slate-400 mt-1.5 group-hover:text-white transition-colors">Upload</span>
+                                </div>
+                                {{ form.logo_dark }}
+                                {% if form.logo_dark.errors %}
+                                    {% for error in form.logo_dark.errors %}
+                                        <p class="error-message flex items-center gap-1 text-red-600 text-xs font-medium mt-1.5"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <!-- Favicon -->
+                            <div class="space-y-3">
+                                <label class="block text-sm font-semibold text-slate-700" for="{{ form.favicon.id_for_label }}">Favicon</label>
+                                {% if is_edit and object.favicon %}
+                                <div class="mb-3">
+                                    <img src="{{ object.favicon.url }}" alt="Current favicon" class="w-16 h-16 object-contain rounded-lg border border-slate-200 shadow-sm bg-white"/>
+                                </div>
+                                {% endif %}
+                                <div class="w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 hover:from-blue-50 hover:to-indigo-50 hover:border-blue-400 cursor-pointer transition-all duration-300 group" onclick="document.getElementById('{{ form.favicon.id_for_label }}').click()">
+                                    <span class="material-symbols-outlined text-slate-400 group-hover:text-blue-500 transition-colors text-sm">image</span>
+                                </div>
+                                {{ form.favicon }}
+                                <p class="text-xs text-slate-400">32x32px recommended</p>
+                                {% if form.favicon.errors %}
+                                    {% for error in form.favicon.errors %}
+                                        <p class="error-message flex items-center gap-1 text-red-600 text-xs font-medium mt-1.5"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <!-- Loading GIF -->
+                            <div class="space-y-3">
+                                <label class="block text-sm font-semibold text-slate-700" for="{{ form.loading_gif.id_for_label }}">Loading Animation</label>
+                                {% if is_edit and object.loading_gif %}
+                                <div class="mb-3">
+                                    <img src="{{ object.loading_gif.url }}" alt="Current loading" class="w-16 h-16 object-contain rounded-lg border border-slate-200 shadow-sm bg-white"/>
+                                </div>
+                                {% endif %}
+                                <div class="w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 hover:from-blue-50 hover:to-indigo-50 hover:border-blue-400 cursor-pointer transition-all duration-300 group" onclick="document.getElementById('{{ form.loading_gif.id_for_label }}').click()">
+                                    <span class="material-symbols-outlined text-slate-400 group-hover:text-blue-500 transition-colors text-sm">animation</span>
+                                </div>
+                                {{ form.loading_gif }}
+                                <p class="text-xs text-slate-400">GIF format only</p>
+                                {% if form.loading_gif.errors %}
+                                    {% for error in form.loading_gif.errors %}
+                                        <p class="error-message flex items-center gap-1 text-red-600 text-xs font-medium mt-1.5"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ==================== SEO SECTION ==================== -->
+            <section class="settings-section space-y-8 animate-fade-in" id="seo-section">
+
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-violet-50 to-purple-50 px-8 py-6 border-b border-slate-200/60">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                                <span class="material-symbols-outlined text-violet-600">search</span>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900 font-display">Search Engine Optimization</h2>
+                                <p class="text-sm text-slate-500">Improve your search visibility</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <div class="space-y-8">
+                            <!-- Google Search Preview -->
+                            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-sm">visibility</span>
+                                    Google Search Preview
+                                </h4>
+                                <div class="max-w-xl">
+                                    <p class="text-[#1a0dab] text-xl font-medium hover:underline cursor-pointer truncate" id="seo-preview-title">{{ form.meta_title.value|default:'My Store | Premium goods for modern living.' }}</p>
+                                    <p class="text-[#006621] text-sm mt-1 truncate">https://{{ request.get_host }}</p>
+                                    <p class="text-slate-600 text-sm mt-1 line-clamp-2" id="seo-preview-desc">{{ form.meta_description.value|default:'Discover a curated collection of premium goods designed for modern living.' }}</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 gap-6">
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.meta_title.id_for_label }}">Meta Title</label>
+                                    {{ form.meta_title }}
+                                    <div class="flex justify-end"><span class="char-counter text-xs text-slate-500 font-medium"><span id="meta-title-count">{{ form.meta_title.value|length|default:0 }}</span>/60</span></div>
+                                    {% if form.meta_title.errors %}
+                                        {% for error in form.meta_title.errors %}
+                                            <p class="error-message flex items-center gap-1 text-red-600 text-xs font-medium mt-1.5"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.meta_description.id_for_label }}">Meta Description</label>
+                                    {{ form.meta_description }}
+                                    <div class="flex justify-end"><span class="char-counter text-xs text-slate-500 font-medium"><span id="meta-desc-count">{{ form.meta_description.value|length|default:0 }}</span>/160</span></div>
+                                    {% if form.meta_description.errors %}
+                                        {% for error in form.meta_description.errors %}
+                                            <p class="error-message flex items-center gap-1 text-red-600 text-xs font-medium mt-1.5"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.meta_keywords.id_for_label }}">Meta Keywords</label>
+                                    {{ form.meta_keywords }}
+                                    <p class="text-xs text-slate-500">Comma-separated keywords</p>
+                                </div>
+                            </div>
+
+                            <!-- SEO Toggles -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-slate-100">
+                                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                    <div>
+                                        <span class="text-sm font-bold text-slate-900">Allow Search Indexing</span>
+                                        <p class="text-xs text-slate-500 mt-0.5">Let search engines index your store</p>
+                                    </div>
+                                    <div class="relative inline-block w-14 h-8">
+                                        {{ form.allow_indexing }}
+                                        <span class="toggle-slider absolute inset-0 rounded-full transition-colors duration-300" style="background-color: {% if form.allow_indexing.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
+                                            <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300" style="transform: {% if form.allow_indexing.value %}translateX(1.5rem){% else %}translateX(0){% endif %};"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                    <div>
+                                        <span class="text-sm font-bold text-slate-900">XML Sitemap</span>
+                                        <p class="text-xs text-slate-500 mt-0.5">Generate sitemap.xml automatically</p>
+                                    </div>
+                                    <div class="relative inline-block w-14 h-8">
+                                        {{ form.sitemap_enabled }}
+                                        <span class="toggle-slider absolute inset-0 rounded-full transition-colors duration-300" style="background-color: {% if form.sitemap_enabled.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
+                                            <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300" style="transform: {% if form.sitemap_enabled.value %}translateX(1.5rem){% else %}translateX(0){% endif %};"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Analytics -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-slate-100">
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.google_analytics_id.id_for_label }}">Google Analytics ID</label>
+                                    {{ form.google_analytics_id }}
+                                    <p class="text-xs text-slate-500">e.g., G-XXXXXXXXXX</p>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.google_tag_manager_id.id_for_label }}">Tag Manager ID</label>
+                                    {{ form.google_tag_manager_id }}
+                                    <p class="text-xs text-slate-500">e.g., GTM-XXXXXXX</p>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.facebook_pixel_id.id_for_label }}">Facebook Pixel ID</label>
+                                    {{ form.facebook_pixel_id }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ==================== SHIPPING SECTION ==================== -->
+            <section class="settings-section space-y-8 animate-fade-in" id="shipping-section">
+
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-blue-50 to-cyan-50 px-8 py-6 border-b border-slate-200/60">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                                    <span class="material-symbols-outlined text-blue-600">local_shipping</span>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-bold text-slate-900 font-display">Shipping Settings</h2>
+                                    <p class="text-sm text-slate-500">Configure delivery options</p>
+                                </div>
+                            </div>
+                            <div class="relative inline-block w-14 h-8">
+                                {{ form.shipping_enabled }}
+                                <span class="toggle-slider absolute inset-0 rounded-full transition-colors duration-300" style="background-color: {% if form.shipping_enabled.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
+                                    <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300" style="transform: {% if form.shipping_enabled.value %}translateX(1.5rem){% else %}translateX(0){% endif %};"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-slate-100">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-slate-700" for="{{ form.free_shipping_threshold.id_for_label }}">Free Shipping Threshold</label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-semibold">$</span>
+                                    {{ form.free_shipping_threshold }}
+                                </div>
+                                {% if form.free_shipping_threshold.errors %}
+                                    {% for error in form.free_shipping_threshold.errors %}
+                                        <p class="error-message flex items-center gap-1 text-red-600 text-xs font-medium mt-1.5"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-slate-700" for="{{ form.processing_time_days.id_for_label }}">Processing Time</label>
+                                {{ form.processing_time_days }}
+                                <p class="text-xs text-slate-500">Days to process orders</p>
+                            </div>
+
+                            <div class="md:col-span-2 space-y-4">
+                                <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                    {{ form.allow_local_pickup }}
+                                    <span class="text-sm font-semibold text-slate-700">Allow local pickup</span>
+                                </div>
+                                <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                    {{ form.ship_to_po_boxes }}
+                                    <span class="text-sm font-semibold text-slate-700">Ship to PO boxes</span>
+                                </div>
+                                <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                    {{ form.require_signature }}
+                                    <span class="text-sm font-semibold text-slate-700">Require signature on delivery</span>
+                                </div>
+                                <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                    {{ form.use_live_rates }}
+                                    <span class="text-sm font-semibold text-slate-700">Use carrier API for real-time rates</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ==================== TAXES SECTION ==================== -->
+            <section class="settings-section space-y-8 animate-fade-in" id="taxes-section">
+
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-emerald-50 to-green-50 px-8 py-6 border-b border-slate-200/60">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                                <span class="material-symbols-outlined text-emerald-600">account_balance</span>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900 font-display">Commerce Logic & Taxes</h2>
+                                <p class="text-sm text-slate-500">Tax configuration and policies</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                            <div class="space-y-6">
+                                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                    <span class="text-sm font-bold text-slate-900">Enable Tax Calculations</span>
+                                    <div class="relative inline-block w-14 h-8">
+                                        {{ form.tax_enabled }}
+                                        <span class="toggle-slider absolute inset-0 rounded-full transition-colors duration-300" style="background-color: {% if form.tax_enabled.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
+                                            <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300" style="transform: {% if form.tax_enabled.value %}translateX(1.5rem){% else %}translateX(0){% endif %};"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.tax_id_number.id_for_label }}">Tax ID / VAT Number</label>
+                                    {{ form.tax_id_number }}
+                                </div>
+                                <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                    {{ form.prices_include_tax }}
+                                    <span class="text-sm font-semibold text-slate-700">Prices already include tax</span>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.tax_calculation_method.id_for_label }}">Calculation Method</label>
+                                    {{ form.tax_calculation_method }}
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-slate-700" for="{{ form.default_tax_rate.id_for_label }}">Default Tax Rate (%)</label>
+                                    {{ form.default_tax_rate }}
+                                    {% if form.default_tax_rate.errors %}
+                                        {% for error in form.default_tax_rate.errors %}
+                                            <p class="error-message flex items-center gap-1 text-red-600 text-xs font-medium mt-1.5"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                    {{ form.charge_tax_on_shipping }}
+                                    <span class="text-sm font-semibold text-slate-700">Charge tax on shipping</span>
+                                </div>
+                            </div>
+
+                            <!-- Calculation Preview -->
+                            <div class="bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-2xl p-6">
+                                <h4 class="text-xs font-bold text-slate-500 uppercase mb-4 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-sm">calculate</span>
+                                    Calculation Preview
+                                </h4>
+                                <div class="space-y-3 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-500">Subtotal</span>
+                                        <span class="font-semibold text-slate-900">$100.00</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-500">Shipping (Flat Rate)</span>
+                                        <span class="font-semibold text-slate-900">$10.00</span>
+                                    </div>
+                                    <div class="flex justify-between font-semibold text-slate-900 pt-3 border-t border-slate-200">
+                                        <span>Estimated Tax (8.5%)</span>
+                                        <span>$9.35</span>
+                                    </div>
+                                    <div class="flex justify-between font-bold text-blue-600 text-lg pt-3">
+                                        <span>Total</span>
+                                        <span>$119.35</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Policy Display Toggles -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-6 border-t border-slate-100">
+                            <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                {{ form.show_privacy_policy }}
+                                <span class="text-sm font-semibold text-slate-700">Privacy Policy</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                {{ form.show_terms_of_service }}
+                                <span class="text-sm font-semibold text-slate-700">Terms of Service</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                {{ form.show_refund_policy }}
+                                <span class="text-sm font-semibold text-slate-700">Refund Policy</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                {{ form.show_shipping_policy }}
+                                <span class="text-sm font-semibold text-slate-700">Shipping Policy</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ==================== CHECKOUT SECTION ==================== -->
+            <section class="settings-section space-y-8 animate-fade-in" id="checkout-section">
+
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-indigo-50 to-blue-50 px-8 py-6 border-b border-slate-200/60">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                                <span class="material-symbols-outlined text-indigo-600">shopping_cart_checkout</span>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900 font-display">Checkout Settings</h2>
+                                <p class="text-sm text-slate-500">Configure the checkout experience</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="flex items-center justify-between p-5 bg-slate-50 rounded-xl border border-slate-200">
+                                <div>
+                                    <span class="text-sm font-bold text-slate-900">Guest Checkout</span>
+                                    <p class="text-xs text-slate-500 mt-0.5">Allow purchases without account</p>
+                                </div>
+                                <div class="relative inline-block w-14 h-8">
+                                    {{ form.allow_guest_checkout }}
+                                    <span class="toggle-slider absolute inset-0 rounded-full transition-colors duration-300" style="background-color: {% if form.allow_guest_checkout.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
+                                        <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300" style="transform: {% if form.allow_guest_checkout.value %}translateX(1.5rem){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-slate-700" for="{{ form.cart_expiry_days.id_for_label }}">Cart Expiry (Days)</label>
+                                {{ form.cart_expiry_days }}
+                            </div>
+                            <div class="flex items-center justify-between p-5 bg-slate-50 rounded-xl border border-slate-200">
+                                <div>
+                                    <span class="text-sm font-bold text-slate-900">Address Validation</span>
+                                    <p class="text-xs text-slate-500 mt-0.5">Validate shipping addresses</p>
+                                </div>
+                                <div class="relative inline-block w-14 h-8">
+                                    {{ form.validate_address }}
+                                    <span class="toggle-slider absolute inset-0 rounded-full transition-colors duration-300" style="background-color: {% if form.validate_address.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
+                                        <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300" style="transform: {% if form.validate_address.value %}translateX(1.5rem){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-slate-700" for="{{ form.dashboard_path_prefix.id_for_label }}">Dashboard Path Prefix</label>
+                                {{ form.dashboard_path_prefix }}
+                                <p class="text-xs text-slate-500">Admin URL prefix (e.g., admin)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ==================== FEATURES SECTION ==================== -->
+            <section class="settings-section space-y-8 pb-20 animate-fade-in" id="features-section">
+
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 px-8 py-6 border-b border-slate-200/60">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                                <span class="material-symbols-outlined text-amber-600">bolt</span>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900 font-display">Feature Toggles</h2>
+                                <p class="text-sm text-slate-500">Enable or disable store features</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        {% if locked_feature_fields %}
+                        <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
+                            <div class="flex items-start gap-3">
+                                <span class="material-symbols-outlined text-amber-600">lock</span>
+                                <div>
+                                    <p class="font-semibold">Some feature controls are locked by your current plan.</p>
+                                    <p class="mt-1 text-amber-800">
+                                        Unlock premium modules in the
+                                        <a class="font-semibold underline decoration-amber-400 underline-offset-2" href="{% url 'dashboard:feature_marketplace:catalog' prefix=prefix %}">Marketplace</a>
+                                        before editing them here.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                            <!-- Product Reviews -->
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-slate-900">Product Reviews</span>
+                                    <span class="text-xs text-slate-500 mt-1">Allow customers to leave ratings</span>
+                                </div>
+                                <div class="relative inline-block w-14 h-8">
+                                    {{ form.enable_reviews }}
+                                    <span class="toggle-slider absolute inset-0 rounded-full transition-colors duration-300" style="background-color: {% if form.enable_reviews.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
+                                        <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300" style="transform: {% if form.enable_reviews.value %}translateX(1.5rem){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Wishlist -->
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-slate-900">Wishlist</span>
+                                    <span class="text-xs text-slate-500 mt-1">Save items for later</span>
+                                </div>
+                                <div class="relative inline-block w-14 h-8">
+                                    {{ form.enable_wishlist }}
+                                    <span class="toggle-slider absolute inset-0 rounded-full transition-colors duration-300" style="background-color: {% if form.enable_wishlist.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
+                                        <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300" style="transform: {% if form.enable_wishlist.value %}translateX(1.5rem){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Product Compare -->
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-slate-900">Product Compare</span>
+                                    <span class="text-xs text-slate-500 mt-1">Compare multiple products</span>
+                                </div>
+                                <div class="relative inline-block w-14 h-8">
+                                    {{ form.enable_compare }}
+                                    <span class="toggle-slider absolute inset-0 rounded-full transition-colors duration-300" style="background-color: {% if form.enable_compare.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
+                                        <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300" style="transform: {% if form.enable_compare.value %}translateX(1.5rem){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Gift Cards -->
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-slate-900">Gift Cards</span>
+                                    <span class="text-xs text-slate-500 mt-1">Enable gift card purchases</span>
+                                </div>
+                                <div class="relative inline-block w-14 h-8">
+                                    {{ form.enable_gift_cards }}
+                                    <span class="toggle-slider absolute inset-0 rounded-full transition-colors duration-300" style="background-color: {% if form.enable_gift_cards.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
+                                        <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300" style="transform: {% if form.enable_gift_cards.value %}translateX(1.5rem){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Subscriptions -->
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-slate-900">Subscriptions</span>
+                                    <span class="text-xs text-slate-500 mt-1">Enable recurring payments</span>
+                                </div>
+                                <div class="relative inline-block w-14 h-8">
+                                    {{ form.enable_subscriptions }}
+                                    <span class="toggle-slider absolute inset-0 rounded-full transition-colors duration-300" style="background-color: {% if form.enable_subscriptions.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
+                                        <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300" style="transform: {% if form.enable_subscriptions.value %}translateX(1.5rem){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Social Login -->
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-slate-900">Social Login</span>
+                                    <span class="text-xs text-slate-500 mt-1">Google/Facebook authentication</span>
+                                </div>
+                                <div class="relative inline-block w-14 h-8">
+                                    {{ form.enable_social_login }}
+                                    <span class="toggle-slider absolute inset-0 rounded-full transition-colors duration-300" style="background-color: {% if form.enable_social_login.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
+                                        <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300" style="transform: {% if form.enable_social_login.value %}translateX(1.5rem){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Social Sharing -->
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-slate-900">Social Sharing</span>
+                                    <span class="text-xs text-slate-500 mt-1">Share products on social media</span>
+                                </div>
+                                <div class="relative inline-block w-14 h-8">
+                                    {{ form.enable_social_sharing }}
+                                    <span class="toggle-slider absolute inset-0 rounded-full transition-colors duration-300" style="background-color: {% if form.enable_social_sharing.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
+                                        <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300" style="transform: {% if form.enable_social_sharing.value %}translateX(1.5rem){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Marketing Popup -->
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-slate-900">Marketing Popup</span>
+                                    <span class="text-xs text-slate-500 mt-1">Enable promotional popups</span>
+                                </div>
+                                <div class="relative inline-block w-14 h-8">
+                                    {{ form.enable_popup }}
+                                    <span class="toggle-slider absolute inset-0 rounded-full transition-colors duration-300" style="background-color: {% if form.enable_popup.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
+                                        <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300" style="transform: {% if form.enable_popup.value %}translateX(1.5rem){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Discount Codes -->
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-slate-900">Discount Codes</span>
+                                    <span class="text-xs text-slate-500 mt-1">Enable coupon system</span>
+                                </div>
+                                <div class="relative inline-block w-14 h-8">
+                                    {{ form.enable_discount_codes }}
+                                    <span class="toggle-slider absolute inset-0 rounded-full transition-colors duration-300" style="background-color: {% if form.enable_discount_codes.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
+                                        <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300" style="transform: {% if form.enable_discount_codes.value %}translateX(1.5rem){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Live Chat -->
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-slate-900">Live Chat</span>
+                                    <span class="text-xs text-slate-500 mt-1">Enable support bubble</span>
+                                </div>
+                                <div class="relative inline-block w-14 h-8">
+                                    {{ form.enable_live_chat }}
+                                    <span class="toggle-slider absolute inset-0 rounded-full transition-colors duration-300" style="background-color: {% if form.enable_live_chat.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
+                                        <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300" style="transform: {% if form.enable_live_chat.value %}translateX(1.5rem){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- API Access -->
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-slate-900">API Access</span>
+                                    <span class="text-xs text-slate-500 mt-1">Expose webhooks & endpoints</span>
+                                </div>
+                                <div class="relative inline-block w-14 h-8">
+                                    {{ form.enable_api_access }}
+                                    <span class="toggle-slider absolute inset-0 rounded-full transition-colors duration-300" style="background-color: {% if form.enable_api_access.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
+                                        <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300" style="transform: {% if form.enable_api_access.value %}translateX(1.5rem){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Webhooks -->
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-slate-900">Webhooks</span>
+                                    <span class="text-xs text-slate-500 mt-1">Enable webhook notifications</span>
+                                </div>
+                                <div class="relative inline-block w-14 h-8">
+                                    {{ form.enable_webhooks }}
+                                    <span class="toggle-slider absolute inset-0 rounded-full transition-colors duration-300" style="background-color: {% if form.enable_webhooks.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
+                                        <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300" style="transform: {% if form.enable_webhooks.value %}translateX(1.5rem){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Live Chat Provider -->
+                            <div class="lg:col-span-3 space-y-2 pt-6 border-t border-slate-100">
+                                <label class="block text-sm font-semibold text-slate-700" for="{{ form.live_chat_provider.id_for_label }}">Live Chat Provider</label>
+                                {{ form.live_chat_provider }}
+                                <p class="text-xs text-slate-500">e.g., Intercom, Zendesk, Tawk.to</p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+        </form>
+    </main>
+</div>
+
+<!-- CSS for Tab Functionality -->
+<style>
+    .settings-section { display: none; animation: fadeIn 0.3s; }
+    .settings-section.active { display: block; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<!-- JavaScript for Dynamic Interactions -->
+
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // === Tab Navigation ===
+        const tabLinks = document.querySelectorAll('.tab-link');
+        const sections = document.querySelectorAll('.settings-section');
+
+        tabLinks.forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
+
+                // Update tab styles
+                tabLinks.forEach(function(t) {
+                    t.classList.remove('active', 'bg-blue-50', 'text-blue-600');
+                    t.classList.add('text-slate-600');
+                });
+                this.classList.add('active', 'bg-blue-50', 'text-blue-600');
+                this.classList.remove('text-slate-600');
+
+                // Show corresponding section
+                sections.forEach(function(section) {
+                    section.classList.remove('active');
+                    if (section.id === targetTab + '-section') {
+                        section.classList.add('active');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                });
+            });
+        });
+
+        // Initialize active tab styling
+        document.querySelectorAll('.tab-link.active').forEach(function(tab) {
+            tab.classList.add('bg-blue-50', 'text-blue-600');
+        });
+
+        // === Toggle Switch Styling ===
+        const toggleCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+        toggleCheckboxes.forEach(function(checkbox) {
+            checkbox.classList.add('toggle-checkbox');
+            checkbox.style.opacity = '0';
+            checkbox.style.position = 'absolute';
+
+            // Initialize toggle state
+            const slider = checkbox.parentElement.querySelector('.toggle-slider');
+            const knob = slider ? slider.querySelector('.absolute') : null;
+
+            if (slider && knob) {
+                // Set initial state based on checkbox value
+                const isChecked = checkbox.checked;
+                slider.style.backgroundColor = isChecked ? '#3b82f6' : '#cbd5e1';
+                knob.style.transform = isChecked ? 'translateX(1.5rem)' : 'translateX(0)';
+
+                // Add click handler to the slider for better UX
+                slider.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    checkbox.checked = !checkbox.checked;
+                    checkbox.dispatchEvent(new Event('change'));
+                });
+            }
+
+            checkbox.addEventListener('change', function() {
+                const slider = this.parentElement.querySelector('.toggle-slider');
+                const knob = slider ? slider.querySelector('.absolute') : null;
+                if (slider && knob) {
+                    slider.style.backgroundColor = this.checked ? '#3b82f6' : '#cbd5e1';
+                    knob.style.transform = this.checked ? 'translateX(1.5rem)' : 'translateX(0)';
+                }
+            });
+        });
+
+        // === Character Counters for SEO Fields ===
+        const metaTitle = document.getElementById('{{ form.meta_title.id_for_label }}');
+        const metaDesc = document.getElementById('{{ form.meta_description.id_for_label }}');
+        const titleCount = document.getElementById('meta-title-count');
+        const descCount = document.getElementById('meta-desc-count');
+        const titlePreview = document.getElementById('seo-preview-title');
+        const descPreview = document.getElementById('seo-preview-desc');
+
+        if (metaTitle && titleCount) {
+            metaTitle.addEventListener('input', function() {
+                titleCount.textContent = this.value.length;
+                if (titlePreview) titlePreview.textContent = this.value || 'My Store | Premium goods for modern living.';
+                if (this.value.length > 60) {
+                    this.classList.add('form-field-error');
+                } else {
+                    this.classList.remove('form-field-error');
+                }
+            });
+        }
+
+        if (metaDesc && descCount) {
+            metaDesc.addEventListener('input', function() {
+                descCount.textContent = this.value.length;
+                if (descPreview) descPreview.textContent = this.value || 'Discover a curated collection of premium goods designed for modern living.';
+                if (this.value.length > 160) {
+                    this.classList.add('form-field-error');
+                } else {
+                    this.classList.remove('form-field-error');
+                }
+            });
+        }
+
+        // === Form Change Detection ===
+        const form = document.getElementById('settings-form');
+        let formChanged = false;
+
+        form.addEventListener('input', function() {
+            formChanged = true;
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (formChanged) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // === Hide Messages After 5 Seconds ===
+        setTimeout(function() {
+            const messages = document.querySelectorAll('.fixed.top-24');
+            messages.forEach(function(msg) {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    msg.remove();
+                }, 500);
+            });
+        }, 5000);
+
+        // === File Upload Preview ===
+        const fileInputs = ['{{ form.logo.id_for_label }}', '{{ form.logo_dark.id_for_label }}', '{{ form.favicon.id_for_label }}', '{{ form.loading_gif.id_for_label }}'];
+        fileInputs.forEach(function(id) {
+            const input = document.getElementById(id);
+            if (input) {
+                input.classList.add('hidden');
+                input.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const preview = input.parentElement.querySelector('img');
+                            if (preview) {
+                                preview.src = e.target.result;
+                                preview.classList.remove('hidden');
+                            }
+                        };
+                        reader.readAsDataURL(this.files[0]);
+                    }
+                });
+            }
+        });
+
+        // === URL Parameter for Tab Selection ===
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab');
+        if (tabParam) {
+            const targetTab = document.querySelector(`.tab-link[data-tab="${tabParam}"]`);
+            if (targetTab) {
+                targetTab.click();
+            }
+        }
+    });
+</script>
+{% endblock %}

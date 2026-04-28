@@ -1,0 +1,68 @@
+{% extends "system/default/templates/base.html" %}
+
+{% block content %}
+<section class="space-y-8">
+    <div class="surface-card overflow-hidden p-8 lg:p-10">
+        <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            {% for crumb in breadcrumbs %}
+                {% if crumb.url %}<a href="{{ crumb.url }}" class="transition hover:text-slate-900">{{ crumb.label }}</a>{% else %}<span>{{ crumb.label }}</span>{% endif %}
+                {% if not forloop.last %}<span>/</span>{% endif %}
+            {% endfor %}
+        </div>
+        <div class="mt-6 hero-grid items-start">
+            <div class="space-y-5">
+                <p class="eyebrow">Storefront Information</p>
+                <h1 class="section-title">{{ headline }}</h1>
+                <div class="section-copy text-base">{{ body|linebreaks }}</div>
+            </div>
+            <div class="surface-card-soft p-6">
+                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Need more help?</p>
+                <h2 class="brand-font mt-3 text-2xl font-bold text-slate-950">Contact the store team.</h2>
+                <div class="mt-4 space-y-2 text-sm text-slate-600">
+                    {% if shop.support_email %}<p>{{ shop.support_email }}</p>{% endif %}
+                    {% if shop.phone %}<p>{{ shop.phone }}</p>{% endif %}
+                    {% if shop.address %}<p>{{ shop.address }}</p>{% endif %}
+                </div>
+                <div class="mt-6 flex flex-wrap gap-3">
+                    <a href="{% url 'support:contact_us' %}" class="button-primary">Contact Us</a>
+                    <a href="{% url 'support:help_center' %}" class="button-secondary">Help Center</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if form %}
+        <div class="surface-card p-8">
+            <div class="mb-6">
+                <p class="eyebrow">Take Action</p>
+                <h2 class="brand-font mt-3 text-3xl font-bold text-slate-950">Send a request</h2>
+            </div>
+            <form method="post" action="{{ form_action|default:request.path }}" class="grid gap-5 md:grid-cols-2">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="{% if field.name == 'message' or field.name == 'delivery_instructions' %}md:col-span-2{% endif %}">
+                        <label class="mb-2 block text-sm font-semibold text-slate-700">{{ field.label }}</label>
+                        <div class="field-shell">{{ field }}</div>
+                        {% if field.help_text %}<p class="mt-2 text-xs text-slate-400">{{ field.help_text }}</p>{% endif %}
+                        {% if field.errors %}<p class="mt-2 text-sm text-rose-600">{{ field.errors|join:", " }}</p>{% endif %}
+                    </div>
+                {% endfor %}
+                <div class="md:col-span-2">
+                    <button type="submit" class="button-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+
+    <div class="grid gap-4 md:grid-cols-3">
+        {% for card in store_editorial_cards %}
+            <article class="surface-card-soft p-6">
+                <p class="eyebrow">{{ card.eyebrow }}</p>
+                <h2 class="brand-font mt-3 text-2xl font-bold text-slate-950">{{ card.title }}</h2>
+                <p class="mt-3 text-sm leading-6 text-slate-500">{{ card.body }}</p>
+                <a href="{{ card.url }}" class="mt-5 inline-flex text-sm font-semibold text-[color:var(--color-secondary)]">{{ card.cta }}</a>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

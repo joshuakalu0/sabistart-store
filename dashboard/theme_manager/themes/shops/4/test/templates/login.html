@@ -1,0 +1,48 @@
+{% extends "system/classic/templates/_partials/_mini_base.html" %}
+
+{% block content %}
+<div class="grid w-full gap-8 lg:grid-cols-[0.95fr,1.05fr]">
+    <div class="mini-card p-10 lg:p-12">
+        <p class="eyebrow">Welcome Back</p>
+        <div class="accent-bar mt-3 mb-6"></div>
+        <h1 class="brand-font text-4xl font-semibold text-stone-900 leading-tight">Sign in to your account.</h1>
+        <p class="mt-4 text-sm leading-7 text-stone-500 font-light">Access your orders, saved addresses, wishlist activity, and the full account hub.</p>
+
+        <form method="post" class="mt-8 space-y-5">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next_url }}">
+            {% for field in form %}
+                <div>
+                    <label class="block mb-2" style="font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#5c5347">{{ field.label }}</label>
+                    <div>{{ field }}</div>
+                    {% if field.errors %}<p class="mt-2 text-xs text-red-700">{{ field.errors|join:", " }}</p>{% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="button-primary w-full mt-2">Sign In</button>
+        </form>
+
+        <div class="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs text-stone-400">
+            <a href="{% url 'tenant:password_reset' %}" class="font-bold uppercase tracking-widest hover:text-stone-700 transition" style="letter-spacing:.16em;color:var(--color-secondary)">Forgot Password?</a>
+            <a href="{% url 'tenant:register' %}" class="font-bold uppercase tracking-widest hover:text-stone-700 transition" style="letter-spacing:.16em;color:var(--color-secondary)">Create Account</a>
+        </div>
+    </div>
+
+    <div class="mini-card flex flex-col justify-between p-10 lg:p-12" style="background:var(--color-primary)">
+        <div>
+            <p class="eyebrow !text-amber-400">Why Sign In</p>
+            <div class="accent-bar mt-3 mb-6"></div>
+            <h2 class="brand-font text-4xl font-semibold text-white leading-tight">A faster path through every purchase.</h2>
+        </div>
+        <div class="mt-8 space-y-4">
+            <div class="p-6" style="border:1px solid rgba(255,255,255,.1)">
+                <p class="brand-font text-2xl font-semibold text-white">Order History</p>
+                <p class="mt-2 text-sm leading-6 font-light" style="color:rgba(255,255,255,.5)">Track fulfilment, payments, and previous orders from one account dashboard.</p>
+            </div>
+            <div class="p-6" style="border:1px solid rgba(255,255,255,.1)">
+                <p class="brand-font text-2xl font-semibold text-white">Saved Preferences</p>
+                <p class="mt-2 text-sm leading-6 font-light" style="color:rgba(255,255,255,.5)">Keep your address book, recent browsing, and account preferences linked to this store.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,61 +1,292 @@
-<h3 class="text-xl font-bold mb-6 flex items-center gap-2">
-  <span class="material-symbols-outlined text-primary">local_shipping</span>
-  Shipping & SEO
-</h3>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-  <div class="flex items-center space-x-3">
-    {{ form.requires_shipping }}
-    <label class="text-sm font-medium text-slate-700 dark:text-slate-300"
-      >Requires Shipping</label
+<div class="flex-1 overflow-y-auto p-8">
+  <div class="max-w-4xl mx-auto space-y-8">
+    <!-- Shipping Card -->
+    <section
+      class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden"
     >
-  </div>
-  <div>
-    <label class="block text-sm font-semibold mb-2">Weight (kg)</label>
-    {{ form.weight }} {% if form.weight.errors %}<span
-      class="text-red-500 text-sm"
-      >{{ form.weight.errors.0 }}</span
-    >{% endif %}
-  </div>
-  <div>
-    <label class="block text-sm font-semibold mb-2">Length (cm)</label>
-    {{ form.length }} {% if form.length.errors %}<span
-      class="text-red-500 text-sm"
-      >{{ form.length.errors.0 }}</span
-    >{% endif %}
-  </div>
-  <div>
-    <label class="block text-sm font-semibold mb-2">Width (cm)</label>
-    {{ form.width }} {% if form.width.errors %}<span
-      class="text-red-500 text-sm"
-      >{{ form.width.errors.0 }}</span
-    >{% endif %}
-  </div>
-  <div>
-    <label class="block text-sm font-semibold mb-2">Height (cm)</label>
-    {{ form.height }} {% if form.height.errors %}<span
-      class="text-red-500 text-sm"
-      >{{ form.height.errors.0 }}</span
-    >{% endif %}
-  </div>
-  <div class="col-span-2">
-    <label class="block text-sm font-semibold mb-2">Meta Title</label>
-    {{ form.meta_title }} {% if form.meta_title.errors %}<span
-      class="text-red-500 text-sm"
-      >{{ form.meta_title.errors.0 }}</span
-    >{% endif %}
-  </div>
-  <div class="col-span-2">
-    <label class="block text-sm font-semibold mb-2">Meta Description</label>
-    {{ form.meta_description }} {% if form.meta_description.errors %}<span
-      class="text-red-500 text-sm"
-      >{{ form.meta_description.errors.0 }}</span
-    >{% endif %}
-  </div>
-  <div class="col-span-2">
-    <label class="block text-sm font-semibold mb-2">Meta Keywords</label>
-    {{ form.meta_keywords }} {% if form.meta_keywords.errors %}<span
-      class="text-red-500 text-sm"
-      >{{ form.meta_keywords.errors.0 }}</span
-    >{% endif %}
+      <div
+        class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3"
+      >
+        <div
+          class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary"
+        >
+          <span class="material-symbols-outlined">local_shipping</span>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold">Shipping Information</h3>
+          <p class="text-sm text-slate-500">
+            Configure delivery requirements and dimensions.
+          </p>
+        </div>
+      </div>
+      <div class="p-6 space-y-6">
+        <!-- Toggle -->
+        <div
+          class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800"
+        >
+          <div class="flex flex-col">
+            <span class="font-semibold text-sm">Requires Shipping</span>
+            <span class="text-xs text-slate-500">
+              Enable if this is a physical product that needs delivery.
+            </span>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input checked="" class="sr-only peer" type="checkbox" />
+            <div
+              class="w-11 h-6 bg-slate-300 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"
+            ></div>
+          </label>
+        </div>
+        <!-- Dimensions Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div class="space-y-2">
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+              >Weight</label
+            >
+            <div class="relative">
+              {{ form.weight }} {% if form.weight.errors %}
+              <p class="text-red-500 text-xs mt-1">{{ form.weight.errors }}</p>
+              {% endif %}
+              <span
+                class="absolute right-3 top-2 text-xs font-bold text-slate-400"
+                >kg</span
+              >
+            </div>
+          </div>
+          <div class="space-y-2">
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+              >Length</label
+            >
+            <div class="relative">
+              {{ form.length }} {% if form.length.errors %}
+              <p class="text-red-500 text-xs mt-1">{{ form.length.errors }}</p>
+              {% endif %}
+              <span
+                class="absolute right-3 top-2 text-xs font-bold text-slate-400"
+                >cm</span
+              >
+            </div>
+          </div>
+          <div class="space-y-2">
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+              >Width</label
+            >
+            <div class="relative">
+              {{ form.width }} {% if form.width.errors %}
+              <p class="text-red-500 text-xs mt-1">{{ form.width.errors }}</p>
+              {% endif %}
+              <span
+                class="absolute right-3 top-2 text-xs font-bold text-slate-400"
+                >cm</span
+              >
+            </div>
+          </div>
+          <div class="space-y-2">
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+              >Height</label
+            >
+            <div class="relative">
+              {{ form.height }} {% if form.height.errors %}
+              <p class="text-red-500 text-xs mt-1">{{ form.height.errors }}</p>
+              {% endif %}
+              <span
+                class="absolute right-3 top-2 text-xs font-bold text-slate-400"
+                >cm</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEO Card -->
+    <section
+      class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden"
+    >
+      <div
+        class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3"
+      >
+        <div
+          class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary"
+        >
+          <span class="material-symbols-outlined">search</span>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold">SEO Settings</h3>
+          <p class="text-sm text-slate-500">
+            Optimize how your product appears in search engines.
+          </p>
+        </div>
+      </div>
+      <div class="p-6 space-y-6">
+        <!-- Preview Box -->
+        <div
+          class="p-4 bg-slate-50 dark:bg-slate-800/30 border border-slate-200 dark:border-slate-800 rounded-lg"
+        >
+          <p
+            class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3"
+          >
+            Google Search Preview
+          </p>
+          <div class="space-y-1">
+            <p
+              id="preview-title"
+              class="text-[#1a0dab] dark:text-[#8ab4f8] text-xl font-medium hover:underline cursor-pointer"
+            >
+              Premium Wireless Headphones | Store Name
+            </p>
+            <p
+              id="preview-url"
+              class="text-[#006621] dark:text-[#34a853] text-sm truncate"
+            >
+              https://mystore.com/products/premium-wireless-headphones
+            </p>
+            <p
+              id="preview-description"
+              class="text-slate-600 dark:text-slate-400 text-sm line-clamp-2"
+            >
+              High-fidelity sound meets ultimate comfort. Discover our latest
+              noise-canceling technology and premium ergonomic design...
+            </p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <div class="flex justify-between">
+              <label
+                class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+                >Meta Title</label
+              >
+              <span id="title-count" class="text-[10px] text-slate-400"
+                >42 / 60</span
+              >
+            </div>
+            <input
+              id="meta-title"
+              class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary"
+              type="text"
+              value="{{ form.meta_title.value|default:'Premium Wireless Headphones' }}"
+              oninput="updateSEOPreview()"
+            />
+            <p class="text-[10px] text-slate-500 italic">
+              Recommended: 50-60 characters.
+            </p>
+          </div>
+          <div class="space-y-2">
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+              >Focus Keyword</label
+            >
+            {{ form.focus_keyword }} {% if form.focus_keyword.errors %}
+            <p class="text-red-500 text-xs mt-1">
+              {{ form.focus_keyword.errors }}
+            </p>
+            {% endif %}
+          </div>
+        </div>
+        <div class="space-y-2">
+          <div class="flex justify-between">
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+              >Meta Description</label
+            >
+            <span id="description-count" class="text-[10px] text-slate-400"
+              >114 / 160</span
+            >
+          </div>
+          <textarea
+            id="meta-description"
+            class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary"
+            rows="3"
+            oninput="updateSEOPreview()"
+          >
+{{ form.meta_description.value|default:'High-fidelity sound meets ultimate comfort. Discover our latest noise-canceling technology and premium ergonomic design.' }}</textarea
+          >
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+              >Meta Keywords</label
+            >
+            {{ form.meta_keywords }} {% if form.meta_keywords.errors %}
+            <p class="text-red-500 text-xs mt-1">
+              {{ form.meta_keywords.errors }}
+            </p>
+            {% endif %}
+          </div>
+          <div class="space-y-2">
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300"
+              >Canonical URL</label
+            >
+            <input
+              id="canonical-url"
+              class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary"
+              placeholder="https://example.com/product"
+              type="text"
+              oninput="updateSEOPreview()"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 </div>
+
+<script>
+  function updateSEOPreview() {
+    // Get form values
+    const metaTitle = document.getElementById("meta-title").value;
+    const metaDescription = document.getElementById("meta-description").value;
+    const canonicalUrl = document.getElementById("canonical-url").value;
+
+    // Update preview
+    const previewTitle = document.getElementById("preview-title");
+    const previewDescription = document.getElementById("preview-description");
+    const previewUrl = document.getElementById("preview-url");
+
+    if (metaTitle) {
+      previewTitle.textContent =
+        metaTitle.length > 60 ? metaTitle.substring(0, 57) + "..." : metaTitle;
+    }
+
+    if (metaDescription) {
+      previewDescription.textContent =
+        metaDescription.length > 160
+          ? metaDescription.substring(0, 157) + "..."
+          : metaDescription;
+    }
+
+    if (canonicalUrl) {
+      previewUrl.textContent = canonicalUrl;
+    }
+
+    // Update character counts
+    document.getElementById("title-count").textContent =
+      `${metaTitle.length} / 60`;
+    document.getElementById("description-count").textContent =
+      `${metaDescription.length} / 160`;
+
+    // Warn if over character limits
+    if (metaTitle.length > 60) {
+      document.getElementById("title-count").classList.add("text-red-500");
+    } else {
+      document.getElementById("title-count").classList.remove("text-red-500");
+    }
+
+    if (metaDescription.length > 160) {
+      document
+        .getElementById("description-count")
+        .classList.add("text-red-500");
+    } else {
+      document
+        .getElementById("description-count")
+        .classList.remove("text-red-500");
+    }
+  }
+</script>

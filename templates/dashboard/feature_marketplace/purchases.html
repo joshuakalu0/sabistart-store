@@ -1,0 +1,26 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<section class="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
+  <h1 class="text-3xl font-semibold text-slate-900">Marketplace Purchases</h1>
+  <div class="mt-6 overflow-x-auto">
+    <table class="min-w-full divide-y divide-slate-200 text-sm">
+      <thead class="bg-slate-50">
+        <tr><th class="px-4 py-3 text-left">Reference</th><th class="px-4 py-3 text-left">Item</th><th class="px-4 py-3 text-left">Status</th><th class="px-4 py-3 text-left">Amount</th></tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200">
+        {% for purchase in purchases %}
+        <tr>
+          <td class="px-4 py-3">{{ purchase.purchase_reference }}</td>
+          <td class="px-4 py-3">{{ purchase.feature_name|default:purchase.bundle_name }}</td>
+          <td class="px-4 py-3">{{ purchase.get_status_display }}</td>
+          <td class="px-4 py-3">{{ purchase.currency }} {{ purchase.total_amount }}</td>
+        </tr>
+        {% empty %}
+        <tr><td class="px-4 py-6 text-slate-500" colspan="4">No purchases yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
+

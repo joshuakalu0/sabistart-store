@@ -1,0 +1,81 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Platform Blocklist</h2>
+    <p class="text-slate-600 dark:text-slate-400">{{ entries.paginator.count }} platform-wide blocked entries</p>
+  </div>
+  <a href="{% url 'dashboard:payments_system:platform_blocklist_create' prefix %}"
+     class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center space-x-2 text-sm">
+    <span class="material-icons-outlined text-sm">add</span><span>Add Entry</span>
+  </a>
+</div>
+
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+  <div class="p-4 border-b border-slate-200 dark:border-slate-700">
+    <form method="get" class="flex flex-wrap gap-3">
+      <input type="text" name="q" value="{{ q }}" placeholder="Search blocked values..."
+             class="flex-1 min-w-[200px] px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary"/>
+      <select name="entry_type" class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white">
+        <option value="">All Types</option>
+        <option value="email" {% if type_filter == 'email' %}selected{% endif %}>Email</option>
+        <option value="ip_address" {% if type_filter == 'ip_address' %}selected{% endif %}>IP Address</option>
+        <option value="card_bin" {% if type_filter == 'card_bin' %}selected{% endif %}>Card BIN</option>
+        <option value="device_fingerprint" {% if type_filter == 'device_fingerprint' %}selected{% endif %}>Device</option>
+        <option value="phone" {% if type_filter == 'phone' %}selected{% endif %}>Phone</option>
+        <option value="country" {% if type_filter == 'country' %}selected{% endif %}>Country</option>
+      </select>
+      <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg text-sm">Filter</button>
+    </form>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          {% for col in "Type,Value,Reason,Source,Expires,Added By,Actions" %}
+          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+        {% for entry in entries %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700">
+          <td class="px-4 py-3">
+            <span class="px-2 py-1 rounded text-xs font-medium bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300">{{ entry.get_entry_type_display }}</span>
+          </td>
+          <td class="px-4 py-3 font-mono text-sm text-slate-900 dark:text-white max-w-[200px] truncate">{{ entry.value }}</td>
+          <td class="px-4 py-3 text-slate-600 dark:text-slate-400 max-w-[200px] truncate">{{ entry.reason|truncatechars:60 }}</td>
+          <td class="px-4 py-3 text-slate-500 text-xs">{{ entry.source|capfirst }}</td>
+          <td class="px-4 py-3 text-slate-500 text-xs">{{ entry.expires_at|date:"d M Y"|default:"Never" }}</td>
+          <td class="px-4 py-3 text-slate-500 text-xs">{{ entry.added_by }}</td>
+          <td class="px-4 py-3">
+            <button class="text-red-600 hover:text-red-800 delete-btn"
+                    data-name="{{ entry.value|truncatechars:30 }}"
+                    data-url="{% url 'dashboard:payments_system:platform_blocklist_delete' prefix entry.id %}">Remove</button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="px-6 py-10 text-center text-slate-400">No blocklist entries found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if entries.has_other_pages %}
+  <div class="px-4 py-3 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
+    <span class="text-sm text-slate-500">Page {{ entries.number }} of {{ entries.paginator.num_pages }}</span>
+    <div class="flex space-x-2">
+      {% if entries.has_previous %}<a href="?page={{ entries.previous_page_number }}&q={{ q }}&entry_type={{ type_filter }}" class="px-3 py-1 border border-slate-300 dark:border-slate-600 rounded text-sm">Prev</a>{% endif %}
+      {% if entries.has_next %}<a href="?page={{ entries.next_page_number }}&q={{ q }}&entry_type={{ type_filter }}" class="px-3 py-1 border border-slate-300 dark:border-slate-600 rounded text-sm">Next</a>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+<script>
+document.querySelectorAll(".delete-btn").forEach(btn => {
+  btn.addEventListener("click", function () {
+    openDeleteModal("Remove from Blocklist", `Remove "${this.dataset.name}" from the platform blocklist?`,
+      () => fetch(this.dataset.url, {method:"POST",headers:{"X-CSRFToken":"{{ csrf_token }}","Content-Type":"application/x-www-form-urlencoded"}}).then(() => location.reload()));
+  });
+});
+</script>
+{% endblock %}

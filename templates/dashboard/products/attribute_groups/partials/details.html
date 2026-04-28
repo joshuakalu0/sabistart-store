@@ -1,0 +1,102 @@
+<div class="space-y-6">
+  <!-- Basic Information -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Basic Information
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Name:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ group.name }}</span
+        >
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Slug:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ group.slug }}</span
+        >
+      </div>
+      {% if group.description %}
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Description:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ group.description }}</span
+        >
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Display Settings -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Display Settings
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Display Order:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ group.display_order }}</span
+        >
+      </div>
+    </div>
+  </div>
+
+  <!-- Attributes -->
+  {% if group.attributes.exists %}
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Attributes ({{ group.attributes.count }})
+    </h4>
+    <div class="space-y-2">
+      {% for attribute in group.attributes.all %}
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"></span>
+        <div class="flex-1">
+          <div class="text-sm font-medium text-slate-900 dark:text-white">
+            {{ attribute.name }}
+          </div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">
+            {{ attribute.get_attribute_type_display }}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Dates -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Dates
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Created:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ group.created_at|date:"M d, Y H:i" }}</span
+        >
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Updated:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ group.updated_at|date:"M d, Y H:i" }}</span
+        >
+      </div>
+    </div>
+  </div>
+</div>

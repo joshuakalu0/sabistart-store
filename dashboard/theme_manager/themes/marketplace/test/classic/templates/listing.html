@@ -1,0 +1,210 @@
+{% extends "system/classic/templates/base.html" %}
+
+{% block content %}
+<section class="space-y-8">
+    <!-- Hero header -->
+    <div class="surface-card overflow-hidden">
+        <div class="px-8 py-10 lg:px-12 lg:py-12">
+            <div class="flex flex-wrap items-center gap-2 text-xs text-stone-400 uppercase tracking-widest mb-6" style="letter-spacing:.14em">
+                {% for crumb in breadcrumbs %}
+                    {% if crumb.url %}<a href="{{ crumb.url }}" class="hover:text-stone-700 transition">{{ crumb.label }}</a>{% else %}<span class="text-stone-600">{{ crumb.label }}</span>{% endif %}
+                    {% if not forloop.last %}<span>/</span>{% endif %}
+                {% endfor %}
+            </div>
+            <div class="hero-grid items-start">
+                <div class="space-y-4">
+                    <p class="eyebrow">Catalogue Explorer</p>
+                    <div class="accent-bar"></div>
+                    <h1 class="section-title">{{ hero_title|default:page_title }}</h1>
+                    <p class="section-copy text-base font-light">{{ hero_body|default:page_description }}</p>
+                </div>
+                <div class="surface-card-soft p-6">
+                    <p class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-4" style="letter-spacing:.2em">Quick Links</p>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="{% url 'category:deals' %}" class="button-secondary">Deals</a>
+                        <a href="{% url 'category:flash_sale' %}" class="button-secondary">Flash Sale</a>
+                        <a href="{% url 'category:brands_directory' %}" class="button-secondary">Brands</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter + results grid -->
+    <div class="grid gap-8 lg:grid-cols-[280px,minmax(0,1fr)] xl:grid-cols-[300px,minmax(0,1fr)]">
+
+        <!-- Filter sidebar -->
+        <aside class="space-y-0 lg:sticky lg:top-28 lg:self-start">
+            <form method="get" class="surface-card" id="catalog-filter-form">
+                <div class="px-6 py-5 border-b border-stone-100 flex items-center justify-between gap-4">
+                    <div>
+                        <p class="eyebrow">Refine</p>
+                        <h2 class="brand-font mt-1 text-2xl font-semibold text-stone-900">Filter Results</h2>
+                    </div>
+                    <a href="{{ clear_filters_url }}" class="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-700 transition" style="letter-spacing:.14em">Clear</a>
+                </div>
+
+                <div class="px-6 py-6 space-y-6">
+                    <div>
+                        <label class="form-label" for="catalog-search-input" style="font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--color-text-soft);display:block;margin-bottom:.5rem">Search</label>
+                        <input id="catalog-search-input" type="search" name="q" value="{{ active_query }}" placeholder="Search this catalogue">
+                    </div>
+
+                    <div>
+                        <label class="form-label" style="font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#5c5347;display:block;margin-bottom:.5rem">Sort By</label>
+                        <select name="sort">
+                            <option value="newest" {% if current_sort == "newest" %}selected{% endif %}>Newest First</option>
+                            <option value="popular" {% if current_sort == "popular" %}selected{% endif %}>Most Popular</option>
+                            <option value="price_asc" {% if current_sort == "price_asc" %}selected{% endif %}>Price: Low to High</option>
+                            <option value="price_desc" {% if current_sort == "price_desc" %}selected{% endif %}>Price: High to Low</option>
+                            <option value="name_asc" {% if current_sort == "name_asc" %}selected{% endif %}>Name: A–Z</option>
+                            <option value="name_desc" {% if current_sort == "name_desc" %}selected{% endif %}>Name: Z–A</option>
+                        </select>
+                    </div>
+
+                    <div class="grid gap-3 grid-cols-2">
+                        <div>
+                            <label class="form-label" style="font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#5c5347;display:block;margin-bottom:.5rem">Min Price</label>
+                            <input type="number" step="0.01" min="0" name="min_price" value="{{ active_min_price }}" placeholder="0.00">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#5c5347;display:block;margin-bottom:.5rem">Max Price</label>
+                            <input type="number" step="0.01" min="0" name="max_price" value="{{ active_max_price }}" placeholder="999.00">
+                        </div>
+                    </div>
+
+                    <hr style="border-color:var(--color-border)">
+
+                    <div class="space-y-3">
+                        <label class="flex items-start gap-3 px-4 py-3 border cursor-pointer hover:bg-stone-50 transition" style="border-color:var(--color-border)">
+                            <input type="checkbox" name="availability" value="in_stock" {% if active_availability == "in_stock" %}checked{% endif %}>
+                            <span>
+                                <span class="block text-xs font-bold uppercase tracking-widest text-stone-800" style="letter-spacing:.14em">In Stock Only</span>
+                                <span class="block text-xs text-stone-400 mt-0.5">Hide unavailable items</span>
+                            </span>
+                        </label>
+                        <label class="flex items-start gap-3 px-4 py-3 border cursor-pointer hover:bg-stone-50 transition" style="border-color:var(--color-border)">
+                            <input type="checkbox" name="discount" value="on_sale" {% if active_discount == "on_sale" %}checked{% endif %}>
+                            <span>
+                                <span class="block text-xs font-bold uppercase tracking-widest text-stone-800" style="letter-spacing:.14em">On Sale</span>
+                                <span class="block text-xs text-stone-400 mt-0.5">Prioritise marked-down items</span>
+                            </span>
+                        </label>
+                    </div>
+
+                    {% if filter_options.categories %}
+                        <hr style="border-color:var(--color-border)">
+                        <details open>
+                            <summary class="cursor-pointer list-none text-xs font-bold uppercase tracking-widest text-stone-700 flex items-center justify-between" style="letter-spacing:.16em">
+                                <span>Categories</span>
+                                <span class="text-stone-400">▾</span>
+                            </summary>
+                            <div class="mt-4 space-y-3">
+                                {% for option in filter_options.categories %}
+                                    <label class="flex items-center gap-3 text-xs text-stone-600 cursor-pointer hover:text-stone-900">
+                                        <input type="checkbox" name="category" value="{{ option.value }}" {% if option.selected %}checked{% endif %}>
+                                        <span{% if option.depth %} class="pl-4"{% endif %} style="letter-spacing:.08em">{{ option.label }}</span>
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </details>
+                    {% endif %}
+
+                    {% if filter_options.brands %}
+                        <hr style="border-color:var(--color-border)">
+                        <details open>
+                            <summary class="cursor-pointer list-none text-xs font-bold uppercase tracking-widest text-stone-700 flex items-center justify-between" style="letter-spacing:.16em">
+                                <span>Brands</span>
+                                <span class="text-stone-400">▾</span>
+                            </summary>
+                            <div class="mt-4 space-y-3">
+                                {% for option in filter_options.brands %}
+                                    <label class="flex items-center gap-3 text-xs text-stone-600 cursor-pointer hover:text-stone-900">
+                                        <input type="checkbox" name="brand" value="{{ option.value }}" {% if option.selected %}checked{% endif %}>
+                                        <span style="letter-spacing:.08em">{{ option.label }}</span>
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </details>
+                    {% endif %}
+
+                    {% for group in filter_options.attributes %}
+                        <hr style="border-color:var(--color-border)">
+                        <details open>
+                            <summary class="cursor-pointer list-none text-xs font-bold uppercase tracking-widest text-stone-700 flex items-center justify-between" style="letter-spacing:.16em">
+                                <span>{{ group.name }}</span>
+                                <span class="text-stone-400">▾</span>
+                            </summary>
+                            <div class="mt-4 space-y-3">
+                                {% for option in group.options %}
+                                    <label class="flex items-center gap-3 text-xs text-stone-600 cursor-pointer hover:text-stone-900">
+                                        <input type="checkbox" name="{{ group.param_name }}" value="{{ option.value }}" {% if option.selected %}checked{% endif %}>
+                                        <span class="flex items-center gap-2">
+                                            {% if option.color_hex %}<span class="inline-block h-3 w-3" style="background:{{ option.color_hex }};border:1px solid var(--color-border)"></span>{% endif %}
+                                            <span style="letter-spacing:.08em">{{ option.label }}</span>
+                                        </span>
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </details>
+                    {% endfor %}
+                </div>
+
+                <div class="px-6 pb-6 flex flex-wrap gap-3">
+                    <button type="submit" class="button-primary">Apply Filters</button>
+                    <a href="{{ clear_filters_url }}" class="button-secondary">Reset</a>
+                </div>
+            </form>
+        </aside>
+
+        <!-- Results -->
+        <div id="catalog-results">
+            {% include "system/classic/templates/catalog/_listing_results.html" %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+    (function () {
+        const form = document.getElementById("catalog-filter-form");
+        const results = document.getElementById("catalog-results");
+        if (!form || !results) return;
+        let debounceTimer = null;
+        const fetchResults = function (url) {
+            fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+                .then(r => r.text())
+                .then(html => {
+                    results.innerHTML = html;
+                    window.history.pushState({}, "", url);
+                    window.scrollTo({ top: form.offsetTop - 24, behavior: "smooth" });
+                });
+        };
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const params = new URLSearchParams(new FormData(form));
+            fetchResults(window.location.pathname + "?" + params.toString());
+        });
+        form.addEventListener("change", function () { form.requestSubmit(); });
+        const searchInput = form.querySelector('input[name="q"]');
+        if (searchInput) {
+            searchInput.addEventListener("input", function () {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => form.requestSubmit(), 300);
+            });
+        }
+        results.addEventListener("click", function (e) {
+            const link = e.target.closest("[data-catalog-page]");
+            if (!link) return;
+            e.preventDefault();
+            fetchResults(link.getAttribute("href"));
+        });
+        window.addEventListener("popstate", function () {
+            const url = window.location.pathname + window.location.search;
+            fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+                .then(r => r.text()).then(html => { results.innerHTML = html; });
+        });
+    }());
+</script>
+{% endblock %}

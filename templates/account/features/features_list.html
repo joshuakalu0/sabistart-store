@@ -1,0 +1,41 @@
+{% extends "account/features/base.html" %}
+{% block page_intro %}<p class="mt-2 text-sm text-slate-500">Search, filter, and manage sellable features with visibility into category, usage, and pricing posture.</p>{% endblock %}
+{% block feature_content %}
+  <div class="rounded-[1.75rem] border border-slate-200 bg-white shadow-sm">
+    <div class="border-b border-slate-200 px-6 py-5">
+      <form method="get" class="grid gap-4 md:grid-cols-[1fr_220px_180px_auto]">
+        <input type="text" name="q" value="{{ q }}" placeholder="Search feature" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm" />
+        <select name="category" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm">
+          <option value="">All categories</option>
+          {% for category in categories %}
+            <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>{{ category.name }}</option>
+          {% endfor %}
+        </select>
+        <select name="status" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm">
+          <option value="">All statuses</option>
+          <option value="free" {% if selected_status == "free" %}selected{% endif %}>Free / globally on</option>
+          <option value="inactive" {% if selected_status == "inactive" %}selected{% endif %}>Inactive</option>
+        </select>
+        <button type="submit" class="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white">Filter</button>
+      </form>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <thead class="bg-slate-50"><tr><th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Feature</th><th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Category</th><th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Status</th><th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Tenant Usage</th><th class="px-6 py-4 text-right font-semibold uppercase tracking-[0.18em] text-slate-400">Actions</th></tr></thead>
+        <tbody class="divide-y divide-slate-200">
+          {% for row in feature_rows %}
+            <tr>
+              <td class="px-6 py-4"><p class="font-semibold text-slate-950">{{ row.feature.name }}</p><p class="mt-1 text-xs font-mono text-slate-500">{{ row.feature.code }}</p></td>
+              <td class="px-6 py-4 text-slate-500">{{ row.feature.category.name|default:"Uncategorised" }}</td>
+              <td class="px-6 py-4 text-slate-500">{% if row.feature.is_globally_enabled %}Free{% elif row.feature.is_active %}Active{% else %}Inactive{% endif %}</td>
+              <td class="px-6 py-4 text-slate-500">{{ row.tenant_usage_count }}</td>
+              <td class="px-6 py-4 text-right"><a href="{% url 'platform_features:feature_detail' row.feature.code %}" class="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700">Open</a></td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5" class="px-6 py-10 text-center text-sm text-slate-500">No features configured yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

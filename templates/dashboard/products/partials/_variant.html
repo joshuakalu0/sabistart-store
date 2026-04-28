@@ -1,0 +1,1345 @@
+{% load static %}
+
+<style>
+    /* Variant row styling */
+    .variant-row.existing-variant {
+        background-color: #eff6ff;
+        border-left: 3px solid #3b82f6;
+    }
+    .variant-row.existing-variant:hover {
+        background-color: #dbeafe;
+    }
+    .variant-row.new-variant {
+        background-color: #f0fdf4;
+        border-left: 3px solid #22c55e;
+    }
+    .variant-row.new-variant:hover {
+        background-color: #dcfce7;
+    }
+    .variant-label {
+        display: inline-block;
+        padding: 0.125rem 0.5rem;
+        font-size: 0.75rem;
+        border-radius: 0.25rem;
+        margin-right: 0.25rem;
+    }
+    .variant-label.existing {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+    .variant-label.new {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+</style>
+
+<!-- Attributes & Variants Section -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 section-card" id="attributesVariantsSection">
+    <div class="p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+            </svg>
+            Attributes & Variants
+        </h2>
+
+        <!-- Product Type Warning -->
+        <div id="productTypeWarning" class="hidden mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div class="flex items-start">
+                <svg class="w-5 h-5 text-yellow-600 mt-0.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <div>
+                    <h4 class="text-sm font-medium text-yellow-800">Variable Product Required</h4>
+                    <p class="text-sm text-yellow-700 mt-1">Variants can only be created for Variable products. Please change the product type above.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Attributes -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Product Attributes</label>
+            <div class="flex items-center space-x-3 mb-3">
+                <select id="attributeSelect" class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-3">
+                    <option value="">Select an attribute...</option>
+                    {% for attr in available_attributes %}
+                        <option value="{{ attr.id }}"
+                                data-type="{{ attr.attribute_type }}"
+                                data-name="{{ attr.name }}"
+                                data-is-variant="{{ attr.is_variant_option|lower }}"
+                                {% if not attr.is_variant_option %}disabled{% endif %}>
+                            {{ attr.name }} ({{ attr.get_attribute_type_display }})
+                        </option>
+                    {% empty %}
+                        <option value="" disabled>No variant attributes available</option>
+                    {% endfor %}
+                </select>
+                <button type="button" onclick="addAttribute()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span>Add Attribute</span>
+                </button>
+            </div>
+
+            <!-- Info Box -->
+            <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p class="text-sm text-blue-700 flex items-start">
+                    <svg class="w-4 h-4 inline mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>Select attributes that will be used to create product variants. Only attributes marked as "Variant Option" can be used.</span>
+                </p>
+            </div>
+
+            <!-- Selected Attributes Container -->
+            <div id="selectedAttributes" class="space-y-3">
+                {% if is_edit and product.attribute_values.all %}
+                    {% for attr_value in product.attribute_values.all %}
+                        {% if attr_value.attribute.is_variant_option %}
+                            <div class="border border-gray-200 rounded-lg p-4 animate-fade-in" data-attribute-id="{{ attr_value.attribute.id }}">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center space-x-3">
+                                        <h4 class="font-medium text-gray-900">{{ attr_value.attribute.name }}</h4>
+                                        <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">{{ attr_value.attribute.get_attribute_type_display }}</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-gray-500">{{ attr_value.attribute.unit|default:"" }}</span>
+                                        <button type="button" onclick="removeAttribute('{{ attr_value.attribute.id }}')" class="text-red-600 hover:text-red-700" title="Remove">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Attribute Value Input based on Type -->
+                                <div class="attribute-values-container" data-attribute-type="{{ attr_value.attribute.attribute_type }}">
+                                    {% if attr_value.attribute.attribute_type == 'select' or attr_value.attribute.attribute_type == 'multiselect' %}
+                                        <div class="flex flex-wrap gap-2">
+                                            {% for available_value in attr_value.attribute.values.all %}
+                                                <label class="inline-flex items-center">
+                                                    <input type="{% if attr_value.attribute.attribute_type == 'multiselect' %}checkbox{% else %}radio{% endif %}"
+                                                           name="attribute_{{ attr_value.attribute.id }}[]"
+                                                           value="{{ available_value.id }}"
+                                                           class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                           {% if attr_value.value_option_id == available_value.id %}checked{% endif %}
+                                                           onchange="updateAttributeValues()">
+                                                    <span class="ml-2 text-sm text-gray-700">{{ available_value.value }}</span>
+                                                    {% if available_value.color_hex %}
+                                                        <span class="ml-1 w-4 h-4 rounded-full border border-gray-300" style="background-color: {{ available_value.color_hex }}"></span>
+                                                    {% endif %}
+                                                </label>
+                                            {% endfor %}
+                                        </div>
+                                    {% elif attr_value.attribute.attribute_type == 'boolean' %}
+                                        <div class="flex items-center space-x-4">
+                                            <label class="inline-flex items-center">
+                                                <input type="radio" name="attribute_{{ attr_value.attribute.id }}" value="true"
+                                                       class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                                       {% if attr_value.value_boolean %}checked{% endif %}
+                                                       onchange="updateAttributeValues()">
+                                                <span class="ml-2 text-sm text-gray-700">Yes</span>
+                                            </label>
+                                            <label class="inline-flex items-center">
+                                                <input type="radio" name="attribute_{{ attr_value.attribute.id }}" value="false"
+                                                       class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                                       {% if not attr_value.value_boolean %}checked{% endif %}
+                                                       onchange="updateAttributeValues()">
+                                                <span class="ml-2 text-sm text-gray-700">No</span>
+                                            </label>
+                                        </div>
+                                    {% elif attr_value.attribute.attribute_type == 'color' %}
+                                        <div class="flex flex-wrap gap-2">
+                                            {% for available_value in attr_value.attribute.values.all %}
+                                                <label class="cursor-pointer">
+                                                    <input type="radio" name="attribute_{{ attr_value.attribute.id }}" value="{{ available_value.id }}"
+                                                           class="sr-only"
+                                                           {% if attr_value.value_option_id == available_value.id %}checked{% endif %}
+                                                           onchange="updateAttributeValues()">
+                                                    <div class="w-10 h-10 rounded-full border-2 {% if attr_value.value_option_id == available_value.id %}border-blue-600{% else %}border-gray-300{% endif %}"
+                                                         style="background-color: {{ available_value.color_hex|default:'#000000' }}"></div>
+                                                </label>
+                                            {% endfor %}
+                                        </div>
+                                    {% elif attr_value.attribute.attribute_type == 'range' %}
+                                        <div class="flex items-center space-x-4">
+                                            <input type="range" name="attribute_{{ attr_value.attribute.id }}"
+                                                   min="{{ attr_value.attribute.min_value|default:0 }}"
+                                                   max="{{ attr_value.attribute.max_value|default:100 }}"
+                                                   step="{{ attr_value.attribute.get_step|default:1 }}"
+                                                   value="{{ attr_value.value_number|default:50 }}"
+                                                   class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                                   oninput="updateAttributeValues()">
+                                            <span class="text-sm text-gray-700 w-16 text-right">
+                                                <span class="range-value">{{ attr_value.value_number|default:50 }}</span>
+                                                {{ attr_value.attribute.unit|default:"" }}
+                                            </span>
+                                        </div>
+                                    {% else %}
+                                        <!-- Text, Number, Decimal, Date, URL, Email -->
+                                        <input type="{% if attr_value.attribute.attribute_type == 'number' or attr_value.attribute.attribute_type == 'decimal' %}number{% elif attr_value.attribute.attribute_type == 'date' %}date{% elif attr_value.attribute.attribute_type == 'email' %}email{% elif attr_value.attribute.attribute_type == 'url' %}url{% else %}text{% endif %}"
+                                               name="attribute_{{ attr_value.attribute.id }}"
+                                               value="{{ attr_value.value_text|default:attr_value.value_number|default:'' }}"
+                                               step="{% if attr_value.attribute.attribute_type == 'decimal' %}0.01{% elif attr_value.attribute.attribute_type == 'number' %}1{% else %}any{% endif %}"
+                                               min="{{ attr_value.attribute.min_value|default:'' }}"
+                                               max="{{ attr_value.attribute.max_value|default:'' }}"
+                                               class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-3"
+                                               placeholder="{{ attr_value.attribute.help_text|default:'Enter value' }}"
+                                               onchange="updateAttributeValues()">
+                                    {% endif %}
+                                </div>
+
+                                <!-- Hidden input for form submission -->
+                                <input type="hidden" name="selected_attributes" value="{{ attr_value.attribute.id }}" class="selected-attribute-id">
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- No Attributes Message -->
+            <div id="noAttributesMessage" class="{% if is_edit and product.attribute_values.all %}hidden{% endif %} text-center py-8">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                </svg>
+                <p class="mt-2 text-sm text-gray-500">No attributes selected yet</p>
+                <p class="text-xs text-gray-400">Select an attribute above to add it to your product</p>
+            </div>
+        </div>
+
+        <!-- Generate Variants Button -->
+        <div class="mb-4" id="generateVariantsSection" style="display: none;">
+            <button type="button" onclick="generateVariants()" class="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span>Generate All Variants</span>
+            </button>
+            <p class="mt-2 text-xs text-gray-500 text-center">This will create all possible combinations of selected attribute values</p>
+        </div>
+
+        <!-- Variants Table -->
+        <div id="variantsSection" style="display: none;">
+            <div class="mb-4 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <h3 class="text-md font-semibold text-gray-900">Product Variants</h3>
+                    <div class="flex items-center space-x-2 text-xs">
+                        <span class="flex items-center">
+                            <span class="w-3 h-3 bg-blue-100 border border-blue-300 rounded mr-1"></span>
+                            <span class="text-gray-600">Existing</span>
+                        </span>
+                        <span class="flex items-center">
+                            <span class="w-3 h-3 bg-green-100 border border-green-300 rounded mr-1"></span>
+                            <span class="text-gray-600">New</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button type="button" onclick="bulkEditVariants('price')" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                        Bulk Edit Price
+                    </button>
+                    <button type="button" onclick="bulkEditVariants('stock')" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                        Bulk Edit Stock
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-8">
+                                <input type="checkbox" id="selectAllVariants" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500" onchange="toggleSelectAllVariants()">
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variant</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Compare Price</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Weight</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="variantsTableBody" class="bg-white divide-y divide-gray-200">
+                        {% if is_edit and form.variant_formset %}
+                            {{ form.variant_formset.management_form }}
+                            {% for variant_form in form.variant_formset %}
+                                {% if variant_form.instance.pk %}
+                                    <tr class="variant-row existing-variant" data-variant-id="{{ variant_form.instance.id }}" data-is-existing="true">
+                                        <td class="px-4 py-3">
+                                            <input type="checkbox" name="variant_select" value="{{ variant_form.instance.id }}" class="variant-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500" onchange="updateVariantSelection()">
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <div class="flex flex-wrap gap-1">
+                                                {% for option in variant_form.instance.option_values.all %}
+                                                    <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                                                        {{ option.attribute.name }}: {{ option.value }}
+                                                    </span>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            {{ variant_form.sku }}
+                                            {% if variant_form.sku.errors %}
+                                                <p class="text-xs text-red-600 mt-1">{{ variant_form.sku.errors.0 }}</p>
+                                            {% endif %}
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <div class="relative rounded-md shadow-sm">
+                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <span class="text-gray-500 sm:text-sm">$</span>
+                                                </div>
+                                                {{ variant_form.price }}
+                                            </div>
+                                            {% if variant_form.price.errors %}
+                                                <p class="text-xs text-red-600 mt-1">{{ variant_form.price.errors.0 }}</p>
+                                            {% endif %}
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <div class="relative rounded-md shadow-sm">
+                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <span class="text-gray-500 sm:text-sm">$</span>
+                                                </div>
+                                                {{ variant_form.compare_at_price }}
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            {{ variant_form.stock_quantity }}
+                                            {% if variant_form.stock_quantity.errors %}
+                                                <p class="text-xs text-red-600 mt-1">{{ variant_form.stock_quantity.errors.0 }}</p>
+                                            {% endif %}
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            {{ variant_form.weight }}
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <label class="relative inline-flex items-center cursor-pointer">
+                                                {{ variant_form.is_active }}
+                                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                                            </label>
+                                        </td>
+                                        <td class="px-4 py-3 text-right">
+                                            <div class="flex items-center justify-end space-x-2">
+                                                <button type="button" onclick="editVariant('{{ variant_form.instance.id }}')" class="p-2 text-gray-400 hover:text-blue-600 transition-colors" title="Edit">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                    </svg>
+                                                </button>
+                                                <button type="button" onclick="confirmDeleteVariant('{{ variant_form.instance.id }}', '{{ variant_form.instance.variant_name|default:variant_form.instance.sku }}')" class="p-2 text-gray-400 hover:text-red-600 transition-colors" title="Delete">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    </svg>
+                                                </button>
+                                                {{ variant_form.id }}
+                                                {{ variant_form.DELETE }}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Variants Summary -->
+            <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">Total Variants: <span id="totalVariantsCount">0</span></p>
+                        <p class="text-xs text-gray-500">Each variant can have unique pricing, inventory, and images</p>
+                    </div>
+                    <button type="button" onclick="addVariantManually()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm flex items-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>Add Variant Manually</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Existing Variants (for edit mode) -->
+        {% if is_edit and product.variants.exists %}
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <h3 class="text-md font-semibold text-gray-900 mb-4">Existing Variants</h3>
+                <div class="space-y-3">
+                    {% for variant in product.variants.all %}
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div class="flex-1">
+                                <p class="font-medium text-gray-900">{{ variant.variant_name|default:variant.sku }}</p>
+                                <p class="text-sm text-gray-500">SKU: {{ variant.sku }} | Price: ${{ variant.price }} | Stock: {{ variant.stock_quantity }}</p>
+                                <div class="flex flex-wrap gap-1 mt-2">
+                                    {% for option in variant.option_values.all %}
+                                        <span class="px-2 py-0.5 bg-gray-200 text-gray-700 text-xs rounded">
+                                            {{ option.attribute.name }}: {{ option.value }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2 py-1 {% if variant.is_active %}bg-green-100 text-green-700{% else %}bg-gray-100 text-gray-700{% endif %} text-xs rounded">
+                                    {% if variant.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                                <a href="{ url 'variant_edit' variant.id %}" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                                    Edit
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Variant Edit Modal -->
+<div id="variantEditModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-10 mx-auto p-4 sm:p-6 border w-full max-w-2xl shadow-lg rounded-xl bg-white animate-fade-in">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Edit Variant</h3>
+            <button type="button" onclick="closeVariantModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        <div id="variantEditContent" class="space-y-4">
+            <!-- Content will be populated dynamically -->
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+            <button type="button" onclick="closeVariantModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                Cancel
+            </button>
+            <button type="button" onclick="saveVariantEdit()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                Save Changes
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Edit Modal -->
+<div id="bulkEditModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-xl bg-white animate-fade-in">
+        <div class="text-center">
+            <h3 class="text-lg font-medium text-gray-900 mb-4" id="bulkEditTitle">Bulk Edit</h3>
+            <div id="bulkEditContent" class="space-y-4">
+                <!-- Content will be populated dynamically -->
+            </div>
+            <div class="mt-6 flex justify-center space-x-3">
+                <button type="button" onclick="closeBulkEditModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                    Cancel
+                </button>
+                <button type="button" onclick="applyBulkEdit()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                    Apply
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Variant Delete Confirmation Modal -->
+<div id="variantDeleteModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-32 mx-auto p-6 border w-full max-w-md shadow-lg rounded-xl bg-white animate-fade-in">
+        <div class="text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Delete Variant</h3>
+            <p class="text-sm text-gray-500 mb-4">
+                Are you sure you want to delete this variant?
+            </p>
+            <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-6">
+                <p class="text-sm font-medium text-gray-900 mb-1">
+                    <span id="deleteConfirmVariantName" class="font-semibold"></span>
+                </p>
+                <p class="text-xs text-red-700">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    This action cannot be undone. The variant will be permanently deleted.
+                </p>
+            </div>
+            <input type="hidden" id="deleteConfirmVariantId" value="">
+            <div class="flex justify-center space-x-3">
+                <button type="button" onclick="closeDeleteModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                    Cancel
+                </button>
+                <button type="button" onclick="executeDeleteVariant()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm">
+                    Delete Variant
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // State management for variants
+    let selectedAttributes = [];
+    let variants = [];
+    let editingVariantId = null;
+    let bulkEditField = null;
+
+    // Attribute data from Django
+    const availableAttributes = {{ available_attributes_json|safe }};
+    const existingVariants = {{ existing_variants_json|safe }};
+    console.log(existingVariants,'===>')
+    let productType = '{{ product.product_type|default:"simple" }}';
+    const basePrice = '{{ product.price|default:"0.00" }}';
+    const baseSku = '{{ product.sku|default:"PROD" }}';
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeAttributes();
+        checkProductType();
+        updateVariantsCount();
+    });
+
+    // Check product type and show warning if not variable
+    function checkProductType() {
+        const productTypeSelect = document.getElementById('productType');
+        const warning = document.getElementById('productTypeWarning');
+        const generateBtn = document.getElementById('generateVariantsSection');
+        const sectionParent = document.querySelector('#attributesVariantsSection')
+
+        if (productTypeSelect && productTypeSelect.value !== 'variable') {
+            sectionParent.style.display='none'
+            warning.classList.remove('hidden');
+            if (generateBtn) generateBtn.style.display = 'none';
+        } else {
+            sectionParent.style.display='block'
+            warning.classList.add('hidden');
+            if (selectedAttributes.length > 0 && generateBtn) {
+                generateBtn.style.display = 'block';
+            }
+        }
+    }
+
+    // Listen for product type changes
+    const productTypeSelect = document.getElementById('productType');
+    if (productTypeSelect) {
+        productTypeSelect.addEventListener('change', checkProductType);
+    }
+
+    // Initialize attributes from existing data
+    function initializeAttributes() {
+        const selectedAttrElements = document.querySelectorAll('.selected-attribute-id');
+        selectedAttrElements.forEach(input => {
+            const attrId = input.value;
+            const attr = availableAttributes.find(a => a.id === attrId);
+            if (attr && !selectedAttributes.find(a => a.id === attrId)) {
+                selectedAttributes.push({
+                    id: attr.id,
+                    name: attr.name,
+                    type: attr.attribute_type,
+                    unit: attr.unit,
+                    selectedValues: []
+                });
+            }
+        });
+
+        if (selectedAttributes.length > 0) {
+            document.getElementById('noAttributesMessage').classList.add('hidden');
+            document.getElementById('generateVariantsSection').style.display = 'block';
+        }
+    }
+
+    // Add attribute to product
+    function addAttribute() {
+      console.log('ready')
+        const select = document.getElementById('attributeSelect');
+        const attrId = select.value;
+
+        if (!attrId) {
+            alert('Please select an attribute');
+            return;
+        }
+
+        const attr = availableAttributes.find(a => a.id === attrId);
+        if (!attr) {
+            alert('Attribute not found');
+            return;
+        }
+
+        if (selectedAttributes.find(a => a.id === attrId)) {
+            alert('This attribute is already added');
+            return;
+        }
+
+        selectedAttributes.push({
+            id: attr.id,
+            name: attr.name,
+            type: attr.attribute_type,
+            unit: attr.unit,
+            selectedValues: []
+        });
+        console.log('starting')
+
+        renderSelectedAttributes();
+        select.value = '';
+
+        document.getElementById('noAttributesMessage').classList.add('hidden');
+        document.getElementById('generateVariantsSection').style.display = 'block';
+
+        checkProductType();
+    }
+
+    // Remove attribute from product
+    function removeAttribute(attrId) {
+        if (!confirm('Remove this attribute? This will also remove all variants based on it.')) {
+            return;
+        }
+
+        selectedAttributes = selectedAttributes.filter(a => a.id !== attrId);
+        renderSelectedAttributes();
+
+        if (selectedAttributes.length === 0) {
+            document.getElementById('noAttributesMessage').classList.remove('hidden');
+            document.getElementById('generateVariantsSection').style.display = 'none';
+            document.getElementById('variantsSection').style.display = 'none';
+        }
+
+        // Clear variants that depend on this attribute
+        variants = variants.filter(v =>
+            !v.options.some(opt => opt.attributeId === attrId)
+        );
+        renderVariants();
+    }
+
+    // Render selected attributes with appropriate input types
+    function renderSelectedAttributes() {
+      console.log('rendering')
+        const container = document.getElementById('selectedAttributes');
+
+        if (selectedAttributes.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+
+        container.innerHTML = selectedAttributes.map(attr => {
+            let valueInputHtml = '';
+
+            // Fetch attribute values from server
+          //  fetch(`/api/attributes/${attr.id}/values/`)
+            fetch(`/dashboard/admin/products/attributes_values/${attr.id}/values/`)
+                .then(response => response.json())
+                .then(data => {
+                  console.log(data)
+                    const valuesContainer = document.querySelector(`[data-attribute-id="${attr.id}"] .attribute-values-container`);
+                    if (valuesContainer) {
+                        valuesContainer.innerHTML = renderAttributeValueInput(attr, data.values);
+                    }
+                }).catch(error=>console.log(error));
+
+            return `
+                <div class="border border-gray-200 rounded-lg p-4 animate-fade-in" data-attribute-id="${attr.id}">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <h4 class="font-medium text-gray-900">${attr.name}</h4>
+                            <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">${attr.type}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            ${attr.unit ? `<span class="text-xs text-gray-500">${attr.unit}</span>` : ''}
+                            <button type="button" onclick="removeAttribute('${attr.id}')" class="text-red-600 hover:text-red-700" title="Remove">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="attribute-values-container" data-attribute-type="${attr.type}">
+                        <div class="text-sm text-gray-500">Loading values...</div>
+                    </div>
+                    <input type="hidden" name="selected_attributes" value="${attr.id}" class="selected-attribute-id">
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Render attribute value input based on type
+    function renderAttributeValueInput(attr, values) {
+      console.log(attr, values)
+        switch(attr.type) {
+            case 'select':
+                return `
+                    <div class="flex flex-wrap gap-2">
+                        ${values.map(v => `
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="attribute_${attr.id}" value="${v.id}"
+                                       class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                       onchange="updateAttributeValues()">
+                                <span class="ml-2 text-sm text-gray-700">${v.value}</span>
+                                ${v.color_hex ? `<span class="ml-1 w-4 h-4 rounded-full border border-gray-300" style="background-color: ${v.color_hex}"></span>` : ''}
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+
+            case 'multiselect':
+                return `
+                    <div class="flex flex-wrap gap-2">
+                        ${values.map(v => `
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" name="attribute_${attr.id}[]" value="${v.id}"
+                                       class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                       onchange="updateAttributeValues()">
+                                <span class="ml-2 text-sm text-gray-700">${v.value}</span>
+                                ${v.color_hex ? `<span class="ml-1 w-4 h-4 rounded-full border border-gray-300" style="background-color: ${v.color_hex}"></span>` : ''}
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+
+            case 'boolean':
+                return `
+                    <div class="flex items-center space-x-4">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="attribute_${attr.id}" value="true"
+                                   class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                   onchange="updateAttributeValues()">
+                            <span class="ml-2 text-sm text-gray-700">Yes</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="attribute_${attr.id}" value="false"
+                                   class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                   onchange="updateAttributeValues()">
+                            <span class="ml-2 text-sm text-gray-700">No</span>
+                        </label>
+                    </div>
+                `;
+
+            case 'color':
+                return `
+                    <div class="flex flex-wrap gap-2">
+                        ${values.map(v => `
+                            <label class="cursor-pointer">
+                                <input type="checkbox" name="attribute_${attr.id}" value="${v.id}"
+                                       class="sr-only" onchange="updateAttributeValues()">
+                                <div class="w-10 h-10 rounded-full border-2 border-gray-300 hover:border-blue-600"
+                                     style="background-color: ${v.color_hex || '#000000'}"></div>
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+
+            case 'range':
+                return `
+                    <div class="flex items-center space-x-4">
+                        <input type="range" name="attribute_${attr.id}"
+                               min="${attr.min_value || 0}"
+                               max="${attr.max_value || 100}"
+                               step="${attr.step || 1}"
+                               value="50"
+                               class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                               oninput="updateAttributeValues(this)">
+                        <span class="text-sm text-gray-700 w-16 text-right">
+                            <span class="range-value">50</span> ${attr.unit || ''}
+                        </span>
+                    </div>
+                `;
+
+            default:
+                // text, number, decimal, date, url, email
+                const inputType = attr.type === 'number' || attr.type === 'decimal' ? 'number' :
+                                 attr.type === 'date' ? 'date' :
+                                 attr.type === 'email' ? 'email' :
+                                 attr.type === 'url' ? 'url' : 'text';
+
+                return `
+                    <input type="${inputType}" name="attribute_${attr.id}"
+                           step="${attr.type === 'decimal' ? '0.01' : attr.type === 'number' ? '1' : 'any'}"
+                           min="${attr.min_value || ''}"
+                           max="${attr.max_value || ''}"
+                           class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-3"
+                           placeholder="${attr.help_text || 'Enter value'}"
+                           onchange="updateAttributeValues()">
+                `;
+        }
+    }
+
+    // Update selected attribute values
+    function updateAttributeValues() {
+      console.log('selected')
+        selectedAttributes.forEach(attr => {
+            const inputs = document.querySelectorAll(`[name="attribute_${attr.id}"]`);
+
+
+            attr.selectedValues = [];
+
+            inputs.forEach(input => {
+
+                if (input.type === 'checkbox') {
+                   if (input.checked){
+                    input.nextElementSibling.classList.add('border-4')
+                    input.nextElementSibling.classList.add('border-green-700')
+
+
+                  attr.selectedValues.push({
+                      id: input.value,
+                      value: input.parentElement.textContent.trim()
+                  });
+                  }else{
+                    input.nextElementSibling.classList.remove('border-4')
+                    input.nextElementSibling.classList.remove('border-green-700')
+                  }
+                } else if (input.type === 'radio' ) {
+                  if (input.checked){
+                    input.nextElementSibling.classList.add('border-4')
+                    input.nextElementSibling.classList.add('border-green-700')
+                    console.log(input.checked)
+                      attr.selectedValues.push({
+                          id: input.value,
+                          value: input.parentElement.textContent.trim()
+                      });
+                  }else{
+                    input.nextElementSibling.classList.remove('border-4')
+                    input.nextElementSibling.classList.remove('border-green-700')
+                  }
+
+
+                } else if (input.type !== 'checkbox' && input.type !== 'radio') {
+                    if (input.value) {
+                        attr.selectedValues.push({
+                            value: input.value
+                        });
+                    }
+                }
+            });
+
+            // Update range display
+            if (attr.type === 'range') {
+                const rangeInput = document.querySelector(`[name="attribute_${attr.id}"][type="range"]`);
+                const rangeValue = document.querySelector(`[name="attribute_${attr.id}"] + .text-sm .range-value`);
+                if (rangeInput && rangeValue) {
+                    rangeValue.textContent = rangeInput.value;
+                }
+            }
+        });
+    }
+
+    // Generate all variant combinations
+    function generateVariants() {
+        if (selectedAttributes.length === 0) {
+            alert('Please select at least one attribute');
+            return;
+        }
+
+        // Check if all attributes have values selected
+        const incompleteAttrs = selectedAttributes.filter(attr => attr.selectedValues.length === 0);
+        if (incompleteAttrs.length > 0) {
+            alert(`Please select values for: ${incompleteAttrs.map(a => a.name).join(', ')}`);
+            return;
+        }
+
+        // Generate combinations using Cartesian product
+        const combinations = cartesianProduct(selectedAttributes.map(attr =>
+            attr.selectedValues.map(value => ({
+                attributeId: attr.id,
+                attributeName: attr.name,
+                valueId: value.id,
+                value: value.value
+            }))
+        ));
+
+        // Create variants from combinations
+        variants = combinations.map((combo, index) => {
+           // console.log(v,'vvv')
+            const existingVariant =existingVariants
+             //existingVariants.find(v =>
+               // JSON.stringify(v.options.sort()) === JSON.stringify(combo.sort())
+            //);
+
+            return {
+                id: existingVariant ? existingVariant.id : generateUUID(),
+                sku: existingVariant ? existingVariant.sku : `${baseSku}-${index + 1}`,
+                price: existingVariant ? existingVariant.price : basePrice,
+                compare_at_price: existingVariant ? existingVariant.compare_at_price : '',
+                stock_quantity: existingVariant ? existingVariant.stock_quantity : 0,
+                weight: existingVariant ? existingVariant.weight : '',
+                is_active: existingVariant ? existingVariant.is_active : true,
+                options: combo,
+                variant_name: combo.map(o => o.value).join(' / '),
+                isExisting: !!existingVariant
+            };
+        });
+
+        renderVariants();
+        document.getElementById('variantsSection').style.display = 'block';
+        updateVariantsCount();
+    }
+
+    // Cartesian product helper function
+    function cartesianProduct(arrays) {
+        return arrays.reduce((acc, array) => {
+            return acc.flatMap(x => array.map(y => [...x, y]));
+        }, [[]]);
+    }
+
+    // Render variants table
+    function renderVariants() {
+        const tbody = document.getElementById('variantsTableBody');
+
+        if (variants.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="px-4 py-8 text-center text-sm text-gray-500">
+                        No variants generated yet. Select attribute values and click "Generate All Variants"
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = variants.map((variant, index) => `
+            <tr class="variant-row ${variant.isExisting ? 'existing-variant bg-blue-50' : 'new-variant bg-green-50'}" data-variant-id="${variant.id}" data-is-existing="${variant.isExisting || false}">
+                <td class="px-4 py-3">
+                    <input type="checkbox" name="variant_select" value="${variant.id}"
+                           class="variant-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                           onchange="updateVariantSelection()">
+                </td>
+                <td class="px-4 py-3">
+                    <div class="flex flex-wrap gap-1">
+                        ${variant.options.map(opt => `
+                            <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                                ${opt.attributeName}: ${opt.value}
+                            </span>
+                        `).join('')}
+                    </div>
+                </td>
+                <td class="px-4 py-3">
+                    <input type="text" value="${variant.sku}"
+                           onchange="updateVariant(${index}, 'sku', this.value)"
+                           class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:border-blue-500 focus:ring-blue-500">
+                </td>
+                <td class="px-4 py-3">
+                    <div class="relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">$</span>
+                        </div>
+                        <input type="number" value="${variant.price}" step="0.01" min="0"
+                               onchange="updateVariant(${index}, 'price', this.value)"
+                               class="block w-full pl-7 pr-12 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2">
+                    </div>
+                </td>
+                <td class="px-4 py-3">
+                    <div class="relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">$</span>
+                        </div>
+                        <input type="number" value="${variant.compare_at_price || ''}" step="0.01" min="0"
+                               onchange="updateVariant(${index}, 'compare_at_price', this.value)"
+                               class="block w-full pl-7 pr-12 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2">
+                    </div>
+                </td>
+                <td class="px-4 py-3">
+                    <input type="number" value="${variant.stock_quantity}" min="0"
+                           onchange="updateVariant(${index}, 'stock_quantity', this.value)"
+                           class="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:border-blue-500 focus:ring-blue-500">
+                </td>
+                <td class="px-4 py-3">
+                    <input type="number" value="${variant.weight || ''}" step="0.001" min="0"
+                           onchange="updateVariant(${index}, 'weight', this.value)"
+                           class="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:border-blue-500 focus:ring-blue-500">
+                </td>
+                <td class="px-4 py-3">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" ${variant.is_active ? 'checked' : ''}
+                               onchange="updateVariant(${index}, 'is_active', this.checked)"
+                               class="sr-only peer">
+                        <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                </td>
+                <td class="px-4 py-3 text-right">
+                    <div class="flex items-center justify-end space-x-2">
+                        <button type="button" onclick="editVariant('${variant.id}')" class="p-2 text-gray-400 hover:text-blue-600 transition-colors" title="Edit">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                        </button>
+                        <button type="button" onclick="confirmDeleteVariant('${variant.id}', '${variant.variant_name.replace(/'/g, "\\'")}')" class="p-2 text-gray-400 hover:text-red-600 transition-colors" title="Delete">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // Update variant data
+    function updateVariant(index, field, value) {
+        variants[index][field] = field === 'price' || field === 'compare_at_price' || field === 'stock_quantity' || field === 'weight'
+            ? (value ? parseFloat(value) : '')
+            : value;
+    }
+
+    // Remove variant
+    function removeVariant(variantId) {
+        const index = variants.findIndex(v => v.id === variantId);
+        if (index === -1) return;
+
+        variants.splice(index, 1);
+        renderVariants();
+        updateVariantsCount();
+    }
+
+    // Confirm delete variant with warning
+    function confirmDeleteVariant(variantId, variantName) {
+        const variant = variants.find(v => v.id === variantId);
+        if (!variant) return;
+
+        const isExisting = variant.isExisting || document.querySelector(`[data-variant-id="${variantId}"]`)?.classList.contains('existing-variant');
+
+        if (isExisting) {
+            // Show warning modal for existing variants from database
+            document.getElementById('deleteConfirmVariantId').value = variantId;
+            document.getElementById('deleteConfirmVariantName').textContent = variantName;
+            document.getElementById('variantDeleteModal').classList.remove('hidden');
+        } else {
+            // Simple confirm for newly generated variants
+            if (confirm(`Delete this variant?\n\nVariant: ${variantName}\n\nThis will remove the variant from the list.`)) {
+                removeVariant(variantId);
+            }
+        }
+    }
+
+    // Execute delete after confirmation
+    function executeDeleteVariant() {
+        const variantId = document.getElementById('deleteConfirmVariantId').value;
+        removeVariant(variantId);
+        document.getElementById('variantDeleteModal').classList.add('hidden');
+    }
+
+    // Close delete confirmation modal
+    function closeDeleteModal() {
+        document.getElementById('variantDeleteModal').classList.add('hidden');
+    }
+
+    // Edit variant in modal
+    function editVariant(variantId) {
+        const variant = variants.find(v => v.id === variantId);
+        if (!variant) return;
+
+        editingVariantId = variantId;
+
+        const content = document.getElementById('variantEditContent');
+        content.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">SKU</label>
+                    <input type="text" id="editVariantSku" value="${variant.sku}" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Variant Name</label>
+                    <input type="text" id="editVariantName" value="${variant.variant_name}" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Price</label>
+                    <div class="relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">$</span>
+                        </div>
+                        <input type="number" id="editVariantPrice" value="${variant.price}" step="0.01" min="0" class="block w-full pl-7 pr-12 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Compare at Price</label>
+                    <div class="relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">$</span>
+                        </div>
+                        <input type="number" id="editVariantComparePrice" value="${variant.compare_at_price || ''}" step="0.01" min="0" class="block w-full pl-7 pr-12 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Stock Quantity</label>
+                    <input type="number" id="editVariantStock" value="${variant.stock_quantity}" min="0" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Weight (kg)</label>
+                    <input type="number" id="editVariantWeight" value="${variant.weight || ''}" step="0.001" min="0" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2">
+                </div>
+            </div>
+            <div class="mt-4">
+                <label class="flex items-center">
+                    <input type="checkbox" id="editVariantActive" ${variant.is_active ? 'checked' : ''} class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <span class="ml-2 text-sm text-gray-700">Active</span>
+                </label>
+            </div>
+            <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Options</label>
+                <div class="flex flex-wrap gap-2">
+                    ${variant.options.map(opt => `
+                        <span class="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded">
+                            ${opt.attributeName}: ${opt.value}
+                        </span>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+
+        document.getElementById('variantEditModal').classList.remove('hidden');
+    }
+
+    // Save variant edit
+    function saveVariantEdit() {
+        const variant = variants.find(v => v.id === editingVariantId);
+        if (!variant) return;
+
+        variant.sku = document.getElementById('editVariantSku').value;
+        variant.variant_name = document.getElementById('editVariantName').value;
+        variant.price = parseFloat(document.getElementById('editVariantPrice').value) || 0;
+        variant.compare_at_price = parseFloat(document.getElementById('editVariantComparePrice').value) || '';
+        variant.stock_quantity = parseInt(document.getElementById('editVariantStock').value) || 0;
+        variant.weight = parseFloat(document.getElementById('editVariantWeight').value) || '';
+        variant.is_active = document.getElementById('editVariantActive').checked;
+
+        renderVariants();
+        closeVariantModal();
+    }
+
+    // Close variant modal
+    function closeVariantModal() {
+        document.getElementById('variantEditModal').classList.add('hidden');
+        editingVariantId = null;
+    }
+
+    // Bulk edit variants
+    function bulkEditVariants(field) {
+        const selectedCheckboxes = document.querySelectorAll('.variant-checkbox:checked');
+        if (selectedCheckboxes.length === 0) {
+            alert('Please select at least one variant');
+            return;
+        }
+
+        bulkEditField = field;
+        const modal = document.getElementById('bulkEditModal');
+        const title = document.getElementById('bulkEditTitle');
+        const content = document.getElementById('bulkEditContent');
+
+        if (field === 'price') {
+            title.textContent = 'Bulk Edit Price';
+            content.innerHTML = `
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">New Price</label>
+                    <div class="relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">$</span>
+                        </div>
+                        <input type="number" id="bulkPriceValue" step="0.01" min="0" class="block w-full pl-7 pr-12 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="bulkPriceAdjust" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <span class="ml-2 text-sm text-gray-700">Adjust existing price (check to add/subtract, uncheck to replace)</span>
+                    </label>
+                </div>
+            `;
+        } else if (field === 'stock') {
+            title.textContent = 'Bulk Edit Stock';
+            content.innerHTML = `
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">New Stock Quantity</label>
+                    <input type="number" id="bulkStockValue" min="0" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2">
+                </div>
+                <div class="mt-4">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="bulkStockAdjust" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <span class="ml-2 text-sm text-gray-700">Adjust existing stock (check to add/subtract, uncheck to replace)</span>
+                    </label>
+                </div>
+            `;
+        }
+
+        modal.classList.remove('hidden');
+    }
+
+    // Apply bulk edit
+    function applyBulkEdit() {
+        const selectedCheckboxes = document.querySelectorAll('.variant-checkbox:checked');
+        const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+
+        if (bulkEditField === 'price') {
+            const newValue = parseFloat(document.getElementById('bulkPriceValue').value);
+            const adjust = document.getElementById('bulkPriceAdjust').checked;
+
+            variants.forEach(variant => {
+                if (selectedIds.includes(variant.id)) {
+                    if (adjust) {
+                        variant.price = (variant.price || 0) + newValue;
+                    } else {
+                        variant.price = newValue;
+                    }
+                }
+            });
+        } else if (bulkEditField === 'stock') {
+            const newValue = parseInt(document.getElementById('bulkStockValue').value);
+            const adjust = document.getElementById('bulkStockAdjust').checked;
+
+            variants.forEach(variant => {
+                if (selectedIds.includes(variant.id)) {
+                    if (adjust) {
+                        variant.stock_quantity = (variant.stock_quantity || 0) + newValue;
+                    } else {
+                        variant.stock_quantity = newValue;
+                    }
+                }
+            });
+        }
+
+        renderVariants();
+        closeBulkEditModal();
+    }
+
+    // Close bulk edit modal
+    function closeBulkEditModal() {
+        document.getElementById('bulkEditModal').classList.add('hidden');
+        bulkEditField = null;
+    }
+
+    // Toggle select all variants
+    function toggleSelectAllVariants() {
+        const selectAll = document.getElementById('selectAllVariants');
+        const checkboxes = document.querySelectorAll('.variant-checkbox');
+        checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        updateVariantSelection();
+    }
+
+    // Update variant selection count
+    function updateVariantSelection() {
+        const selectedCount = document.querySelectorAll('.variant-checkbox:checked').length;
+        const selectAll = document.getElementById('selectAllVariants');
+        if (selectAll) {
+            selectAll.checked = selectedCount === variants.length;
+        }
+    }
+
+    // Update variants count display
+    function updateVariantsCount() {
+        document.getElementById('totalVariantsCount').textContent = variants.length;
+    }
+
+    // Add variant manually
+    function addVariantManually() {
+        const newVariant = {
+            id: generateUUID(),
+            sku: `${baseSku}-${variants.length + 1}`,
+            price: basePrice,
+            compare_at_price: '',
+            stock_quantity: 0,
+            weight: '',
+            is_active: true,
+            options: selectedAttributes.map(attr => ({
+                attributeId: attr.id,
+                attributeName: attr.name,
+                value: 'Custom'
+            })),
+            variant_name: 'Custom Variant',
+            isExisting: false
+        };
+
+        variants.push(newVariant);
+        renderVariants();
+        updateVariantsCount();
+    }
+
+    // Generate UUID
+    function generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    // Prepare form data for submission
+    function prepareVariantsForSubmission() {
+        // Create hidden inputs for variants
+        const form = document.getElementById('productForm');
+
+        // Clear existing variant inputs
+        form.querySelectorAll('[name^="variants-"]').forEach(el => el.remove());
+
+        // Create formset management form
+        const managementForm = document.createElement('input');
+        managementForm.type = 'hidden';
+        managementForm.name = 'variants-TOTAL_FORMS';
+        managementForm.value = variants.length;
+        form.appendChild(managementForm);
+
+        const initialForm = document.createElement('input');
+        initialForm.type = 'hidden';
+        initialForm.name = 'variants-INITIAL_FORMS';
+        initialForm.value = existingVariants.length;
+        form.appendChild(initialForm);
+
+        // Create variant form inputs
+        variants.forEach((variant, index) => {
+            const prefix = `variants-${index}`;
+
+            const idInput = document.createElement('input');
+            idInput.type = 'hidden';
+            idInput.name = `${prefix}-id`;
+            idInput.value = variant.id;
+            form.appendChild(idInput);
+
+            const skuInput = document.createElement('input');
+            skuInput.type = 'hidden';
+            skuInput.name = `${prefix}-sku`;
+            skuInput.value = variant.sku;
+            form.appendChild(skuInput);
+
+            const priceInput = document.createElement('input');
+            priceInput.type = 'hidden';
+            priceInput.name = `${prefix}-price`;
+            priceInput.value = variant.price;
+            form.appendChild(priceInput);
+
+            const comparePriceInput = document.createElement('input');
+            comparePriceInput.type = 'hidden';
+            comparePriceInput.name = `${prefix}-compare_at_price`;
+            comparePriceInput.value = variant.compare_at_price || '';
+            form.appendChild(comparePriceInput);
+
+            const stockInput = document.createElement('input');
+            stockInput.type = 'hidden';
+            stockInput.name = `${prefix}-stock_quantity`;
+            stockInput.value = variant.stock_quantity;
+            form.appendChild(stockInput);
+
+            const weightInput = document.createElement('input');
+            weightInput.type = 'hidden';
+            weightInput.name = `${prefix}-weight`;
+            weightInput.value = variant.weight || '';
+            form.appendChild(weightInput);
+
+            const activeInput = document.createElement('input');
+            activeInput.type = 'hidden';
+            activeInput.name = `${prefix}-is_active`;
+            activeInput.value = variant.is_active;
+            form.appendChild(activeInput);
+
+            // Store option values as JSON
+            const optionsInput = document.createElement('input');
+            optionsInput.type = 'hidden';
+            optionsInput.name = `${prefix}-option_values`;
+            optionsInput.value = JSON.stringify(variant.options.map(o => o.valueId));
+            form.appendChild(optionsInput);
+        });
+    }
+
+    // Listen for form submission
+    const productForm = document.getElementById('productForm');
+    if (productForm) {
+        productForm.addEventListener('submit', function(e) {
+            prepareVariantsForSubmission();
+        });
+    }
+</script>
+

@@ -1,0 +1,108 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+
+    <!-- Page header -->
+    <div class="mb-8">
+        <div class="mb-4">
+            <a href="{% url 'dashboard:notification_webhook_detail' prefix=prefix pk=endpoint.pk %}" class="text-sm font-medium text-indigo-500 hover:text-indigo-600">&larr; Back to Endpoint Details</a>
+        </div>
+        <div class="sm:flex sm:justify-between sm:items-center">
+            <div class="mb-4 sm:mb-0">
+                <h1 class="text-2xl md:text-3xl text-slate-800 font-bold break-all">Logs: {{ endpoint.url }}</h1>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white shadow-lg rounded-sm border border-slate-200">
+        <div class="overflow-x-auto">
+            <table class="table-auto w-full">
+                <thead class="text-xs font-semibold uppercase text-slate-500 bg-slate-50 border-t border-b border-slate-200">
+                    <tr>
+                        <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Date</div></th>
+                        <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-center">Status</div></th>
+                        <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">HTTP Response</div></th>
+                        <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Event Data</div></th>
+                        <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Duration</div></th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm divide-y divide-slate-200">
+                    {% for log in logs %}
+                    <tr class="hover:bg-slate-50 cursor-pointer" onclick="toggleRow('row-{{ log.pk }}')">
+                        <td class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                            <div class="text-slate-500">{{ log.created_at|date:"M d, Y H:i:s" }}</div>
+                        </td>
+                        <td class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                            <div class="text-center">
+                                {% if log.status == 'success' %}
+                                    <div class="text-xs inline-flex font-medium bg-emerald-100 text-emerald-600 rounded-full text-center px-2.5 py-0.5">Success</div>
+                                {% else %}
+                                    <div class="text-xs inline-flex font-medium bg-rose-100 text-rose-600 rounded-full text-center px-2.5 py-0.5">Failed</div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-2 first:pl-5 last:pr-5 py-3">
+                            <div class="font-medium {% if log.response_status >= 200 and log.response_status < 300 %}text-emerald-600{% else %}text-rose-600{% endif %}">
+                                HTTP {{ log.response_status|default:"N/A" }}
+                            </div>
+                        </td>
+                        <td class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                            <div class="text-slate-800">{{ log.event.event_slug }}</div>
+                            <div class="text-xs font-mono text-slate-500">ID: {{ log.event.id|slice:":8" }}</div>
+                        </td>
+                        <td class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
+                            <div class="text-slate-500">{{ log.duration_ms }} ms</div>
+                        </td>
+                    </tr>
+                    <!-- Drawer -->
+                    <tr id="row-{{ log.pk }}" class="hidden">
+                        <td colspan="5" class="bg-slate-50 p-4 border-b border-slate-200">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-slate-800 text-emerald-400 p-3 rounded font-mono text-xs overflow-auto max-h-64">
+                                    <div class="text-slate-400 mb-1 border-b border-slate-700 pb-1 uppercase font-bold text-xs track-wider">Request Payload</div>
+                                    <pre>{{ log.request_payload|pprint }}</pre>
+                                </div>
+                                <div class="bg-slate-800 {% if log.status == 'success' %}text-emerald-400{% else %}text-rose-400{% endif %} p-3 rounded font-mono text-xs overflow-auto max-h-64">
+                                    <div class="text-slate-400 mb-1 border-b border-slate-700 pb-1 uppercase font-bold text-xs track-wider">Response Body</div>
+                                    <pre>{{ log.response_body|default:"No body returned" }}</pre>
+                                </div>
+                            </div>
+                            {% if log.error_message %}
+                            <div class="mt-4 p-3 bg-rose-100 text-rose-800 rounded text-sm font-mono border border-rose-200">
+                                <strong>Error:</strong> {{ log.error_message }}
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="p-4 text-center text-slate-500">
+                            {% trans "No logs found." %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% include "dashboard/partials/_pagination.html" with page_obj=logs %}
+    </div>
+
+</div>
+
+<script>
+    function toggleRow(id) {
+        const el = document.getElementById(id);
+        if (el.classList.contains('hidden')) {
+            el.classList.remove('hidden');
+        } else {
+            el.classList.add('hidden');
+        }
+    }
+</script>
+{% endblock %}

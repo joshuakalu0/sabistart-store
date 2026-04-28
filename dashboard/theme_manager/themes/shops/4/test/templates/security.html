@@ -1,0 +1,28 @@
+{% extends "system/classic/templates/base.html" %}
+
+{% block content %}
+<section class="grid gap-8 xl:grid-cols-[300px,1fr]">
+    {% include "system/classic/templates/_partials/account_nav.html" %}
+    <div class="surface-card">
+        <div class="px-8 py-8 border-b border-stone-100">
+            <p class="eyebrow">Security</p>
+            <div class="accent-bar mt-3 mb-4"></div>
+            <h1 class="section-title">Update Your Password</h1>
+            <p class="section-copy mt-3 text-base font-light">Keep your account secure with a strong, unique password for this storefront.</p>
+        </div>
+        <div class="px-8 py-8">
+            <form method="post" class="space-y-5 max-w-md">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div>
+                        <label class="block mb-2" style="font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#5c5347">{{ field.label }}</label>
+                        <div class="field-shell">{{ field }}</div>
+                        {% if field.errors %}<p class="mt-2 text-xs text-red-700">{{ field.errors|join:", " }}</p>{% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="button-primary">Update Password</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

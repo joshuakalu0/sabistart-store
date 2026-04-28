@@ -1,0 +1,187 @@
+{% extends "dashboard/_partials/base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      Page Settings
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Configure page settings, templates, and display options
+    </p>
+  </div>
+  <a
+    href="{% url 'dashboard:store_settings:manage_page_settings' prefix %}"
+    class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+  >
+    <span class="material-icons-outlined text-sm mr-2">refresh</span>
+    Refresh
+  </a>
+</div>
+
+<div
+  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+>
+  <div class="p-6">
+    <form method="post">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Page Templates</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Homepage Template
+                </label>
+                {{ form.homepage_template }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Product Page Template
+                </label>
+                {{ form.product_page_template }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Category Page Template
+                </label>
+                {{ form.category_page_template }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Blog Page Template
+                </label>
+                {{ form.blog_page_template }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Contact Page Template
+                </label>
+                {{ form.contact_page_template }}
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Page SEO</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Default Meta Title
+                </label>
+                {{ form.default_meta_title }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Default Meta Description
+                </label>
+                {{ form.default_meta_description }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Default Meta Keywords
+                </label>
+                {{ form.default_meta_keywords }}
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_og_tags.name }}" {% if form.enable_og_tags.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Open Graph Tags</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_twitter_cards.name }}" {% if form.enable_twitter_cards.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Twitter Cards</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Page Features</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_breadcrumbs.name }}" {% if form.enable_breadcrumbs.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Breadcrumbs</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_page_views.name }}" {% if form.enable_page_views.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Page Views</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_related_pages.name }}" {% if form.enable_related_pages.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Related Pages</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_page_comments.name }}" {% if form.enable_page_comments.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Page Comments</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_page_sharing.name }}" {% if form.enable_page_sharing.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Page Sharing</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Page Analytics</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_google_analytics.name }}" {% if form.enable_google_analytics.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Google Analytics</span>
+                </label>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Google Analytics ID
+                </label>
+                {{ form.google_analytics_id }}
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_facebook_pixel.name }}" {% if form.enable_facebook_pixel.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Facebook Pixel</span>
+                </label>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Facebook Pixel ID
+                </label>
+                {{ form.facebook_pixel_id }}
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_hotjar.name }}" {% if form.enable_hotjar.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Hotjar</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-8 flex justify-end space-x-4">
+        <button
+          type="submit"
+          class="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+        >
+          <span class="material-icons-outlined text-sm">save</span>
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

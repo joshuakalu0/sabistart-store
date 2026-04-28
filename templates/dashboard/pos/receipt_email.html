@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <body style="margin:0;padding:24px;background:#f8fafc;font-family:Arial,sans-serif;color:#0f172a;">
+    <div style="max-width:640px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:24px;overflow:hidden;">
+      <div style="padding:24px 28px;border-bottom:1px solid #e2e8f0;">
+        <p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#2563eb;">Invoice</p>
+        <h1 style="margin:0;font-size:28px;line-height:1.1;">{{ store.name }}</h1>
+        <p style="margin:12px 0 0;font-size:14px;color:#64748b;">Invoice {{ transaction.transaction_number }}</p>
+        <p style="margin:6px 0 0;font-size:14px;color:#64748b;">{{ transaction.created_at|date:"M d, Y H:i" }}</p>
+      </div>
+
+      <div style="padding:24px 28px;border-bottom:1px solid #e2e8f0;">
+        {% for item in items %}
+          <div style="display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid #f1f5f9;">
+            <div>
+              <div style="font-weight:700;">{{ item.product_name }}</div>
+              <div style="font-size:13px;color:#64748b;">{{ item.quantity }} × NGN {{ item.unit_price|floatformat:2 }}</div>
+            </div>
+            <div style="font-weight:700;">NGN {{ item.line_total|floatformat:2 }}</div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div style="padding:24px 28px;border-bottom:1px solid #e2e8f0;">
+        <div style="display:flex;justify-content:space-between;padding:6px 0;"><span>Subtotal</span><strong>NGN {{ transaction.subtotal|floatformat:2 }}</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;"><span>Tax</span><strong>NGN {{ transaction.tax_amount|floatformat:2 }}</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;"><span>Discount</span><strong>NGN {{ transaction.discount_amount|floatformat:2 }}</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:12px 0 0;margin-top:8px;border-top:1px solid #cbd5e1;font-size:18px;"><span>Total</span><strong>NGN {{ transaction.total_amount|floatformat:2 }}</strong></div>
+      </div>
+
+      <div style="padding:24px 28px;font-size:14px;color:#64748b;">
+        Thank you for your purchase.
+      </div>
+    </div>
+  </body>
+</html>

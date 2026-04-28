@@ -1,0 +1,199 @@
+{% extends "dashboard/_partials/base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      Product Display Settings
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Configure how products are displayed across your store
+    </p>
+  </div>
+  <a
+    href="{% url 'dashboard:store_settings:manage_product_display_settings' prefix %}"
+    class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+  >
+    <span class="material-icons-outlined text-sm mr-2">refresh</span>
+    Refresh
+  </a>
+</div>
+
+<div
+  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+>
+  <div class="p-6">
+    <form method="post">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Product Cards</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Card Style
+                </label>
+                {{ form.card_style }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Image Ratio
+                </label>
+                {{ form.image_ratio }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Price Display
+                </label>
+                {{ form.price_display }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Show Product Ratings
+                </label>
+                <div class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_product_ratings.name }}" {% if form.show_product_ratings.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Display star ratings</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Show Review Count
+                </label>
+                <div class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_review_count.name }}" {% if form.show_review_count.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Display number of reviews</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Product Badges</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_sale_badge.name }}" {% if form.show_sale_badge.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Sale Badge</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_new_badge.name }}" {% if form.show_new_badge.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">New Badge</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_stock_status.name }}" {% if form.show_stock_status.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Stock Status</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_discount_percentage.name }}" {% if form.show_discount_percentage.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Discount Percentage</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_brand_badge.name }}" {% if form.show_brand_badge.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Brand Badge</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Product Actions</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_add_to_cart_button.name }}" {% if form.show_add_to_cart_button.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Add to Cart Button</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_quick_view.name }}" {% if form.show_quick_view.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Quick View</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_wishlist_button.name }}" {% if form.show_wishlist_button.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Wishlist Button</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_compare_button.name }}" {% if form.show_compare_button.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Compare Button</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_share_button.name }}" {% if form.show_share_button.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Share Button</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Product Lists</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Products Per Row
+                </label>
+                {{ form.products_per_row }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Products Per Page
+                </label>
+                {{ form.products_per_page }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Pagination Style
+                </label>
+                {{ form.pagination_style }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Infinite Scroll
+                </label>
+                <div class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_infinite_scroll.name }}" {% if form.enable_infinite_scroll.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable infinite scroll</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Lazy Loading
+                </label>
+                <div class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_lazy_loading.name }}" {% if form.enable_lazy_loading.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable image lazy loading</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-8 flex justify-end space-x-4">
+        <button
+          type="submit"
+          class="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+        >
+          <span class="material-icons-outlined text-sm">save</span>
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

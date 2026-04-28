@@ -1,0 +1,86 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load string_utils %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Exchange Rates</h2>
+    <p class="text-slate-600 dark:text-slate-400">Manage currency conversion rates</p>
+  </div>
+  <a href="{{ create_url }}" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2">
+    <span class="material-icons-outlined text-sm">add</span><span>Add Rate</span>
+  </a>
+</div>
+
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          {% for col in "Currency Pair,Rate,Buy/Sell,Markup,Provider,Updated,Actions"|split:"," %}
+          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+        {% for rate in rates %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="font-medium text-slate-900 dark:text-white">
+              {{ rate.base_currency.code }}
+              <span class="material-icons-outlined text-[10px] text-slate-400 mx-1 align-middle">arrow_forward</span>
+              {{ rate.target_currency.code }}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-slate-700 dark:text-slate-300">
+            {{ rate.rate|floatformat:6 }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-xs text-slate-600 dark:text-slate-400">
+            <div><span class="text-slate-400">B:</span> {{ rate.rate_buy|default:"—" }}</div>
+            <div><span class="text-slate-400">S:</span> {{ rate.rate_sell|default:"—" }}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700 dark:text-slate-300">
+            {{ rate.markup_percentage }}%
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
+            {% if rate.is_manual_override %}
+            <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 text-xs rounded-full">Manual</span>
+            {% else %}
+            {{ rate.provider|default:"Automatic" }}
+            {% endif %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-xs text-slate-500">
+            {{ rate.fetched_at|date:"M d, Y H:i" }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+            <a href="{% url 'dashboard:pricing:exchange_rate_edit' prefix rate.id %}" class="text-primary hover:text-blue-700">Edit</a>
+            <button class="text-red-600 hover:text-red-800 delete-btn"
+                    data-name="{{ rate.base_currency.code }} to {{ rate.target_currency.code }}"
+                    data-url="{% url 'dashboard:pricing:exchange_rate_delete' prefix rate.id %}">Delete</button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="px-6 py-10 text-center text-slate-400 dark:text-slate-500">No exchange rates defined.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-400">
+    {{ rates|length }} rate pair{{ rates|length|pluralize }}
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+      openDeleteModal("Delete Exchange Rate",
+        `Are you sure you want to delete the rate for "${this.dataset.name}"?`,
+        () => {
+          fetch(this.dataset.url, {method:"POST", headers:{"X-CSRFToken":"{{ csrf_token }}","Content-Type":"application/x-www-form-urlencoded"}})
+            .then(() => location.reload());
+        });
+    });
+  });
+});
+</script>
+{% endblock %}

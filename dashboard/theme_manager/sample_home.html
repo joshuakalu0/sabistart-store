@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ shop.name|default:"My Shop" }}</title>
+    {% if css_path %}
+        <link rel="stylesheet" href="{{ MEDIA_URL }}themes/{{ css_path }}">
+    {% endif %}
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .header { background: #333; color: white; padding: 1rem; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .hero { text-align: center; padding: 4rem 0; background: #f8f9fa; }
+        .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-top: 2rem; }
+        .product-card { border: 1px solid #ddd; padding: 1rem; border-radius: 8px; }
+        .footer { background: #333; color: white; text-align: center; padding: 2rem; margin-top: 4rem; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>{{ shop.name|default:"My Shop" }}</h1>
+            <nav>
+                <a href="{% url 'themes:storefront_home' %}" style="color: white; margin-right: 1rem;">Home</a>
+                <a href="{% url 'themes:storefront_page' 'product' %}" style="color: white; margin-right: 1rem;">Products</a>
+                <a href="{% url 'themes:storefront_page' 'cart' %}" style="color: white;">Cart</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h2>Welcome to {{ shop.name|default:"Our Store" }}</h2>
+                <p>Discover amazing products at great prices</p>
+                <button style="background: #007cba; color: white; padding: 1rem 2rem; border: none; border-radius: 4px; font-size: 1.1rem;">
+                    Shop Now
+                </button>
+            </div>
+        </section>
+
+        <section class="container">
+            <h3>Featured Products</h3>
+            <div class="products">
+                {% for i in "123" %}
+                <div class="product-card">
+                    <div style="height: 200px; background: #f0f0f0; margin-bottom: 1rem; border-radius: 4px;"></div>
+                    <h4>Sample Product {{ forloop.counter }}</h4>
+                    <p>$99.99</p>
+                    <button style="background: #28a745; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px;">
+                        Add to Cart
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 {{ shop.name|default:"My Shop" }}. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,254 @@
+{% extends "dashboard/_partials/base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      Notification Settings
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Configure email, SMS, and admin notification settings
+    </p>
+  </div>
+  <a
+    href="{% url 'dashboard:store_settings:manage_notification_settings' prefix %}"
+    class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+  >
+    <span class="material-icons-outlined text-sm mr-2">refresh</span>
+    Refresh
+  </a>
+</div>
+
+<div
+  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+>
+  <div class="p-6">
+    <form method="post">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Email Notifications</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.send_order_confirmation.name }}" {% if form.send_order_confirmation.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Order Confirmation</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.send_order_processing.name }}" {% if form.send_order_processing.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Order Processing</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.send_order_shipped.name }}" {% if form.send_order_shipped.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Order Shipped</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.send_order_delivered.name }}" {% if form.send_order_delivered.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Order Delivered</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.send_order_cancelled.name }}" {% if form.send_order_cancelled.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Order Cancelled</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.send_order_refunded.name }}" {% if form.send_order_refunded.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Order Refunded</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.send_order_on_hold.name }}" {% if form.send_order_on_hold.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Order On Hold</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.send_welcome_email.name }}" {% if form.send_welcome_email.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Welcome Email</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.send_password_reset.name }}" {% if form.send_password_reset.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Password Reset</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.send_account_verification.name }}" {% if form.send_account_verification.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Account Verification</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.send_wishlist_reminder.name }}" {% if form.send_wishlist_reminder.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Wishlist Reminder</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.send_abandoned_cart.name }}" {% if form.send_abandoned_cart.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Abandoned Cart</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.send_back_in_stock.name }}" {% if form.send_back_in_stock.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Back in Stock</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.send_price_drop_alert.name }}" {% if form.send_price_drop_alert.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Price Drop Alert</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.send_newsletter.name }}" {% if form.send_newsletter.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Newsletter</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.send_promotional_emails.name }}" {% if form.send_promotional_emails.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Promotional Emails</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">SMS Notifications</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_sms.name }}" {% if form.enable_sms.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable SMS Notifications</span>
+                </label>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  SMS Provider
+                </label>
+                {{ form.sms_provider }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  SMS API Key
+                </label>
+                {{ form.sms_api_key }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  SMS Sender ID
+                </label>
+                {{ form.sms_sender_id }}
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.sms_order_confirmation.name }}" {% if form.sms_order_confirmation.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Order Confirmation</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.sms_order_shipped.name }}" {% if form.sms_order_shipped.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Order Shipped</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.sms_order_delivered.name }}" {% if form.sms_order_delivered.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Order Delivered</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.sms_order_cancelled.name }}" {% if form.sms_order_cancelled.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Order Cancelled</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.sms_verification_code.name }}" {% if form.sms_verification_code.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Verification Code</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Admin Notifications</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.notify_admin_new_order.name }}" {% if form.notify_admin_new_order.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">New Order</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.notify_admin_low_stock.name }}" {% if form.notify_admin_low_stock.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Low Stock</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.notify_admin_out_of_stock.name }}" {% if form.notify_admin_out_of_stock.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Out of Stock</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.notify_admin_new_review.name }}" {% if form.notify_admin_new_review.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">New Review</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.notify_admin_new_customer.name }}" {% if form.notify_admin_new_customer.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">New Customer</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.notify_admin_failed_payment.name }}" {% if form.notify_admin_failed_payment.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Failed Payment</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.notify_admin_refund_request.name }}" {% if form.notify_admin_refund_request.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Refund Request</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-8 flex justify-end space-x-4">
+        <button
+          type="submit"
+          class="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+        >
+          <span class="material-icons-outlined text-sm">save</span>
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

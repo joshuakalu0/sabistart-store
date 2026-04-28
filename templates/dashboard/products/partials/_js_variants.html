@@ -1,0 +1,65 @@
+<script>
+    console.log('variant')
+  // Product Type Change
+  function handleProductTypeChange() {
+    const productType = document.getElementById('productType').value;
+    const variantsSection = document.getElementById('variantsSection');
+
+    if (productType === 'variable') {
+      variantsSection.classList.remove('hidden');
+    } else {
+      variantsSection.classList.add('hidden');
+    }
+  }
+
+  // Variants Management
+  function addVariant() {
+    const newVariant = {
+      id: generateUUID(),
+      name: '',
+      sku: '',
+      price: 0,
+      stock: 0
+    };
+    variants.push(newVariant);
+    renderVariants();
+  }
+
+  function renderVariants() {
+    const container = document.getElementById('variantsContainer');
+    container.innerHTML = variants.map((variant, index) => `
+          <tr class="variant-row">
+              <td class="px-4 py-3">
+                  <input type="text" value="${variant.name}" placeholder="Variant Name" onchange="updateVariant(${index}, 'name', this.value)"
+                      class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:border-primary-500 focus:ring-primary-500">
+              </td>
+              <td class="px-4 py-3">
+                  <input type="text" value="${variant.sku}" placeholder="SKU" onchange="updateVariant(${index}, 'sku', this.value)"
+                      class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:border-primary-500 focus:ring-primary-500">
+              </td>
+              <td class="px-4 py-3">
+                  <input type="number" value="${variant.price}" step="0.01" placeholder="Price" onchange="updateVariant(${index}, 'price', this.value)"
+                      class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:border-primary-500 focus:ring-primary-500">
+              </td>
+              <td class="px-4 py-3">
+                  <input type="number" value="${variant.stock}" min="0" onchange="updateVariant(${index}, 'stock', this.value)"
+                      class="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:border-primary-500 focus:ring-primary-500">
+              </td>
+              <td class="px-4 py-3">
+                  <button type="button" onclick="removeVariant(${index})" class="text-red-600 hover:text-red-700">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+              </td>
+          </tr>
+      `).join('');
+  }
+
+  function updateVariant(index, field, value) {
+    variants[index][field] = field === 'price' || field === 'stock' ? parseFloat(value) || 0 : value;
+  }
+
+  function removeVariant(index) {
+    variants.splice(index, 1);
+    renderVariants();
+  }
+</script>

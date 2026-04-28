@@ -1,0 +1,717 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{{ title }} | Store Admin</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "error-container": "#fe8983",
+                "tertiary-fixed": "#e3dbfd",
+                "tertiary-container": "#e3dbfd",
+                "primary-fixed-dim": "#c7d3ff",
+                "on-primary": "#f8f7ff",
+                "surface-container-lowest": "#ffffff",
+                "on-tertiary-fixed": "#3e3a54",
+                "on-primary-fixed": "#003798",
+                "on-primary-fixed-variant": "#0050d4",
+                "surface-container-high": "#e1e9ee",
+                "surface-dim": "#cfdce3",
+                "on-secondary-container": "#435368",
+                "tertiary-fixed-dim": "#d4cdee",
+                "secondary-container": "#d3e4fe",
+                "on-secondary-fixed-variant": "#4d5d73",
+                "error-dim": "#4e0309",
+                "surface-container-low": "#f0f4f7",
+                "primary-fixed": "#dbe1ff",
+                "on-tertiary-container": "#514d68",
+                "secondary-fixed-dim": "#c5d6f0",
+                "on-error": "#fff7f6",
+                "surface-variant": "#d9e4ea",
+                "inverse-primary": "#618bff",
+                "surface-tint": "#0053db",
+                "on-error-container": "#752121",
+                "secondary-dim": "#44546a",
+                "on-tertiary": "#fcf7ff",
+                "on-surface-variant": "#566166",
+                "surface-container": "#e8eff3",
+                "primary-container": "#dbe1ff",
+                "surface": "#f7f9fb",
+                "tertiary": "#605c78",
+                "on-secondary": "#f7f9ff",
+                "on-background": "#2a3439",
+                "tertiary-dim": "#54506b",
+                "error": "#9f403d",
+                "inverse-surface": "#0b0f10",
+                "on-surface": "#2a3439",
+                "on-primary-container": "#0048bf",
+                "surface-container-highest": "#d9e4ea",
+                "inverse-on-surface": "#9a9d9f",
+                "secondary": "#506076",
+                "outline": "#717c82",
+                "on-tertiary-fixed-variant": "#5b5672",
+                "background": "#f7f9fb",
+                "primary": "#0053db",
+                "outline-variant": "#a9b4b9",
+                "on-secondary-fixed": "#314055",
+                "primary-dim": "#0048c1",
+                "surface-bright": "#f7f9fb",
+                "secondary-fixed": "#d3e4fe"
+              },
+              fontFamily: {
+                "headline": ["Manrope"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+            },
+          },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; color: #2a3439; }
+        .font-headline { font-family: 'Manrope', sans-serif; }
+
+        /* Form Field Error States */
+        .form-field-error {
+            border-bottom-color: #9f403d !important;
+        }
+        .error-message {
+            color: #9f403d;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Toggle Switch Styles */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #0053db;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #0053db;
+        }
+        .form-field-error {
+            border-bottom-color: #9f403d !important;
+        }
+        .error-message {
+            color: #9f403d;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Form Control Styles */
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            line-height: 1.5;
+            color: #2a3439;
+            background-color: #ffffff;
+            background-clip: padding-box;
+            border: 1px solid #d9e4ea;
+            border-radius: 0.5rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        .form-control:focus {
+            border-color: #0053db;
+            outline: 0;
+            box-shadow: 0 0 0 3px rgba(0, 83, 219, 0.15);
+        }
+        .form-control::placeholder {
+            color: #717c82;
+            opacity: 1;
+        }
+        .form-control:disabled {
+            background-color: #f0f4f7;
+            cursor: not-allowed;
+        }
+
+        /* Form Control Color */
+        .form-control-color {
+            width: 100%;
+            height: 48px;
+            padding: 0;
+            border: 0;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            background: transparent;
+        }
+        .form-control-color::-webkit-color-swatch-wrapper {
+            padding: 0;
+            border-radius: 0.5rem;
+        }
+        .form-control-color::-webkit-color-swatch {
+            border: 1px solid #d9e4ea;
+            border-radius: 0.5rem;
+        }
+        .form-control-color::-moz-color-swatch {
+            border: 1px solid #d9e4ea;
+            border-radius: 0.5rem;
+        }
+
+        /* Form Select */
+        .form-select {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 2.5rem 0.75rem 1rem;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            line-height: 1.5;
+            color: #2a3439;
+            background-color: #ffffff;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23566166' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 16px 12px;
+            border: 1px solid #d9e4ea;
+            border-radius: 0.5rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            appearance: none;
+        }
+        .form-select:focus {
+            border-color: #0053db;
+            outline: 0;
+            box-shadow: 0 0 0 3px rgba(0, 83, 219, 0.15);
+        }
+        .form-select:disabled {
+            background-color: #f0f4f7;
+            cursor: not-allowed;
+        }
+
+        /* Form Check Input */
+        .form-check-input {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-top: 0;
+            vertical-align: top;
+            background-color: #ffffff;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            border: 1px solid #d9e4ea;
+            border-radius: 0.375rem;
+            appearance: none;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+        }
+        .form-check-input:checked {
+            background-color: #0053db;
+            border-color: #0053db;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+        }
+        .form-check-input:focus {
+            border-color: #0053db;
+            outline: 0;
+            box-shadow: 0 0 0 3px rgba(0, 83, 219, 0.15);
+        }
+
+        /* JSON Editor */
+        .json-editor {
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        /* Image Preview */
+        .image-preview-container {
+            position: relative;
+            overflow: hidden;
+        }
+        .image-preview {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+
+<!-- Django Messages Framework -->
+{% if messages %}
+<div class="fixed top-24 right-8 z-50 space-y-2">
+    {% for message in messages %}
+    <div class="flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg" style="background-color: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#9f403d{% else %}#ffffff{% endif %}; color: {% if message.tags == 'error' %}#fff7f6{% else %}#2a3439{% endif %};">
+        <span class="material-symbols-outlined text-sm">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span class="font-medium text-sm">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- TopNavBar -->
+<header class="sticky top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm shadow-slate-200/50">
+    <nav class="flex items-center justify-between w-full px-8 py-4 max-w-screen-2xl mx-auto">
+
+        <div class="flex items-center gap-4">
+            <button type="button" class="px-5 py-2 text-sm font-semibold rounded-lg text-slate-700 hover:bg-slate-100/50 transition-colors duration-200" onclick="window.location.href='{ url 'theme_preset_list' %}'">Cancel</button>
+            <button type="submit" form="preset-form" class="px-5 py-2 text-sm font-semibold rounded-lg text-on-primary bg-gradient-to-b from-blue-600 to-blue-700 active:scale-95 transition-all duration-150">
+                {% if is_edit %}Save Changes{% else %}Create Preset{% endif %}
+            </button>
+        </div>
+    </nav>
+</header>
+
+<main class="max-w-screen-2xl mx-auto px-8 py-10">
+    <form id="preset-form" method="post" action="{{ action_url }}" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <!-- Page Header -->
+        <div class="mb-12">
+            <nav class="flex items-center gap-2 mb-4 text-on-surface-variant font-label text-sm">
+                <a href="{ url 'theme_preset_list' %}" class="hover:text-primary transition-colors">Theme Presets</a>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-on-surface font-semibold">{% if is_edit %}{{ object.name }}{% else %}New Preset{% endif %}</span>
+            </nav>
+            <h1 class="text-5xl font-extrabold font-headline tracking-tight text-on-surface mb-2">
+                {% if is_edit %}Edit Theme Preset{% else %}Create Theme Preset{% endif %}
+            </h1>
+            <p class="text-on-surface-variant text-lg">Manage architectural visual variables and layout configurations.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+            <!-- Left Column: Form Fields (60%) -->
+            <div class="lg:col-span-7 space-y-10">
+
+                <!-- Basic Info Section -->
+                <section class="bg-surface-container-low p-8 rounded-xl">
+                    <div class="flex items-center justify-between mb-8">
+                        <h2 class="text-xl font-bold font-headline text-on-surface tracking-tight">Basic Info</h2>
+                        <span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-xs font-bold rounded-full uppercase tracking-wider">
+                            {% if is_edit %}Editing{% else %}Draft{% endif %}
+                        </span>
+                    </div>
+                    <div class="space-y-6">
+                        <!-- Name Field -->
+                        <div class="group">
+                            <label class="block text-sm font-semibold text-on-surface-variant mb-2 font-label" for="{{ form.name.id_for_label }}">Name</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                {% for error in form.name.errors %}
+                                    <p class="error-message">
+                                        <span class="material-symbols-outlined text-xs">error</span>
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Description Field -->
+                        <div class="group">
+                            <label class="block text-sm font-semibold text-on-surface-variant mb-2 font-label" for="{{ form.description.id_for_label }}">Description</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                {% for error in form.description.errors %}
+                                    <p class="error-message">
+                                        <span class="material-symbols-outlined text-xs">error</span>
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Style and Industry -->
+                        <div class="grid grid-cols-2 gap-6">
+                            <!-- Style -->
+                            <div>
+                                <label class="block text-sm font-semibold text-on-surface-variant mb-2 font-label" for="{{ form.style.id_for_label }}">Style</label>
+                                {{ form.style }}
+                                {% if form.style.errors %}
+                                    {% for error in form.style.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <!-- Industry -->
+                            <div>
+                                <label class="block text-sm font-semibold text-on-surface-variant mb-2 font-label" for="{{ form.industry.id_for_label }}">Industry</label>
+                                {{ form.industry }}
+                                {% if form.industry.errors %}
+                                    {% for error in form.industry.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Preview Image Section -->
+                <section class="bg-surface-container-low p-8 rounded-xl">
+                    <h2 class="text-xl font-bold font-headline text-on-surface tracking-tight mb-8">Preview Image</h2>
+                    <div class="space-y-6">
+                        {% if is_edit and object.preview_image %}
+                        <div class="image-preview-container mb-4">
+                            <img src="{{ object.preview_image.url }}" alt="Current preview" class="image-preview"/>
+                        </div>
+                        {% endif %}
+
+                        <div class="group">
+                            <label class="block text-sm font-semibold text-on-surface-variant mb-2 font-label" for="{{ form.preview_image.id_for_label }}">Upload New Image</label>
+                            {{ form.preview_image }}
+                            <p class="mt-2 text-xs text-on-surface-variant">PNG, JPEG, or WebP. Max 5MB. Recommended: 1200x800px</p>
+                            {% if form.preview_image.errors %}
+                                {% for error in form.preview_image.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Configuration Section (JSON Editor) -->
+                <section class="bg-surface-container-low p-8 rounded-xl">
+                    <h2 class="text-xl font-bold font-headline text-on-surface tracking-tight mb-8">Theme Configuration</h2>
+                    <div class="space-y-8">
+                        <!-- Color Palette Preview (Visual Reference) -->
+                        <div class="grid grid-cols-3 gap-6">
+                            <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm">
+                                <label class="block text-[10px] uppercase font-bold text-on-surface-variant mb-3 tracking-widest">Primary Color</label>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded bg-primary" id="preview-primary" style="background-color: #0053db;"></div>
+                                    <span class="font-mono text-sm text-on-surface" id="text-primary">#0053DB</span>
+                                </div>
+                            </div>
+                            <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm">
+                                <label class="block text-[10px] uppercase font-bold text-on-surface-variant mb-3 tracking-widest">Secondary</label>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded bg-secondary" id="preview-secondary" style="background-color: #506076;"></div>
+                                    <span class="font-mono text-sm text-on-surface" id="text-secondary">#506076</span>
+                                </div>
+                            </div>
+                            <div class="bg-surface-container-lowest p-4 rounded-lg shadow-sm">
+                                <label class="block text-[10px] uppercase font-bold text-on-surface-variant mb-3 tracking-widest">Accent</label>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded bg-tertiary" id="preview-accent" style="background-color: #605c78;"></div>
+                                    <span class="font-mono text-sm text-on-surface" id="text-accent">#605C78</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- JSON Editor Field -->
+                        <div class="group">
+                            <label class="block text-sm font-semibold text-on-surface-variant mb-2 font-label" for="{{ form.theme_config.id_for_label }}">
+                                Theme Configuration (JSON)
+                                <span class="text-xs font-normal text-on-surface-variant ml-2">
+                                    Matches ThemeSettings model fields
+                                </span>
+                            </label>
+                            {{ form.theme_config }}
+                            {% if form.theme_config.errors %}
+                                {% for error in form.theme_config.errors %}
+                                    <p class="error-message">
+                                        <span class="material-symbols-outlined text-xs">error</span>
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+                            {% endif %}
+                            <p class="mt-2 text-xs text-on-surface-variant">
+                                Example: {"primary_color": "#0053db", "heading_font": "inter", "border_radius": 8}
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Metadata Section -->
+                <section class="bg-surface-container-low p-8 rounded-xl flex items-center justify-between">
+                    <div class="flex gap-10">
+                        <!-- Is Default Toggle -->
+                        <div class="flex items-center gap-3">
+                            <label class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none" style="background-color: {% if form.is_default.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                {{ form.is_default }}
+                                <span class="toggle-slider pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out" style="transform: translateX({% if form.is_default.value %}1.25rem{% else %}0{% endif %});"></span>
+                            </label>
+                            <span class="text-sm font-semibold text-on-surface font-label">Default Preset</span>
+                        </div>
+                        {% if form.is_default.errors %}
+                            {% for error in form.is_default.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <!-- Is Featured Toggle -->
+                        <div class="flex items-center gap-3">
+                            <label class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none" style="background-color: {% if form.is_featured.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                {{ form.is_featured }}
+                                <span class="toggle-slider pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out" style="transform: translateX({% if form.is_featured.value %}1.25rem{% else %}0{% endif %});"></span>
+                            </label>
+                            <span class="text-sm font-semibold text-on-surface font-label">Featured</span>
+                        </div>
+                        {% if form.is_featured.errors %}
+                            {% for error in form.is_featured.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    {% if is_edit and object.usage_count %}
+                    <div class="flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-sm">
+                        <span class="material-symbols-outlined text-primary text-sm">analytics</span>
+                        <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Used by {{ object.usage_count }} Sites</span>
+                    </div>
+                    {% else %}
+                    <div class="flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-sm">
+                        <span class="material-symbols-outlined text-on-surface-variant text-sm">info</span>
+                        <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">New Preset</span>
+                    </div>
+                    {% endif %}
+                </section>
+
+            </div>
+
+            <!-- Right Column: Live Previews (40%) -->
+            <div class="lg:col-span-5 space-y-10 lg:sticky lg:top-28">
+
+                <!-- Preset Preview Card -->
+                <div class="bg-white rounded-xl shadow-lg shadow-slate-200/40 overflow-hidden group">
+                    <div class="relative h-64 bg-slate-900 overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-slate-950 to-transparent opacity-60"></div>
+                        {% if is_edit and object.preview_image %}
+                        <img alt="Theme Preview" class="w-full h-full object-cover mix-blend-overlay group-hover:scale-110 transition-transform duration-700" src="{{ object.preview_image.url }}"/>
+                        {% else %}
+                        <img alt="Theme Preview" class="w-full h-full object-cover mix-blend-overlay group-hover:scale-110 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzSFW-k5yw_ORlGhTl_NlrRKfRBMryq7QoU_-3dZCEoVTquUpYooek4BlQ2-sBtEW9Qmj4VEIwJbWKE7DUGC7LfarbrdRd78Jb8QHSQ276sixoeS2ATOmaqC9H2joWbxpIUuayJcoXvwYVaUDhhvkLs0mmxhynhCX69Ic121N5pUSOT6xP5l5kBmRXaSs2uDcFjb8DNOufIExP_xU_73iilzq8af4zT44linpiOB6cjEAK9CFyuQPw3S4YUdwxLPwY2Eyu4MytWXM"/>
+                        {% endif %}
+                        <div class="absolute bottom-6 left-6 right-6">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="px-2 py-0.5 bg-blue-600 text-[10px] font-bold text-white rounded uppercase tracking-widest">
+                                    {{ form.style.value|default:'Modern'|title }}
+                                </span>
+                                <span class="px-2 py-0.5 bg-white/20 backdrop-blur-md text-[10px] font-bold text-white rounded uppercase tracking-widest">
+                                    {% if is_edit %}v{{ object.id }}{% else %}v1.0{% endif %}
+                                </span>
+                            </div>
+                            <h3 class="text-2xl font-bold font-headline text-white">
+                                {{ form.name.value|default:'Preset Name' }}
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="p-6 flex items-center justify-between bg-white border-t border-slate-50">
+                        <div class="flex gap-4">
+                            <div class="text-center">
+                                <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider mb-1">Style</p>
+                                <p class="text-sm font-bold text-on-surface" id="preview-style">{{ form.style.value|default:'Modern' }}</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider mb-1">Industry</p>
+                                <p class="text-sm font-bold text-on-surface" id="preview-industry">{{ form.industry.value|default:'General' }}</p>
+                            </div>
+                        </div>
+                        {% if is_edit %}
+                        <button type="button" class="p-2 rounded-full hover:bg-slate-50 text-on-surface-variant" onclick="window.open('{ url 'theme_preset_preview' object.pk %}', '_blank')">
+                            <span class="material-symbols-outlined">share</span>
+                        </button>
+                        {% else %}
+                        <button type="button" class="p-2 rounded-full hover:bg-slate-50 text-on-surface-variant">
+                            <span class="material-symbols-outlined">share</span>
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Live Theme Preview (Mini Site) -->
+                <div class="bg-surface-container-high rounded-xl p-1 overflow-hidden">
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden aspect-[4/3] flex flex-col">
+                        <!-- Browser Header -->
+                        <div class="bg-slate-100 px-4 py-2 flex items-center gap-2 border-b border-slate-200">
+                            <div class="flex gap-1">
+                                <div class="w-2 h-2 rounded-full bg-slate-300"></div>
+                                <div class="w-2 h-2 rounded-full bg-slate-300"></div>
+                                <div class="w-2 h-2 rounded-full bg-slate-300"></div>
+                            </div>
+                            <div class="flex-1 bg-white rounded h-4 mx-4"></div>
+                        </div>
+                        <!-- Mini Content -->
+                        <div class="flex-1 bg-slate-950 p-8 flex flex-col justify-center items-center text-center overflow-hidden">
+                            <div class="w-12 h-1 bg-primary mb-6" id="preview-accent-bar" style="background-color: #0053db;"></div>
+                            <h4 class="text-3xl font-extrabold font-headline text-white leading-tight mb-4 tracking-tighter">Engineered for the Digital Avant-Garde</h4>
+                            <p class="text-slate-400 text-xs max-w-xs mb-8">Redefining architectural precision in every pixel. A theme built for those who value structure over noise.</p>
+                            <div class="flex gap-3">
+                                <div class="px-4 py-2 bg-primary text-on-primary text-[10px] font-bold rounded" id="preview-btn-primary" style="background-color: #0053db;">Get Started</div>
+                                <div class="px-4 py-2 border border-slate-700 text-white text-[10px] font-bold rounded">View Portfolio</div>
+                            </div>
+                        </div>
+                        <!-- Mini Cards -->
+                        <div class="bg-white p-6 grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <div class="h-20 bg-slate-100 rounded-lg"></div>
+                                <div class="h-2 w-full bg-slate-100 rounded"></div>
+                                <div class="h-2 w-2/3 bg-slate-100 rounded"></div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="h-20 bg-slate-100 rounded-lg"></div>
+                                <div class="h-2 w-full bg-slate-100 rounded"></div>
+                                <div class="h-2 w-2/3 bg-slate-100 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 text-center">
+                        <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Live Composition Preview</p>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                {% if is_edit %}
+                <div class="bg-white rounded-xl shadow-lg shadow-slate-200/40 p-6 space-y-4">
+                    <h3 class="text-sm font-bold font-headline text-on-surface uppercase tracking-wider">Quick Actions</h3>
+
+                    <!-- Apply to Theme -->
+                    <form method="post" action="{ url 'theme_preset_apply' object.pk %}" class="space-y-3">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-on-primary font-bold rounded-lg hover:bg-primary-dim transition-all active:scale-95">
+                            <span class="material-symbols-outlined text-sm">palette</span>
+                            Apply to Current Theme
+                        </button>
+                        <p class="text-xs text-on-surface-variant text-center">This will overwrite your current theme settings</p>
+                    </form>
+
+                    <div class="border-t border-outline-variant/20 pt-4 space-y-3">
+                        <a href="{ url 'theme_preset_duplicate' object.pk %}" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-surface-container text-on-surface font-bold rounded-lg hover:bg-surface-container-high transition-all">
+                            <span class="material-symbols-outlined text-sm">content_copy</span>
+                            Duplicate Preset
+                        </a>
+
+                        <button type="button" onclick="confirmDelete()" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-error-container text-on-error-container font-bold rounded-lg hover:bg-error transition-all">
+                            <span class="material-symbols-outlined text-sm">delete</span>
+                            Delete Preset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Delete Confirmation Form -->
+                <form id="delete-form" method="post" action="{ url 'theme_preset_delete' object.pk %}" style="display: none;">
+                    {% csrf_token %}
+                </form>
+                {% endif %}
+
+            </div>
+        </div>
+    </form>
+</main>
+
+<footer class="mt-20 py-10 border-t border-surface-container-highest max-w-screen-2xl mx-auto px-8">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <span class="text-sm font-bold font-headline text-on-surface">THEME_PRESET_EDITOR</span>
+            <span class="text-xs text-on-surface-variant font-label">v4.8.2-stable</span>
+        </div>
+        <div class="flex gap-8">
+            <a class="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors" href="#">Documentation</a>
+            <a class="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors" href="#">API Reference</a>
+            <a class="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors" href="#">Audit Logs</a>
+        </div>
+    </div>
+</footer>
+
+<!-- JavaScript for Dynamic Updates -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // JSON Editor Validation
+        const jsonEditor = document.getElementById('{{ form.theme_config.id_for_label }}');
+        if (jsonEditor) {
+            jsonEditor.addEventListener('input', function() {
+                try {
+                    const parsed = JSON.parse(this.value);
+                    this.classList.remove('form-field-error');
+
+                    // Update color previews if JSON contains color fields
+                    if (parsed.primary_color) {
+                        document.getElementById('preview-primary').style.backgroundColor = parsed.primary_color;
+                        document.getElementById('text-primary').textContent = parsed.primary_color.toUpperCase();
+                        document.getElementById('preview-accent-bar').style.backgroundColor = parsed.primary_color;
+                        document.getElementById('preview-btn-primary').style.backgroundColor = parsed.primary_color;
+                    }
+                    if (parsed.secondary_color) {
+                        document.getElementById('preview-secondary').style.backgroundColor = parsed.secondary_color;
+                        document.getElementById('text-secondary').textContent = parsed.secondary_color.toUpperCase();
+                    }
+                    if (parsed.accent_color) {
+                        document.getElementById('preview-accent').style.backgroundColor = parsed.accent_color;
+                        document.getElementById('text-accent').textContent = parsed.accent_color.toUpperCase();
+                    }
+                } catch (e) {
+                    this.classList.add('form-field-error');
+                }
+            });
+        }
+
+        // Toggle Switch Styling
+        const toggleInputs = document.querySelectorAll('input[type="checkbox"]');
+        toggleInputs.forEach(function(input) {
+            input.classList.add('toggle-switch');
+            input.classList.add('sr-only');
+
+            input.addEventListener('change', function() {
+                const slider = this.parentElement.querySelector('.toggle-slider');
+                if (slider) {
+                    slider.style.transform = this.checked ? 'translateX(1.25rem)' : 'translateX(0)';
+                    this.parentElement.style.backgroundColor = this.checked ? '#0053db' : '#d9e4ea';
+                }
+            });
+        });
+
+        // Style/Industry Preview Updates
+        const styleSelect = document.getElementById('{{ form.style.id_for_label }}');
+        const industrySelect = document.getElementById('{{ form.industry.id_for_label }}');
+
+        if (styleSelect) {
+            styleSelect.addEventListener('change', function() {
+                document.getElementById('preview-style').textContent = this.value;
+            });
+        }
+
+        if (industrySelect) {
+            industrySelect.addEventListener('change', function() {
+                document.getElementById('preview-industry').textContent = this.value;
+            });
+        }
+
+        // Hide messages after 5 seconds
+        setTimeout(function() {
+            const messages = document.querySelectorAll('.fixed.top-24');
+            messages.forEach(function(msg) {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    msg.remove();
+                }, 500);
+            });
+        }, 5000);
+    });
+
+    // Delete Confirmation
+    function confirmDelete() {
+        if (confirm('Are you sure you want to delete this preset? This action cannot be undone.')) {
+            document.getElementById('delete-form').submit();
+        }
+    }
+</script>
+
+</body>
+</html>

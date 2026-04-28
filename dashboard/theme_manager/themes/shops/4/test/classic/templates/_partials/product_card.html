@@ -1,0 +1,63 @@
+<article class="surface-card group flex h-full flex-col overflow-hidden">
+    <a href="{{ product.detail_url }}" class="block relative overflow-hidden" style="background:var(--color-surface)">
+        <div class="aspect-[4/5] overflow-hidden">
+            {% if product.image_url %}
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" class="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]">
+            {% else %}
+                <div class="flex h-full items-center justify-center text-sm text-stone-400 min-h-[280px]">No image</div>
+            {% endif %}
+        </div>
+        <!-- Badges -->
+        <div class="absolute left-0 top-4 flex flex-col gap-1.5">
+            {% if product.promo_badge %}
+                <span class="inline-block px-3 py-1 text-xs font-bold uppercase tracking-widest text-white" style="background:var(--color-secondary);letter-spacing:.14em">{{ product.promo_badge }}</span>
+            {% elif product.is_new %}
+                <span class="inline-block px-3 py-1 text-xs font-bold uppercase tracking-widest text-white" style="background:var(--color-primary);letter-spacing:.14em">New</span>
+            {% elif product.is_bestseller %}
+                <span class="inline-block px-3 py-1 text-xs font-bold uppercase tracking-widest text-stone-900" style="background:var(--color-accent);letter-spacing:.14em">Best Seller</span>
+            {% endif %}
+        </div>
+    </a>
+
+    <div class="flex flex-1 flex-col p-6">
+        <div class="flex flex-1 flex-col justify-between gap-5">
+            <div class="space-y-2">
+                {% if product.brand_name %}
+                    <a href="{{ product.brand_url|default:'#' }}" class="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-700 transition block" style="letter-spacing:.2em">{{ product.brand_name }}</a>
+                {% endif %}
+                <a href="{{ product.detail_url }}" class="brand-font block text-2xl font-semibold text-stone-900 leading-tight hover:text-stone-600 transition">{{ product.name }}</a>
+                {% if product.short_description %}
+                    <p class="text-sm leading-6 text-stone-500 font-light">{{ product.short_description|truncatechars:100 }}</p>
+                {% endif %}
+            </div>
+            <div class="space-y-2">
+                <hr class="rule">
+                <div class="flex items-end justify-between gap-3 pt-1">
+                    <div>
+                        <p class="brand-font text-3xl font-semibold text-stone-900 leading-none">{{ product.price_display }}</p>
+                        {% if product.compare_price_display %}
+                            <p class="text-sm text-stone-400 line-through mt-1">{{ product.compare_price_display }}</p>
+                        {% endif %}
+                        {% if product.savings_display %}
+                            <p class="text-xs font-bold uppercase tracking-widest mt-1" style="color:var(--color-secondary);letter-spacing:.14em">Save {{ product.savings_display }}</p>
+                        {% endif %}
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-widest {% if product.in_stock %}text-green-700{% else %}text-red-700{% endif %}" style="letter-spacing:.14em">
+                        {{ product.stock_label }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5 flex gap-3">
+            <a href="{{ product.detail_url }}" class="button-primary flex-1 text-center">View Product</a>
+            <form action="{% url 'tenant:wishlist' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <button type="submit" class="button-secondary px-4" title="Save to Wishlist">
+                    <span class="material-symbols-outlined" style="font-size:1rem">favorite_border</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</article>

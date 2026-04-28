@@ -1,0 +1,59 @@
+{
+  "name": "Writer Journal",
+  "description": "A publication-led theme for authors, thinkers, newsletter operators, and story-driven storefronts centered on articles and releases.",
+  "version": "1.0.0",
+  "currency": "NGN",
+  "price": "0.00",
+  "is_free": true,
+  "is_published": true,
+  "is_featured": true,
+  "status": "approved",
+  "preview_image_path": "writer-journal/images/preview.svg",
+  "thumbnail_path": "writer-journal/images/preview.svg",
+  "schema_path": "schema.json",
+  "changelog_path": "CHANGELOG.md",
+  "features": [
+    "Publication timeline storytelling",
+    "Articles and releases hierarchy",
+    "Author-first narrative structure"
+  ],
+  "category": {
+    "slug": "writer-publication",
+    "name": "Writer & Publication",
+    "description": "Themes for authors, educators, researchers, and story-led storefronts.",
+    "sort_order": 30,
+    "is_active": true
+  },
+  "metadata": {
+    "tone": "literary",
+    "audience": "writers and publishers"
+  },
+  "offers": [
+    {
+      "name": "Open Launch",
+      "offer_type": "free",
+      "billing_interval": "none",
+      "currency": "NGN",
+      "price": "0.00",
+      "is_default": true,
+      "is_active": true
+    }
+  ],
+  "releases": [
+    {
+      "version": "1.0.0",
+      "title": "Initial journal package",
+      "changelog": "Adds a publication-first storefront with featured writing, releases, and editorial landing structures."
+    }
+  ],
+  "pages": [
+    "home.html",
+    "catalog/listing.html",
+    "catalog/product_detail.html",
+    "cart/cart.html",
+    "checkout/info.html",
+    "auth/login.html",
+    "account/dashboard.html",
+    "shared/info_page.html"
+  ]
+}

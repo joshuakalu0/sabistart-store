@@ -1,0 +1,76 @@
+{% extends "system/classic/templates/base.html" %}
+
+{% block content %}
+<section class="space-y-8">
+    <div class="surface-card overflow-hidden">
+        <div class="px-8 py-10 lg:px-12 lg:py-12">
+            <div class="flex flex-wrap items-center gap-2 text-xs text-stone-400 uppercase tracking-widest mb-6" style="letter-spacing:.14em">
+                {% for crumb in breadcrumbs %}
+                    {% if crumb.url %}<a href="{{ crumb.url }}" class="hover:text-stone-700">{{ crumb.label }}</a>{% else %}<span class="text-stone-700">{{ crumb.label }}</span>{% endif %}
+                    {% if not forloop.last %}<span>/</span>{% endif %}
+                {% endfor %}
+            </div>
+            <div class="hero-grid items-start">
+                <div class="space-y-4">
+                    <p class="eyebrow">Storefront Information</p>
+                    <div class="accent-bar"></div>
+                    <h1 class="section-title">{{ headline }}</h1>
+                    <div class="section-copy text-base font-light">{{ body|linebreaks }}</div>
+                </div>
+                <div class="surface-card-soft p-8">
+                    <p class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-3" style="letter-spacing:.2em">Need More Help?</p>
+                    <div class="accent-bar mb-5"></div>
+                    <h2 class="brand-font text-2xl font-semibold text-stone-900">Contact the Store Team</h2>
+                    <div class="mt-4 space-y-2 text-sm text-stone-600 font-light">
+                        {% if shop.support_email %}<p>{{ shop.support_email }}</p>{% endif %}
+                        {% if shop.phone %}<p>{{ shop.phone }}</p>{% endif %}
+                        {% if shop.address %}<p>{{ shop.address }}</p>{% endif %}
+                    </div>
+                    <div class="mt-6 flex flex-wrap gap-3">
+                        <a href="{% url 'support:contact_us' %}" class="button-primary">Contact Us</a>
+                        <a href="{% url 'support:help_center' %}" class="button-secondary">Help Centre</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if form %}
+        <div class="surface-card p-8 lg:p-10">
+            <p class="eyebrow">Send a Request</p>
+            <div class="accent-bar mt-3 mb-6"></div>
+            <form method="post" action="{{ form_action|default:request.path }}" class="grid gap-5 md:grid-cols-2">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="{% if field.name == 'message' or field.name == 'delivery_instructions' %}md:col-span-2{% endif %}">
+                        <label class="block mb-2" style="font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#5c5347">{{ field.label }}</label>
+                        <div class="field-shell">{{ field }}</div>
+                        {% if field.help_text %}<p class="mt-2 text-xs text-stone-400 font-light">{{ field.help_text }}</p>{% endif %}
+                        {% if field.errors %}<p class="mt-2 text-xs text-red-700">{{ field.errors|join:", " }}</p>{% endif %}
+                    </div>
+                {% endfor %}
+                <div class="md:col-span-2">
+                    <button type="submit" class="button-primary">Submit Request</button>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+
+    {% if store_editorial_cards %}
+        <div class="grid gap-px bg-stone-200 border border-stone-200 md:grid-cols-3">
+            {% for card in store_editorial_cards %}
+                <article class="bg-white p-8">
+                    <p class="eyebrow">{{ card.eyebrow }}</p>
+                    <div class="accent-bar mt-3 mb-5"></div>
+                    <h2 class="brand-font text-2xl font-semibold text-stone-900">{{ card.title }}</h2>
+                    <p class="mt-3 text-sm leading-6 text-stone-500 font-light">{{ card.body }}</p>
+                    <a href="{{ card.url }}" class="mt-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-stone-700 hover:text-stone-900 transition" style="letter-spacing:.16em">
+                        <span>{{ card.cta }}</span>
+                        <span class="material-symbols-outlined" style="font-size:.85rem">arrow_forward</span>
+                    </a>
+                </article>
+            {% endfor %}
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

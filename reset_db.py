@@ -1,3 +1,4 @@
+from system.account.models import PlatformUser
 import psycopg2
 
 conn = psycopg2.connect(
@@ -20,3 +21,4 @@ cursor.execute("GRANT ALL ON SCHEMA public TO public;")
 print("Database reset complete!")
 cursor.close()
 conn.close()
+

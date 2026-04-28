@@ -1,0 +1,160 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="flex items-center space-x-4 mb-6">
+  <a href="{% url 'dashboard:pricing:automatic_discount_list' prefix %}" class="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+    <span class="material-icons-outlined">arrow_back</span>
+  </a>
+  <div>
+    <div class="flex items-center space-x-3">
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white">{{ discount.name }}</h2>
+      {% if discount.is_active %}
+        <span class="px-2.5 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 text-xs font-semibold rounded-full">Active</span>
+      {% else %}
+        <span class="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-xs font-semibold rounded-full">Inactive</span>
+      {% endif %}
+      {% if discount.is_combinable %}
+        <span class="px-2.5 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 text-xs font-semibold rounded-full flex items-center">
+          <span class="material-icons-outlined text-[14px] mr-1">merge_type</span> Combinable
+        </span>
+      {% endif %}
+    </div>
+    <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Automatic Discount Program Setup</p>
+  </div>
+  <div class="ml-auto">
+    <a href="{{ edit_url }}" class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center shadow-sm text-sm font-medium">
+      <span class="material-icons-outlined text-[18px] mr-2">edit</span>Edit General Setup
+    </a>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+  <!-- Info Card -->
+  <div class="lg:col-span-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+    <h3 class="text-md font-semibold text-slate-900 dark:text-white mb-4">Properties</h3>
+    <dl class="space-y-4 text-sm">
+      <div class="flex justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+        <dt class="text-slate-500 dark:text-slate-400">Processing Priority</dt>
+        <dd class="font-mono font-medium text-slate-900 dark:text-white">{{ discount.priority }}</dd>
+      </div>
+      <div class="flex justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+        <dt class="text-slate-500 dark:text-slate-400">Starts</dt>
+        <dd class="font-medium text-slate-900 dark:text-white">{{ discount.starts_at|date:"M d, Y H:i"|default:"Immediate" }}</dd>
+      </div>
+      <div class="flex justify-between pb-2">
+        <dt class="text-slate-500 dark:text-slate-400">Ends</dt>
+        <dd class="font-medium text-slate-900 dark:text-white">{{ discount.ends_at|date:"M d, Y H:i"|default:"Never" }}</dd>
+      </div>
+    </dl>
+  </div>
+
+  <!-- Instruction Flow Summary -->
+  <div class="lg:col-span-3">
+    <div class="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-xl p-6 flex items-start space-x-4 shadow-sm h-full">
+      <div class="bg-blue-100 dark:bg-blue-800 p-2 rounded-lg text-blue-700 dark:text-blue-300">
+        <span class="material-icons-outlined text-[24px]">account_tree</span>
+      </div>
+      <div>
+        <h3 class="text-lg font-bold text-blue-900 dark:text-blue-200">How Auto-Discounts Work</h3>
+        <p class="text-sm text-blue-800 dark:text-blue-300/90 mt-2 mb-4 leading-relaxed">
+          The engine checks if the cart matches <strong>ALL defined conditions</strong>. If true, it grants <strong>ALL defined benefits</strong>. If there are no conditions, the program applies blindly to every cart. If there are no benefits, the program does nothing.
+        </p>
+        <div class="flex items-center space-x-2 text-sm font-medium text-blue-900 dark:text-blue-400">
+          <span>IF</span>
+          <span class="px-2 py-0.5 bg-blue-200 dark:bg-blue-900/50 rounded">{{ conditions.count }} Condition(s)</span>
+          <span>THEN</span>
+          <span class="px-2 py-0.5 bg-blue-200 dark:bg-blue-900/50 rounded">{{ benefits.count }} Benefit(s)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Conditions and Benefits Grids -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  
+  <!-- Conditions Block -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden flex flex-col">
+    <div class="border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between">
+      <div>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white">Conditions (The "IF")</h3>
+        <p class="text-xs text-slate-500 mt-1">What must be true to trigger the discount.</p>
+      </div>
+      <a href="{% url 'dashboard:pricing:auto_condition_list' prefix discount.id %}" class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors flex items-center text-sm font-medium">
+        Manage <span class="material-icons-outlined text-[16px] ml-1">arrow_forward</span>
+      </a>
+    </div>
+    <div class="p-6 flex-1 bg-slate-50/50 dark:bg-slate-800/20">
+      {% if conditions %}
+        <ul class="space-y-4">
+          {% for c in conditions %}
+          <li class="bg-white dark:bg-slate-700 p-4 rounded-lg border border-slate-200 dark:border-slate-600 shadow-sm">
+            <span class="text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider mb-1 block">{{ c.get_condition_type_display }}</span>
+            <div class="text-sm font-medium text-slate-900 dark:text-white">
+              {% if c.condition_type == 'cart_subtotal' %}Cart subtotal ≥ {{ discount.currency_symbol|default:"$" }}{{ c.minimum_amount }}
+              {% elif c.condition_type == 'customer_group' %}Customer must be in group: {{ c.target_customer_group.name }}
+              {% elif c.condition_type == 'product_quantity' %}Must have ≥ {{ c.minimum_quantity }} of product: {{ c.target_product.name }}
+              {% elif c.condition_type == 'category_quantity' %}Must have ≥ {{ c.minimum_quantity }} items from category: {{ c.target_category.name }}
+              {% endif %}
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="h-full flex flex-col items-center justify-center text-center py-6">
+          <span class="material-icons-outlined text-4xl text-slate-300 dark:text-slate-600 mb-2">rule</span>
+          <p class="text-sm font-medium text-slate-600 dark:text-slate-400">No conditions defined</p>
+          <p class="text-xs text-slate-500 mt-1">This discount will apply to EVERY cart.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Benefits Block -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden flex flex-col">
+    <div class="border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between">
+      <div>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white">Benefits (The "THEN")</h3>
+        <p class="text-xs text-slate-500 mt-1">What the customer receives if conditions are met.</p>
+      </div>
+      <a href="{% url 'dashboard:pricing:auto_benefit_list' prefix discount.id %}" class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors flex items-center text-sm font-medium">
+        Manage <span class="material-icons-outlined text-[16px] ml-1">arrow_forward</span>
+      </a>
+    </div>
+    <div class="p-6 flex-1 bg-slate-50/50 dark:bg-slate-800/20">
+      {% if benefits %}
+        <ul class="space-y-4">
+          {% for b in benefits %}
+          <li class="bg-green-50 dark:bg-green-900/10 p-4 rounded-lg border border-green-200 dark:border-green-800/30 shadow-sm">
+            <span class="text-xs font-bold uppercase text-green-600 dark:text-green-500 tracking-wider mb-1 block">{{ b.get_target_type_display }}</span>
+            <div class="text-sm font-medium text-slate-900 dark:text-white">
+              {% if b.target_type == 'order_subtotal' %}
+                {% if b.discount_type == 'percentage' %}Take {{ b.discount_value|floatformat:0 }}% off entire order
+                {% elif b.discount_type == 'fixed' %}Take {{ discount.currency_symbol|default:"$" }}{{ b.discount_value }} off entire order{% endif %}
+              {% elif b.target_type == 'specific_product' %}
+                {% if b.discount_type == 'percentage' %}Take {{ b.discount_value|floatformat:0 }}% off product: {{ b.target_product.name }}
+                {% elif b.discount_type == 'fixed' %}Take {{ discount.currency_symbol|default:"$" }}{{ b.discount_value }} off product: {{ b.target_product.name }}{% endif %}
+              {% elif b.target_type == 'specific_category' %}
+                {% if b.discount_type == 'percentage' %}Take {{ b.discount_value|floatformat:0 }}% off category: {{ b.target_category.name }}
+                {% elif b.discount_type == 'fixed' %}Take {{ discount.currency_symbol|default:"$" }}{{ b.discount_value }} off category: {{ b.target_category.name }}{% endif %}
+              {% elif b.target_type == 'free_shipping' %}
+                Provide Free Shipping
+              {% endif %}
+            </div>
+            {% if b.max_discount_amount %}
+            <div class="text-xs text-slate-500 mt-2 border-t border-green-200/50 dark:border-green-800/30 pt-2">Max savings capped at {{ discount.currency_symbol|default:"$" }}{{ b.max_discount_amount }}</div>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="h-full flex flex-col items-center justify-center text-center py-6">
+          <span class="material-icons-outlined text-4xl text-slate-300 dark:text-slate-600 mb-2">redeem</span>
+          <p class="text-sm font-medium text-slate-600 dark:text-slate-400">No benefits defined</p>
+          <p class="text-xs text-red-500 mt-1 font-medium">This discount program does nothing currently.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

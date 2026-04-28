@@ -1,0 +1,989 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-dim": "#0048c1",
+                        "secondary-dim": "#44546a",
+                        "surface-container-high": "#e1e9ee",
+                        "surface-dim": "#cfdce3",
+                        "on-tertiary": "#fcf7ff",
+                        "on-surface": "#2a3439",
+                        "surface-container": "#e8eff3",
+                        "on-secondary-container": "#435368",
+                        "background": "#f7f9fb",
+                        "secondary-container": "#d3e4fe",
+                        "on-primary": "#f8f7ff",
+                        "outline": "#717c82",
+                        "on-secondary-fixed-variant": "#4d5d73",
+                        "on-background": "#2a3439",
+                        "surface-variant": "#d9e4ea",
+                        "secondary-fixed-dim": "#c5d6f0",
+                        "on-error-container": "#752121",
+                        "inverse-primary": "#618bff",
+                        "on-tertiary-fixed-variant": "#5b5672",
+                        "primary-fixed-dim": "#c7d3ff",
+                        "on-secondary-fixed": "#314055",
+                        "outline-variant": "#a9b4b9",
+                        "tertiary-fixed-dim": "#d4cdee",
+                        "primary": "#0053db",
+                        "tertiary-container": "#e3dbfd",
+                        "on-primary-fixed-variant": "#0050d4",
+                        "inverse-surface": "#0b0f10",
+                        "surface-tint": "#0053db",
+                        "secondary-fixed": "#d3e4fe",
+                        "on-primary-container": "#0048bf",
+                        "tertiary-dim": "#54506b",
+                        "error-dim": "#4e0309",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#605c78",
+                        "error": "#9f403d",
+                        "inverse-on-surface": "#9a9d9f",
+                        "surface": "#f7f9fb",
+                        "on-error": "#fff7f6",
+                        "error-container": "#fe8983",
+                        "surface-bright": "#f7f9fb",
+                        "surface-container-low": "#f0f4f7",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-container-highest": "#d9e4ea",
+                        "on-surface-variant": "#566166",
+                        "on-tertiary-container": "#514d68",
+                        "on-primary-fixed": "#003798",
+                        "tertiary-fixed": "#e3dbfd",
+                        "on-secondary": "#f7f9ff",
+                        "secondary": "#506076",
+                        "primary-container": "#dbe1ff",
+                        "on-tertiary-fixed": "#3e3a54"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .architectural-line:focus-within {
+            border-bottom: 2px solid #0053db;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: #d9e4ea;
+            height: 4px;
+            border-radius: 2px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #0053db;
+            margin-top: -6px;
+            cursor: pointer;
+        }
+        /* Toggle Switch Styles */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #0053db;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #0053db;
+        }
+        .form-field-error {
+            border-bottom-color: #9f403d !important;
+        }
+        .error-message {
+            color: #9f403d;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Form Control Styles */
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            line-height: 1.5;
+            color: #2a3439;
+            background-color: #ffffff;
+            background-clip: padding-box;
+            border: 1px solid #d9e4ea;
+            border-radius: 0.5rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        .form-control:focus {
+            border-color: #0053db;
+            outline: 0;
+            box-shadow: 0 0 0 3px rgba(0, 83, 219, 0.15);
+        }
+        .form-control::placeholder {
+            color: #717c82;
+            opacity: 1;
+        }
+        .form-control:disabled {
+            background-color: #f0f4f7;
+            cursor: not-allowed;
+        }
+
+        /* Form Control Color */
+        .form-control-color {
+            width: 100%;
+            height: 48px;
+            padding: 0;
+            border: 0;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            background: transparent;
+        }
+        .form-control-color::-webkit-color-swatch-wrapper {
+            padding: 0;
+            border-radius: 0.5rem;
+        }
+        .form-control-color::-webkit-color-swatch {
+            border: 1px solid #d9e4ea;
+            border-radius: 0.5rem;
+        }
+        .form-control-color::-moz-color-swatch {
+            border: 1px solid #d9e4ea;
+            border-radius: 0.5rem;
+        }
+
+        /* Form Select */
+        .form-select {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 2.5rem 0.75rem 1rem;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            line-height: 1.5;
+            color: #2a3439;
+            background-color: #ffffff;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23566166' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 16px 12px;
+            border: 1px solid #d9e4ea;
+            border-radius: 0.5rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            appearance: none;
+        }
+        .form-select:focus {
+            border-color: #0053db;
+            outline: 0;
+            box-shadow: 0 0 0 3px rgba(0, 83, 219, 0.15);
+        }
+        .form-select:disabled {
+            background-color: #f0f4f7;
+            cursor: not-allowed;
+        }
+
+        /* Form Check Input */
+        .form-check-input {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-top: 0;
+            vertical-align: top;
+            background-color: #ffffff;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            border: 1px solid #d9e4ea;
+            border-radius: 0.375rem;
+            appearance: none;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+        }
+        .form-check-input:checked {
+            background-color: #0053db;
+            border-color: #0053db;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+        }
+        .form-check-input:focus {
+            border-color: #0053db;
+            outline: 0;
+            box-shadow: 0 0 0 3px rgba(0, 83, 219, 0.15);
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-surface font-body text-on-surface antialiased">
+
+<!-- Django Messages Framework -->
+{% if messages %}
+<div class="fixed top-24 right-8 z-50 space-y-2">
+    {% for message in messages %}
+    <div class="flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg {% if message.tags == 'success' %}bg-success_color text-white{% elif message.tags == 'error' %}bg-error text-on-error{% else %}bg-surface-container-lowest text-on-surface{% endif %}" style="background-color: {% if message.tags == 'success' %}{{ object.success_color|default:'#10B981' }}{% elif message.tags == 'error' %}#9f403d{% else %}#ffffff{% endif %};">
+        <span class="material-symbols-outlined text-sm">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span class="font-medium text-sm">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-slate-50/80 backdrop-blur-md shadow-sm shadow-slate-200/50 h-20">
+    <div class="max-w-screen-2xl mx-auto px-8 h-full flex items-center justify-end">
+
+        <div class="flex items-center gap-4">
+            <button type="button" class="px-5 py-2 text-on-surface-variant font-medium hover:bg-slate-100/50 rounded-lg transition-all active:scale-95" onclick="window.location.reload()">Reset</button>
+            <button type="submit" form="theme-form" class="px-6 py-2 bg-primary text-on-primary font-bold rounded-lg shadow-md hover:bg-primary-dim transition-all active:scale-95">Save Changes</button>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content Canvas -->
+<main class="pt-32 pb-24 max-w-screen-2xl mx-auto px-8">
+    <form id="theme-form" method="post" action="{{ action_url }}" novalidate>
+        {% csrf_token %}
+
+        <!-- Header & Breadcrumbs -->
+        <header class="mb-16">
+            <nav class="flex items-center gap-2 text-on-surface-variant text-sm mb-4">
+                <span>Modules</span>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span>Theme Editor</span>
+            </nav>
+            <h1 class="font-headline text-5xl font-extrabold tracking-tight text-on-surface">
+                {% if is_edit %}Edit Theme: {{ object.theme_name }}{% else %}Create New Theme{% endif %}
+            </h1>
+        </header>
+
+        <div class="grid grid-cols-12 gap-12">
+            <!-- Left Pane: Configuration Fields -->
+            <div class="col-span-12 lg:col-span-7 space-y-16">
+
+                <!-- Core Settings Section -->
+                <section class="p-10 bg-surface-container-low rounded-xl">
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="material-symbols-outlined text-primary">settings_applications</span>
+                        <h2 class="font-headline text-xl font-bold tracking-tight">Core Settings</h2>
+                    </div>
+                    <div class="space-y-8">
+                        <!-- Theme Name -->
+                        <div class="group">
+                            <label class="block text-sm font-medium text-on-surface-variant mb-2" for="{{ form.theme_name.id_for_label }}">Theme Name</label>
+                            {{ form.theme_name }}
+                            {% if form.theme_name.errors %}
+                                {% for error in form.theme_name.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                            <p class="mt-2 text-xs text-on-surface-variant">The unique identifier for this theme configuration.</p>
+                        </div>
+
+                        <!-- Is Active Toggle -->
+                        <div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg">
+                            <div>
+                                <label class="block text-sm font-medium text-on-surface">Activate Theme</label>
+                                <span class="text-xs text-on-surface-variant">Apply this theme globally to the storefront.</span>
+                            </div>
+                            <div class="relative inline-block w-12 h-6">
+                                {{ form.is_active }}
+
+                            </div>
+                        </div>
+                        {% if form.is_active.errors %}
+                            {% for error in form.is_active.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </section>
+
+                <!-- Color Scheme Section -->
+                <section class="p-10 bg-surface-container-low rounded-xl">
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="material-symbols-outlined text-primary">palette</span>
+                        <h2 class="font-headline text-xl font-bold tracking-tight">Color Scheme</h2>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-8 gap-y-10">
+                        <!-- Primary Color -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Primary Color</label>
+                            <div class="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg architectural-line">
+                                <div class="w-10 h-10 rounded shadow-sm" style="background-color: {{ form.primary_color.value|default:'#0053db' }};"></div>
+                                {{ form.primary_color }}
+                                {% if form.primary_color.errors %}
+                                    <span class="material-symbols-outlined text-error text-sm">error</span>
+                                {% endif %}
+                            </div>
+                            {% if form.primary_color.errors %}
+                                {% for error in form.primary_color.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Secondary Color -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Secondary Color</label>
+                            <div class="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg architectural-line">
+                                <div class="w-10 h-10 rounded shadow-sm" style="background-color: {{ form.secondary_color.value|default:'#506076' }};"></div>
+                                {{ form.secondary_color }}
+                                {% if form.secondary_color.errors %}
+                                    <span class="material-symbols-outlined text-error text-sm">error</span>
+                                {% endif %}
+                            </div>
+                            {% if form.secondary_color.errors %}
+                                {% for error in form.secondary_color.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Background Color -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Background</label>
+                            <div class="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg architectural-line">
+                                <div class="w-10 h-10 rounded border border-outline-variant shadow-sm" style="background-color: {{ form.background_color.value|default:'#f7f9fb' }};"></div>
+                                {{ form.background_color }}
+                                {% if form.background_color.errors %}
+                                    <span class="material-symbols-outlined text-error text-sm">error</span>
+                                {% endif %}
+                            </div>
+                            {% if form.background_color.errors %}
+                                {% for error in form.background_color.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Text Color -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Text Color</label>
+                            <div class="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg architectural-line">
+                                <div class="w-10 h-10 rounded shadow-sm" style="background-color: {{ form.text_color.value|default:'#2a3439' }};"></div>
+                                {{ form.text_color }}
+                                {% if form.text_color.errors %}
+                                    <span class="material-symbols-outlined text-error text-sm">error</span>
+                                {% endif %}
+                            </div>
+                            {% if form.text_color.errors %}
+                                {% for error in form.text_color.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Accent Color -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Accent Color</label>
+                            <div class="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg architectural-line">
+                                <div class="w-10 h-10 rounded shadow-sm" style="background-color: {{ form.accent_color.value|default:'#F59E0B' }};"></div>
+                                {{ form.accent_color }}
+                            </div>
+                        </div>
+
+                        <!-- Secondary Background -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Secondary Background</label>
+                            <div class="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg architectural-line">
+                                <div class="w-10 h-10 rounded border border-outline-variant shadow-sm" style="background-color: {{ form.secondary_background_color.value|default:'#F9FAFB' }};"></div>
+                                {{ form.secondary_background_color }}
+                            </div>
+                        </div>
+
+                        <!-- Secondary Text Color -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Secondary Text</label>
+                            <div class="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg architectural-line">
+                                <div class="w-10 h-10 rounded shadow-sm" style="background-color: {{ form.secondary_text_color.value|default:'#6B7280' }};"></div>
+                                {{ form.secondary_text_color }}
+                            </div>
+                        </div>
+
+                        <!-- Border Color -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Border Color</label>
+                            <div class="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg architectural-line">
+                                <div class="w-10 h-10 rounded border border-outline-variant shadow-sm" style="background-color: {{ form.border_color.value|default:'#E5E7EB' }};"></div>
+                                {{ form.border_color }}
+                            </div>
+                        </div>
+
+                        <!-- Success Color -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Success Color</label>
+                            <div class="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg architectural-line">
+                                <div class="w-10 h-10 rounded shadow-sm" style="background-color: {{ form.success_color.value|default:'#10B981' }};"></div>
+                                {{ form.success_color }}
+                            </div>
+                        </div>
+
+                        <!-- Warning Color -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Warning Color</label>
+                            <div class="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg architectural-line">
+                                <div class="w-10 h-10 rounded shadow-sm" style="background-color: {{ form.warning_color.value|default:'#F59E0B' }};"></div>
+                                {{ form.warning_color }}
+                            </div>
+                        </div>
+
+                        <!-- Error Color -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Error Color</label>
+                            <div class="flex items-center gap-3 bg-surface-container-lowest p-2 rounded-lg architectural-line">
+                                <div class="w-10 h-10 rounded shadow-sm" style="background-color: {{ form.error_color.value|default:'#EF4444' }};"></div>
+                                {{ form.error_color }}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Typography Section -->
+                <section class="p-10 bg-surface-container-low rounded-xl">
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="material-symbols-outlined text-primary">text_fields</span>
+                        <h2 class="font-headline text-xl font-bold tracking-tight">Typography</h2>
+                    </div>
+                    <div class="space-y-10">
+                        <div class="grid grid-cols-2 gap-8">
+                            <!-- Heading Font -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-on-surface-variant" for="{{ form.heading_font.id_for_label }}">Heading Font</label>
+                                {{ form.heading_font }}
+                                {% if form.heading_font.errors %}
+                                    {% for error in form.heading_font.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <!-- Body Font -->
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-on-surface-variant" for="{{ form.body_font.id_for_label }}">Body Font</label>
+                                {{ form.body_font }}
+                                {% if form.body_font.errors %}
+                                    {% for error in form.body_font.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Custom Font URL -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-on-surface-variant" for="{{ form.custom_font_url.id_for_label }}">Custom Font URL</label>
+                            {{ form.custom_font_url }}
+                            <p class="mt-2 text-xs text-on-surface-variant">Google Fonts URL or custom font CDN link</p>
+                            {% if form.custom_font_url.errors %}
+                                {% for error in form.custom_font_url.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Font Weights -->
+                        <div class="grid grid-cols-2 gap-8">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-on-surface-variant" for="{{ form.heading_font_weight.id_for_label }}">Heading Font Weight</label>
+                                {{ form.heading_font_weight }}
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-on-surface-variant" for="{{ form.body_font_weight.id_for_label }}">Body Font Weight</label>
+                                {{ form.body_font_weight }}
+                            </div>
+                        </div>
+
+                        <!-- Base Font Size Range -->
+                        <div class="space-y-6">
+                            <div class="space-y-4">
+                                <div class="flex justify-between">
+                                    <label class="text-sm font-medium text-on-surface-variant" for="{{ form.base_font_size.id_for_label }}">Base Font Size</label>
+                                    <span class="text-sm font-bold text-primary" id="base-font-size-display">{{ form.base_font_size.value|default:16 }}px</span>
+                                </div>
+                                {{ form.base_font_size }}
+                                {% if form.base_font_size.errors %}
+                                    {% for error in form.base_font_size.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <!-- Heading Size Multiplier Range -->
+                            <div class="space-y-4">
+                                <div class="flex justify-between">
+                                    <label class="text-sm font-medium text-on-surface-variant" for="{{ form.heading_size_multiplier.id_for_label }}">Heading Size Multiplier</label>
+                                    <span class="text-sm font-bold text-primary" id="heading-multiplier-display">{{ form.heading_size_multiplier.value|default:1.5 }}x</span>
+                                </div>
+                                {{ form.heading_size_multiplier }}
+                                {% if form.heading_size_multiplier.errors %}
+                                    {% for error in form.heading_size_multiplier.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Borders & Shadows -->
+                <section class="p-10 bg-surface-container-low rounded-xl">
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="material-symbols-outlined text-primary">layers</span>
+                        <h2 class="font-headline text-xl font-bold tracking-tight">Borders &amp; Shadows</h2>
+                    </div>
+                    <div class="grid grid-cols-2 gap-12">
+                        <div class="space-y-6">
+                            <!-- Border Radius Range -->
+                            <div class="space-y-4">
+                                <div class="flex justify-between">
+                                    <label class="text-sm font-medium text-on-surface-variant" for="{{ form.border_radius.id_for_label }}">Border Radius</label>
+                                    <span class="text-sm font-bold text-primary" id="border-radius-display">{{ form.border_radius.value|default:8 }}px</span>
+                                </div>
+                                {{ form.border_radius }}
+                                {% if form.border_radius.errors %}
+                                    {% for error in form.border_radius.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <!-- Use Shadows Toggle -->
+                            <div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg">
+                                <label class="text-sm font-medium text-on-surface">Enable Shadows</label>
+                                <div class="relative inline-block w-12 h-6">
+                                    {{ form.use_shadows }}
+
+                                </div>
+                            </div>
+                            {% if form.use_shadows.errors %}
+                                {% for error in form.use_shadows.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Shadow Intensity -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-on-surface-variant" for="{{ form.shadow_intensity.id_for_label }}">Shadow Intensity</label>
+                            {{ form.shadow_intensity }}
+                            {% if form.shadow_intensity.errors %}
+                                {% for error in form.shadow_intensity.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Button Styles -->
+                <section class="p-10 bg-surface-container-low rounded-xl">
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="material-symbols-outlined text-primary">smart_button</span>
+                        <h2 class="font-headline text-xl font-bold tracking-tight">Button Styles</h2>
+                    </div>
+                    <div class="grid grid-cols-2 gap-8">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-on-surface-variant" for="{{ form.primary_button_style.id_for_label }}">Primary Button Style</label>
+                            {{ form.primary_button_style }}
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-on-surface-variant" for="{{ form.button_text_transform.id_for_label }}">Text Transform</label>
+                            {{ form.button_text_transform }}
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-on-surface-variant" for="{{ form.button_border_radius.id_for_label }}">Button Border Radius</label>
+                            {{ form.button_border_radius }}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Layout Settings -->
+                <section class="p-10 bg-surface-container-low rounded-xl">
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="material-symbols-outlined text-primary">grid_view</span>
+                        <h2 class="font-headline text-xl font-bold tracking-tight">Layout &amp; Grid</h2>
+                    </div>
+                    <div class="grid grid-cols-2 gap-8">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-on-surface-variant" for="{{ form.container_width.id_for_label }}">Container Width</label>
+                            {{ form.container_width }}
+                            <p class="mt-2 text-xs text-on-surface-variant">Max content width in pixels (960-1920)</p>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-on-surface-variant" for="{{ form.spacing_scale.id_for_label }}">Spacing Scale</label>
+                            {{ form.spacing_scale }}
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- Right Pane: Live Previews (Sticky Contextual Column) -->
+            <div class="col-span-12 lg:col-span-5 space-y-8">
+                <div class="sticky top-32 space-y-8">
+
+                    <!-- Typography Preview Card -->
+                    <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-xl overflow-hidden shadow-sm">
+                        <div class="bg-surface-container-high px-6 py-3 border-b border-outline-variant/10 flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Typography Preview</span>
+                            <span class="material-symbols-outlined text-sm text-on-surface-variant">visibility</span>
+                        </div>
+                        <div class="p-10 space-y-6">
+                            <h1 class="font-headline text-4xl font-extrabold leading-tight text-on-surface">Experience the new standard of design precision.</h1>
+                            <p class="font-body text-base text-on-surface-variant leading-relaxed">
+                                Our theme engine allows for granular control over every architectural element. Adjust font weights, scales, and letter spacing to create a unique editorial voice for your brand.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Button Style Preview Card -->
+                    <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-xl overflow-hidden shadow-sm">
+                        <div class="bg-surface-container-high px-6 py-3 border-b border-outline-variant/10 flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Button Components</span>
+                            <span class="material-symbols-outlined text-sm text-on-surface-variant">smart_button</span>
+                        </div>
+                        <div class="p-8">
+                            <div class="space-y-6">
+                                <div class="space-y-4">
+                                    <label class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Active selection: {{ form.primary_button_style.value|default:'solid'|title }}</label>
+                                    <div class="grid grid-cols-1 gap-4">
+                                        <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border-l-4 border-primary">
+                                            <span class="font-medium text-sm">Solid Fill</span>
+                                            <button class="px-6 py-2 bg-primary text-on-primary font-bold rounded-lg shadow-md">Get Started</button>
+                                        </div>
+                                        <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg opacity-60">
+                                            <span class="font-medium text-sm">Outline</span>
+                                            <button class="px-6 py-2 border-2 border-primary text-primary font-bold rounded-lg">Get Started</button>
+                                        </div>
+                                        <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg opacity-60">
+                                            <span class="font-medium text-sm">Ghost</span>
+                                            <button class="px-6 py-2 text-primary font-bold rounded-lg hover:bg-primary/5">Get Started</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pt-6 border-t border-outline-variant/10">
+                                    <label class="block text-sm font-medium text-on-surface-variant mb-4">Button Border Radius</label>
+                                    <div class="flex items-center gap-4">
+                                        <input class="w-20 bg-surface-container-low border-0 focus:ring-2 focus:ring-primary py-2 px-3 rounded-lg text-center font-bold" type="number" value="{{ form.button_border_radius.value|default:8 }}" readonly/>
+                                        <span class="text-sm text-on-surface-variant font-medium">pixels</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Layout Preview -->
+                    <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-xl overflow-hidden shadow-sm">
+                        <div class="bg-surface-container-high px-6 py-3 border-b border-outline-variant/10 flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Layout &amp; Grid</span>
+                            <span class="material-symbols-outlined text-sm text-on-surface-variant">grid_view</span>
+                        </div>
+                        <div class="p-8 space-y-6">
+                            <div class="space-y-4">
+                                <label class="block text-sm font-medium text-on-surface-variant">Container Width</label>
+                                <div class="flex items-center gap-4">
+                                    <input class="flex-1 bg-surface-container-low border-0 focus:ring-2 focus:ring-primary py-2 px-4 rounded-lg font-medium" type="text" value="{{ form.container_width.value|default:1200 }}px" readonly/>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <label class="block text-sm font-medium text-on-surface-variant">Spacing Scale</label>
+                                <select class="w-full bg-surface-container-low border-0 focus:ring-2 focus:ring-primary py-3 px-4 rounded-lg font-medium transition-all" disabled>
+                                    <option>{{ form.spacing_scale.value|default:'normal'|title }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CSS Preview (Developer Tool) -->
+                    {% if css_preview %}
+                    <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-xl overflow-hidden shadow-sm">
+                        <div class="bg-surface-container-high px-6 py-3 border-b border-outline-variant/10 flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Generated CSS Variables</span>
+                            <span class="material-symbols-outlined text-sm text-on-surface-variant">code</span>
+                        </div>
+                        <div class="p-6">
+                            <pre class="text-xs font-mono text-on-surface-variant overflow-x-auto bg-surface-container-low p-4 rounded-lg">{{ css_preview }}</pre>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </form>
+</main>
+
+<!-- Contextual Action Bar (Floating) -->
+<div class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-xl px-8 py-4 rounded-full shadow-2xl shadow-primary/10 border border-primary/10 flex items-center gap-8 z-50">
+    <div class="flex items-center gap-3">
+        <div class="w-3 h-3 {% if form.is_bound and form.has_changed %}bg-error rounded-full animate-pulse{% else %}bg-success_color rounded-full{% endif %}" style="background-color: {% if form.is_bound and form.has_changed %}#9f403d{% else %}#10B981{% endif %};"></div>
+        <span class="text-sm font-bold text-on-surface">{% if form.is_bound and form.has_changed %}Unsaved changes detected{% else %}All changes saved{% endif %}</span>
+    </div>
+    <div class="h-6 w-px bg-outline-variant/30"></div>
+    <div class="flex items-center gap-4">
+        <button type="button" class="text-on-surface-variant font-bold text-sm hover:text-on-surface transition-colors" onclick="window.location.href='{ url 'manage_theme_settings' %}'">Discard</button>
+        <button type="submit" form="theme-form" class="bg-primary text-on-primary px-8 py-2 rounded-full font-bold text-sm shadow-lg shadow-primary/20 active:scale-95 transition-all">Publish Theme</button>
+    </div>
+</div>
+
+
+</div>
+<!-- JavaScript for Dynamic Updates -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Range Input Display Updates
+        const rangeInputs = [
+            { id: '{{ form.base_font_size.id_for_label }}', display: 'base-font-size-display', suffix: 'px' },
+            { id: '{{ form.heading_size_multiplier.id_for_label }}', display: 'heading-multiplier-display', suffix: 'x' },
+            { id: '{{ form.border_radius.id_for_label }}', display: 'border-radius-display', suffix: 'px' }
+        ];
+
+        rangeInputs.forEach(function(input) {
+            const element = document.getElementById(input.id);
+            const display = document.getElementById(input.display);
+            if (element && display) {
+                element.addEventListener('input', function() {
+                    display.textContent = this.value + input.suffix;
+                    updatePreview();
+                });
+            }
+        });
+
+        // Color Picker Preview Updates
+        const colorInputs = document.querySelectorAll('input[type="color"]');
+        colorInputs.forEach(function(input) {
+            input.addEventListener('input', function() {
+                const preview = this.parentElement.querySelector('.w-10.h-10');
+                if (preview) {
+                    preview.style.backgroundColor = this.value;
+                }
+                updatePreview();
+            });
+        });
+
+        // Toggle Switch Styling
+        const toggleInputs = document.querySelectorAll('input[type="checkbox"]');
+        toggleInputs.forEach(function(input) {
+            input.addEventListener('change', function() {
+                const label = this.nextElementSibling;
+                if (label && label.classList.contains('toggle-label')) {
+                    label.style.backgroundColor = this.checked ? '#0053db' : '#d9e4ea';
+                }
+                updatePreview();
+            });
+        });
+
+        // Select Inputs (Fonts, Button Styles, etc.)
+        const selectInputs = document.querySelectorAll('select');
+        selectInputs.forEach(function(input) {
+            input.addEventListener('change', function() {
+                updatePreview();
+            });
+        });
+
+        // Text/Number Inputs
+        const textInputs = document.querySelectorAll('input[type="text"], input[type="number"]');
+        textInputs.forEach(function(input) {
+            input.addEventListener('input', function() {
+                updatePreview();
+            });
+        });
+
+        // Preview Update Function
+        function updatePreview() {
+            // Get color values
+            const primaryColor = document.getElementById('{{ form.primary_color.id_for_label }}')?.value || '#0053db';
+            const secondaryColor = document.getElementById('{{ form.secondary_color.id_for_label }}')?.value || '#506076';
+            const backgroundColor = document.getElementById('{{ form.background_color.id_for_label }}')?.value || '#f7f9fb';
+            const textColor = document.getElementById('{{ form.text_color.id_for_label }}')?.value || '#2a3439';
+            const accentColor = document.getElementById('{{ form.accent_color.id_for_label }}')?.value || '#F59E0B';
+            const secondaryBackgroundColor = document.getElementById('{{ form.secondary_background_color.id_for_label }}')?.value || '#F9FAFB';
+            const secondaryTextColor = document.getElementById('{{ form.secondary_text_color.id_for_label }}')?.value || '#6B7280';
+            const borderColor = document.getElementById('{{ form.border_color.id_for_label }}')?.value || '#E5E7EB';
+            const successColor = document.getElementById('{{ form.success_color.id_for_label }}')?.value || '#10B981';
+            const warningColor = document.getElementById('{{ form.warning_color.id_for_label }}')?.value || '#F59E0B';
+            const errorColor = document.getElementById('{{ form.error_color.id_for_label }}')?.value || '#EF4444';
+
+            // Get font values
+            const headingFont = document.getElementById('{{ form.heading_font.id_for_label }}')?.value || 'Manrope';
+            const bodyFont = document.getElementById('{{ form.body_font.id_for_label }}')?.value || 'Inter';
+
+            // Get size values
+            const baseFontSize = document.getElementById('{{ form.base_font_size.id_for_label }}')?.value || 16;
+            const headingMultiplier = document.getElementById('{{ form.heading_size_multiplier.id_for_label }}')?.value || 1.5;
+            const borderRadius = document.getElementById('{{ form.border_radius.id_for_label }}')?.value || 8;
+            const buttonBorderRadius = document.getElementById('{{ form.button_border_radius.id_for_label }}')?.value || 8;
+            const containerWidth = document.getElementById('{{ form.container_width.id_for_label }}')?.value || 1200;
+
+            // Get button style
+            const primaryButtonStyle = document.getElementById('{{ form.primary_button_style.id_for_label }}')?.value || 'solid';
+
+            // Get shadow settings
+            const useShadows = document.getElementById('{{ form.use_shadows.id_for_label }}')?.checked || false;
+
+            // Update Typography Preview
+            const typographyPreview = document.querySelector('.bg-surface-container-lowest.border.border-outline-variant\\/20.rounded-xl.overflow-hidden.shadow-sm:first-of-type .p-10');
+            if (typographyPreview) {
+                const heading = typographyPreview.querySelector('h1');
+                const paragraph = typographyPreview.querySelector('p');
+
+                if (heading) {
+                    heading.style.fontFamily = headingFont;
+                    heading.style.fontSize = `calc(${baseFontSize}px * ${headingMultiplier})`;
+                    heading.style.color = textColor;
+                }
+
+                if (paragraph) {
+                    paragraph.style.fontFamily = bodyFont;
+                    paragraph.style.fontSize = `${baseFontSize}px`;
+                    paragraph.style.color = secondaryTextColor;
+                }
+            }
+
+            // Update Button Preview
+            const buttonPreview = document.querySelector('.bg-surface-container-lowest.border.border-outline-variant\\/20.rounded-xl.overflow-hidden.shadow-sm:nth-of-type(2)');
+            if (buttonPreview) {
+                const button = buttonPreview.querySelector('button');
+                if (button) {
+                    button.style.borderRadius = `${buttonBorderRadius}px`;
+
+                    // Update button style based on selection
+                    const buttonRow = button.parentElement;
+                    const allRows = buttonPreview.querySelectorAll('.grid.grid-cols-1 > div');
+                    allRows.forEach(row => {
+                        row.classList.remove('opacity-60', 'border-l-4', 'border-primary');
+                        row.classList.add('opacity-60');
+                    });
+
+                    if (primaryButtonStyle === 'solid') {
+                        button.style.background = primaryColor;
+                        button.style.color = '#ffffff';
+                        button.style.border = 'none';
+                        buttonRow?.classList.remove('opacity-60');
+                        buttonRow?.classList.add('border-l-4', 'border-primary');
+                    } else if (primaryButtonStyle === 'outline') {
+                        button.style.background = 'transparent';
+                        button.style.color = primaryColor;
+                        button.style.border = `2px solid ${primaryColor}`;
+                        // Find outline button row
+                        const outlineRow = allRows[1];
+                        if (outlineRow) {
+                            outlineRow.classList.remove('opacity-60');
+                            outlineRow.classList.add('border-l-4', 'border-primary');
+                        }
+                    } else if (primaryButtonStyle === 'ghost') {
+                        button.style.background = 'transparent';
+                        button.style.color = primaryColor;
+                        button.style.border = 'none';
+                        // Find ghost button row
+                        const ghostRow = allRows[2];
+                        if (ghostRow) {
+                            ghostRow.classList.remove('opacity-60');
+                            ghostRow.classList.add('border-l-4', 'border-primary');
+                        }
+                    }
+                }
+
+                // Update button border radius display
+                const radiusInput = buttonPreview.querySelector('input[type="number"]');
+                if (radiusInput) {
+                    radiusInput.value = buttonBorderRadius;
+                }
+
+                // Update selection label
+                const selectionLabel = buttonPreview.querySelector('.text-xs.font-bold.uppercase.tracking-widest');
+                if (selectionLabel) {
+                    selectionLabel.textContent = `Active selection: ${primaryButtonStyle.charAt(0).toUpperCase() + primaryButtonStyle.slice(1)}`;
+                }
+            }
+
+            // Update Layout Preview
+            const layoutPreview = document.querySelector('.bg-surface-container-lowest.border.border-outline-variant\\/20.rounded-xl.overflow-hidden.shadow-sm:nth-of-type(3)');
+            if (layoutPreview) {
+                const containerInput = layoutPreview.querySelector('input[type="text"]');
+                if (containerInput) {
+                    containerInput.value = `${containerWidth}px`;
+                }
+
+                const spacingSelect = layoutPreview.querySelector('select');
+                const spacingValue = document.getElementById('{{ form.spacing_scale.id_for_label }}')?.value || 'normal';
+                if (spacingSelect) {
+                    spacingSelect.innerHTML = `<option>${spacingValue.charAt(0).toUpperCase() + spacingValue.slice(1)}</option>`;
+                }
+            }
+
+            // Update CSS Preview Variables
+            const cssPreview = document.querySelector('pre.bg-surface-container-low');
+            if (cssPreview) {
+                const cssVariables = `:root {
+  --primary-color: ${primaryColor};
+  --secondary-color: ${secondaryColor};
+  --background-color: ${backgroundColor};
+  --text-color: ${textColor};
+  --accent-color: ${accentColor};
+  --secondary-background-color: ${secondaryBackgroundColor};
+  --secondary-text-color: ${secondaryTextColor};
+  --border-color: ${borderColor};
+  --success-color: ${successColor};
+  --warning-color: ${warningColor};
+  --error-color: ${errorColor};
+  --heading-font: ${headingFont};
+  --body-font: ${bodyFont};
+  --base-font-size: ${baseFontSize}px;
+  --heading-multiplier: ${headingMultiplier};
+  --border-radius: ${borderRadius}px;
+  --button-border-radius: ${buttonBorderRadius}px;
+  --container-width: ${containerWidth}px;
+  --button-style: ${primaryButtonStyle};
+  --use-shadows: ${useShadows};
+}`;
+                cssPreview.textContent = cssVariables;
+            }
+        }
+
+        // Form Change Detection
+        const form = document.getElementById('theme-form');
+        const statusDot = document.querySelector('.w-3.h-3');
+        const statusText = document.querySelector('.text-sm.font-bold.text-on-surface');
+
+        form.addEventListener('input', function() {
+            if (statusDot) {
+                statusDot.style.backgroundColor = '#9f403d';
+                statusDot.classList.add('animate-pulse');
+            }
+            if (statusText) {
+                statusText.textContent = 'Unsaved changes detected';
+            }
+        });
+
+        // Hide messages after 5 seconds
+        setTimeout(function() {
+            const messages = document.querySelectorAll('.fixed.top-24');
+            messages.forEach(function(msg) {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    msg.remove();
+                }, 500);
+            });
+        }, 5000);
+
+        // Initial preview update
+        updatePreview();
+    });
+</script>
+{% endblock %}

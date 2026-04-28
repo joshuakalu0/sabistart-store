@@ -1,109 +1,143 @@
-<div class="space-y-6">
-  <!-- Status & Visibility Card -->
-  <div
-    class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800"
-  >
-    <h4
-      class="font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2"
-    >
-      <span class="material-symbols-outlined text-primary text-lg"
-        >visibility</span
-      >
-      Publish Settings
-    </h4>
-    <div class="space-y-4">
-      <div>
-        <label
-          class="block text-xs font-bold uppercase text-slate-500 mb-2 tracking-wider"
-          >Status</label
+<!-- Sidebar -->
+      <div class="space-y-6">
+        <!-- Product Preview Card -->
+        <div
+          class="bg-white rounded-xl shadow-sm border border-gray-200 sticky top-24"
         >
-        <div class="flex gap-2">
-          <label class="flex-1 cursor-pointer">
-            <input
-              checked
-              class="hidden peer"
-              name="status"
-              type="radio"
-              value="draft"
-            />
+          <div class="p-6">
+            <h3 class="text-sm font-medium text-gray-500 mb-3">
+              Product Preview
+            </h3>
             <div
-              class="text-center py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 peer-checked:bg-primary/10 peer-checked:border-primary peer-checked:text-primary font-medium transition-all"
+              class="aspect-w-1 aspect-h-1 bg-gray-100 rounded-lg mb-4 overflow-hidden"
             >
-              Draft
+              <img
+                id="previewImage"
+                src="{% if is_edit and product.images.first %}{{ product.images.first.image.url }}{% else %}https://via.placeholder.com/400x300/e2e8f0/64748b?text=Product+Image{% endif %}"
+                alt="Product Preview"
+                class="w-full h-48 object-cover"
+              />
             </div>
-          </label>
-          <label class="flex-1 cursor-pointer">
-            <input
-              class="hidden peer"
-              name="status"
-              type="radio"
-              value="active"
-            />
-            <div
-              class="text-center py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 peer-checked:bg-emerald-500/10 peer-checked:border-emerald-500 peer-checked:text-emerald-500 font-medium transition-all"
-            >
-              Active
+            <h4 id="previewName" class="font-semibold text-gray-900 mb-1">
+              {% if is_edit %}{{ product.name }}{% else %}Product Name{% endif %}
+            </h4>
+            <p id="previewPrice" class="text-lg font-bold text-primary-600">
+              ${% if is_edit and product.price %}{{ product.price }}
+              {% else %}0.00{% endif %}
+            </p>
+            <p id="previewDescription" class="text-sm text-gray-600 mt-2">
+              {% if is_edit and product.short_description %}{{ product.short_description }}
+              {% else %}No description available{% endif %}
+            </p>
+            <div class="mt-3 flex items-center space-x-2">
+              <span
+                id="previewStock"
+                class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded"
+                >{% if is_edit and product.stock_quantity > 0 %}In Stock
+                {% else%}Out of Stock{% endif %}</span
+              >
+              <span
+                id="previewStatus"
+                class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded"
+                >{% if is_edit %}{{ product.get_status_display }}
+                {% else %}Draft{% endif %}</span
+              >
             </div>
-          </label>
+            <div class="mt-3 flex flex-wrap gap-1" id="previewCategories">
+              {% if is_edit and product.categories.all %}
+              {% for category in product.categories.all|slice:":3" %}
+              <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                >{{ category.name }}</span
+              >
+              {% endfor %} {% if product.categories.count > 3 %}
+              <span class="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded"
+                >+{{ product.categories.count|add:"-3" }} more</span
+              >
+              {% endif %} {% endif %}
+            </div>
+            <div class="mt-2 flex flex-wrap gap-1" id="previewTags">
+              {% if is_edit and product.tags.all %}
+               {% for tag in product.tags.all|slice:":3" %}
+              <span
+                class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded"
+                >{{ tag.name }}</span
+              >
+              {% endfor %} {% if product.tags.count > 3 %}
+              <span
+                class="px-2 py-1 bg-green-100 text-green-500 text-xs rounded"
+                >+{{ product.tags.count|add:"-3" }} more</span
+              >
+              {% endif %} {% endif %}
+            </div>
+          </div>
+          <div class="border-t border-gray-200 p-4">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-500">Product ID</span>
+              <span id="previewId" class="font-mono text-gray-700"
+                >{% if is_edit %}{{ product.id|truncatechars:12 }}
+                {% else %}-{%endif %}</span
+              >
+            </div>
+            <div class="flex items-center justify-between text-sm mt-2">
+              <span class="text-gray-500">Created</span>
+              <span id="previewCreated" class="text-gray-700"
+                >{% if is_edit %}{{ product.created_at|date:"M d, Y" }}
+                {% else %}-{% endif %}</span
+              >
+            </div>
+          </div>
         </div>
-      </div>
-      <div>
-        <label
-          class="block text-xs font-bold uppercase text-slate-500 mb-2 tracking-wider"
-          >Visibility</label
-        >
-        {{ form.catalog_visibility }}
-      </div>
-      <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
-        <div class="flex items-center justify-between">
-          <span class="text-sm font-medium">Auto-Renew Listing</span>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input checked class="sr-only peer" type="checkbox" value="" />
-            <div
-              class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"
-            ></div>
-          </label>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Summary Card -->
-  <div class="bg-primary/5 p-6 rounded-xl border border-primary/20">
-    <h4 class="font-bold text-primary mb-3">Form Summary</h4>
-    <ul class="space-y-3">
-      <li id="summary-basic" class="flex items-center gap-2 text-sm">
-        <span class="material-symbols-outlined text-emerald-500 text-lg"
-          >check_circle</span
-        >
-        <span class="text-slate-600 dark:text-slate-400"
-          >Basic Info Started</span
-        >
-      </li>
-      <li id="summary-content" class="flex items-center gap-2 text-sm">
-        <span class="material-symbols-outlined text-slate-300 text-lg"
-          >radio_button_unchecked</span
-        >
-        <span class="text-slate-400">0 Media Files Uploaded</span>
-      </li>
-      <li id="summary-pricing" class="flex items-center gap-2 text-sm">
-        <span class="material-symbols-outlined text-slate-300 text-lg"
-          >radio_button_unchecked</span
-        >
-        <span class="text-slate-400">Pricing not set</span>
-      </li>
-      <li id="summary-shipping" class="flex items-center gap-2 text-sm">
-        <span class="material-symbols-outlined text-slate-300 text-lg"
-          >radio_button_unchecked</span
-        >
-        <span class="text-slate-400">Shipping not configured</span>
-      </li>
-      <li id="summary-variants" class="flex items-center gap-2 text-sm">
-        <span class="material-symbols-outlined text-slate-300 text-lg"
-          >radio_button_unchecked</span
-        >
-        <span class="text-slate-400">Variants not configured</span>
-      </li>
-    </ul>
-  </div>
-</div>
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div class="p-6">
+            <h3 class="text-sm font-medium text-gray-500 mb-3">
+              Quick Actions
+            </h3>
+            <div class="space-y-2">
+              {% if is_edit %}
+              <button
+                type="button"
+                onclick="duplicateProduct()"
+                class="w-full flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                  ></path>
+                </svg>
+                <span>Duplicate Product</span>
+              </button>
+              <a
+                href="{ url 'product_detail' product.pk %}"
+                target="_blank"
+                class="w-full flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  ></path>
+                </svg>
+                <span>View on Site</span>
+              </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>

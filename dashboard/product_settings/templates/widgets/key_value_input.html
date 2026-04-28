@@ -1,0 +1,134 @@
+{% load static %}
+<div
+  class="key-value-pairs-container"
+  id="{{ widget.attrs.id|default:widget.name }}-container"
+>
+  <div class="space-y-3" id="{{ widget.attrs.id|default:widget.name }}-pairs">
+    {% if widget.value %} {% for key, value in widget.value.items %}
+    <div class="spec-row flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+      <input
+        type="text"
+        name="{{ widget.name }}_key_{{ forloop.counter0 }}"
+        value="{{ key }}"
+        placeholder="Key (e.g., Processor)"
+        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500"
+        oninput="updateKeyValueInput('{{ widget.attrs.id|default:widget.name }}')"
+      />
+      <input
+        type="text"
+        name="{{ widget.name }}_value_{{ forloop.counter0 }}"
+        value="{{ value }}"
+        placeholder="Value (e.g., Intel i7)"
+        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500"
+        oninput="updateKeyValueInput('{{ widget.attrs.id|default:widget.name }}')"
+      />
+      <button
+        type="button"
+        onclick="this.parentElement.remove(); updateKeyValueInput('{{ widget.attrs.id|default:widget.name }}')"
+        class="p-2 text-red-600 hover:text-red-700"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
+        </svg>
+      </button>
+    </div>
+    {% endfor %} {% endif %}
+  </div>
+
+  <button
+    type="button"
+    onclick="addKeyValuePair('{{ widget.attrs.id|default:widget.name }}')"
+    class="w-full mt-3 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-primary-500 hover:text-primary-600 transition-colors flex items-center justify-center space-x-2"
+  >
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M12 4v16m8-8H4"
+      ></path>
+    </svg>
+    <span>Add Specification</span>
+  </button>
+
+  <input
+    type="hidden"
+    name="{{ widget.name }}"
+    id="{{ widget.attrs.id|default:widget.name }}"
+    value="{{ widget.value|default:{}|escape }}"
+  />
+</div>
+
+<script>
+  let keyValueCounter_{{ widget.attrs.id|default:widget.name|slugify }} = {{ widget.value|length|default:0 }};
+
+  function addKeyValuePair(id) {
+      const container = document.getElementById(id + '-pairs');
+      const counter = keyValueCounter_${id.replace(/-/g, '_')};
+
+      const pairDiv = document.createElement('div');
+      pairDiv.className = 'spec-row flex items-center space-x-3 p-3 bg-gray-50 rounded-lg animate-fade-in';
+      pairDiv.innerHTML = `
+          <input type="text"
+                 name="${id}_key_${counter}"
+                 placeholder="Key (e.g., Processor)"
+                 class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500"
+                 oninput="updateKeyValueInput('${id}')">
+          <input type="text"
+                 name="${id}_value_${counter}"
+                 placeholder="Value (e.g., Intel i7)"
+                 class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500"
+                 oninput="updateKeyValueInput('${id}')">
+          <button type="button"
+                  onclick="this.parentElement.remove(); updateKeyValueInput('${id}')"
+                  class="p-2 text-red-600 hover:text-red-700">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+          </button>
+      `;
+
+      container.appendChild(pairDiv);
+      keyValueCounter_${id.replace(/-/g, '_')}++;
+  }
+
+  function updateKeyValueInput(id) {
+      const container = document.getElementById(id + '-pairs');
+      const pairs = container.querySelectorAll('.spec-row');
+      const result = {};
+
+      pairs.forEach(pair => {
+          const keyInput = pair.querySelector('input[name*="_key_"]');
+          const valueInput = pair.querySelector('input[name*="_value_"]');
+
+          if (keyInput.value.trim() && valueInput.value.trim()) {
+              result[keyInput.value.trim()] = valueInput.value.trim();
+          }
+      });
+
+      document.getElementById(id).value = JSON.stringify(result);
+  }
+
+  // Update hidden input before form submission
+  document.addEventListener('DOMContentLoaded', function() {
+      const container = document.getElementById('{{ widget.attrs.id|default:widget.name }}-container');
+      if (container) {
+          const form = container.closest('form');
+          if (form) {
+              form.addEventListener('submit', function() {
+                  updateKeyValueInput('{{ widget.attrs.id|default:widget.name }}');
+              });
+          }
+      }
+  });
+</script>

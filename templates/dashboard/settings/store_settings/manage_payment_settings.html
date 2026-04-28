@@ -1,0 +1,211 @@
+{% extends "dashboard/_partials/base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      Payment Settings
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Configure payment gateways and checkout options
+    </p>
+  </div>
+  <a
+    href="{% url 'dashboard:store_settings:manage_payment_settings' prefix %}"
+    class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+  >
+    <span class="material-icons-outlined text-sm mr-2">refresh</span>
+    Refresh
+  </a>
+</div>
+
+<div
+  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+>
+  <div class="p-6">
+    <form method="post">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Payment Gateways</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_paypal.name }}" {% if form.enable_paypal.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">PayPal</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_stripe.name }}" {% if form.enable_stripe.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Stripe</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_square.name }}" {% if form.enable_square.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Square</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_authorize_net.name }}" {% if form.enable_authorize_net.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Authorize.net</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_razorpay.name }}" {% if form.enable_razorpay.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Razorpay</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_paystack.name }}" {% if form.enable_paystack.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Paystack</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_flutterwave.name }}" {% if form.enable_flutterwave.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Flutterwave</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_bank_transfer.name }}" {% if form.enable_bank_transfer.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Bank Transfer</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_cod.name }}" {% if form.enable_cod.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Cash on Delivery</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Payment Options</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_guest_checkout.name }}" {% if form.enable_guest_checkout.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Guest Checkout</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_multiple_payments.name }}" {% if form.enable_multiple_payments.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Multiple Payment Methods</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_save_payment_methods.name }}" {% if form.enable_save_payment_methods.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Save Payment Methods</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_auto_capture.name }}" {% if form.enable_auto_capture.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Auto Capture</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_3d_secure.name }}" {% if form.enable_3d_secure.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">3D Secure</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Currency & Taxes</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Default Currency
+                </label>
+                {{ form.default_currency }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Tax Rate (%)
+                </label>
+                {{ form.tax_rate }}
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_tax_calculation.name }}" {% if form.enable_tax_calculation.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Tax Calculation</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.include_tax_in_price.name }}" {% if form.include_tax_in_price.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Include Tax in Price</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_vat.name }}" {% if form.enable_vat.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable VAT</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Checkout Settings</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_one_page_checkout.name }}" {% if form.enable_one_page_checkout.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">One Page Checkout</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_checkout_progress.name }}" {% if form.enable_checkout_progress.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Checkout Progress Indicator</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_order_comments.name }}" {% if form.enable_order_comments.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Order Comments</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_gift_wrapping.name }}" {% if form.enable_gift_wrapping.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Gift Wrapping</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_order_notes.name }}" {% if form.enable_order_notes.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Order Notes</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-8 flex justify-end space-x-4">
+        <button
+          type="submit"
+          class="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+        >
+          <span class="material-icons-outlined text-sm">save</span>
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

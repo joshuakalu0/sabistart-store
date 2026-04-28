@@ -1,0 +1,72 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load string_utils %}
+{% block content %}
+<div class="flex items-center space-x-4 mb-6">
+  <a href="{{ detail_url }}" class="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+    <span class="material-icons-outlined">arrow_back</span>
+  </a>
+  <div class="flex-1">
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Conditions (The "IF")</h2>
+    <p class="text-slate-600 dark:text-slate-400 text-sm">Managing IF statements for: <span class="font-semibold">{{ discount.name }}</span></p>
+  </div>
+  <a href="{{ create_url }}" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2 text-sm font-medium">
+    <span class="material-icons-outlined text-[18px]">add</span><span>Add Condition</span>
+  </a>
+</div>
+
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden flex flex-col">
+  <div class="overflow-x-auto">
+    <table class="w-full">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          {% for col in "Condition Type,Required Value,Target Entity,Actions"|split:"," %}
+          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+        {% for c in conditions %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900 dark:text-white">
+            <span class="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded text-xs tracking-wide uppercase">{{ c.get_condition_type_display }}</span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-slate-700 dark:text-slate-300">
+            {% if c.condition_type == 'cart_subtotal' %}≥ {{ discount.currency_symbol|default:"$" }}{{ c.minimum_amount }}
+            {% elif 'quantity' in c.condition_type %}≥ {{ c.minimum_quantity }} items
+            {% else %}—{% endif %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
+            {% if c.condition_type == 'customer_group' %}Group: {{ c.target_customer_group.name }}
+            {% elif c.condition_type == 'product_quantity' %}Product: {{ c.target_product.name }}
+            {% elif c.condition_type == 'category_quantity' %}Category: {{ c.target_category.name }}
+            {% else %}Total Cart{% endif %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+            <a href="{% url 'dashboard:pricing:auto_condition_edit' prefix discount.id c.id %}" class="text-primary hover:text-blue-700">Edit</a>
+            <button class="text-red-600 hover:text-red-800 delete-btn"
+                    data-url="{% url 'dashboard:pricing:auto_condition_delete' prefix discount.id c.id %}">Delete</button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="px-6 py-10 text-center text-slate-400 dark:text-slate-500">No conditions. The discount currently applies unconditionally to every cart.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+      openDeleteModal("Delete Condition",
+        `Are you sure you want to remove this condition? The discount will trigger more easily.`,
+        () => {
+          fetch(this.dataset.url, {method:"POST", headers:{"X-CSRFToken":"{{ csrf_token }}","Content-Type":"application/x-www-form-urlencoded"}})
+            .then(() => location.reload());
+        });
+    });
+  });
+});
+</script>
+{% endblock %}

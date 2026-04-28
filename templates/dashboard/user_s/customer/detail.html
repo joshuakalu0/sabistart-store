@@ -1,0 +1,193 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">{{ customer.display_name }}</h2>
+    <p class="text-slate-500 dark:text-slate-400 text-sm">{% if customer.user %}{{ customer.user.email }}{% else %}Guest Customer{% endif %} · {{ customer.get_status_display }}</p>
+  </div>
+  <div class="flex items-center space-x-3">
+    <a href="{% url 'dashboard:user_settings:customer_edit' prefix customer.pk %}" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-sm flex items-center space-x-1">
+      <span class="material-icons-outlined text-sm">edit</span><span>Edit</span>
+    </a>
+    <a href="{% url 'dashboard:user_settings:customer_list' prefix %}" class="text-sm text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 flex items-center space-x-1">
+      <span class="material-icons-outlined text-sm">arrow_back</span><span>Customers</span>
+    </a>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+  <!-- Left col -->
+  <div class="space-y-5">
+
+    <!-- Stats card -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+      <dl class="space-y-3 text-sm">
+        <div class="flex justify-between">
+          <dt class="text-slate-500 dark:text-slate-400">Total Orders</dt>
+          <dd class="font-bold text-slate-900 dark:text-white">{{ customer.total_orders }}</dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-slate-500 dark:text-slate-400">Total Spent</dt>
+          <dd class="font-bold text-slate-900 dark:text-white font-mono">{{ customer.total_spent|floatformat:2 }}</dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-slate-500 dark:text-slate-400">Avg. Order</dt>
+          <dd class="font-medium text-slate-900 dark:text-white font-mono">{{ customer.average_order_value|floatformat:2 }}</dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-slate-500 dark:text-slate-400">Total Refunds</dt>
+          <dd class="font-medium text-red-500 font-mono">{{ customer.total_refunds|floatformat:2 }}</dd>
+        </div>
+        <div class="border-t border-slate-200 dark:border-slate-700 pt-3 flex justify-between">
+          <dt class="text-slate-500 dark:text-slate-400">First Order</dt>
+          <dd class="font-medium text-slate-700 dark:text-slate-300 text-xs">{{ customer.first_order_at|date:"M d, Y"|default:"—" }}</dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-slate-500 dark:text-slate-400">Last Order</dt>
+          <dd class="font-medium text-slate-700 dark:text-slate-300 text-xs">{{ customer.last_order_at|date:"M d, Y"|default:"—" }}</dd>
+        </div>
+      </dl>
+    </div>
+
+    <!-- Profile info -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+      <h3 class="font-semibold text-slate-900 dark:text-white mb-3">Profile</h3>
+      <dl class="space-y-2 text-sm">
+        {% if customer.company %}<div class="flex justify-between"><dt class="text-slate-500">Company</dt><dd class="font-medium text-slate-900 dark:text-white">{{ customer.company }}</dd></div>{% endif %}
+        <div class="flex justify-between"><dt class="text-slate-500">B2B</dt><dd class="font-medium">{{ customer.is_b2b|yesno:"Yes,No" }}</dd></div>
+        <div class="flex justify-between"><dt class="text-slate-500">Tax Status</dt><dd class="font-medium dark:text-white">{{ customer.get_tax_exempt_status_display }}</dd></div>
+        {% if customer.tax_id %}<div class="flex justify-between"><dt class="text-slate-500">Tax ID</dt><dd class="font-mono text-xs">{{ customer.tax_id }}</dd></div>{% endif %}
+        <div class="flex justify-between"><dt class="text-slate-500">Tier</dt><dd>{% if customer.tier %}<span class="px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-700">{{ customer.get_tier_display }}</span>{% else %}—{% endif %}</dd></div>
+        <div class="flex justify-between"><dt class="text-slate-500">Points</dt><dd class="font-mono font-medium dark:text-white">{{ customer.loyalty_points }}</dd></div>
+        <div class="flex justify-between"><dt class="text-slate-500">Source</dt><dd class="text-xs text-slate-500 dark:text-slate-400">{{ customer.get_acquisition_source_display|default:"—" }}</dd></div>
+      </dl>
+    </div>
+
+    <!-- Groups & Tags -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+      <h3 class="font-semibold text-slate-900 dark:text-white mb-3">Groups &amp; Tags</h3>
+      <div class="flex flex-wrap gap-2 mb-3">
+        {% for g in customer.groups.all %}
+        <span class="px-2 py-0.5 rounded-full text-xs font-medium" style="background:{{ g.color }}22;color:{{ g.color }}">{{ g.name }}</span>
+        {% endfor %}
+      </div>
+      {% if customer.tags %}
+      <div class="flex flex-wrap gap-2">
+        {% for tag in customer.tags %}
+        <span class="px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">{{ tag }}</span>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-xs text-slate-400">No tags assigned.</p>
+      {% endif %}
+    </div>
+
+    <!-- Block / Unblock -->
+    <form method="post" action="{% url 'dashboard:user_settings:customer_toggle_status' prefix customer.pk %}"
+          onsubmit="return confirm('{% if customer.status == "ACTIVE" %}Block this customer?{% else %}Unblock this customer?{% endif %}')">
+      {% csrf_token %}
+      <button type="submit" class="w-full px-4 py-2 rounded-lg text-sm border {% if customer.status == 'ACTIVE' %}border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-900/20{% else %}border-green-200 text-green-600 hover:bg-green-50 dark:border-green-800 dark:hover:bg-green-900/20{% endif %} flex items-center justify-center space-x-2">
+        <span class="material-icons-outlined text-sm">{% if customer.status == 'ACTIVE' %}block{% else %}check_circle{% endif %}</span>
+        <span>{% if customer.status == 'ACTIVE' %}Block Customer{% else %}Unblock Customer{% endif %}</span>
+      </button>
+    </form>
+  </div>
+
+  <!-- Right col -->
+  <div class="lg:col-span-2 space-y-6">
+
+    <!-- Addresses -->
+    {% if customer.addresses.all %}
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700">
+        <h3 class="font-semibold text-slate-900 dark:text-white">Addresses</h3>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4 p-5">
+        {% for addr in customer.addresses.all %}
+        <div class="border border-slate-200 dark:border-slate-700 rounded-lg p-4 text-sm relative">
+          {% if addr.is_default_shipping %}<span class="absolute top-2 right-2 text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">Default Shipping</span>{% endif %}
+          {% if addr.is_default_billing %}<span class="absolute top-2 right-10 text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">Default Billing</span>{% endif %}
+          <p class="font-medium text-slate-900 dark:text-white">{{ addr.full_name }}</p>
+          <p class="text-slate-500 dark:text-slate-400">{{ addr.single_line }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Active Sessions -->
+    {% if customer.sessions.all %}
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700">
+        <h3 class="font-semibold text-slate-900 dark:text-white">Active Sessions</h3>
+      </div>
+      <div class="divide-y divide-slate-200 dark:divide-slate-700">
+        {% for s in customer.sessions.all %}
+        {% if s.is_valid %}
+        <div class="px-5 py-3 flex items-center justify-between">
+          <div class="text-sm">
+            <div class="font-medium text-slate-900 dark:text-white">{{ s.device_name|default:"Unknown Device" }}</div>
+            <div class="text-xs text-slate-500">{{ s.ip_address }} · {{ s.country_code }} · Last seen {{ s.last_active_at|date:"M d, H:i" }}</div>
+          </div>
+          <form method="post" action="{% url 'dashboard:user_settings:customer_session_terminate' prefix s.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="text-xs text-red-500 hover:text-red-700">Terminate</button>
+          </form>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Notes -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+        <h3 class="font-semibold text-slate-900 dark:text-white">Staff Notes</h3>
+      </div>
+      <!-- Add Note Form -->
+      <div class="p-5 border-b border-slate-200 dark:border-slate-700">
+        <form method="post" action="{% url 'dashboard:user_settings:customer_add_note' prefix customer.pk %}">
+          {% csrf_token %}
+          <div class="flex gap-3 mb-2">
+            {{ note_form.note_type }}
+            <label class="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-300">
+              {{ note_form.is_pinned }}<span>Pin</span>
+            </label>
+          </div>
+          {{ note_form.content }}
+          {% if note_form.content.errors %}<p class="text-red-500 text-xs mt-1">{{ note_form.content.errors|join:", " }}</p>{% endif %}
+          <button type="submit" class="mt-2 px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-blue-600">Add Note</button>
+        </form>
+      </div>
+      <!-- Existing Notes -->
+      <div class="divide-y divide-slate-200 dark:divide-slate-700">
+        {% for note in customer.notes.all %}
+        <div class="px-5 py-4 {% if note.is_pinned %}bg-yellow-50 dark:bg-yellow-900/10{% endif %}">
+          <div class="flex items-center space-x-2 mb-1">
+            {% if note.is_pinned %}<span class="material-icons-outlined text-yellow-500 text-sm">push_pin</span>{% endif %}
+            <span class="px-2 py-0.5 rounded-full text-xs
+              {% if note.note_type == 'FRAUD' %}bg-red-100 text-red-700
+              {% elif note.note_type == 'COMPLAINT' %}bg-orange-100 text-orange-700
+              {% elif note.note_type == 'VIP' %}bg-purple-100 text-purple-700
+              {% else %}bg-slate-100 text-slate-600{% endif %}">
+              {{ note.get_note_type_display }}
+            </span>
+            <span class="text-xs text-slate-500 dark:text-slate-400">{{ note.written_by_name }} · {{ note.created_at|date:"M d, Y H:i" }}</span>
+          </div>
+          <p class="text-sm text-slate-700 dark:text-slate-300">{{ note.content }}</p>
+        </div>
+        {% empty %}
+        <div class="px-5 py-6 text-center text-slate-400">No notes yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  document.querySelectorAll("select, textarea").forEach(el => {
+    el.classList.add("w-full","px-3","py-2","border","border-slate-300","dark:border-slate-600","rounded-lg","text-sm","dark:bg-slate-700","dark:text-white","focus:ring-2","focus:ring-primary","focus:outline-none");
+  });
+</script>
+{% endblock %}

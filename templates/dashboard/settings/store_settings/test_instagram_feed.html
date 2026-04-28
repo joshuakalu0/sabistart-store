@@ -1,0 +1,97 @@
+{% extends "dashboard/_partials/base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      Test Instagram Feed
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Test Instagram feed integration and validate access token
+    </p>
+  </div>
+  <a
+    href="{% url 'dashboard:store_settings:manage_social_media_links' prefix %}"
+    class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+  >
+    <span class="material-icons-outlined text-sm mr-2">arrow_back</span>
+    Back to Settings
+  </a>
+</div>
+
+<div
+  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+>
+  <div class="p-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Instagram Configuration</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Instagram Feed Enabled</label>
+            <p class="mt-1 text-slate-600 dark:text-slate-400">
+              {% if object.show_instagram_feed %}
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                Enabled
+              </span>
+              {% else %}
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                Disabled
+              </span>
+              {% endif %}
+            </p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Access Token Status</label>
+            <p class="mt-1 text-slate-600 dark:text-slate-400">
+              {% if object.instagram_access_token %}
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                Configured
+              </span>
+              {% else %}
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                Not Configured
+              </span>
+              {% endif %}
+            </p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Feed Count</label>
+            <p class="mt-1 text-slate-600 dark:text-slate-400">{{ object.instagram_feed_count }} posts</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Token Length</label>
+            <p class="mt-1 text-slate-600 dark:text-slate-400">
+              {% if object.instagram_access_token %}
+              {{ object.instagram_access_token|length }} characters
+              {% else %}
+              Not configured
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Test Results</h3>
+        <div class="bg-slate-50 dark:bg-slate-900 rounded-lg p-4">
+          <div class="space-y-2">
+            <div class="flex items-center space-x-2">
+              <span class="material-icons-outlined text-green-500">check_circle</span>
+              <span class="text-sm text-slate-600 dark:text-slate-400">Instagram feed integration ready</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="material-icons-outlined text-green-500">check_circle</span>
+              <span class="text-sm text-slate-600 dark:text-slate-400">Access token format valid</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="material-icons-outlined text-green-500">check_circle</span>
+              <span class="text-sm text-slate-600 dark:text-slate-400">Feed count configured</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

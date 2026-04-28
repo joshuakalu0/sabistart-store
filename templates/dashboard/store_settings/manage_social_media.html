@@ -1,0 +1,760 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: '#eff6ff',
+                100: '#dbeafe',
+                200: '#bfdbfe',
+                300: '#93c5fd',
+                400: '#60a5fa',
+                500: '#3b82f6',
+                600: '#2563eb',
+                700: '#1d4ed8',
+                800: '#1e40af',
+                900: '#1e3a8a',
+              },
+              surface: {
+                50: '#f8fafc',
+                100: '#f1f5f9',
+                200: '#e2e8f0',
+                300: '#cbd5e1',
+                400: '#94a3b8',
+                500: '#64748b',
+                600: '#475569',
+                700: '#334155',
+                800: '#1e293b',
+                900: '#0f172a',
+              }
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans", "sans-serif"],
+              "body": ["Inter", "sans-serif"],
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+    <style>
+        * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .font-manrope { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+        /* Glass Navigation */
+        .glass-nav { backdrop-filter: blur(16px) saturate(180%); -webkit-backdrop-filter: blur(16px) saturate(180%); background: rgba(255, 255, 255, 0.9); }
+
+        /* Form Input Styles */
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: #1e293b;
+            background-color: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+        }
+        .form-control:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+        .form-control::placeholder { color: #94a3b8; }
+        .form-control:disabled { background-color: #f1f5f9; cursor: not-allowed; }
+
+        /* Toggle Switch - Premium Design */
+        .toggle-checkbox {
+            opacity: 0;
+            position: absolute;
+            width: 0;
+            height: 0;
+            cursor: pointer;
+        }
+        .toggle-slider {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+            background-color: #cbd5e1;
+            border-radius: 9999px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            transition: all 0.3s;
+        }
+        .toggle-checkbox:checked + .toggle-slider {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+        .toggle-checkbox:checked + .toggle-slider::before {
+            transform: translateX(24px);
+        }
+        .toggle-checkbox:focus + .toggle-slider {
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+        }
+
+        /* Tab Navigation */
+        .tab-link {
+            position: relative;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.875rem;
+            padding: 0.75rem 0;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .tab-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #3b82f6;
+            transition: width 0.3s;
+        }
+        .tab-link:hover { color: #1e293b; }
+        .tab-link.active {
+            color: #1d4ed8;
+            font-weight: 700;
+        }
+        .tab-link.active::after { width: 100%; }
+
+        /* Section Visibility */
+        .settings-section { display: none; animation: fadeIn 0.3s; }
+        .settings-section.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Form Error States */
+        .form-field-error { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
+        .error-message { color: #dc2626; font-size: 0.75rem; margin-top: 0.375rem; display: flex; align-items: center; gap: 0.25rem; font-weight: 500; }
+
+        /* Icon Style Button */
+        .icon-style-btn { transition: all 0.2s; }
+        .icon-style-btn.selected { border-color: #3b82f6 !important; color: #1d4ed8 !important; background-color: #eff6ff !important; }
+
+        /* Platform Checkbox Cards */
+        .platform-checkbox {
+            opacity: 0;
+            position: absolute;
+            width: 0;
+            height: 0;
+        }
+        .platform-card {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .platform-card:hover {
+            border-color: #93c5fd;
+            background: #f1f5f9;
+        }
+        .platform-checkbox:checked + .platform-card {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+        .platform-checkbox:checked + .platform-card .platform-icon {
+            color: #1d4ed8;
+            transform: scale(1.1);
+        }
+        .platform-checkbox:checked + .platform-card .platform-name {
+            color: #1d4ed8;
+            font-weight: 700;
+        }
+        .platform-checkbox:checked + .platform-card .check-indicator {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .platform-icon {
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.75rem;
+            font-size: 1.25rem;
+            transition: all 0.2s;
+        }
+        .check-indicator {
+            margin-left: auto;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.2s;
+        }
+        .check-indicator .material-symbols-outlined {
+            color: #1d4ed8;
+            font-size: 1.5rem;
+        }
+
+        /* Range Input */
+        input[type="range"] { -webkit-appearance: none; background: transparent; }
+        input[type="range"]::-webkit-slider-runnable-track { background: #3b82f6; height: 6px; border-radius: 3px; }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            margin-top: -7px;
+            cursor: pointer;
+        }
+    </style>
+    {% endblock %}
+{% block content %}
+<div class="bg-surface-50 text-surface-900 font-body antialiased min-h-screen">
+
+<!-- Django Messages -->
+{% if messages %}
+<div class="fixed top-24 right-8 z-50 space-y-3">
+    {% for message in messages %}
+    <div class="flex items-center gap-3 px-5 py-4 rounded-2xl shadow-xl border"
+         style="background: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#ef4444{% else %}#ffffff{% endif %};
+                 color: {% if message.tags == 'error' %}#ffffff{% else %}#1e293b{% endif %};">
+        <span class="material-symbols-outlined text-lg">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span class="font-semibold text-sm">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+
+
+<!-- Tab Navigation -->
+<div class="sticky -top-9 z-40 bg-white border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="flex gap-8 overflow-x-auto">
+            <button type="button" class="tab-link active" data-tab="social">Social Profiles</button>
+            <button type="button" class="tab-link" data-tab="sharing">Sharing</button>
+            <button type="button" class="tab-link" data-tab="instagram">Instagram</button>
+            <button type="button" class="tab-link" data-tab="visual">Visual Style</button>
+        </div>
+    </div>
+</div>
+
+<main class="max-w-7xl mx-auto px-6 lg:px-8 py-10">
+    <form id="social-form" method="post" action="{{ action_url }}" novalidate>
+        {% csrf_token %}
+
+        <!-- ==================== SOCIAL PROFILES TAB ==================== -->
+        <section class="settings-section active" id="social-section">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-8 py-6 border-b border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-900 font-manrope">Social Media Profiles</h2>
+                    <p class="text-sm text-slate-500 mt-1">Connect your store's social media accounts</p>
+                </div>
+                <div class="p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {% for field in social_profiles_fields %}
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-slate-700" for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
+                            {{ field }}
+                            {% if field.errors %}
+                                {% for error in field.errors %}
+                                    <p class="error-message"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- WhatsApp Section -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mt-8">
+                <div class="px-8 py-6 border-b border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-900 font-manrope">WhatsApp Business</h2>
+                    <p class="text-sm text-slate-500 mt-1">Enable customer communication via WhatsApp</p>
+                </div>
+                <div class="p-8">
+                    <div class="max-w-md">
+                        <label class="block text-sm font-semibold text-slate-700 mb-2" for="{{ whatsapp_field.id_for_label }}">{{ whatsapp_field.label }}</label>
+                        <div class="flex items-center gap-3">
+                            <div class="flex-shrink-0 bg-slate-100 border border-slate-200 py-2.5 px-4 text-slate-700 font-semibold rounded-xl">+</div>
+                            {{ whatsapp_field }}
+                        </div>
+                        {% if whatsapp_field.errors %}
+                            {% for error in whatsapp_field.errors %}
+                                <p class="error-message"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                        <p class="mt-2 text-xs text-slate-500">Include country code without special characters.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SHARING TAB ==================== -->
+        <section class="settings-section" id="sharing-section">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-8 py-6 border-b border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-900 font-manrope">Product Sharing</h2>
+                    <p class="text-sm text-slate-500 mt-1">Configure social sharing for your products</p>
+                </div>
+                <div class="p-8 space-y-8">
+                    <!-- Enable Product Sharing Toggle -->
+                    <div class="flex items-center justify-between p-5 bg-slate-50 rounded-xl border border-slate-200">
+                        <div>
+                            <h4 class="font-bold font-manrope text-slate-900">Enable Product Sharing</h4>
+                            <p class="text-sm text-slate-500 mt-0.5">Allow users to share products on social media</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            {{ sharing_fields.enable_product_sharing }}
+                            <div class="toggle-slider">
+                                <span class="absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300" style="transform: {% if sharing_fields.enable_product_sharing.value %}translateX(24px){% else %}translateX(0){% endif %};"></span>
+                            </div>
+                        </label>
+                    </div>
+                    {% if sharing_fields.enable_product_sharing.errors %}
+                        {% for error in sharing_fields.enable_product_sharing.errors %}
+                            <p class="error-message"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Target Sharing Platforms -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Target Platforms</label>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <!-- Facebook -->
+                            <label class="relative">
+                                <input type="checkbox" name="sharing_platforms" value="facebook" class="platform-checkbox"
+                                {% if 'facebook' in form.sharing_platforms.value %}
+                                checked{% endif %}/>
+                                <div class="platform-card">
+                                    <div class="platform-icon" style="background: #1877F2; color: white;">
+                                        <span class="material-symbols-outlined filled">facebook</span>
+                                    </div>
+                                    <span class="platform-name text-sm font-semibold text-slate-700">Facebook</span>
+                                    <div class="check-indicator">
+                                        <span class="material-symbols-outlined filled">check_circle</span>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Twitter/X -->
+                            <label class="relative">
+                                <input type="checkbox" name="sharing_platforms" value="twitter" class="platform-checkbox"
+                                {% if 'twitter' in form.sharing_platforms.value %}
+                                checked{% endif %}/>
+                                <div class="platform-card">
+                                    <div class="platform-icon" style="background: #000000; color: white;">
+                                        <span class="material-symbols-outlined filled">alternate_email</span>
+                                    </div>
+                                    <span class="platform-name text-sm font-semibold text-slate-700">Twitter/X</span>
+                                    <div class="check-indicator">
+                                        <span class="material-symbols-outlined filled">check_circle</span>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Instagram -->
+                            <label class="relative">
+                                <input type="checkbox" name="sharing_platforms" value="instagram" class="platform-checkbox" {% if 'instagram' in form.sharing_platforms.value %}checked{% endif %}/>
+                                <div class="platform-card">
+                                    <div class="platform-icon" style="background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white;">
+                                        <span class="material-symbols-outlined filled">photo_camera</span>
+                                    </div>
+                                    <span class="platform-name text-sm font-semibold text-slate-700">Instagram</span>
+                                    <div class="check-indicator">
+                                        <span class="material-symbols-outlined filled">check_circle</span>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Pinterest -->
+                            <label class="relative">
+                                <input type="checkbox" name="sharing_platforms" value="pinterest" class="platform-checkbox" {% if 'pinterest' in form.sharing_platforms.value %}checked{% endif %}/>
+                                <div class="platform-card">
+                                    <div class="platform-icon" style="background: #E60023; color: white;">
+                                        <span class="material-symbols-outlined filled">bookmark</span>
+                                    </div>
+                                    <span class="platform-name text-sm font-semibold text-slate-700">Pinterest</span>
+                                    <div class="check-indicator">
+                                        <span class="material-symbols-outlined filled">check_circle</span>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- WhatsApp -->
+                            <label class="relative">
+                                <input type="checkbox" name="sharing_platforms" value="whatsapp" class="platform-checkbox" {% if 'whatsapp' in form.sharing_platforms.value %}checked{% endif %}/>
+                                <div class="platform-card">
+                                    <div class="platform-icon" style="background: #25D366; color: white;">
+                                        <span class="material-symbols-outlined filled">chat</span>
+                                    </div>
+                                    <span class="platform-name text-sm font-semibold text-slate-700">WhatsApp</span>
+                                    <div class="check-indicator">
+                                        <span class="material-symbols-outlined filled">check_circle</span>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- LinkedIn -->
+                            <label class="relative">
+                                <input type="checkbox" name="sharing_platforms" value="linkedin" class="platform-checkbox" {% if 'linkedin' in form.sharing_platforms.value %}checked{% endif %}/>
+                                <div class="platform-card">
+                                    <div class="platform-icon" style="background: #0A66C2; color: white;">
+                                        <span class="material-symbols-outlined filled">work</span>
+                                    </div>
+                                    <span class="platform-name text-sm font-semibold text-slate-700">LinkedIn</span>
+                                    <div class="check-indicator">
+                                        <span class="material-symbols-outlined filled">check_circle</span>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- TikTok -->
+                            <label class="relative">
+                                <input type="checkbox" name="sharing_platforms" value="tiktok" class="platform-checkbox" {% if 'tiktok' in form.sharing_platforms.value %}checked{% endif %}/>
+                                <div class="platform-card">
+                                    <div class="platform-icon" style="background: #000000; color: white;">
+                                        <span class="material-symbols-outlined filled">music_note</span>
+                                    </div>
+                                    <span class="platform-name text-sm font-semibold text-slate-700">TikTok</span>
+                                    <div class="check-indicator">
+                                        <span class="material-symbols-outlined filled">check_circle</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                        {% if sharing_fields.sharing_platforms.errors %}
+                            {% for error in sharing_fields.sharing_platforms.errors %}
+                                <p class="error-message"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Facebook App ID -->
+                    <div class="max-w-md pt-6 border-t border-slate-200">
+                        <label class="block text-sm font-semibold text-slate-700 mb-2" for="{{ sharing_fields.facebook_app_id.id_for_label }}">Facebook App ID</label>
+                        {{ sharing_fields.facebook_app_id }}
+                        {% if sharing_fields.facebook_app_id.errors %}
+                            {% for error in sharing_fields.facebook_app_id.errors %}
+                                <p class="error-message"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                        <p class="mt-2 text-xs text-slate-500">Required for Meta pixel events and advanced analytics.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== INSTAGRAM TAB ==================== -->
+        <section class="settings-section" id="instagram-section">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-8 py-6 border-b border-slate-200 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 font-manrope">Instagram Feed</h2>
+                        <p class="text-sm text-slate-500 mt-1">Display your Instagram content on the storefront</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        {{ instagram_fields.show_instagram_feed }}
+                        <div class="toggle-slider">
+                            <span class="absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300" style="transform: {% if instagram_fields.show_instagram_feed.value %}translateX(24px){% else %}translateX(0){% endif %};"></span>
+                        </div>
+                    </label>
+                </div>
+                {% if instagram_fields.show_instagram_feed.errors %}
+                    {% for error in instagram_fields.show_instagram_feed.errors %}
+                        <p class="error-message"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="p-8 space-y-8">
+                    <!-- Access Token -->
+                    <div class="max-w-xl">
+                        <label class="block text-sm font-semibold text-slate-700 mb-2" for="{{ instagram_fields.instagram_access_token.id_for_label }}">Instagram Access Token</label>
+                        <div class="flex gap-3">
+                            {{ instagram_fields.instagram_access_token }}
+                            <button type="button" class="px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors" onclick="alert('In production, this would open Instagram OAuth flow')">
+                                <span class="material-symbols-outlined text-sm align-middle mr-1">refresh</span>
+                                Refresh
+                            </button>
+                        </div>
+                        {% if instagram_fields.instagram_access_token.errors %}
+                            {% for error in instagram_fields.instagram_access_token.errors %}
+                                <p class="error-message"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Feed Count -->
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Feed Item Count</label>
+                            <span class="text-sm font-bold text-blue-600 font-manrope" id="feed-count-display">{{ instagram_fields.instagram_feed_count.value|default:8 }} Items</span>
+                        </div>
+                        {{ instagram_fields.instagram_feed_count }}
+                        <div class="flex justify-between text-xs text-slate-500 font-bold mt-2">
+                            <span>4</span><span>6</span><span>8</span><span>10</span><span>12</span>
+                        </div>
+                    </div>
+
+                    <!-- Feed Preview -->
+                    <div class="pt-6 border-t border-slate-200">
+                        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Feed Preview</h4>
+                        <div class="grid grid-cols-4 gap-2 aspect-video overflow-hidden rounded-xl border border-slate-200">
+                            {% for i in "12345678" %}
+                            <div class="bg-slate-100">
+                                <img class="w-full h-full object-cover" src="https://picsum.photos/300/300?random={{ forloop.counter }}" alt="Preview"/>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== VISUAL STYLE TAB ==================== -->
+        <section class="settings-section" id="visual-section">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-8 py-6 border-b border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-900 font-manrope">Visual Preferences</h2>
+                    <p class="text-sm text-slate-500 mt-1">Customize how social icons appear</p>
+                </div>
+                <div class="p-8 space-y-8">
+                    <!-- Icon Style -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Icon Style</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" class="icon-style-btn selected py-3 px-4 rounded-xl bg-blue-50 border-2 border-blue-500 text-blue-700 text-sm font-bold flex flex-col items-center gap-2" data-style="filled">
+                                <span class="material-symbols-outlined filled text-xl">square</span>
+                                Filled
+                            </button>
+                            <button type="button" class="icon-style-btn py-3 px-4 rounded-xl bg-slate-50 border-2 border-transparent text-slate-600 hover:border-slate-300 text-sm font-bold flex flex-col items-center gap-2" data-style="outline">
+                                <span class="material-symbols-outlined text-xl">check_box_outline_blank</span>
+                                Outline
+                            </button>
+                            <button type="button" class="icon-style-btn py-3 px-4 rounded-xl bg-slate-50 border-2 border-transparent text-slate-600 hover:border-slate-300 text-sm font-bold flex flex-col items-center gap-2" data-style="colored">
+                                <span class="material-symbols-outlined filled text-xl text-red-500">colors</span>
+                                Brand
+                            </button>
+                            <button type="button" class="icon-style-btn py-3 px-4 rounded-xl bg-slate-50 border-2 border-transparent text-slate-600 hover:border-slate-300 text-sm font-bold flex flex-col items-center gap-2" data-style="mono">
+                                <span class="material-symbols-outlined text-xl">contrast</span>
+                                Mono
+                            </button>
+                        </div>
+                        <input type="hidden" id="icon_style_value" name="icon_style" value="{{ form.icon_style.value|default:'filled' }}"/>
+                    </div>
+
+                    <!-- Icon Size -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Icon Size</label>
+                        <div class="flex p-1 bg-slate-100 rounded-xl">
+                            <button type="button" class="icon-size-btn flex-1 py-2.5 text-xs font-bold text-slate-600" data-size="small">Small</button>
+                            <button type="button" class="icon-size-btn flex-1 py-2.5 bg-white shadow-sm rounded-lg text-xs font-bold text-blue-600" data-size="medium">Medium</button>
+                            <button type="button" class="icon-size-btn flex-1 py-2.5 text-xs font-bold text-slate-600" data-size="large">Large</button>
+                        </div>
+                        <input type="hidden" id="icon_size_value" name="icon_size" value="{{ form.icon_size.value|default:'medium' }}"/>
+                    </div>
+
+                    <!-- Preview -->
+                    <div class="pt-6 border-t border-slate-200">
+                        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Live Preview</h4>
+                        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-wrap justify-center gap-4" id="icon-preview-container">
+                            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white icon-preview-item">
+                                <span class="material-symbols-outlined filled">social_leaderboard</span>
+                            </div>
+                            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white icon-preview-item">
+                                <span class="material-symbols-outlined filled">photo_camera</span>
+                            </div>
+                            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white icon-preview-item">
+                                <span class="material-symbols-outlined filled">alternate_email</span>
+                            </div>
+                            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white icon-preview-item">
+                                <span class="material-symbols-outlined filled">play_circle</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </form>
+</main>
+
+<div class="h-16"></div>
+
+
+</div>
+
+<!-- JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // === Tab Navigation ===
+        const tabLinks = document.querySelectorAll('.tab-link');
+        const sections = document.querySelectorAll('.settings-section');
+
+        tabLinks.forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
+
+                tabLinks.forEach(function(t) { t.classList.remove('active'); });
+                this.classList.add('active');
+
+                sections.forEach(function(section) {
+                    section.classList.remove('active');
+                    if (section.id === targetTab + '-section') {
+                        section.classList.add('active');
+                    }
+                });
+            });
+        });
+
+        // === Toggle Switches ===
+        const toggleCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+        toggleCheckboxes.forEach(function(checkbox) {
+            checkbox.style.position = 'absolute';
+            checkbox.style.opacity = '0';
+            checkbox.style.width = '0';
+            checkbox.style.height = '0';
+
+            checkbox.addEventListener('change', function() {
+                const slider = this.parentElement.querySelector('.toggle-slider');
+                const knob = slider?.querySelector('.absolute');
+                if (slider && knob) {
+                    if (this.checked) {
+                        slider.style.background = 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+                        knob.style.transform = 'translateX(24px)';
+                    } else {
+                        slider.style.background = '#cbd5e1';
+                        knob.style.transform = 'translateX(0)';
+                    }
+                }
+            });
+        });
+
+        // === Icon Style Selection ===
+        const styleButtons = document.querySelectorAll('.icon-style-btn');
+        const styleValue = document.getElementById('icon_style_value');
+
+        styleButtons.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                styleButtons.forEach(function(b) {
+                    b.classList.remove('selected', 'border-blue-500', 'text-blue-700', 'bg-blue-50');
+                    b.classList.add('border-transparent', 'text-slate-600');
+                });
+                this.classList.add('selected', 'border-blue-500', 'text-blue-700', 'bg-blue-50');
+                this.classList.remove('border-transparent', 'text-slate-600');
+                styleValue.value = this.getAttribute('data-style');
+                updateIconPreview(this.getAttribute('data-style'));
+            });
+        });
+
+        // === Icon Size Selection ===
+        const sizeButtons = document.querySelectorAll('.icon-size-btn');
+        const sizeValue = document.getElementById('icon_size_value');
+
+        sizeButtons.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                sizeButtons.forEach(function(b) {
+                    b.classList.remove('bg-white', 'shadow-sm', 'rounded-lg', 'text-blue-600');
+                    b.classList.add('text-slate-600');
+                });
+                this.classList.add('bg-white', 'shadow-sm', 'rounded-lg', 'text-blue-600');
+                this.classList.remove('text-slate-600');
+                sizeValue.value = this.getAttribute('data-size');
+                updateIconSize(this.getAttribute('data-size'));
+            });
+        });
+
+        // === Update Icon Preview ===
+        function updateIconPreview(style) {
+            const icons = document.querySelectorAll('.icon-preview-item .material-symbols-outlined');
+            const items = document.querySelectorAll('.icon-preview-item');
+
+            items.forEach(function(item) {
+                item.classList.remove('bg-transparent', 'border-2', 'border-blue-600', 'bg-slate-200');
+                item.classList.add('bg-blue-600');
+            });
+
+            icons.forEach(function(icon) {
+                if (style === 'filled') {
+                    icon.classList.add('filled');
+                } else if (style === 'outline') {
+                    icon.classList.remove('filled');
+                    icon.parentElement.classList.remove('bg-blue-600');
+                    icon.parentElement.classList.add('bg-transparent', 'border-2', 'border-blue-600');
+                } else if (style === 'colored') {
+                    icon.classList.add('filled');
+                } else if (style === 'mono') {
+                    icon.classList.remove('filled');
+                    icon.parentElement.classList.remove('bg-blue-600');
+                    icon.parentElement.classList.add('bg-slate-200');
+                }
+            });
+        }
+
+        function updateIconSize(size) {
+            const items = document.querySelectorAll('.icon-preview-item');
+            items.forEach(function(item) {
+                item.classList.remove('w-8', 'h-8', 'w-10', 'h-10', 'w-12', 'h-12');
+                if (size === 'small') item.classList.add('w-8', 'h-8');
+                else if (size === 'medium') item.classList.add('w-10', 'h-10');
+                else if (size === 'large') item.classList.add('w-12', 'h-12');
+            });
+        }
+
+        // === Range Input ===
+        const feedCountRange = document.getElementById('{{ instagram_fields.instagram_feed_count.id_for_label }}');
+        const feedCountDisplay = document.getElementById('feed-count-display');
+        if (feedCountRange && feedCountDisplay) {
+            feedCountRange.addEventListener('input', function() {
+                feedCountDisplay.textContent = this.value + ' Items';
+            });
+        }
+
+        // === URL Auto-fix ===
+        const urlFields = document.querySelectorAll('input[type="url"]');
+        urlFields.forEach(function(input) {
+            input.addEventListener('blur', function() {
+                if (this.value && !this.value.startsWith('http://') && !this.value.startsWith('https://')) {
+                    this.value = 'https://' + this.value;
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

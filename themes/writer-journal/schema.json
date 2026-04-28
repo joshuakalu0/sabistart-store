@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "fields": [
+    {"key": "publications", "label": "Publications", "type": "list", "required": false},
+    {"key": "articles", "label": "Featured articles", "type": "list", "required": false},
+    {"key": "book_releases", "label": "Book releases", "type": "list", "required": false},
+    {"key": "featured_writing", "label": "Featured writing", "type": "textarea", "required": false}
+  ]
+}

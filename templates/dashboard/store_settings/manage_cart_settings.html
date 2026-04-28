@@ -1,0 +1,860 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{{ title }} | Store Admin</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-dim": "#0048c1",
+              "surface-container-high": "#e1e9ee",
+              "secondary-dim": "#44546a",
+              "surface-container": "#e8eff3",
+              "on-tertiary": "#fcf7ff",
+              "on-surface": "#2a3439",
+              "on-secondary-container": "#435368",
+              "surface-dim": "#cfdce3",
+              "background": "#f7f9fb",
+              "secondary-container": "#d3e4fe",
+              "on-primary": "#f8f7ff",
+              "on-background": "#2a3439",
+              "surface-variant": "#d9e4ea",
+              "outline": "#717c82",
+              "on-secondary-fixed-variant": "#4d5d73",
+              "inverse-primary": "#618bff",
+              "primary-fixed-dim": "#c7d3ff",
+              "on-tertiary-fixed-variant": "#5b5672",
+              "secondary-fixed-dim": "#c5d6f0",
+              "on-error-container": "#752121",
+              "on-secondary-fixed": "#314055",
+              "outline-variant": "#a9b4b9",
+              "tertiary-fixed-dim": "#d4cdee",
+              "primary": "#0053db",
+              "tertiary-container": "#e3dbfd",
+              "on-primary-fixed-variant": "#0050d4",
+              "surface-tint": "#0053db",
+              "secondary-fixed": "#d3e4fe",
+              "inverse-surface": "#0b0f10",
+              "tertiary-dim": "#54506b",
+              "error-dim": "#4e0309",
+              "on-primary-container": "#0048bf",
+              "tertiary": "#605c78",
+              "error": "#9f403d",
+              "surface-container-lowest": "#ffffff",
+              "surface": "#f7f9fb",
+              "inverse-on-surface": "#9a9d9f",
+              "on-error": "#fff7f6",
+              "error-container": "#fe8983",
+              "surface-container-low": "#f0f4f7",
+              "primary-fixed": "#dbe1ff",
+              "surface-bright": "#f7f9fb",
+              "surface-container-highest": "#d9e4ea",
+              "tertiary-fixed": "#e3dbfd",
+              "on-tertiary-container": "#514d68",
+              "on-primary-fixed": "#003798",
+              "on-surface-variant": "#566166",
+              "on-secondary": "#f7f9ff",
+              "secondary": "#506076",
+              "primary-container": "#dbe1ff",
+              "on-tertiary-fixed": "#3e3a54"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+        }
+        .architectural-line {
+            border-bottom: 2px solid #0053db;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f7f9fb;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d9e4ea;
+            border-radius: 10px;
+        }
+
+        /* Form Error States */
+        .form-field-error {
+            border-bottom-color: #9f403d !important;
+            background-color: #fef2f2 !important;
+        }
+        .error-message {
+            color: #9f403d;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Toggle Switch Styling */
+        .toggle-checkbox {
+            opacity: 0;
+            position: absolute;
+        }
+
+        /* Cart Type Selection */
+        .cart-type-option.selected {
+            border-color: #0053db;
+        }
+        .cart-type-option.selected .text-primary {
+            color: #0053db;
+        }
+        .cart-type-option.selected span {
+            color: #0053db;
+        }
+
+        /* Drawer Settings Section */
+        .drawer-settings-section {
+            transition: all 0.3s ease;
+        }
+        .drawer-settings-section.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Conversion Score Badge */
+        .conversion-score {
+            transition: all 0.3s ease;
+        }
+        .conversion-score.good {
+            color: #10B981;
+        }
+        .conversion-score.average {
+            color: #F59E0B;
+        }
+        .conversion-score.poor {
+            color: #9f403d;
+        }
+
+        /* Conditional Section Opacity */
+        .conditional-section {
+            transition: opacity 0.3s ease;
+        }
+        .conditional-section.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Range Input */
+        input[type="range"] {
+            accent-color: #0053db;
+        }
+
+        /* Color Input */
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+
+<!-- Django Messages Framework -->
+{% if messages %}
+<div class="fixed top-20 right-8 z-50 space-y-2">
+    {% for message in messages %}
+    <div class="flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg" style="background-color: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#9f403d{% else %}#ffffff{% endif %}; color: {% if message.tags == 'error' %}#fff7f6{% else %}#2a3439{% endif %};">
+        <span class="material-symbols-outlined text-sm">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span class="font-medium text-sm">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 glass-nav shadow-sm h-16 flex justify-between items-center px-8">
+    <div class="flex items-center gap-8">
+        <span class="text-xl font-bold tracking-tight text-on-surface font-headline">{{ title }}</span>
+        <nav class="hidden md:flex gap-6">
+            <a class="text-slate-500 hover:text-on-surface text-sm font-medium" href="#">Dashboard</a>
+            <a class="text-slate-500 hover:text-on-surface text-sm font-medium" href="#">Settings</a>
+            <a class="text-slate-500 hover:text-on-surface text-sm font-medium" href="#">Analytics</a>
+            <a class="text-on-primary-container architectural-line pb-1 text-sm font-semibold" href="{% url 'manage_cart_settings' %}">Cart Designer</a>
+        </nav>
+    </div>
+    <div class="flex items-center gap-4">
+        <a href="{% url 'cart_preview' %}" class="px-4 py-2 text-sm font-semibold text-primary hover:bg-surface-container-low transition-colors rounded-lg">Preview</a>
+        <button type="submit" form="cart-form" class="px-6 py-2 text-sm font-bold text-on-primary bg-gradient-to-v from-primary to-primary-dim rounded-lg shadow-md hover:scale-95 duration-150 transition-transform">
+            {% if is_edit %}Save Changes{% else %}Create Settings{% endif %}
+        </button>
+        {% if is_edit %}
+        <a href="{% url 'reset_cart_settings' %}" class="px-4 py-2 text-sm font-medium text-orange-600 hover:bg-orange-50 rounded-lg transition-all" title="Reset to defaults" onclick="return confirm('Are you sure you want to reset to default settings?')">
+            <span class="material-symbols-outlined text-sm align-middle">refresh</span>
+        </a>
+        {% endif %}
+    </div>
+</header>
+
+<main class="pt-24 pb-20 px-8 max-w-[1600px] mx-auto grid grid-cols-12 gap-12">
+    <form id="cart-form" method="post" action="{{ action_url }}" novalidate>
+        {% csrf_token %}
+
+        <!-- Form Section -->
+        <div class="col-span-12 lg:col-span-7 space-y-16">
+            <header>
+                <h1 class="font-headline text-5xl font-extrabold tracking-tight text-on-surface mb-2">Cart Configuration</h1>
+                <p class="text-on-surface-variant font-body">Manage global cart behavior and design for the Architectural Ledger engine.</p>
+                {% if is_edit and enabled_features_count %}
+                <p class="text-xs text-on-surface-variant mt-4">
+                    <span class="material-symbols-outlined text-xs align-middle">shopping_cart</span>
+                    {{ enabled_features_count|default:0 }} features enabled •
+                    <span class="material-symbols-outlined text-xs align-middle">trending_up</span>
+                    Conversion Score: <span class="conversion-score {% if conversion_score >= 80 %}good{% elif conversion_score >= 50 %}average{% else %}poor{% endif %}">{{ conversion_score|default:0 }}/100</span> •
+                    <span class="material-symbols-outlined text-xs align-middle">widgets</span>
+                    {{ cart_type_display|default:'Drawer' }}
+                </p>
+                {% endif %}
+            </header>
+
+            <!-- 1. Cart Type -->
+            <section class="p-8 bg-surface-container-low rounded-xl">
+                <div class="flex items-center gap-3 mb-8">
+                    <span class="material-symbols-outlined text-primary">shopping_cart</span>
+                    <h2 class="font-headline text-xl font-bold">Cart Type</h2>
+                </div>
+                <div class="grid grid-cols-5 gap-4">
+                    <!-- Drawer -->
+                    <label class="cart-type-option flex flex-col items-center gap-3 p-4 bg-surface-container-lowest {% if form.cart_type.value == 'drawer' %}border-2 border-primary{% else %}border-2 border-transparent hover:border-outline-variant{% endif %} rounded-xl transition-all cursor-pointer">
+                        <input type="radio" name="cart_type_visual" value="drawer" class="hidden" {% if form.cart_type.value == 'drawer' %}checked{% endif %}/>
+                        <div class="w-full h-20 bg-surface-container rounded-lg flex items-center justify-end p-2">
+                            <div class="w-1/3 h-full bg-primary/20 border-l-2 border-primary"></div>
+                        </div>
+                        <span class="text-xs font-bold uppercase tracking-wider {% if form.cart_type.value == 'drawer' %}text-primary{% else %}text-on-surface-variant{% endif %}">Drawer</span>
+                    </label>
+
+                    <!-- Page -->
+                    <label class="cart-type-option flex flex-col items-center gap-3 p-4 bg-surface-container-lowest {% if form.cart_type.value == 'page' %}border-2 border-primary{% else %}border-2 border-transparent hover:border-outline-variant{% endif %} rounded-xl transition-all cursor-pointer">
+                        <input type="radio" name="cart_type_visual" value="page" class="hidden" {% if form.cart_type.value == 'page' %}checked{% endif %}/>
+                        <div class="w-full h-20 bg-surface-container rounded-lg flex items-center justify-center p-2">
+                            <div class="w-4/5 h-4/5 bg-surface-container-high rounded border-2 border-outline-variant"></div>
+                        </div>
+                        <span class="text-xs font-bold uppercase tracking-wider {% if form.cart_type.value == 'page' %}text-primary{% else %}text-on-surface-variant{% endif %}">Page</span>
+                    </label>
+
+                    <!-- Popup -->
+                    <label class="cart-type-option flex flex-col items-center gap-3 p-4 bg-surface-container-lowest {% if form.cart_type.value == 'popup' %}border-2 border-primary{% else %}border-2 border-transparent hover:border-outline-variant{% endif %} rounded-xl transition-all cursor-pointer">
+                        <input type="radio" name="cart_type_visual" value="popup" class="hidden" {% if form.cart_type.value == 'popup' %}checked{% endif %}/>
+                        <div class="w-full h-20 bg-surface-container rounded-lg flex items-center justify-center p-2">
+                            <div class="w-2/3 h-2/3 bg-surface-container-high rounded shadow-lg"></div>
+                        </div>
+                        <span class="text-xs font-bold uppercase tracking-wider {% if form.cart_type.value == 'popup' %}text-primary{% else %}text-on-surface-variant{% endif %}">Popup</span>
+                    </label>
+
+                    <!-- Dropdown -->
+                    <label class="cart-type-option flex flex-col items-center gap-3 p-4 bg-surface-container-lowest {% if form.cart_type.value == 'dropdown' %}border-2 border-primary{% else %}border-2 border-transparent hover:border-outline-variant{% endif %} rounded-xl transition-all cursor-pointer">
+                        <input type="radio" name="cart_type_visual" value="dropdown" class="hidden" {% if form.cart_type.value == 'dropdown' %}checked{% endif %}/>
+                        <div class="w-full h-20 bg-surface-container rounded-lg flex flex-col items-end p-1">
+                            <div class="w-1/2 h-1/2 bg-surface-container-high rounded shadow"></div>
+                        </div>
+                        <span class="text-xs font-bold uppercase tracking-wider {% if form.cart_type.value == 'dropdown' %}text-primary{% else %}text-on-surface-variant{% endif %}">Dropdown</span>
+                    </label>
+
+                    <!-- Mini -->
+                    <label class="cart-type-option flex flex-col items-center gap-3 p-4 bg-surface-container-lowest {% if form.cart_type.value == 'mini' %}border-2 border-primary{% else %}border-2 border-transparent hover:border-outline-variant{% endif %} rounded-xl transition-all cursor-pointer">
+                        <input type="radio" name="cart_type_visual" value="mini" class="hidden" {% if form.cart_type.value == 'mini' %}checked{% endif %}/>
+                        <div class="w-full h-20 bg-surface-container rounded-lg flex flex-col items-end p-1">
+                            <div class="w-1/4 h-1/4 bg-surface-container-high rounded-full"></div>
+                        </div>
+                        <span class="text-xs font-bold uppercase tracking-wider {% if form.cart_type.value == 'mini' %}text-primary{% else %}text-on-surface-variant{% endif %}">Mini</span>
+                    </label>
+                </div>
+                {{ form.cart_type }}
+                {% if form.cart_type.errors %}
+                    {% for error in form.cart_type.errors %}
+                        <p class="error-message">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </section>
+
+            <!-- 2. Drawer Settings -->
+            <section class="p-8 bg-surface-container-low rounded-xl drawer-settings-section {% if form.cart_type.value != 'drawer' %}disabled{% endif %}" id="drawer-settings-section">
+                <div class="flex items-center gap-3 mb-8">
+                    <span class="material-symbols-outlined text-primary">side_navigation</span>
+                    <h2 class="font-headline text-xl font-bold">Drawer Settings</h2>
+                </div>
+                <div class="grid grid-cols-2 gap-10">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-on-surface uppercase tracking-wide" for="{{ form.drawer_position.id_for_label }}">Position</label>
+                        <div class="flex gap-2 p-1 bg-surface-container rounded-lg">
+                            <button type="button" class="drawer-position-btn flex-1 py-2 text-xs font-bold {% if form.drawer_position.value == 'right' %}bg-white shadow rounded text-primary{% else %}text-on-surface-variant hover:bg-white/50 transition-colors rounded{% endif %}" data-position="right">Right (Standard)</button>
+                            <button type="button" class="drawer-position-btn flex-1 py-2 text-xs font-bold {% if form.drawer_position.value == 'left' %}bg-white shadow rounded text-primary{% else %}text-on-surface-variant hover:bg-white/50 transition-colors rounded{% endif %}" data-position="left">Left</button>
+                        </div>
+                        {{ form.drawer_position }}
+                        {% if form.drawer_position.errors %}
+                            {% for error in form.drawer_position.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-on-surface uppercase tracking-wide" for="{{ form.drawer_width.id_for_label }}">Width (px)</label>
+                        {{ form.drawer_width }}
+                        {% if form.drawer_width.errors %}
+                            {% for error in form.drawer_width.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="space-y-2 col-span-2">
+                        <label class="block text-sm font-bold text-on-surface uppercase tracking-wide" for="{{ form.drawer_overlay_opacity.id_for_label }}">Overlay Opacity</label>
+                        {{ form.drawer_overlay_opacity }}
+                        <div class="flex justify-between text-[10px] font-bold text-on-surface-variant">
+                            <span>TRANSPARENT</span>
+                            <span id="opacity-display">{{ form.drawer_overlay_opacity.value|default:50 }}%</span>
+                            <span>BLACKOUT</span>
+                        </div>
+                        {% if form.drawer_overlay_opacity.errors %}
+                            {% for error in form.drawer_overlay_opacity.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Cart Behavior -->
+            <section class="p-8 bg-surface-container-low rounded-xl">
+                <div class="flex items-center gap-3 mb-8">
+                    <span class="material-symbols-outlined text-primary">settings_accessibility</span>
+                    <h2 class="font-headline text-xl font-bold">Behavior &amp; Interaction</h2>
+                </div>
+                <div class="grid grid-cols-2 gap-x-12 gap-y-8">
+                    <label class="flex items-center justify-between cursor-pointer group">
+                        <span class="text-sm font-semibold group-hover:text-primary transition-colors">Auto-open on Add-to-cart</span>
+                        <div class="relative inline-flex items-center cursor-pointer">
+                            {{ form.auto_open_on_add }}
+                            <div class="w-11 h-6 bg-surface-container-high rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" style="background-color: {% if form.auto_open_on_add.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.auto_open_on_add.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                            </div>
+                        </div>
+                    </label>
+                    {% if form.auto_open_on_add.errors %}
+                        {% for error in form.auto_open_on_add.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <label class="flex items-center justify-between cursor-pointer group">
+                        <span class="text-sm font-semibold group-hover:text-primary transition-colors">Enable Cart Notes</span>
+                        <div class="relative inline-flex items-center cursor-pointer">
+                            {{ form.enable_cart_notes }}
+                            <div class="w-11 h-6 bg-surface-container-high rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" style="background-color: {% if form.enable_cart_notes.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.enable_cart_notes.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                            </div>
+                        </div>
+                    </label>
+                    {% if form.enable_cart_notes.errors %}
+                        {% for error in form.enable_cart_notes.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <label class="flex items-center justify-between cursor-pointer group">
+                        <span class="text-sm font-semibold group-hover:text-primary transition-colors">Gift Wrap Message</span>
+                        <div class="relative inline-flex items-center cursor-pointer">
+                            {{ form.enable_gift_message }}
+                            <div class="w-11 h-6 bg-surface-container-high rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" style="background-color: {% if form.enable_gift_message.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.enable_gift_message.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                            </div>
+                        </div>
+                    </label>
+                    {% if form.enable_gift_message.errors %}
+                        {% for error in form.enable_gift_message.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="space-y-1 {% if not form.enable_gift_wrapping.value %}conditional-section disabled{% endif %}" id="gift-wrapping-section">
+                        <label class="block text-xs font-bold text-on-surface-variant uppercase" for="{{ form.gift_wrapping_price.id_for_label }}">Gift Option Price ($)</label>
+                        {{ form.gift_wrapping_price }}
+                        {% if form.gift_wrapping_price.errors %}
+                            {% for error in form.gift_wrapping_price.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. Free Shipping Progress -->
+            <section class="p-8 bg-surface-container-low rounded-xl">
+                <div class="flex items-center gap-3 mb-8">
+                    <span class="material-symbols-outlined text-primary">local_shipping</span>
+                    <h2 class="font-headline text-xl font-bold">Free Shipping Progress</h2>
+                </div>
+                <div class="space-y-8">
+                    <div class="grid grid-cols-2 gap-10">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-bold text-on-surface uppercase tracking-wide" for="{{ form.free_shipping_threshold.id_for_label }}">Threshold Amount ($)</label>
+                            {{ form.free_shipping_threshold }}
+                            {% if form.free_shipping_threshold.errors %}
+                                {% for error in form.free_shipping_threshold.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-bold text-on-surface uppercase tracking-wide" for="{{ form.progress_bar_color.id_for_label }}">Bar Primary Color</label>
+                            <div class="flex items-center gap-4 bg-surface-container-lowest p-2 rounded-lg">
+                                {{ form.progress_bar_color }}
+                                <span class="text-xs font-mono" id="progress-color-display">{{ form.progress_bar_color.value|default:'#10B981' }}</span>
+                                <button type="button" class="ml-auto text-xs font-bold text-primary">CHANGE</button>
+                            </div>
+                            {% if form.progress_bar_color.errors %}
+                                {% for error in form.progress_bar_color.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-on-surface uppercase tracking-wide" for="{{ form.progress_message_below.id_for_label }}">Initial Message</label>
+                        {{ form.progress_message_below }}
+                        <p class="text-xs text-on-surface-variant">Use {'{amount}'} placeholder for dynamic amount</p>
+                        {% if form.progress_message_below.errors %}
+                            {% for error in form.progress_message_below.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-on-surface uppercase tracking-wide" for="{{ form.progress_message_reached.id_for_label }}">Success Message</label>
+                        {{ form.progress_message_reached }}
+                        {% if form.progress_message_reached.errors %}
+                            {% for error in form.progress_message_reached.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- 9. Checkout Button -->
+            <section class="p-8 bg-surface-container-low rounded-xl">
+                <div class="flex items-center gap-3 mb-8">
+                    <span class="material-symbols-outlined text-primary">shopping_bag</span>
+                    <h2 class="font-headline text-xl font-bold">Checkout Button</h2>
+                </div>
+                <div class="grid grid-cols-2 gap-10">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-on-surface uppercase tracking-wide" for="{{ form.checkout_button_text.id_for_label }}">Button Text</label>
+                        {{ form.checkout_button_text }}
+                        {% if form.checkout_button_text.errors %}
+                            {% for error in form.checkout_button_text.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-on-surface uppercase tracking-wide" for="{{ form.checkout_button_style.id_for_label }}">Style</label>
+                        <div class="flex gap-2 p-1 bg-surface-container rounded-lg">
+                            <button type="button" class="checkout-style-btn flex-1 py-2 text-xs font-bold {% if form.checkout_button_style.value == 'primary' %}bg-white shadow rounded text-primary{% else %}text-on-surface-variant hover:bg-white/50 transition-colors rounded{% endif %}" data-style="primary">Gradient</button>
+                            <button type="button" class="checkout-style-btn flex-1 py-2 text-xs font-bold {% if form.checkout_button_style.value == 'large' %}bg-white shadow rounded text-primary{% else %}text-on-surface-variant hover:bg-white/50 transition-colors rounded{% endif %}" data-style="large">Solid</button>
+                            <button type="button" class="checkout-style-btn flex-1 py-2 text-xs font-bold {% if form.checkout_button_style.value == 'full_width' %}bg-white shadow rounded text-primary{% else %}text-on-surface-variant hover:bg-white/50 transition-colors rounded{% endif %}" data-style="full_width">Outline</button>
+                        </div>
+                        {{ form.checkout_button_style }}
+                        {% if form.checkout_button_style.errors %}
+                            {% for error in form.checkout_button_style.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-bold text-on-surface uppercase tracking-wide mb-4">Security Badges</label>
+                        <div class="flex gap-6">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                {{ form.show_secure_checkout_badge }}
+                                <span class="text-sm font-medium">SSL Secure</span>
+                            </label>
+                            {% if form.show_secure_checkout_badge.errors %}
+                                {% for error in form.show_secure_checkout_badge.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                {{ form.show_accepted_payments }}
+                                <span class="text-sm font-medium">PCI Compliant</span>
+                            </label>
+                            {% if form.show_accepted_payments.errors %}
+                                {% for error in form.show_accepted_payments.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                {{ form.show_money_back_guarantee }}
+                                <span class="text-sm font-medium">Trustpilot Stars</span>
+                            </label>
+                            {% if form.show_money_back_guarantee.errors %}
+                                {% for error in form.show_money_back_guarantee.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 11. Expiry & Warnings -->
+            <section class="p-8 bg-surface-container-low rounded-xl mb-24">
+                <div class="flex items-center gap-3 mb-8">
+                    <span class="material-symbols-outlined text-primary">sell</span>
+                    <h2 class="font-headline text-xl font-bold">Discounts &amp; Expiry</h2>
+                </div>
+                <div class="grid grid-cols-2 gap-10">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-on-surface uppercase tracking-wide" for="{{ form.cart_expiry_days.id_for_label }}">Cart Expiry (Days)</label>
+                        {{ form.cart_expiry_days }}
+                        {% if form.cart_expiry_days.errors %}
+                            {% for error in form.cart_expiry_days.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-on-surface uppercase tracking-wide">Warning Message</label>
+                        <input class="w-full bg-surface-container-lowest border-0 border-b-2 border-transparent focus:border-primary py-3 px-4 font-body text-on-surface" type="text" value="Hurry! Your cart expires in {{time}}." readonly/>
+                        <p class="text-xs text-on-surface-variant">Use {'{time}'} placeholder for dynamic time</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Preview Column -->
+        <div class="col-span-12 lg:col-span-5 relative">
+            <div class="sticky top-28 space-y-8">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="font-headline text-xs font-extrabold uppercase tracking-[0.2em] text-on-surface-variant">Live Experience Preview</h3>
+                    <span class="px-2 py-0.5 bg-green-100 text-green-700 rounded text-[10px] font-bold">ACTIVE</span>
+                </div>
+
+                <!-- Mock Cart Interface -->
+                <div class="bg-white rounded-2xl shadow-2xl border border-surface-container-high overflow-hidden flex flex-col h-[750px]">
+                    <!-- Cart Header -->
+                    <div class="p-6 border-b border-surface-container flex justify-between items-center">
+                        <h4 class="font-headline text-lg font-bold">Your Bag (3)</h4>
+                        <button class="material-symbols-outlined text-on-surface-variant">close</button>
+                    </div>
+
+                    <!-- Shipping Progress (Dynamic) -->
+                    <div class="p-6 bg-surface-container-lowest">
+                        <p class="text-sm font-bold mb-3 text-center">You're <span class="text-primary">$25.50</span> away from free shipping!</p>
+                        <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+                            <div class="w-3/4 h-full bg-primary" style="width: 75%; background-color: {{ form.progress_bar_color.value|default:'#10B981' }};"></div>
+                        </div>
+                    </div>
+
+                    <!-- Cart Items -->
+                    <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                        <div class="flex gap-4">
+                            <div class="w-20 h-20 bg-surface-container rounded-lg overflow-hidden shrink-0">
+                                <img class="w-full h-full object-cover" alt="Minimalist white ceramic watch" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFS3XPx8reb1kqU9_-QCO5YHjEiTrTAEnGa3cgHmoIcEy-5dwjsp7MrZ5BZQ2m-rKrgoQ2XYLq587RJGW2-_p_yX9QVteSAHSgrWV1GAMAeFnRuEImIEXNEuXjdocwLlLomCPIFeuXC8Zc814ZFLM3DrBlbsVGkv2KoyeqGF_3DTk84iazhCiiWOrEGPCVnTz-OeVRZRnL8OzeU08okNqW-lCHx9_z9ETt3XDzdnY1rd-k2mZuJXF26k1yQQkp5HbHwvmKqMvFv4g"/>
+                            </div>
+                            <div class="flex-1 flex flex-col justify-between">
+                                <div>
+                                    <h5 class="text-sm font-bold">Minimalist Ceramic Watch</h5>
+                                    <p class="text-xs text-on-surface-variant">Lunar White / 40mm</p>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center gap-3 border border-surface-container rounded px-2 py-1">
+                                        <button class="text-xs font-bold text-on-surface-variant">-</button>
+                                        <span class="text-xs font-bold">1</span>
+                                        <button class="text-xs font-bold text-on-surface-variant">+</button>
+                                    </div>
+                                    <span class="text-sm font-bold">$125.00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <div class="w-20 h-20 bg-surface-container rounded-lg overflow-hidden shrink-0">
+                                <img class="w-full h-full object-cover" alt="Red running sports shoe" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4-ceM2Cpe3f9T1Fu-twEU8GWXDUPgQF1rH_-kJRN-3N4kshghEokkdTbyPKs9Gh6FCZd2pqStK7T-atmPiUYzSz-rmCyY6fBT_9soFHQWUUrKqBviGkGfgydJWPi--AyyBOZdpfJ6_VIKIsxKHwTMyUf3T-aXoYLCFuCuZzPSjgEk_yVRqlVo74CZXoFFul1RnqI67wQUFOQfyGAE9_RJM7ruKPwGBz6kcPywRn3WGyX8o5-A4zcR-X6JFfN8QeFpCpS5Kedn6zg"/>
+                            </div>
+                            <div class="flex-1 flex flex-col justify-between">
+                                <div>
+                                    <h5 class="text-sm font-bold">Velocità Runner Pro</h5>
+                                    <p class="text-xs text-on-surface-variant">Crimson / US 10</p>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center gap-3 border border-surface-container rounded px-2 py-1">
+                                        <button class="text-xs font-bold text-on-surface-variant">-</button>
+                                        <span class="text-xs font-bold">2</span>
+                                        <button class="text-xs font-bold text-on-surface-variant">+</button>
+                                    </div>
+                                    <span class="text-sm font-bold">$380.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer / Summary -->
+                    <div class="p-6 bg-surface-container-low border-t border-surface-container-high">
+                        <div class="space-y-2 mb-6">
+                            <div class="flex justify-between text-xs font-medium text-on-surface-variant">
+                                <span>Subtotal</span>
+                                <span>$505.00</span>
+                            </div>
+                            <div class="flex justify-between text-xs font-medium text-on-surface-variant">
+                                <span>Estimated Shipping</span>
+                                <span class="text-green-600 font-bold">FREE</span>
+                            </div>
+                            <div class="flex justify-between text-lg font-extrabold text-on-surface pt-2">
+                                <span>Total</span>
+                                <span>$505.00</span>
+                            </div>
+                        </div>
+                        <button class="w-full py-4 bg-gradient-to-r from-primary to-primary-dim text-on-primary font-headline font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                            {{ form.checkout_button_text.value|default:'SECURE CHECKOUT' }}
+                            <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">lock</span>
+                        </button>
+                        <div class="flex justify-center gap-4 mt-4 grayscale opacity-40">
+                            <img class="h-3" alt="Visa logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkpb_G9edSXxjEcMgPocdi8PRmVbxUaE7KAJKY7ZD7WskswmpM5XZUngHoSxSlmTuEcUedOn99ic_vDFD1QJrLx2YLXYiN3XCsk29sXHLk6kmT9tLHu5xT4fNrcXxdgW6ILbMlpIZUBOeSFcau41sfSnmRoTk3YpT2K1oglS2i-OyHGJfgkXoa7Fe4XY8yLVPc47-H71lAbiLDxJGVwF78Q7LYolKNncb7IsxCXy6vWII_mm3ko9HalE9YeALebaQf6LFLv0kSXv0"/>
+                            <img class="h-4" alt="Mastercard logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqNkPdL_f4b5E5FTTdUNKltMKFlC_fw6j7T-BPltMZtRrJEFiszSXCjdG1o5y0ibm5C3elkOMwIuT_3jC0-xSEp-BKO_tLrkZhu-YxFGN9xNaYnEs_AkD44M1WLYGOjtfzIzBaaVqJxtR-2GB0B-hApkQNFfcZqUGamgpwu3NrT5vp7t85GohpOlVX1wUXWB8LsJvYj9mRXu1Qtgjt2smCfCisc05qDn6iILpnlCTvzJJZOLuJX37Rc-Gv-9jB0VceAx3gngWPVdM"/>
+                            <img class="h-3" alt="Paypal logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8Fw_75cjBT6lS4lCjSKhI_F9p54y9E0ybRvR7J7Hn4nngpG2gvA7-F-ORxwZ4VyWpKkQ30Bu2Xh6vwL2ll6D-ewdVBktL073rt8kf9PJXxqP5RU3ggD0k-0RDAXB3or-SgzJYWXjID6-V3hujZZKNcwe1fVuZl8SR0BZzLHknNxk7wFOf467WfLOsaYIj3NFWpy16iqC25KLceRqc_8fw7TROkA35NNi03X81wa12YuBZB2PwlM1Bb5gIamwlFZ_ATicR4wD2guY"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Controls Info -->
+                <div class="p-6 bg-surface-container-highest rounded-xl border border-outline-variant/20">
+                    <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Technical Specs</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-[11px]">
+                            <span class="block text-on-surface-variant">Active Theme:</span>
+                            <span class="font-bold">Architectural-v4.2</span>
+                        </div>
+                        <div class="text-[11px]">
+                            <span class="block text-on-surface-variant">CSS Payload:</span>
+                            <span class="font-bold">12.4kb (Gzipped)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</main>
+
+<!-- Contextual FAB Suppression: FAB not rendered as per instructions for Details/Settings screens -->
+
+<!-- JavaScript for Dynamic Interactions -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // === Toggle Switch Styling ===
+        const toggleCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+        toggleCheckboxes.forEach(function(checkbox) {
+            checkbox.classList.add('toggle-checkbox');
+
+            checkbox.addEventListener('change', function() {
+                const toggleDiv = this.parentElement.querySelector('div.w-11.h-6');
+                const toggleKnob = toggleDiv?.querySelector('span.absolute');
+
+                if (toggleDiv) {
+                    toggleDiv.style.backgroundColor = this.checked ? '#0053db' : '#d9e4ea';
+                }
+                if (toggleKnob) {
+                    toggleKnob.style.left = this.checked ? '28px' : '4px';
+                }
+
+                // Update preview
+                updateCartPreview();
+            });
+        });
+
+        // === Cart Type Selection ===
+        const cartTypeOptions = document.querySelectorAll('input[name="cart_type_visual"]');
+        const cartTypeInput = document.getElementById('{{ form.cart_type.id_for_label }}');
+        const drawerSettingsSection = document.getElementById('drawer-settings-section');
+
+        cartTypeOptions.forEach(function(option) {
+            option.addEventListener('change', function() {
+                document.querySelectorAll('.cart-type-option').forEach(function(el) {
+                    el.classList.remove('selected', 'border-primary');
+                    el.classList.add('border-transparent');
+                    el.querySelector('span').classList.remove('text-primary');
+                    el.querySelector('span').classList.add('text-on-surface-variant');
+                });
+
+                const parent = this.closest('.cart-type-option');
+                parent.classList.add('selected', 'border-primary');
+                parent.classList.remove('border-transparent');
+                parent.querySelector('span').classList.remove('text-on-surface-variant');
+                parent.querySelector('span').classList.add('text-primary');
+
+                if (cartTypeInput) {
+                    cartTypeInput.value = this.value;
+                }
+
+                // Show/hide drawer settings
+                if (drawerSettingsSection) {
+                    if (this.value === 'drawer') {
+                        drawerSettingsSection.classList.remove('disabled');
+                    } else {
+                        drawerSettingsSection.classList.add('disabled');
+                    }
+                }
+
+                updateCartPreview();
+            });
+        });
+
+        // === Drawer Position Selection ===
+        const drawerPositionBtns = document.querySelectorAll('.drawer-position-btn');
+        const drawerPositionInput = document.getElementById('{{ form.drawer_position.id_for_label }}');
+
+        drawerPositionBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                drawerPositionBtns.forEach(function(b) {
+                    b.classList.remove('bg-white', 'shadow', 'rounded', 'text-primary');
+                    b.classList.add('text-on-surface-variant', 'hover:bg-white/50');
+                });
+
+                this.classList.remove('text-on-surface-variant', 'hover:bg-white/50');
+                this.classList.add('bg-white', 'shadow', 'rounded', 'text-primary');
+
+                if (drawerPositionInput) {
+                    drawerPositionInput.value = this.getAttribute('data-position');
+                }
+
+                updateCartPreview();
+            });
+        });
+
+        // === Checkout Style Selection ===
+        const checkoutStyleBtns = document.querySelectorAll('.checkout-style-btn');
+        const checkoutStyleInput = document.getElementById('{{ form.checkout_button_style.id_for_label }}');
+
+        checkoutStyleBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                checkoutStyleBtns.forEach(function(b) {
+                    b.classList.remove('bg-white', 'shadow', 'rounded', 'text-primary');
+                    b.classList.add('text-on-surface-variant', 'hover:bg-white/50');
+                });
+
+                this.classList.remove('text-on-surface-variant', 'hover:bg-white/50');
+                this.classList.add('bg-white', 'shadow', 'rounded', 'text-primary');
+
+                if (checkoutStyleInput) {
+                    checkoutStyleInput.value = this.getAttribute('data-style');
+                }
+
+                updateCartPreview();
+            });
+        });
+
+        // === Overlay Opacity Range Display ===
+        const opacityRange = document.getElementById('{{ form.drawer_overlay_opacity.id_for_label }}');
+        const opacityDisplay = document.getElementById('opacity-display');
+
+        if (opacityRange && opacityDisplay) {
+            opacityDisplay.textContent = opacityRange.value + '%';
+
+            opacityRange.addEventListener('input', function() {
+                opacityDisplay.textContent = this.value + '%';
+            });
+        }
+
+        // === Progress Bar Color ===
+        const progressColorInput = document.getElementById('{{ form.progress_bar_color.id_for_label }}');
+        const progressColorDisplay = document.getElementById('progress-color-display');
+        const progressBarPreview = document.querySelector('.w-3\\/4.h-full.bg-primary');
+
+        if (progressColorInput && progressColorDisplay) {
+            progressColorDisplay.textContent = progressColorInput.value;
+
+            progressColorInput.addEventListener('input', function() {
+                progressColorDisplay.textContent = this.value;
+                if (progressBarPreview) {
+                    progressBarPreview.style.backgroundColor = this.value;
+                }
+            });
+        }
+
+        // === Update Cart Preview ===
+        function updateCartPreview() {
+            // Update checkout button text
+            const checkoutTextInput = document.getElementById('{{ form.checkout_button_text.id_for_label }}');
+            const checkoutButtonPreview = document.querySelector('button.w-full.py-4');
+            if (checkoutTextInput && checkoutButtonPreview) {
+                checkoutButtonPreview.textContent = checkoutTextInput.value || 'SECURE CHECKOUT';
+            }
+
+            // Update progress bar color
+            const progressColorInput = document.getElementById('{{ form.progress_bar_color.id_for_label }}');
+            const progressBarPreview = document.querySelector('.w-3\\/4.h-full.bg-primary');
+            if (progressColorInput && progressBarPreview) {
+                progressBarPreview.style.backgroundColor = progressColorInput.value;
+            }
+        }
+
+        // === Hide Messages After 5 Seconds ===
+        setTimeout(function() {
+            const messages = document.querySelectorAll('.fixed.top-20');
+            messages.forEach(function(msg) {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    msg.remove();
+                }, 500);
+            });
+        }, 5000);
+
+        // === Form Change Detection ===
+        const form = document.getElementById('cart-form');
+        let formChanged = false;
+
+        form.addEventListener('input', function() {
+            formChanged = true;
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (formChanged) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

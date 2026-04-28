@@ -1,0 +1,91 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+  <div class="flex items-center space-x-4 mb-6">
+    <a href="{% url 'dashboard:payments_system:gateway_list' prefix %}"
+       class="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+      <span class="material-icons-outlined">arrow_back</span>
+    </a>
+    <div>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">{{ form_title }}</h2>
+      <p class="text-slate-600 dark:text-slate-400">Configure gateway capabilities and settings</p>
+    </div>
+  </div>
+
+  <form method="post" class="space-y-6">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <div class="p-4 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 rounded-lg text-sm border border-red-200 dark:border-red-700">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <!-- Basic Info -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+      <h3 class="font-semibold text-slate-900 dark:text-white mb-4 flex items-center space-x-2">
+        <span class="material-icons-outlined text-primary">info</span><span>Basic Information</span>
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {% for field in form %}{% if field.name in "provider,name,badge_label,display_order,logo_url,website_url,dashboard_url,documentation_url,description" %}
+        <div class="{% if field.name == 'description' %}md:col-span-2{% endif %} space-y-1">
+          <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
+            {{ field.label }}{% if field.field.required %} <span class="text-red-500">*</span>{% endif %}
+          </label>
+          {{ field }}
+          {% if field.help_text %}<p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ field.help_text|safe }}</p>{% endif %}
+          {% if field.errors %}<p class="text-sm text-red-600 mt-1">{{ field.errors.0 }}</p>{% endif %}
+        </div>
+        {% endif %}{% endfor %}
+      </div>
+    </div>
+
+    <!-- Capabilities -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+      <h3 class="font-semibold text-slate-900 dark:text-white mb-4 flex items-center space-x-2">
+        <span class="material-icons-outlined text-primary">check_circle</span><span>Capabilities & Limits</span>
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {% for field in form %}{% if field.name in "min_transaction_amount,max_transaction_amount,settlement_days,settlement_note" %}
+        <div class="space-y-1">
+          <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}<p class="text-sm text-red-600 mt-1">{{ field.errors.0 }}</p>{% endif %}
+        </div>
+        {% endif %}{% endfor %}
+      </div>
+      <!-- Toggle flags -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-5">
+        {% for field in form %}{% if field.name in "is_enabled,is_available_for_direct_mode,requires_business_verification,supports_recurring,supports_refunds,supports_partial_refunds,supports_tokenization,supports_3ds,supports_split_payment,supports_virtual_accounts,supports_authorization" %}
+        <div class="flex items-center space-x-2">
+          {{ field }}
+          <label for="{{ field.id_for_label }}" class="text-sm text-slate-700 dark:text-slate-300">{{ field.label }}</label>
+        </div>
+        {% endif %}{% endfor %}
+      </div>
+    </div>
+
+    <!-- JSON Fields -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+      <h3 class="font-semibold text-slate-900 dark:text-white mb-4 flex items-center space-x-2">
+        <span class="material-icons-outlined text-primary">code</span><span>Configuration (JSON)</span>
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {% for field in form %}{% if field.name in "supported_countries,supported_currencies,credential_schema,webhook_events" %}
+        <div class="space-y-1">
+          <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ field.help_text|safe }}</p>{% endif %}
+          {% if field.errors %}<p class="text-sm text-red-600 mt-1">{{ field.errors.0 }}</p>{% endif %}
+        </div>
+        {% endif %}{% endfor %}
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end space-x-3">
+      <a href="{% url 'dashboard:payments_system:gateway_list' prefix %}"
+         class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">Cancel</a>
+      <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">
+        {% if is_edit %}Update Gateway{% else %}Create Gateway{% endif %}
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

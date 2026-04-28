@@ -1,0 +1,190 @@
+{% extends "dashboard/_partials/base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      Performance Settings
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Optimize your store's performance and speed
+    </p>
+  </div>
+  <a
+    href="{% url 'dashboard:store_settings:manage_performance_settings' prefix %}"
+    class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+  >
+    <span class="material-icons-outlined text-sm mr-2">refresh</span>
+    Refresh
+  </a>
+</div>
+
+<div
+  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+>
+  <div class="p-6">
+    <form method="post">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Caching</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_page_cache.name }}" {% if form.enable_page_cache.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Page Cache</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_browser_cache.name }}" {% if form.enable_browser_cache.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Browser Cache</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_database_cache.name }}" {% if form.enable_database_cache.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Database Cache</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_object_cache.name }}" {% if form.enable_object_cache.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Object Cache</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_query_cache.name }}" {% if form.enable_query_cache.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Query Cache</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Image Optimization</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_lazy_loading.name }}" {% if form.enable_lazy_loading.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Lazy Loading</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_webp.name }}" {% if form.enable_webp.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">WebP Format</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_image_compression.name }}" {% if form.enable_image_compression.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Image Compression</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_image_resizing.name }}" {% if form.enable_image_resizing.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Image Resizing</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_image_lazy_loading.name }}" {% if form.enable_image_lazy_loading.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Image Lazy Loading</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Compression</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.minify_html.name }}" {% if form.minify_html.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Minify HTML</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.minify_css.name }}" {% if form.minify_css.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Minify CSS</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.minify_js.name }}" {% if form.minify_js.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Minify JavaScript</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_gzip.name }}" {% if form.enable_gzip.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Gzip Compression</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_brotli.name }}" {% if form.enable_brotli.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Brotli Compression</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">CDN & Delivery</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_cdn.name }}" {% if form.enable_cdn.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable CDN</span>
+                </label>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  CDN Provider
+                </label>
+                {{ form.cdn_provider }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  CDN URL
+                </label>
+                {{ form.cdn_url }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Cache TTL (seconds)
+                </label>
+                {{ form.cache_ttl }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Preload Cache
+                </label>
+                <div class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.preload_cache.name }}" {% if form.preload_cache.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Preload cache on deploy</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-8 flex justify-end space-x-4">
+        <button
+          type="submit"
+          class="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+        >
+          <span class="material-icons-outlined text-sm">save</span>
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

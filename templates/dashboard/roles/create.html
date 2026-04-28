@@ -1,0 +1,188 @@
+{% extends "dashboard/_partials/base.html" %} {% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      Create Role
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Create a new role with specific permissions and access levels
+    </p>
+  </div>
+  <a
+    href="{% url 'dashboard:user_settings:role_list' prefix %}"
+    class="bg-slate-600 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors flex items-center space-x-2"
+  >
+    <span class="material-icons-outlined text-sm">arrow_back</span>
+    <span>Back to Roles</span>
+  </a>
+</div>
+
+<form method="POST">
+  {% csrf_token %}
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Basic Information -->
+    <div class="lg:col-span-2">
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-6 flex items-center">
+          <span class="material-icons-outlined text-blue-600 mr-2">info</span>
+          Basic Information
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              Role Name *
+            </label>
+            {{ form.name }}
+            {% if form.name.errors %}
+              {% for error in form.name.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+              {% endfor %}
+            {% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              Slug *
+            </label>
+            {{ form.slug }}
+            {% if form.slug.errors %}
+              {% for error in form.slug.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="mt-4">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            Description
+          </label>
+          {{ form.description }}
+          {% if form.description.errors %}
+            {% for error in form.description.errors %}
+              <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+      
+      <!-- Permissions -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 mt-6">
+        <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-6 flex items-center">
+          <span class="material-icons-outlined text-green-600 mr-2">security</span>
+          Permissions
+        </h3>
+        <div class="max-h-96 overflow-y-auto border border-slate-200 dark:border-slate-600 rounded-lg p-4">
+          {{ form.permissions }}
+          {% if form.permissions.errors %}
+            {% for error in form.permissions.errors %}
+              <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Configuration Sidebar -->
+    <div class="space-y-6">
+      <!-- Role Configuration -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-6 flex items-center">
+          <span class="material-icons-outlined text-purple-600 mr-2">settings</span>
+          Configuration
+        </h3>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              Role Type *
+            </label>
+            {{ form.role_type }}
+            {% if form.role_type.errors %}
+              {% for error in form.role_type.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+              {% endfor %}
+            {% endif %}
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              Level *
+            </label>
+            {{ form.level }}
+            {% if form.level.errors %}
+              {% for error in form.level.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+              {% endfor %}
+            {% endif %}
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              Parent Role
+            </label>
+            {{ form.parent_role }}
+            {% if form.parent_role.errors %}
+              {% for error in form.parent_role.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+              {% endfor %}
+            {% endif %}
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              Max Users
+            </label>
+            {{ form.max_users }}
+            {% if form.max_users.errors %}
+              {% for error in form.max_users.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      
+      <!-- Status -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-6 flex items-center">
+          <span class="material-icons-outlined text-orange-600 mr-2">toggle_on</span>
+          Status
+        </h3>
+        
+        <div class="flex items-center space-x-3">
+          {{ form.is_active }}
+          <label class="text-sm font-medium text-slate-700 dark:text-slate-300">
+            Active Role
+          </label>
+        </div>
+        {% if form.is_active.errors %}
+          {% for error in form.is_active.errors %}
+            <p class="text-red-600 text-sm mt-1">{{ error }}</p>
+          {% endfor %}
+        {% endif %}
+      </div>
+      
+      <!-- Submit Buttons -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <div class="space-y-3">
+          <button
+            type="submit"
+            class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+          >
+            <span class="material-icons-outlined text-sm">save</span>
+            <span>Create Role</span>
+          </button>
+          <a
+            href="{% url 'dashboard:user_settings:role_list' prefix %}"
+            class="w-full bg-slate-600 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors flex items-center justify-center space-x-2"
+          >
+            <span class="material-icons-outlined text-sm">cancel</span>
+            <span>Cancel</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}

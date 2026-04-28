@@ -1,0 +1,30 @@
+{% extends "system/classic/templates/base.html" %}
+
+{% block content %}
+<section class="grid gap-8 xl:grid-cols-[300px,1fr]">
+    {% include "system/classic/templates/_partials/account_nav.html" %}
+    <div class="surface-card">
+        <div class="px-8 py-8 border-b border-stone-100">
+            <p class="eyebrow">Order History</p>
+            <div class="accent-bar mt-3 mb-4"></div>
+            <h1 class="section-title">Your Orders</h1>
+        </div>
+        <div class="divide-y divide-stone-100">
+            {% for order in orders %}
+                <a href="{% url 'tenant:account_order_detail' order.id %}" class="flex flex-wrap items-center justify-between gap-4 px-8 py-5 hover:bg-stone-50 transition block">
+                    <div>
+                        <p class="brand-font text-xl font-semibold text-stone-900">{{ order.order_number }}</p>
+                        <p class="mt-1 text-xs text-stone-400 uppercase tracking-widest" style="letter-spacing:.14em">{{ order.placed_at }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs font-bold uppercase tracking-widest text-stone-400" style="letter-spacing:.14em">{{ order.get_status_display }}</p>
+                        <p class="mt-1 brand-font text-xl font-semibold text-stone-900">{{ order.total_price }}</p>
+                    </div>
+                </a>
+            {% empty %}
+                <div class="px-8 py-10 text-sm text-stone-400 font-light">No orders found for this account yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

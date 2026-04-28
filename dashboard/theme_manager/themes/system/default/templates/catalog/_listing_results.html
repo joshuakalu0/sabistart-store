@@ -1,0 +1,44 @@
+<div class="space-y-6">
+    <div class="surface-card p-6">
+        <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div class="min-w-0">
+                <p class="text-sm font-semibold uppercase tracking-[0.22em] text-slate-400">{{ result_count }} results</p>
+                <h2 class="brand-font mt-2 text-3xl font-bold text-slate-950">Curated for your current filter mix.</h2>
+            </div>
+            <div class="flex flex-wrap gap-2 lg:justify-end">
+                {% for chip in active_filter_chips %}
+                    <span class="chip chip-active">{{ chip.label }}</span>
+                {% empty %}
+                    <span class="chip">No filters applied</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {% if products %}
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6">
+            {% for product in products %}
+                {% include "system/default/templates/_partials/product_card.html" with product=product %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="surface-card p-10 text-center">
+            <p class="eyebrow">No Matches</p>
+            <h2 class="brand-font mt-3 text-3xl font-bold text-slate-950">No products match the current filters.</h2>
+            <p class="mt-3 text-sm leading-6 text-slate-500">Try a broader search, remove a few filters, or browse a different collection.</p>
+            <a href="{{ clear_filters_url }}" class="button-primary mt-6">Clear Filters</a>
+        </div>
+    {% endif %}
+
+    {% if page_obj.paginator.num_pages > 1 %}
+        <div class="surface-card flex flex-wrap items-center justify-center gap-3 p-5">
+            {% if page_obj.has_previous %}
+                <a data-catalog-page href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}" class="button-secondary">Previous</a>
+            {% endif %}
+            <span class="chip">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a data-catalog-page href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.next_page_number }}" class="button-secondary">Next</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>

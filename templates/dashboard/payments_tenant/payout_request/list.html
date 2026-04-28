@@ -1,0 +1,89 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Payout Requests</h2>
+    <p class="text-slate-600 dark:text-slate-400">Withdrawal requests and their status</p>
+  </div>
+  {% if profile.payout_enabled %}
+  <a href="{% url 'dashboard:payments_tenant:payout_request_create' prefix %}"
+     class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center space-x-2 text-sm">
+    <span class="material-icons-outlined text-sm">add</span><span>Request Payout</span>
+  </a>
+  {% endif %}
+</div>
+
+<div class="mb-4">
+  <form method="get" class="flex gap-3">
+    <select name="status" class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white">
+      <option value="">All Status</option>
+      {% for val, label in status_choices %}<option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg text-sm">Filter</button>
+  </form>
+</div>
+
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          {% for col in "Reference,Bank Account,Amount,Status,Requested,Actions" %}
+          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+        {% for payout in payout_requests %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700">
+          <td class="px-4 py-3">
+            <a href="{% url 'dashboard:payments_tenant:payout_request_detail' prefix payout.id %}" class="font-mono text-xs text-primary hover:underline">{{ payout.payout_reference }}</a>
+          </td>
+          <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ payout.bank_account.bank_name }} ···{{ payout.bank_account.account_number_masked }}</td>
+          <td class="px-4 py-3 font-mono font-semibold text-slate-900 dark:text-white">{{ payout.amount }} {{ payout.currency }}</td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-1 rounded-full text-xs font-medium
+              {% if payout.status == 'completed' %}bg-green-100 text-green-700
+              {% elif payout.status == 'failed' %}bg-red-100 text-red-700
+              {% elif payout.status == 'processing' %}bg-blue-100 text-blue-700
+              {% elif payout.status == 'pending' %}bg-amber-100 text-amber-700
+              {% else %}bg-slate-100 text-slate-600{% endif %}">
+              {{ payout.status|capfirst }}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-slate-400 text-xs whitespace-nowrap">{{ payout.created_at|date:"d M Y H:i" }}</td>
+          <td class="px-4 py-3 space-x-2 whitespace-nowrap">
+            <a href="{% url 'dashboard:payments_tenant:payout_request_detail' prefix payout.id %}" class="text-primary hover:underline">View</a>
+            {% if payout.status == 'pending' %}
+            <button class="text-red-600 hover:text-red-800 cancel-btn"
+                    data-ref="{{ payout.payout_reference }}"
+                    data-url="{% url 'dashboard:payments_tenant:payout_request_cancel' prefix payout.id %}">Cancel</button>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="px-6 py-10 text-center text-slate-400">No payout requests found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if payout_requests.has_other_pages %}
+  <div class="px-4 py-3 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
+    <span class="text-sm text-slate-500">Page {{ payout_requests.number }} of {{ payout_requests.paginator.num_pages }}</span>
+    <div class="flex space-x-2">
+      {% if payout_requests.has_previous %}<a href="?page={{ payout_requests.previous_page_number }}&status={{ status_filter }}" class="px-3 py-1 border border-slate-300 dark:border-slate-600 rounded text-sm">Prev</a>{% endif %}
+      {% if payout_requests.has_next %}<a href="?page={{ payout_requests.next_page_number }}&status={{ status_filter }}" class="px-3 py-1 border border-slate-300 dark:border-slate-600 rounded text-sm">Next</a>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+document.querySelectorAll(".cancel-btn").forEach(btn => {
+  btn.addEventListener("click", function () {
+    openDeleteModal("Cancel Payout", `Cancel payout "${this.dataset.ref}"? This will release the held balance back to your account.`,
+      () => fetch(this.dataset.url, {method:"POST",headers:{"X-CSRFToken":"{{ csrf_token }}","Content-Type":"application/x-www-form-urlencoded"}}).then(() => location.reload()));
+  });
+});
+</script>
+{% endblock %}

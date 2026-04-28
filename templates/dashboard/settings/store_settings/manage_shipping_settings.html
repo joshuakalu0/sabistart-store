@@ -1,0 +1,223 @@
+{% extends "dashboard/_partials/base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      Shipping Settings
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Configure shipping methods, rates, and delivery options
+    </p>
+  </div>
+  <a
+    href="{% url 'dashboard:store_settings:manage_shipping_settings' prefix %}"
+    class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+  >
+    <span class="material-icons-outlined text-sm mr-2">refresh</span>
+    Refresh
+  </a>
+</div>
+
+<div
+  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+>
+  <div class="p-6">
+    <form method="post">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Shipping Methods</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_flat_rate.name }}" {% if form.enable_flat_rate.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Flat Rate Shipping</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_free_shipping.name }}" {% if form.enable_free_shipping.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Free Shipping</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_local_pickup.name }}" {% if form.enable_local_pickup.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Local Pickup</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_express_shipping.name }}" {% if form.enable_express_shipping.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Express Shipping</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_international_shipping.name }}" {% if form.enable_international_shipping.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">International Shipping</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_weight_based_shipping.name }}" {% if form.enable_weight_based_shipping.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Weight Based Shipping</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_distance_based_shipping.name }}" {% if form.enable_distance_based_shipping.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Distance Based Shipping</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_real_time_rates.name }}" {% if form.enable_real_time_rates.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Real-time Shipping Rates</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Shipping Options</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_delivery_scheduling.name }}" {% if form.enable_delivery_scheduling.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Delivery Scheduling</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_package_tracking.name }}" {% if form.enable_package_tracking.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Package Tracking</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_insurance.name }}" {% if form.enable_insurance.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Shipping Insurance</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_signature_required.name }}" {% if form.enable_signature_required.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Signature Required</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_fragile_handling.name }}" {% if form.enable_fragile_handling.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Fragile Handling</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_restricted_items.name }}" {% if form.enable_restricted_items.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Restricted Items</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Shipping Rates</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Flat Rate Cost
+                </label>
+                {{ form.flat_rate_cost }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Free Shipping Threshold
+                </label>
+                {{ form.free_shipping_threshold }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Express Shipping Cost
+                </label>
+                {{ form.express_shipping_cost }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Insurance Rate (%)
+                </label>
+                {{ form.insurance_rate }}
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_weight_tiers.name }}" {% if form.enable_weight_tiers.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Weight Tiers</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_zone_based_shipping.name }}" {% if form.enable_zone_based_shipping.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Zone-based Shipping</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Delivery Settings</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Default Delivery Time (days)
+                </label>
+                {{ form.default_delivery_time }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Maximum Delivery Time (days)
+                </label>
+                {{ form.maximum_delivery_time }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Cut-off Time
+                </label>
+                {{ form.cut_off_time }}
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_weekend_delivery.name }}" {% if form.enable_weekend_delivery.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Weekend Delivery</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_holiday_delivery.name }}" {% if form.enable_holiday_delivery.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Holiday Delivery</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_same_day_delivery.name }}" {% if form.enable_same_day_delivery.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Same-day Delivery</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-8 flex justify-end space-x-4">
+        <button
+          type="submit"
+          class="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+        >
+          <span class="material-icons-outlined text-sm">save</span>
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

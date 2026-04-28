@@ -1,0 +1,25 @@
+{% extends "system/default/templates/base.html" %}
+
+{% block content %}
+<section class="space-y-8">
+    <div class="panel rounded-[32px] p-8">
+        <div class="flex flex-wrap gap-2 text-sm text-slate-500">
+            {% for crumb in breadcrumbs %}
+                {% if crumb.url %}<a href="{{ crumb.url }}" class="hover:text-slate-950">{{ crumb.label }}</a>{% else %}<span>{{ crumb.label }}</span>{% endif %}
+                {% if not forloop.last %}<span>/</span>{% endif %}
+            {% endfor %}
+        </div>
+        <h1 class="mt-4 brand-font text-4xl font-extrabold text-slate-950">Compare Products</h1>
+        <p class="mt-3 text-slate-500">Your compare list is stored per tenant session and rendered through the theme system.</p>
+    </div>
+    {% if products %}
+        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {% for product in products %}
+                {% include "system/default/templates/_partials/product_card.html" with product=product %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="panel rounded-[32px] p-10 text-center text-slate-500">No products are currently in your compare list.</div>
+    {% endif %}
+</section>
+{% endblock %}

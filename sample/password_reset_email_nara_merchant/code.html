@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Reset Your Password - Nara Merchant</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-low": "#f3f3f3",
+                        "outline": "#76777d",
+                        "on-primary-container": "#7c839b",
+                        "primary-container": "#131b2e",
+                        "outline-variant": "#c6c6cd",
+                        "tertiary-fixed-dim": "#dec29a",
+                        "surface-container": "#eeeeee",
+                        "on-surface-variant": "#45464d",
+                        "surface-bright": "#f9f9f9",
+                        "on-secondary-fixed": "#341100",
+                        "tertiary": "#000000",
+                        "secondary-container": "#fd761a",
+                        "on-tertiary-container": "#98805d",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed": "#271901",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface": "#f9f9f9",
+                        "secondary-fixed": "#ffdbca",
+                        "on-tertiary-fixed-variant": "#574425",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#1a1c1c",
+                        "inverse-primary": "#bec6e0",
+                        "tertiary-fixed": "#fcdeb5",
+                        "inverse-surface": "#2f3131",
+                        "secondary": "#9d4300",
+                        "on-background": "#1a1c1c",
+                        "secondary-fixed-dim": "#ffb690",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed-variant": "#783200",
+                        "surface-variant": "#e2e2e2",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-secondary-container": "#5c2400",
+                        "primary-fixed-dim": "#bec6e0",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#e8e8e8",
+                        "inverse-on-surface": "#f0f1f1",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed": "#131b2e",
+                        "background": "#f9f9f9",
+                        "primary-fixed": "#dae2fd",
+                        "primary": "#000000",
+                        "on-error": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "surface-dim": "#dadada",
+                        "tertiary-container": "#271901"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface-container-low min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
+<!-- Email Container -->
+<div class="w-full max-w-xl flex flex-col items-center">
+<!-- Header (Shared Component: TopNavBar Context) -->
+<header class="flex justify-center items-center w-full px-6 max-w-2xl mx-auto pt-8 pb-4">
+<div class="text-xl font-black text-slate-900 dark:text-slate-50 font-headline tracking-tight">
+                Nara Merchant
+            </div>
+</header>
+<!-- Main Card (Digital Atelier Style) -->
+<main class="w-full bg-surface-container-lowest rounded-xl shadow-[0px_20px_40px_rgba(15,23,42,0.06)] overflow-hidden">
+<!-- Graphic Element -->
+<div class="h-1 bg-gradient-to-r from-primary to-secondary-container w-full"></div>
+<div class="p-8 md:p-12 text-center">
+<!-- Icon Signal -->
+<div class="mb-8 flex justify-center">
+<div class="w-16 h-16 bg-surface-container-low rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="lock_reset">lock_reset</span>
+</div>
+</div>
+<!-- Title -->
+<h1 class="text-3xl md:text-4xl font-extrabold text-primary font-headline tracking-tight mb-6">
+                    Reset Your Password
+                </h1>
+<!-- Body Text -->
+<p class="text-on-surface-variant text-base leading-relaxed mb-10 max-w-sm mx-auto font-body">
+                    We received a request to reset your password for your Nara Merchant account. If this was you, please click the button below to choose a new one.
+                </p>
+<!-- Action CTA -->
+<div class="mb-10">
+<a class="inline-flex items-center justify-center px-10 py-4 bg-secondary-container text-on-primary font-bold text-lg rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-secondary-container/20" href="#">
+                        Reset Password
+                    </a>
+</div>
+<!-- Security Note -->
+<div class="bg-surface-container-low rounded-lg p-6 text-sm text-on-surface-variant font-body">
+<div class="flex items-center justify-center gap-2 mb-2 text-primary font-semibold">
+<span class="material-symbols-outlined text-lg" data-icon="security">security</span>
+<span>Security Reminder</span>
+</div>
+<p>
+                        If you didn't request this, you can safely ignore this email. This link will expire in <span class="font-semibold text-primary">60 minutes</span>.
+                    </p>
+</div>
+</div>
+<!-- Contextual Assistant Info -->
+<div class="px-8 pb-8 text-center border-t border-outline-variant/10 pt-6">
+<p class="text-xs text-outline font-label uppercase tracking-widest">
+                    Need help? Contact our 24/7 concierge
+                </p>
+</div>
+</main>
+<!-- Footer (Shared Component: Footer Context) -->
+<footer class="flex flex-col items-center space-y-4 w-full max-w-2xl mx-auto rounded-b-lg mt-12 p-8 font-label text-xs">
+<div class="flex space-x-6 text-slate-500 dark:text-slate-400">
+<a class="hover:text-orange-600 dark:hover:text-orange-400 underline transition-colors" href="#">Security Policy</a>
+<a class="hover:text-orange-600 dark:hover:text-orange-400 underline transition-colors" href="#">Contact Support</a>
+<a class="hover:text-orange-600 dark:hover:text-orange-400 underline transition-colors" href="#">Privacy Settings</a>
+</div>
+<p class="text-slate-600 dark:text-slate-400 text-center leading-relaxed">
+                © 2024 Nara Merchant. All rights reserved.
+            </p>
+<div class="pt-4 flex gap-4 opacity-40 grayscale">
+<!-- Branding Elements as subtle anchors -->
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+<span class="material-symbols-outlined" data-icon="shield">shield</span>
+</div>
+</footer>
+</div>
+</body></html>

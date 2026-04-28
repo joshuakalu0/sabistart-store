@@ -1,0 +1,562 @@
+from __future__ import annotations
+
+from system.feature_marketplace.models import BillingCycle, DiscountType
+
+
+STARTER_FEATURES = [
+    {
+        "category": "Operations",
+        "slug": "operations",
+        "feature": {
+            "name": "Max Products",
+            "code": "max_products",
+            "feature_type": "limit",
+            "unit_label": "products",
+            "default_limit_value": 50,
+            "short_description": "Increase catalog capacity.",
+            "description": "Free stores can publish up to 50 products. Buy more capacity as the catalog grows.",
+            "icon": "inventory_2",
+            "display_order": 40,
+        },
+        "prices": [
+            {"currency": "NGN", "billing_cycle": BillingCycle.MONTHLY, "amount": "4000.00", "limit_increment": 100},
+            {"currency": "NGN", "billing_cycle": BillingCycle.ANNUAL, "amount": "40000.00", "limit_increment": 100},
+        ],
+    },
+    {
+        "category": "Storefront",
+        "slug": "storefront",
+        "feature": {
+            "name": "Reviews",
+            "code": "reviews",
+            "feature_type": "boolean",
+            "store_setting_key": "enable_reviews",
+            "storefront_flag": "enable_reviews",
+            "short_description": "Enable storefront product reviews.",
+            "icon": "rate_review",
+            "display_order": 60,
+        },
+        "prices": [
+            {"currency": "NGN", "billing_cycle": BillingCycle.MONTHLY, "amount": "3000.00"},
+            {"currency": "NGN", "billing_cycle": BillingCycle.ANNUAL, "amount": "30000.00"},
+        ],
+    },
+]
+
+
+REALISTIC_PLUS_FEATURES = [
+    {
+        "category": "Analytics",
+        "slug": "analytics",
+        "feature": {
+            "name": "Advanced Analytics",
+            "code": "advanced_analytics",
+            "feature_type": "boolean",
+            "short_description": "Unlock payment and growth dashboards with deeper insight.",
+            "description": "Adds premium analytics surfaces and richer reporting views across tenant payments and marketplace activity.",
+            "icon": "analytics",
+            "badge_label": "Popular",
+            "sidebar_key": "payments_analytics",
+            "is_featured": True,
+            "display_order": 10,
+        },
+        "prices": [
+            {"currency": "NGN", "billing_cycle": BillingCycle.MONTHLY, "amount": "7500.00"},
+            {"currency": "NGN", "billing_cycle": BillingCycle.ANNUAL, "amount": "75000.00"},
+        ],
+    },
+    {
+        "category": "Analytics",
+        "slug": "analytics",
+        "feature": {
+            "name": "Advanced Reports",
+            "code": "advanced_reports",
+            "feature_type": "boolean",
+            "short_description": "Unlock deeper reporting exports and historical views.",
+            "description": "Adds richer report slices for operators who need more than the default analytics surfaces.",
+            "icon": "query_stats",
+            "display_order": 20,
+        },
+        "prices": [
+            {"currency": "NGN", "billing_cycle": BillingCycle.MONTHLY, "amount": "5000.00"},
+            {"currency": "NGN", "billing_cycle": BillingCycle.ANNUAL, "amount": "50000.00"},
+        ],
+    },
+    {
+        "category": "Operations",
+        "slug": "operations",
+        "feature": {
+            "name": "Staff Management",
+            "code": "staff_management",
+            "feature_type": "limit",
+            "short_description": "Increase the number of active staff seats.",
+            "description": "Expands the staff seat quota used by the tenant dashboard staff management area.",
+            "unit_label": "staff seats",
+            "default_limit_value": 0,
+            "icon": "badge",
+            "display_order": 30,
+        },
+        "prices": [
+            {"currency": "NGN", "billing_cycle": BillingCycle.MONTHLY, "amount": "2500.00", "limit_increment": 5},
+            {"currency": "NGN", "billing_cycle": BillingCycle.ANNUAL, "amount": "25000.00", "limit_increment": 5},
+        ],
+    },
+    {
+        "category": "Operations",
+        "slug": "operations",
+        "feature": {
+            "name": "Max Products",
+            "code": "max_products",
+            "feature_type": "limit",
+            "short_description": "Increase how many products the store can publish.",
+            "description": "Free stores start with 50 products. Buy extra capacity as the catalog grows.",
+            "unit_label": "products",
+            "default_limit_value": 50,
+            "icon": "inventory_2",
+            "badge_label": "Free 50",
+            "display_order": 40,
+        },
+        "prices": [
+            {"currency": "NGN", "billing_cycle": BillingCycle.MONTHLY, "amount": "4000.00", "limit_increment": 100},
+            {"currency": "NGN", "billing_cycle": BillingCycle.ANNUAL, "amount": "40000.00", "limit_increment": 100},
+        ],
+    },
+    {
+        "category": "Operations",
+        "slug": "operations",
+        "feature": {
+            "name": "POS Locations",
+            "code": "max_pos_locations",
+            "feature_type": "limit",
+            "short_description": "Unlock monthly POS location capacity.",
+            "description": "Point of Sale is not included for free stores. Each monthly purchase adds one active POS location slot.",
+            "unit_label": "POS locations",
+            "default_limit_value": 0,
+            "icon": "point_of_sale",
+            "badge_label": "Monthly",
+            "sidebar_key": "pos",
+            "display_order": 45,
+            "metadata": {
+                "module_unlock": True,
+                "module_key": "pos",
+            },
+        },
+        "prices": [
+            {"currency": "NGN", "billing_cycle": BillingCycle.MONTHLY, "amount": "12000.00", "limit_increment": 1},
+        ],
+    },
+    {
+        "category": "Operations",
+        "slug": "operations",
+        "feature": {
+            "name": "Custom Domain Slots",
+            "code": "max_custom_domains",
+            "feature_type": "limit",
+            "short_description": "Unlock annual custom domain capacity.",
+            "description": "Custom domains are not part of the free baseline. Each annual purchase adds one domain slot.",
+            "unit_label": "custom domains",
+            "default_limit_value": 0,
+            "icon": "language",
+            "badge_label": "Annual",
+            "sidebar_key": "domains",
+            "display_order": 50,
+            "metadata": {
+                "module_unlock": True,
+                "module_key": "domains",
+            },
+        },
+        "prices": [
+            {"currency": "NGN", "billing_cycle": BillingCycle.ANNUAL, "amount": "15000.00", "limit_increment": 1},
+        ],
+    },
+    {
+        "category": "AI",
+        "slug": "ai",
+        "feature": {
+            "name": "AI Credits",
+            "code": "ai_credits",
+            "feature_type": "usage",
+            "short_description": "Usage-based credits for AI features.",
+            "description": "Supplies consumption-based credits that can be spent by future AI-assisted tenant workflows.",
+            "unit_label": "credits",
+            "default_usage_value": 0,
+            "icon": "auto_awesome",
+            "badge_label": "Usage",
+            "display_order": 60,
+        },
+        "prices": [
+            {"currency": "NGN", "billing_cycle": BillingCycle.ONE_TIME, "amount": "5000.00", "credits_included": 5000},
+            {"currency": "NGN", "billing_cycle": BillingCycle.MONTHLY, "amount": "9000.00", "credits_included": 12000},
+            {"currency": "NGN", "billing_cycle": BillingCycle.ANNUAL, "amount": "90000.00", "credits_included": 144000},
+        ],
+    },
+    {
+        "category": "Storefront",
+        "slug": "storefront",
+        "feature": {
+            "name": "Reviews",
+            "code": "reviews",
+            "feature_type": "boolean",
+            "short_description": "Enable product reviews in the storefront.",
+            "description": "Turns on the reviews storefront feature and its related tenant settings.",
+            "store_setting_key": "enable_reviews",
+            "storefront_flag": "enable_reviews",
+            "icon": "rate_review",
+            "display_order": 70,
+        },
+        "prices": [
+            {"currency": "NGN", "billing_cycle": BillingCycle.MONTHLY, "amount": "3000.00"},
+            {"currency": "NGN", "billing_cycle": BillingCycle.ANNUAL, "amount": "30000.00"},
+        ],
+    },
+    {
+        "category": "Storefront",
+        "slug": "storefront",
+        "feature": {
+            "name": "Wishlist",
+            "code": "wishlist",
+            "feature_type": "boolean",
+            "short_description": "Enable customer wishlists.",
+            "description": "Turns on wishlist flows in the storefront and settings layer.",
+            "store_setting_key": "enable_wishlist",
+            "storefront_flag": "enable_wishlist",
+            "icon": "favorite",
+            "display_order": 80,
+        },
+        "prices": [
+            {"currency": "NGN", "billing_cycle": BillingCycle.MONTHLY, "amount": "3000.00"},
+            {"currency": "NGN", "billing_cycle": BillingCycle.ANNUAL, "amount": "30000.00"},
+        ],
+    },
+    {
+        "category": "Storefront",
+        "slug": "storefront",
+        "feature": {
+            "name": "Compare",
+            "code": "compare",
+            "feature_type": "boolean",
+            "short_description": "Enable product compare flows.",
+            "description": "Turns on the compare experience in the storefront.",
+            "store_setting_key": "enable_compare",
+            "storefront_flag": "enable_compare",
+            "icon": "compare_arrows",
+            "display_order": 90,
+        },
+        "prices": [
+            {"currency": "NGN", "billing_cycle": BillingCycle.MONTHLY, "amount": "2500.00"},
+            {"currency": "NGN", "billing_cycle": BillingCycle.ANNUAL, "amount": "25000.00"},
+        ],
+    },
+    {
+        "category": "Storefront",
+        "slug": "storefront",
+        "feature": {
+            "name": "Gift Cards",
+            "code": "gift_cards",
+            "feature_type": "boolean",
+            "short_description": "Enable gift card support.",
+            "description": "Turns on gift card storefront capability and related settings.",
+            "store_setting_key": "enable_gift_cards",
+            "icon": "redeem",
+            "display_order": 100,
+        },
+        "prices": [
+            {"currency": "NGN", "billing_cycle": BillingCycle.MONTHLY, "amount": "3500.00"},
+            {"currency": "NGN", "billing_cycle": BillingCycle.ANNUAL, "amount": "35000.00"},
+        ],
+    },
+    {
+        "category": "Storefront",
+        "slug": "storefront",
+        "feature": {
+            "name": "Subscriptions",
+            "code": "subscriptions",
+            "feature_type": "boolean",
+            "short_description": "Enable subscription-style storefront selling.",
+            "description": "Turns on subscription-oriented storefront behavior.",
+            "store_setting_key": "enable_subscriptions",
+            "icon": "subscriptions",
+            "display_order": 110,
+        },
+        "prices": [
+            {"currency": "NGN", "billing_cycle": BillingCycle.MONTHLY, "amount": "5000.00"},
+            {"currency": "NGN", "billing_cycle": BillingCycle.ANNUAL, "amount": "50000.00"},
+        ],
+    },
+    {
+        "category": "Storefront",
+        "slug": "storefront",
+        "feature": {
+            "name": "Live Chat",
+            "code": "live_chat",
+            "feature_type": "boolean",
+            "short_description": "Enable live chat support prompts in the storefront.",
+            "description": "Turns on the live chat storefront integration flag.",
+            "store_setting_key": "enable_live_chat",
+            "icon": "chat",
+            "display_order": 120,
+        },
+        "prices": [
+            {"currency": "NGN", "billing_cycle": BillingCycle.MONTHLY, "amount": "2500.00"},
+            {"currency": "NGN", "billing_cycle": BillingCycle.ANNUAL, "amount": "25000.00"},
+        ],
+    },
+    {
+        "category": "Storefront",
+        "slug": "storefront",
+        "feature": {
+            "name": "Discount Codes",
+            "code": "discount_codes",
+            "feature_type": "boolean",
+            "short_description": "Unlock discount code management surfaces.",
+            "description": "Enables discount-code storefront behavior and pricing dashboard access.",
+            "store_setting_key": "enable_discount_codes",
+            "storefront_flag": "enable_discount_codes",
+            "sidebar_key": "pricing_discounts",
+            "icon": "local_offer",
+            "display_order": 130,
+        },
+        "prices": [
+            {"currency": "NGN", "billing_cycle": BillingCycle.MONTHLY, "amount": "3000.00"},
+            {"currency": "NGN", "billing_cycle": BillingCycle.ANNUAL, "amount": "30000.00"},
+        ],
+    },
+    {
+        "category": "Integrations",
+        "slug": "integrations",
+        "feature": {
+            "name": "API Access",
+            "code": "api_access",
+            "feature_type": "boolean",
+            "short_description": "Enable tenant API access.",
+            "description": "Turns on the API-access premium toggle used by store settings and integration flows.",
+            "store_setting_key": "enable_api_access",
+            "icon": "api",
+            "display_order": 140,
+        },
+        "prices": [
+            {"currency": "NGN", "billing_cycle": BillingCycle.MONTHLY, "amount": "7000.00"},
+            {"currency": "NGN", "billing_cycle": BillingCycle.ANNUAL, "amount": "70000.00"},
+        ],
+    },
+    {
+        "category": "Integrations",
+        "slug": "integrations",
+        "feature": {
+            "name": "Webhooks",
+            "code": "webhooks",
+            "feature_type": "boolean",
+            "short_description": "Enable outbound webhook integrations.",
+            "description": "Turns on webhook-related settings and notification surfaces.",
+            "store_setting_key": "enable_webhooks",
+            "sidebar_key": "notification_webhooks",
+            "icon": "webhook",
+            "display_order": 150,
+        },
+        "prices": [
+            {"currency": "NGN", "billing_cycle": BillingCycle.MONTHLY, "amount": "4500.00"},
+            {"currency": "NGN", "billing_cycle": BillingCycle.ANNUAL, "amount": "45000.00"},
+        ],
+    },
+    {
+        "category": "Storefront",
+        "slug": "storefront",
+        "feature": {
+            "name": "Social Login",
+            "code": "social_login",
+            "feature_type": "boolean",
+            "short_description": "Enable social login options.",
+            "description": "Turns on social login settings for storefront authentication.",
+            "store_setting_key": "enable_social_login",
+            "icon": "login",
+            "display_order": 160,
+        },
+        "prices": [
+            {"currency": "NGN", "billing_cycle": BillingCycle.MONTHLY, "amount": "2500.00"},
+            {"currency": "NGN", "billing_cycle": BillingCycle.ANNUAL, "amount": "25000.00"},
+        ],
+    },
+]
+
+
+REALISTIC_PLUS_BUNDLES = [
+    {
+        "slug": "storefront-plus",
+        "name": "Storefront Plus",
+        "description": "Unlock core storefront merchandising and engagement tools in one plan.",
+        "tagline": "Reviews, wishlist, compare, and discount-code support.",
+        "price": "8500.00",
+        "currency": "NGN",
+        "billing_cycle": BillingCycle.MONTHLY,
+        "discount_percentage": "14.00",
+        "is_featured": True,
+        "display_order": 10,
+        "items": [
+            {"code": "reviews", "sort_order": 1},
+            {"code": "wishlist", "sort_order": 2},
+            {"code": "compare", "sort_order": 3},
+            {"code": "discount_codes", "sort_order": 4},
+        ],
+    },
+    {
+        "slug": "operations-plus",
+        "name": "Operations Plus",
+        "description": "Unlock operational scale with extra catalog, staff, and POS capacity.",
+        "tagline": "Products, staff seats, and one POS location in one monthly plan.",
+        "price": "18000.00",
+        "currency": "NGN",
+        "billing_cycle": BillingCycle.MONTHLY,
+        "discount_percentage": "12.00",
+        "is_featured": True,
+        "display_order": 20,
+        "items": [
+            {"code": "max_products", "quantity_override": 200, "sort_order": 1},
+            {"code": "staff_management", "quantity_override": 10, "sort_order": 2},
+            {"code": "max_pos_locations", "quantity_override": 1, "sort_order": 3},
+        ],
+    },
+    {
+        "slug": "integrations-plus",
+        "name": "Integrations Plus",
+        "description": "Enable automation-friendly channels for teams running connected commerce stacks.",
+        "tagline": "API access, webhooks, and social login in a single monthly bundle.",
+        "price": "11000.00",
+        "currency": "NGN",
+        "billing_cycle": BillingCycle.MONTHLY,
+        "discount_percentage": "10.00",
+        "display_order": 30,
+        "items": [
+            {"code": "api_access", "sort_order": 1},
+            {"code": "webhooks", "sort_order": 2},
+            {"code": "social_login", "sort_order": 3},
+        ],
+    },
+    {
+        "slug": "growth-pack-annual",
+        "name": "Growth Pack Annual",
+        "description": "Annual growth bundle for teams that want reporting and capacity without monthly renewals.",
+        "tagline": "Annual savings on analytics and operational capacity.",
+        "price": "120000.00",
+        "currency": "NGN",
+        "billing_cycle": BillingCycle.ANNUAL,
+        "discount_percentage": "17.50",
+        "display_order": 40,
+        "items": [
+            {"code": "advanced_analytics", "sort_order": 1},
+            {"code": "advanced_reports", "sort_order": 2},
+            {"code": "max_products", "quantity_override": 300, "sort_order": 3},
+            {"code": "staff_management", "quantity_override": 15, "sort_order": 4},
+            {"code": "max_custom_domains", "quantity_override": 1, "sort_order": 5},
+        ],
+    },
+    {
+        "slug": "ai-credit-booster",
+        "name": "AI Credit Booster",
+        "description": "One-time AI usage booster for testing credit consumption and exhaustion flows.",
+        "tagline": "Single purchase credit pack for AI-heavy testing.",
+        "price": "4500.00",
+        "currency": "NGN",
+        "billing_cycle": BillingCycle.ONE_TIME,
+        "discount_percentage": "0.00",
+        "display_order": 50,
+        "items": [
+            {"code": "ai_credits", "quantity_override": 3500, "sort_order": 1},
+        ],
+    },
+    {
+        "slug": "ai-credit-studio",
+        "name": "AI Credit Studio Pack",
+        "description": "Higher-volume one-time AI credit bundle for multi-consumption test scenarios.",
+        "tagline": "A larger one-time AI pack for usage-led entitlement testing.",
+        "price": "12000.00",
+        "currency": "NGN",
+        "billing_cycle": BillingCycle.ONE_TIME,
+        "discount_percentage": "0.00",
+        "display_order": 60,
+        "items": [
+            {"code": "ai_credits", "quantity_override": 12000, "sort_order": 1},
+        ],
+    },
+]
+
+
+REALISTIC_PLUS_CAMPAIGNS = [
+    {
+        "name": "Marketplace Launch",
+        "description": "Introductory launch campaign across selected analytics and storefront products.",
+        "discount_type": DiscountType.PERCENTAGE,
+        "discount_value": "10.00",
+        "feature_codes": ["advanced_analytics", "advanced_reports", "reviews", "wishlist"],
+        "bundle_slugs": ["operations-plus", "storefront-plus"],
+    },
+]
+
+
+REALISTIC_PLUS_COUPONS = [
+    {
+        "code": "STORE20",
+        "description": "20 percent off Storefront Plus testing bundle.",
+        "discount_type": DiscountType.PERCENTAGE,
+        "discount_value": "20.00",
+        "bundle_slugs": ["storefront-plus"],
+        "max_uses": 200,
+        "max_uses_per_tenant": 3,
+    },
+    {
+        "code": "AIBOOST1500",
+        "description": "Fixed discount for one-time AI credit pack testing.",
+        "discount_type": DiscountType.FIXED,
+        "discount_value": "1500.00",
+        "bundle_slugs": ["ai-credit-booster", "ai-credit-studio"],
+        "max_uses": 150,
+        "max_uses_per_tenant": 2,
+    },
+    {
+        "code": "STACKUP",
+        "description": "Bundle and analytics upgrade coupon for realistic checkout tests.",
+        "discount_type": DiscountType.FIXED,
+        "discount_value": "2500.00",
+        "feature_codes": ["advanced_analytics", "advanced_reports"],
+        "bundle_slugs": ["operations-plus", "growth-pack-annual", "integrations-plus"],
+        "max_uses": 250,
+        "max_uses_per_tenant": 4,
+    },
+]
+
+
+CATALOG_PROFILES = {
+    "starter": {
+        "features": STARTER_FEATURES,
+        "bundles": [],
+        "campaigns": [],
+        "coupons": [],
+    },
+    "realistic-plus": {
+        "features": REALISTIC_PLUS_FEATURES,
+        "bundles": REALISTIC_PLUS_BUNDLES,
+        "campaigns": REALISTIC_PLUS_CAMPAIGNS,
+        "coupons": REALISTIC_PLUS_COUPONS,
+    },
+}
+
+
+RESERVED_FUTURE_FEATURES = (
+    {
+        "code": "product_scraper",
+        "feature_type": "boolean",
+        "seed_in_catalog": False,
+        "note": "Future module unlock for catalog scraping/import workflows.",
+    },
+    {
+        "code": "import_credits",
+        "feature_type": "usage",
+        "seed_in_catalog": False,
+        "note": "Future usage-credit pool for import jobs and assisted scraping.",
+    },
+    {
+        "code": "scrape_jobs",
+        "feature_type": "limit",
+        "seed_in_catalog": False,
+        "note": "Future quota for scheduled scrape/import job capacity.",
+    },
+)

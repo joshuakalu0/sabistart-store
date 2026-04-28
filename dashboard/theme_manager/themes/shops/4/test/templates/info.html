@@ -1,0 +1,57 @@
+{% extends "system/classic/templates/base.html" %}
+
+{% block content %}
+<section class="mx-auto max-w-6xl space-y-8">
+    <div class="surface-card p-8 lg:p-10">
+        <div class="flex flex-wrap gap-3"><span class="chip chip-active">1. Information</span><span class="chip">2. Shipping</span><span class="chip">3. Payment</span><span class="chip">4. Review</span></div>
+        <div class="accent-bar mt-5 mb-5"></div>
+        <h1 class="section-title">Delivery &amp; Contact Details</h1>
+        <p class="section-copy mt-3 text-base font-light">Tell the store where this order should go and how to reach you about dispatch and fulfilment.</p>
+    </div>
+
+    <div class="grid gap-8 xl:grid-cols-[1.15fr,0.85fr]">
+        <div class="surface-card p-8">
+            <form method="post" class="grid gap-5 md:grid-cols-2">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="{% if field.name == 'address1' or field.name == 'address2' or field.name == 'delivery_instructions' %}md:col-span-2{% endif %}">
+                        <label class="block mb-2" style="font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#5c5347">{{ field.label }}</label>
+                        <div class="field-shell">{{ field }}</div>
+                        {% if field.errors %}<p class="mt-2 text-xs text-red-700">{{ field.errors|join:", " }}</p>{% endif %}
+                    </div>
+                {% endfor %}
+                <div class="md:col-span-2">
+                    <button type="submit" class="button-primary">Continue to Shipping</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="space-y-5">
+            <div class="surface-card">
+                <div class="px-6 py-5 border-b border-stone-100">
+                    <p class="eyebrow">Order Summary</p>
+                </div>
+                <div class="px-6 py-5 space-y-3 text-sm text-stone-600">
+                    <div class="flex justify-between"><span>Items</span><span>{{ cart.item_count }}</span></div>
+                    <div class="flex justify-between"><span>Subtotal</span><span>{{ cart.subtotal_display }}</span></div>
+                    <hr style="border-color:var(--color-border)">
+                    <div class="flex justify-between font-bold text-stone-900"><span>Total</span><span>{{ cart.grand_total_display }}</span></div>
+                </div>
+            </div>
+            <div class="surface-card">
+                <div class="px-6 py-5 border-b border-stone-100">
+                    <p class="eyebrow">Store Support</p>
+                </div>
+                <div class="divide-y divide-stone-50">
+                    {% for item in service_highlights|slice:":3" %}
+                        <div class="px-6 py-4">
+                            <p class="text-xs font-bold uppercase tracking-widest text-stone-700 mb-1" style="letter-spacing:.14em">{{ item.title }}</p>
+                            <p class="text-xs text-stone-400 font-light leading-5">{{ item.body }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load theme_tags %}
+
+{% block title %}{{ shop.name }} - Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div class="text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                Welcome to {{ shop.name }}
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 text-blue-100">
+                Discover amazing products at unbeatable prices
+            </p>
+            <a href="/products/" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                Shop Now
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Featured Products</h2>
+            <p class="text-gray-600">Check out our most popular items</p>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {% for product in featured_products %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                <div class="aspect-w-1 aspect-h-1 bg-gray-200">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-48 object-cover">
+                    {% else %}
+                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                            <span class="text-gray-400">No Image</span>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="p-4">
+                    <h3 class="font-semibold text-gray-900 mb-2">{{ product.name }}</h3>
+                    <p class="text-gray-600 text-sm mb-3">{{ product.description|truncatewords:10 }}</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-bold text-blue-600">${{ product.price }}</span>
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-12">
+                <p class="text-gray-500">No featured products available</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Categories -->
+<section class="bg-gray-50 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Shop by Category</h2>
+            <p class="text-gray-600">Browse our product categories</p>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {% for category in categories %}
+            <a href="/category/{{ category.slug }}/" class="group">
+                <div class="bg-white rounded-lg p-6 text-center hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
+                        <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-gray-900">{{ category.name }}</h3>
+                </div>
+            </a>
+            {% empty %}
+            <div class="col-span-full text-center py-12">
+                <p class="text-gray-500">No categories available</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter -->
+<section class="bg-blue-600 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl font-bold text-white mb-4">Stay Updated</h2>
+        <p class="text-blue-100 mb-8">Subscribe to our newsletter for the latest products and offers</p>
+        <form class="max-w-md mx-auto flex">
+            <input type="email" placeholder="Enter your email" class="flex-1 px-4 py-3 rounded-l-lg">
+            <button class="bg-white text-blue-600 px-6 py-3 rounded-r-lg font-semibold hover:bg-gray-100 transition-colors">
+                Subscribe
+            </button>
+        </form>
+    </div>
+</section>
+{% endblock %}

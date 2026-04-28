@@ -1,0 +1,89 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">{{ page_title }}</h2>
+  </div>
+  <a href="{% url 'dashboard:user_settings:staff_list' prefix %}" class="text-sm text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 flex items-center space-x-1">
+    <span class="material-icons-outlined text-sm">arrow_back</span><span>Back to staff</span>
+  </a>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2">
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 space-y-5">
+        <h3 class="font-semibold text-slate-900 dark:text-white">Staff Assignment</h3>
+        {% if not is_edit %}
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">User (STAFF type) *</label>
+          {{ form.user }}
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Only users with type "Staff" are listed. Create the TenantUser first if needed.</p>
+          {% if form.user.errors %}<p class="text-red-500 text-xs mt-1">{{ form.user.errors|join:", " }}</p>{% endif %}
+        </div>
+        {% else %}
+        <div class="flex items-center space-x-4 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+          <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">
+            {{ staff.user.get_initials }}
+          </div>
+          <div>
+            <div class="font-medium text-slate-900 dark:text-white">{{ staff.user.get_full_name }}</div>
+            <div class="text-xs text-slate-500">{{ staff.user.email }}</div>
+          </div>
+        </div>
+        {% endif %}
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Role *</label>
+          {{ form.role }}
+          {% if form.role.errors %}<p class="text-red-500 text-xs mt-1">{{ form.role.errors|join:", " }}</p>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Status</label>
+          {{ form.status }}
+        </div>
+
+        <div class="flex items-center space-x-3 pt-2 border-t border-slate-200 dark:border-slate-700">
+          {{ form.require_2fa }}
+          <div>
+            <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Require 2FA</label>
+            <p class="text-xs text-slate-500 dark:text-slate-400">This staff member must have 2FA enabled before accessing the dashboard</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      {% if form.non_field_errors %}
+      <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">
+        {% for error in form.non_field_errors %}<p class="text-red-600 text-sm">{{ error }}</p>{% endfor %}
+      </div>
+      {% endif %}
+
+      {% if not is_edit %}
+      <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl p-4 text-sm text-blue-800 dark:text-blue-300">
+        <p class="font-medium mb-1">After creating this staff record:</p>
+        <ol class="list-decimal list-inside space-y-1 text-xs">
+          <li>Copy the user's email and initial password</li>
+          <li>Share credentials securely with the staff member</li>
+          <li>Recommend they enable 2FA immediately</li>
+        </ol>
+      </div>
+      {% endif %}
+
+      <button type="submit" class="w-full bg-primary text-white py-2.5 rounded-lg font-medium hover:bg-blue-600 transition-colors">
+        {% if is_edit %}Save Changes{% else %}Add Staff Member{% endif %}
+      </button>
+      <a href="{% url 'dashboard:user_settings:staff_list' prefix %}"
+         class="block w-full text-center py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</a>
+    </div>
+  </div>
+</form>
+<script>
+  document.querySelectorAll("select").forEach(el => {
+    el.classList.add("w-full","px-3","py-2","border","border-slate-300","dark:border-slate-600","rounded-lg","text-sm","dark:bg-slate-700","dark:text-white","focus:ring-2","focus:ring-primary","focus:outline-none");
+  });
+</script>
+{% endblock %}

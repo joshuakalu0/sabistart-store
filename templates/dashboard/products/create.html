@@ -1,178 +1,222 @@
 {% extends "dashboard/_partials/base.html" %} {% load static %}
- {% block extra_js %}
-<script src="{% static 'dashboard/js/product_create.js' %}"></script>
-{% endblock %} {% block content %}
-<main class="max-w-6xl mx-auto px-4 py-8">
-  <!-- Progress Header -->
-  <div class="mb-8">
-    <div class="flex flex-col gap-2 mb-6">
-      <div class="flex justify-between items-end">
-        <div>
-          <h2 class="text-3xl font-black tracking-tight mb-1">
-            Create New Product
-          </h2>
-          <p class="text-slate-500 dark:text-slate-400">
-            Complete the details below to list your product in the global
-            marketplace.
-          </p>
-        </div>
-        <div class="text-right">
-          <span
-            id="progressText"
-            class="text-sm font-bold text-primary uppercase tracking-wider"
-            >Progress: 20%</span
-          >
-          <div
-            class="w-48 h-2 bg-slate-200 dark:bg-slate-800 rounded-full mt-2 overflow-hidden"
-          >
-            <div
-              id="progressBar"
-              class="bg-primary h-full w-1/5 rounded-full transition-all duration-300"
-            ></div>
+ {% block content %} {% include 'dashboard/products/partials/_script.html' %}
+
+<!-- Modern Gradient Background -->
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+  <main class="max-w-full mx-auto px-6 py-12">
+    <!-- Enhanced Progress Header -->
+    <div class="mb-12">
+      <div class="flex flex-col gap-6 mb-8">
+        <div class="flex justify-between items-end">
+          <div class="space-y-2">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                <span class="material-symbols-outlined text-white text-xl">add_box</span>
+              </div>
+              <div>
+                <h1 class="text-4xl font-black bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+                  {% if product %}Edit Product{% else %}Create New Product{% endif %}
+                </h1>
+                <p class="text-slate-600 dark:text-slate-400 font-medium">
+                  {% if product %}Update your product details and settings{% else %}Build your product listing with our intuitive step-by-step process{% endif %}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="text-right space-y-2">
+            <span id="progressText" class="text-sm font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+              Progress: 20%
+            </span>
+            <div class="w-56 h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden shadow-inner">
+              <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-purple-600 h-full w-1/5 rounded-full transition-all duration-500 ease-out shadow-sm"></div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <!-- Horizontal Stepper -->
-    <div
-      class="flex border-b border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar"
-    >
-      <button
-        onclick="switchTab(0)"
-        class="tab-button flex items-center gap-2 px-6 py-4 border-b-2 border-primary text-primary font-bold whitespace-nowrap transition-colors"
-        data-tab="0"
-      >
-        <span class="material-symbols-outlined text-lg">info</span> 1. Basic
-        Info
-      </button>
-      <button
-        onclick="switchTab(1)"
-        class="tab-button flex items-center gap-2 px-6 py-4 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium whitespace-nowrap transition-colors"
-        data-tab="1"
-      >
-        <span class="material-symbols-outlined text-lg">perm_media</span> 2.
-        Content & Media
-      </button>
-      <button
-        onclick="switchTab(2)"
-        class="tab-button flex items-center gap-2 px-6 py-4 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium whitespace-nowrap transition-colors"
-        data-tab="2"
-      >
-        <span class="material-symbols-outlined text-lg">payments</span> 3.
-        Pricing & Inventory
-      </button>
-      <button
-        onclick="switchTab(3)"
-        class="tab-button flex items-center gap-2 px-6 py-4 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium whitespace-nowrap transition-colors"
-        data-tab="3"
-      >
-        <span class="material-symbols-outlined text-lg">local_shipping</span> 4.
-        Shipping & SEO
-      </button>
-      <button
-        onclick="switchTab(4)"
-        class="tab-button flex items-center gap-2 px-6 py-4 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium whitespace-nowrap transition-colors"
-        data-tab="4"
-      >
-        <span class="material-symbols-outlined text-lg">layers</span> 5.
-        Variants
-      </button>
-    </div>
-  </div>
 
-  <!-- Form Content Container -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-    <!-- Main Form Card -->
-    <div class="lg:col-span-2 space-y-6">
-      <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-
-        <!-- Step 1: Basic Info Section -->
-        <section
-          id="tab-0"
-          class="tab-content bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800"
-        >
-          {% include 'dashboard/products/tabs/_basic_info.html' %}
-        </section>
-
-        <!-- Step 2: Content & Media Section -->
-        <section
-          id="tab-1"
-          class="tab-content bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 hidden"
-        >
-          {% include 'dashboard/products/tabs/_content_media.html' %}
-        </section>
-
-        <!-- Step 3: Pricing & Inventory Section -->
-        <section
-          id="tab-2"
-          class="tab-content bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 hidden"
-        >
-          {% include 'dashboard/products/tabs/_pricing_inventory.html' %}
-        </section>
-
-        <!-- Step 4: Shipping & SEO Section -->
-        <section
-          id="tab-3"
-          class="tab-content bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 hidden"
-        >
-          {% include 'dashboard/products/tabs/_shipping_seo.html' %}
-        </section>
-
-        <!-- Step 5: Variants Section -->
-        <section
-          id="tab-4"
-          class="tab-content bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 hidden"
-        >
-          {% include 'dashboard/products/tabs/_variants.html' %}
-        </section>
-      </form>
-    </div>
-
-    <!-- Sidebar Info/Settings Card -->
-    {% include 'dashboard/products/partials/_sidebar.html' %}
-  </div>
-
-  <!-- Sticky Bottom Navigation -->
-  <div
-    class="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-6 py-4 z-40"
-  >
-    <div class="max-w-6xl mx-auto flex justify-between items-center">
-      <button
-        id="prevBtn"
-        onclick="prevTab()"
-        class="px-6 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors hidden"
-      >
-        <span class="material-symbols-outlined">arrow_back</span>
-        Previous
-      </button>
-      <div class="flex gap-4">
-        <button
-          class="px-6 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
-        >
-          Discard Changes
-        </button>
-        <button
-          id="nextBtn"
-          onclick="nextTab()"
-          class="bg-primary hover:bg-primary/90 text-white px-8 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 shadow-lg shadow-primary/20 transition-all active:scale-95"
-        >
-          Save & Continue
-          <span class="material-symbols-outlined">arrow_forward</span>
-        </button>
-        <button
-          id="submitBtn"
-          onclick="submitForm()"
-          class="bg-primary hover:bg-primary/90 text-white px-8 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 shadow-lg shadow-primary/20 transition-all active:scale-95 hidden"
-        >
-          Create Product
-          <span class="material-symbols-outlined">check_circle</span>
-        </button>
+      <!-- Modern Tab Navigation -->
+      <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-xl shadow-slate-200/20 dark:shadow-slate-900/20 p-2">
+        <div class="flex overflow-x-auto no-scrollbar gap-1">
+          <button onclick="switchTab(0)" class="tab-button group flex items-center gap-3 px-6 py-4 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold whitespace-nowrap transition-all duration-300 shadow-lg" data-tab="0">
+            <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">info</span>
+            <span>Basic Info</span>
+            <div class="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center text-xs font-black">1</div>
+          </button>
+          <button onclick="switchTab(1)" class="tab-button group flex items-center gap-3 px-6 py-4 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/50 font-medium whitespace-nowrap transition-all duration-300" data-tab="1">
+            <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">perm_media</span>
+            <span>Content & Media</span>
+            <div class="w-6 h-6 bg-slate-200 dark:bg-slate-600 rounded-full flex items-center justify-center text-xs font-black text-slate-600 dark:text-slate-300">2</div>
+          </button>
+          <button onclick="switchTab(2)" class="tab-button group flex items-center gap-3 px-6 py-4 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/50 font-medium whitespace-nowrap transition-all duration-300" data-tab="2">
+            <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">payments</span>
+            <span>Pricing & Inventory</span>
+            <div class="w-6 h-6 bg-slate-200 dark:bg-slate-600 rounded-full flex items-center justify-center text-xs font-black text-slate-600 dark:text-slate-300">3</div>
+          </button>
+          <button onclick="switchTab(3)" class="tab-button group flex items-center gap-3 px-6 py-4 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/50 font-medium whitespace-nowrap transition-all duration-300" data-tab="3">
+            <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">local_shipping</span>
+            <span>Shipping & SEO</span>
+            <div class="w-6 h-6 bg-slate-200 dark:bg-slate-600 rounded-full flex items-center justify-center text-xs font-black text-slate-600 dark:text-slate-300">4</div>
+          </button>
+          <button onclick="switchTab(4)" class="tab-button group flex items-center gap-3 px-6 py-4 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/50 font-medium whitespace-nowrap transition-all duration-300 hidden" data-tab="4" id="variants-tab">
+            <span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">layers</span>
+            <span>Variants</span>
+            <div class="w-6 h-6 bg-slate-200 dark:bg-slate-600 rounded-full flex items-center justify-center text-xs font-black text-slate-600 dark:text-slate-300">5</div>
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-  <!-- Spacer for sticky footer -->
-  <div class="h-32"></div>
-</main>
 
+    <!-- Enhanced Form Content Container -->
+    <div class="grid grid-cols-1 xl:grid-cols-4 gap-8 items-start">
+      <!-- Main Form Card -->
+      <div class="xl:col-span-3 space-y-8">
+        <form method="post" enctype="multipart/form-data" class="space-y-8">
+          {% csrf_token %}
+
+          <!-- Step 1: Basic Info Section -->
+          <section id="tab-0" class="tab-content bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl p-10 rounded-3xl shadow-2xl border border-white/20 dark:border-slate-700/30 shadow-slate-200/10 dark:shadow-slate-900/20">
+            {% include 'dashboard/products/tabs/_basic_info.html' %}
+          </section>
+
+          <!-- Step 2: Content & Media Section -->
+          <section id="tab-1" class="tab-content bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl p-10 rounded-3xl shadow-2xl border border-white/20 dark:border-slate-700/30 shadow-slate-200/10 dark:shadow-slate-900/20 hidden">
+            {% include 'dashboard/products/tabs/_content_media.html' %}
+          </section>
+
+          <!-- Step 3: Pricing & Inventory Section -->
+          <section id="tab-2" class="tab-content bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl p-10 rounded-3xl shadow-2xl border border-white/20 dark:border-slate-700/30 shadow-slate-200/10 dark:shadow-slate-900/20 hidden">
+            {% include 'dashboard/products/tabs/_pricing_inventory.html' %}
+          </section>
+
+          <!-- Step 4: Shipping & SEO Section -->
+          <section id="tab-3" class="tab-content bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl p-10 rounded-3xl shadow-2xl border border-white/20 dark:border-slate-700/30 shadow-slate-200/10 dark:shadow-slate-900/20 hidden">
+            {% include 'dashboard/products/tabs/_shipping_seo.html' %}
+          </section>
+
+          <!-- Step 5: Variants Section -->
+          <section id="tab-4" class="tab-content bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl p-10 rounded-3xl shadow-2xl border border-white/20 dark:border-slate-700/30 shadow-slate-200/10 dark:shadow-slate-900/20 hidden">
+            {% include 'dashboard/products/tabs/_variants.html' %}
+          </section>
+        </form>
+      </div>
+
+      <!-- Enhanced Sidebar Info/Settings Card -->
+      {% include 'dashboard/products/partials/_sidebar.html' %}
+    </div>
+
+    <!-- Modern Sticky Bottom Navigation -->
+    <div class="fixed  bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl border-t border-slate-200/50 dark:border-slate-700/50 px-8 py-6 z- shadow-2xl shadow-slate-900/5">
+      <div class="max-w-full mx-auto flex justify-end items-center">
+        <button id="prevBtn" onclick="prevTab()" class="group px-8 py-3 text-sm font-bold text-slate-600 dark:text-slate-300 flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition-all duration-300 hidden">
+          <span class="material-symbols-outlined group-hover:-translate-x-1 transition-transform">arrow_back</span>
+          <span>Previous Step</span>
+        </button>
+
+        <div class="flex items-center gap-6">
+          <button type="button" class="px-6 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
+            Save as Draft
+          </button>
+          <button id="nextBtn" onclick="nextTab()" class="group bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-10 py-3 rounded-2xl text-sm font-bold flex items-center gap-3 shadow-2xl shadow-blue-500/25 transition-all duration-300 active:scale-95">
+            <span>Save & Continue</span>
+            <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+          </button>
+          <button id="submitBtn" onclick="submitForm()" class="group bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-10 py-3 rounded-2xl text-sm font-bold flex items-center gap-3 shadow-2xl shadow-green-500/25 transition-all duration-300 active:scale-95 hidden">
+            <span>{% if product %}Update Product{% else %}Create Product{% endif %}</span>
+            <span class="material-symbols-outlined group-hover:scale-110 transition-transform">{% if product %}save{% else %}check_circle{% endif %}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Spacer for sticky footer -->
+    <div class="h-40"></div>
+  </main>
+</div>
+
+
+<script>
+// Enhanced tab switching with modern animations
+function switchTab(tabIndex) {
+  // Hide all tabs with fade out
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.style.opacity = '0';
+    tab.style.transform = 'translateY(20px)';
+    setTimeout(() => {
+      tab.classList.add('hidden');
+    }, 150);
+  });
+
+  // Update tab buttons with modern styling
+  document.querySelectorAll('.tab-button').forEach((btn, index) => {
+    btn.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'text-white', 'shadow-lg');
+    btn.classList.add('text-slate-600', 'dark:text-slate-300', 'hover:bg-slate-100', 'dark:hover:bg-slate-700/50');
+
+    // Update number badges
+    const badge = btn.querySelector('.w-6.h-6');
+    if (badge) {
+      badge.classList.remove('bg-white/20', 'text-white');
+      badge.classList.add('bg-slate-200', 'dark:bg-slate-600', 'text-slate-600', 'dark:text-slate-300');
+    }
+  });
+
+  // Activate selected tab
+  const activeButton = document.querySelector(`[data-tab="${tabIndex}"]`);
+  activeButton.classList.remove('text-slate-600', 'dark:text-slate-300', 'hover:bg-slate-100', 'dark:hover:bg-slate-700/50');
+  activeButton.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'text-white', 'shadow-lg');
+
+  const activeBadge = activeButton.querySelector('.w-6.h-6');
+  if (activeBadge) {
+    activeBadge.classList.remove('bg-slate-200', 'dark:bg-slate-600', 'text-slate-600', 'dark:text-slate-300');
+    activeBadge.classList.add('bg-white/20', 'text-white');
+  }
+
+  // Show selected tab with fade in
+  setTimeout(() => {
+    const activeTab = document.getElementById(`tab-${tabIndex}`);
+    activeTab.classList.remove('hidden');
+    setTimeout(() => {
+      activeTab.style.opacity = '1';
+      activeTab.style.transform = 'translateY(0)';
+    }, 50);
+  }, 150);
+
+  // Update progress
+  updateProgress(tabIndex);
+}
+
+function updateProgress(tabIndex) {
+  const progress = ((tabIndex + 1) / 5) * 100;
+  document.getElementById('progressBar').style.width = `${progress}%`;
+  document.getElementById('progressText').textContent = `Progress: ${Math.round(progress)}%`;
+}
+
+// Show variants tab only for variant products
+document.addEventListener('DOMContentLoaded', function() {
+  const productTypeSelect = document.querySelector('select[name="product_type"]');
+  const variantsTab = document.getElementById('variants-tab');
+
+  // Add transition styles to tab content
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+  });
+
+  function toggleVariantsTab() {
+    const selectedValue = productTypeSelect.value;
+    console.log('Selected product type:', selectedValue);
+    if (selectedValue === 'variable') {
+      variantsTab.classList.remove('hidden');
+    } else {
+      variantsTab.classList.add('hidden');
+      if (document.getElementById('tab-4').classList.contains('block')) {
+        switchTab(3);
+      }
+    }
+  }
+
+  if (productTypeSelect) {
+    productTypeSelect.addEventListener('change', toggleVariantsTab);
+    toggleVariantsTab();
+  }
+});
+</script>
 {% endblock %}

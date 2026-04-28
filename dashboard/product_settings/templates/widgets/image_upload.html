@@ -1,0 +1,230 @@
+{% load static %}
+<div
+  class="image-upload-container"
+  id="{{ widget.attrs.id|default:widget.name }}-container"
+>
+  <div
+    class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary-500 transition-colors cursor-pointer drag-over-area"
+    id="{{ widget.attrs.id|default:widget.name }}-dropzone"
+    ondragover="handleImageDragOver(event)"
+    ondragleave="handleImageDragLeave(event)"
+    ondrop="handleImageDrop(event, '{{ widget.attrs.id|default:widget.name }}')"
+    onclick="document.getElementById('{{ widget.attrs.id|default:widget.name }}').click()"
+  >
+    <input
+      type="file"
+      name="{{ widget.name }}"
+      id="{{ widget.attrs.id|default:widget.name }}"
+      class="hidden"
+      accept="{{ widget.attrs.accept|default:'image/*' }}"
+      {%
+      if
+      widget.attrs.multiple
+      %}multiple{%
+      endif
+      %}
+      {%
+      for
+      name,
+      value
+      in
+      widget.attrs.items
+      %}
+      {%
+      if
+      name
+      !="id"
+      and
+      name
+      !="class"
+      and
+      name
+      !="accept"
+      and
+      name
+      !="multiple"
+      %}{{
+      name
+      }}="{{ value }}"
+      {%
+      endif
+      %}
+      {%
+      endfor
+      %}
+      onchange="handleImageUpload(event, '{{ widget.attrs.id|default:widget.name }}')"
+    />
+
+    <svg
+      class="mx-auto h-12 w-12 text-gray-400"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+      ></path>
+    </svg>
+    <p class="mt-2 text-sm text-gray-600">
+      Drag and drop images here, or click to browse
+    </p>
+    <p class="mt-1 text-xs text-gray-500">PNG, JPG, GIF up to 10MB each</p>
+  </div>
+
+  {% if widget.value %}
+  <div
+    class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"
+    id="{{ widget.attrs.id|default:widget.name }}-preview"
+  >
+    {% if widget.value.url %}
+    <div
+      class="image-preview relative group rounded-lg overflow-hidden border border-gray-200"
+    >
+      <img
+        src="{{ widget.value.url }}"
+        alt="Uploaded Image"
+        class="w-full h-32 object-cover"
+      />
+      <div
+        class="absolute top-2 left-2 px-2 py-1 bg-primary-600 text-white text-xs rounded"
+      >
+        Current
+      </div>
+      <div
+        class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center space-x-2 opacity-0 group-hover:opacity-100"
+      >
+        <button
+          type="button"
+          class="p-2 bg-white rounded-full hover:bg-gray-100"
+          title="View"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            ></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+            ></path>
+          </svg>
+        </button>
+        {% if not widget.is_required %}
+        <button
+          type="button"
+          class="p-2 bg-white rounded-full hover:bg-gray-100"
+          title="Remove"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+            ></path>
+          </svg>
+        </button>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  {% else %}
+  <div
+    class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"
+    id="{{ widget.attrs.id|default:widget.name }}-preview"
+  ></div>
+  {% endif %} {% if widget.help_text %}
+  <p class="mt-2 text-xs text-gray-500">{{ widget.help_text }}</p>
+  {% endif %} {% if widget.errors %}
+  <p class="mt-2 text-xs text-red-600">{{ widget.errors.0 }}</p>
+  {% endif %}
+</div>
+
+<script>
+  function handleImageDragOver(event) {
+    event.preventDefault();
+    event.currentTarget.classList.add("drag-over");
+    event.currentTarget.classList.add("border-primary-500");
+    event.currentTarget.classList.add("bg-blue-50");
+  }
+
+  function handleImageDragLeave(event) {
+    event.preventDefault();
+    event.currentTarget.classList.remove("drag-over");
+    event.currentTarget.classList.remove("border-primary-500");
+    event.currentTarget.classList.remove("bg-blue-50");
+  }
+
+  function handleImageDrop(event, inputId) {
+    event.preventDefault();
+    event.currentTarget.classList.remove("drag-over");
+    event.currentTarget.classList.remove("border-primary-500");
+    event.currentTarget.classList.remove("bg-blue-50");
+
+    const files = event.dataTransfer.files;
+    processImageFiles(files, inputId);
+  }
+
+  function handleImageUpload(event, inputId) {
+    const files = event.target.files;
+    processImageFiles(files, inputId);
+  }
+
+  function processImageFiles(files, inputId) {
+    const previewContainer = document.getElementById(inputId + "-preview");
+
+    Array.from(files).forEach((file) => {
+      if (file.type.startsWith("image/")) {
+        // Validate file size (10MB max)
+        if (file.size > 10 * 1024 * 1024) {
+          alert('File "' + file.name + '" is too large. Maximum size is 10MB.');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const previewDiv = document.createElement("div");
+          previewDiv.className =
+            "image-preview relative group rounded-lg overflow-hidden border border-gray-200 animate-fade-in";
+          previewDiv.innerHTML = `
+                    <img src="${e.target.result}" alt="${file.name}" class="w-full h-32 object-cover">
+                    <div class="absolute top-2 left-2 px-2 py-1 bg-primary-600 text-white text-xs rounded">New</div>
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center space-x-2 opacity-0 group-hover:opacity-100">
+                        <button type="button" class="p-2 bg-white rounded-full hover:bg-gray-100" title="View">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                        </button>
+                        <button type="button" class="p-2 bg-white rounded-full hover:bg-gray-100" title="Remove" onclick="this.parentElement.parentElement.remove()">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+          previewContainer.appendChild(previewDiv);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+</script>

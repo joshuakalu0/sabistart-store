@@ -1,0 +1,1139 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{{ title }} | Store Admin</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "inverse-surface": "#0b0f10",
+              "on-surface": "#2a3439",
+              "on-primary": "#f8f7ff",
+              "primary": "#0053db",
+              "error-dim": "#4e0309",
+              "on-secondary-fixed-variant": "#4d5d73",
+              "surface-tint": "#0053db",
+              "error": "#9f403d",
+              "surface-container-high": "#e1e9ee",
+              "outline-variant": "#a9b4b9",
+              "on-error-container": "#752121",
+              "primary-fixed": "#dbe1ff",
+              "tertiary": "#605c78",
+              "on-primary-container": "#0048bf",
+              "surface-variant": "#d9e4ea",
+              "background": "#f7f9fb",
+              "tertiary-fixed-dim": "#d4cdee",
+              "outline": "#717c82",
+              "surface-container-highest": "#d9e4ea",
+              "on-surface-variant": "#566166",
+              "tertiary-dim": "#54506b",
+              "surface-dim": "#cfdce3",
+              "secondary": "#506076",
+              "on-tertiary-container": "#514d68",
+              "secondary-container": "#d3e4fe",
+              "on-tertiary-fixed-variant": "#5b5672",
+              "secondary-dim": "#44546a",
+              "inverse-on-surface": "#9a9d9f",
+              "surface-container-lowest": "#ffffff",
+              "on-primary-fixed-variant": "#0050d4",
+              "inverse-primary": "#618bff",
+              "surface-container": "#e8eff3",
+              "primary-fixed-dim": "#c7d3ff",
+              "tertiary-fixed": "#e3dbfd",
+              "secondary-fixed": "#d3e4fe",
+              "error-container": "#fe8983",
+              "surface": "#f7f9fb",
+              "on-secondary-fixed": "#314055",
+              "on-primary-fixed": "#003798",
+              "primary-container": "#dbe1ff",
+              "on-background": "#2a3439",
+              "surface-container-low": "#f0f4f7",
+              "on-tertiary-fixed": "#3e3a54",
+              "on-tertiary": "#fcf7ff",
+              "on-secondary": "#f7f9ff",
+              "tertiary-container": "#e3dbfd",
+              "secondary-fixed-dim": "#c5d6f0",
+              "surface-bright": "#f7f9fb",
+              "primary-dim": "#0048c1",
+              "on-error": "#fff7f6",
+              "on-secondary-container": "#435368"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+            line-height: 1;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .architectural-line { border-bottom: 2px solid transparent; transition: border-color 0.2s; }
+        .architectural-line:focus-within { border-bottom-color: #0053db; }
+        .glass-nav { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+
+        /* Form Error States */
+        .form-field-error {
+            border-bottom-color: #9f403d !important;
+            background-color: #fef2f2 !important;
+        }
+        .error-message {
+            color: #9f403d;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Toggle Switch Styling */
+        .toggle-checkbox {
+            opacity: 0;
+            position: absolute;
+        }
+
+        /* Layout Selection Cards */
+        .layout-option.selected {
+            border-color: #0053db;
+        }
+        .layout-option.selected .material-symbols-outlined {
+            color: #0053db;
+        }
+        .layout-option.selected .font-bold {
+            color: #0053db;
+        }
+
+        /* Comment System Selection */
+        .comment-system-option.selected {
+            border-color: #0053db;
+            background-color: #dbe1ff;
+        }
+        .comment-system-option.selected .material-symbols-outlined {
+            color: #0053db;
+        }
+        .comment-system-option.selected span {
+            color: #0053db;
+        }
+
+        /* Aspect Ratio Buttons */
+        .aspect-ratio-btn.selected {
+            border-color: #0053db;
+            color: #0053db;
+        }
+
+        /* Conditional Section Opacity */
+        .conditional-section {
+            transition: opacity 0.3s ease;
+        }
+        .conditional-section.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Range Input */
+        input[type="range"] {
+            accent-color: #0053db;
+        }
+
+        /* SEO Score Badge */
+        .seo-score {
+            transition: all 0.3s ease;
+        }
+        .seo-score.good {
+            color: #10B981;
+        }
+        .seo-score.average {
+            color: #F59E0B;
+        }
+        .seo-score.poor {
+            color: #9f403d;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+
+<!-- Django Messages Framework -->
+{% if messages %}
+<div class="fixed top-20 right-8 z-50 space-y-2">
+    {% for message in messages %}
+    <div class="flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg" style="background-color: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#9f403d{% else %}#ffffff{% endif %}; color: {% if message.tags == 'error' %}#fff7f6{% else %}#2a3439{% endif %};">
+        <span class="material-symbols-outlined text-sm">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span class="font-medium text-sm">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- TopNavBar -->
+<header class="sticky top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm dark:shadow-none transition-colors glass-nav">
+    <div class="flex items-center justify-between px-8 py-4 max-w-full mx-auto">
+        <div class="flex items-center gap-8">
+            <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50 font-headline">{{ title }}</span>
+            <nav class="hidden md:flex items-center gap-6 font-label text-sm font-medium">
+                <a class="text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-400 pb-1" href="#general">General</a>
+                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#layout">Layout</a>
+                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#posts">Post Display</a>
+                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#seo">SEO</a>
+                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#comments">Comments</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-4">
+            <button type="button" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100/50 transition-colors rounded-lg active:scale-[0.98] duration-150" onclick="window.location.href='{% url 'manage_blog_settings' %}'">Discard</button>
+            <button type="submit" form="blog-form" class="px-5 py-2.5 text-sm font-bold text-on-primary bg-gradient-to-b from-primary to-primary-dim rounded-lg shadow-sm hover:shadow-md transition-all active:scale-[0.98] duration-150">
+                {% if is_edit %}Publish Changes{% else %}Create Settings{% endif %}
+            </button>
+            <a href="{% url 'blog_preview' %}" class="px-4 py-2 text-sm font-semibold text-primary hover:bg-surface-container-low transition-colors rounded-lg">Preview</a>
+            {% if is_edit %}
+            <a href="{% url 'reset_blog_settings' %}" class="px-4 py-2 text-sm font-medium text-orange-600 hover:bg-orange-50 rounded-lg transition-all" title="Reset to defaults" onclick="return confirm('Are you sure you want to reset to default settings?')">
+                <span class="material-symbols-outlined text-sm align-middle">refresh</span>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+<main class="max-w-[1440px] mx-auto px-8 py-12">
+    <form id="blog-form" method="post" action="{{ action_url }}" novalidate>
+        {% csrf_token %}
+
+        <div class="grid grid-cols-12 gap-16">
+            <!-- Content Column -->
+            <div class="col-span-12 lg:col-span-8 space-y-24">
+
+                <!-- Section 1: General Settings -->
+                <section class="space-y-10" id="general">
+                    <header>
+                        <h2 class="text-display-md font-headline font-extrabold tracking-tight text-on-surface text-3xl mb-2">General Settings</h2>
+                        <p class="text-on-surface-variant text-sm">Core identity and accessibility controls for your blog environment.</p>
+                        {% if is_edit %}
+                        <p class="text-xs text-on-surface-variant mt-4">
+                            <span class="material-symbols-outlined text-xs align-middle">rss_feed</span>
+                            {{ enabled_features_count|default:0 }} features enabled •
+                            <span class="material-symbols-outlined text-xs align-middle">search</span>
+                            SEO Score: <span class="seo-score {% if seo_score >= 80 %}good{% elif seo_score >= 50 %}average{% else %}poor{% endif %}">{{ seo_score|default:0 }}/100</span> •
+                            <span class="material-symbols-outlined text-xs align-middle">widgets</span>
+                            {{ enabled_widgets_count|default:0 }} widgets
+                        </p>
+                        {% endif %}
+                    </header>
+                    <div class="bg-surface-container-low p-10 rounded-xl space-y-8">
+                        <div class="grid grid-cols-2 gap-8">
+                            <div class="space-y-2 group">
+                                <label class="block text-label-md font-medium text-on-surface-variant text-xs uppercase tracking-wider" for="{{ form.blog_title.id_for_label }}">Blog Title</label>
+                                <div class="architectural-line bg-surface-container-lowest rounded-t-lg">
+                                    {{ form.blog_title }}
+                                </div>
+                                {% if form.blog_title.errors %}
+                                    {% for error in form.blog_title.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-label-md font-medium text-on-surface-variant text-xs uppercase tracking-wider" for="{{ form.blog_url_prefix.id_for_label }}">URL Prefix</label>
+                                <div class="architectural-line bg-surface-container-lowest rounded-t-lg flex items-center px-4">
+                                    <span class="text-on-surface-variant text-sm font-mono">/{{ form.blog_url_prefix.value|default:'blog' }}/</span>
+                                </div>
+                                {% if form.blog_url_prefix.errors %}
+                                    {% for error in form.blog_url_prefix.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-label-md font-medium text-on-surface-variant text-xs uppercase tracking-wider" for="{{ form.blog_description.id_for_label }}">Description</label>
+                            <div class="architectural-line bg-surface-container-lowest rounded-t-lg">
+                                {{ form.blog_description }}
+                            </div>
+                            <div class="flex justify-between mt-1">
+                                <span class="text-xs text-on-surface-variant">Blog description for SEO</span>
+                                <span class="text-xs font-bold char-counter" id="description-counter">{{ form.blog_description.value|length|default:0 }} / 300</span>
+                            </div>
+                            {% if form.blog_description.errors %}
+                                {% for error in form.blog_description.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="flex items-center justify-between p-6 bg-surface-container-highest/30 rounded-lg">
+                            <div>
+                                <h4 class="font-bold text-on-surface">Enable Blog</h4>
+                                <p class="text-sm text-on-surface-variant">Temporarily disable public access to the blog.</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                {{ form.enable_blog }}
+                                <div class="w-11 h-6 bg-outline-variant/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" style="background-color: {% if form.enable_blog.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                    <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.enable_blog.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                                </div>
+                            </label>
+                        </div>
+                        {% if form.enable_blog.errors %}
+                            {% for error in form.enable_blog.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </section>
+
+                <!-- Section 2: Layout Configuration -->
+                <section class="space-y-10" id="layout">
+                    <header>
+                        <h2 class="text-display-md font-headline font-extrabold tracking-tight text-on-surface text-3xl mb-2">Layout Configuration</h2>
+                        <p class="text-on-surface-variant text-sm">Define how your post collection is spatially organized.</p>
+                    </header>
+                    <div class="bg-surface-container-low p-10 rounded-xl space-y-10">
+                        <div class="space-y-6">
+                            <label class="block text-label-md font-medium text-on-surface-variant text-xs uppercase tracking-wider" for="{{ form.layout.id_for_label }}">Primary Display Format</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <label class="layout-option flex items-center gap-4 p-4 rounded-lg bg-surface-container-lowest {% if form.layout.value == 'grid' %}border-2 border-primary{% else %}border-2 border-transparent hover:bg-white/50{% endif %} cursor-pointer">
+                                    <input type="radio" name="layout_visual" value="grid" class="hidden" {% if form.layout.value == 'grid' %}checked{% endif %}/>
+                                    <span class="material-symbols-outlined {% if form.layout.value == 'grid' %}text-primary{% else %}text-on-surface-variant{% endif %}">grid_view</span>
+                                    <div class="text-left">
+                                        <div class="font-bold {% if form.layout.value == 'grid' %}text-primary{% else %}text-on-surface{% endif %}">Grid Layout</div>
+                                        <div class="text-xs text-on-surface-variant">Visual, media-rich masonry</div>
+                                    </div>
+                                </label>
+                                <label class="layout-option flex items-center gap-4 p-4 rounded-lg bg-surface-container-lowest {% if form.layout.value == 'list' %}border-2 border-primary{% else %}border-2 border-transparent hover:bg-white/50{% endif %} cursor-pointer">
+                                    <input type="radio" name="layout_visual" value="list" class="hidden" {% if form.layout.value == 'list' %}checked{% endif %}/>
+                                    <span class="material-symbols-outlined {% if form.layout.value == 'list' %}text-primary{% else %}text-on-surface-variant{% endif %}">view_list</span>
+                                    <div class="text-left">
+                                        <div class="font-bold {% if form.layout.value == 'list' %}text-primary{% else %}text-on-surface{% endif %}">List Layout</div>
+                                        <div class="text-xs text-on-surface-variant">Text-focused readability</div>
+                                    </div>
+                                </label>
+                            </div>
+                            {{ form.layout }}
+                            {% if form.layout.errors %}
+                                {% for error in form.layout.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="grid grid-cols-2 gap-12">
+                            <div class="space-y-4">
+                                <label class="block text-label-md font-medium text-on-surface-variant text-xs uppercase tracking-wider" for="{{ form.posts_per_page.id_for_label }}">Posts Per Page</label>
+                                {{ form.posts_per_page }}
+                                <div class="flex justify-between text-xs font-mono text-on-surface-variant">
+                                    <span>6</span>
+                                    <span class="text-primary font-bold" id="posts-per-page-display">{{ form.posts_per_page.value|default:12 }} posts</span>
+                                    <span>50</span>
+                                </div>
+                                {% if form.posts_per_page.errors %}
+                                    {% for error in form.posts_per_page.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="space-y-4">
+                                <label class="block text-label-md font-medium text-on-surface-variant text-xs uppercase tracking-wider" for="{{ form.posts_per_row.id_for_label }}">Grid Columns (Desktop)</label>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" class="w-10 h-10 flex items-center justify-center rounded bg-surface-container-highest text-on-surface" onclick="decrementPostsPerRow()">-</button>
+                                    <div class="flex-1 text-center font-bold text-on-surface text-lg" id="posts-per-row-display">{{ form.posts_per_row.value|default:3 }}</div>
+                                    <button type="button" class="w-10 h-10 flex items-center justify-center rounded bg-surface-container-highest text-on-surface" onclick="incrementPostsPerRow()">+</button>
+                                </div>
+                                {{ form.posts_per_row }}
+                                {% if form.posts_per_row.errors %}
+                                    {% for error in form.posts_per_row.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-8 pt-4 border-t border-surface-container-high">
+                            <div class="space-y-2">
+                                <label class="block text-label-md font-medium text-on-surface-variant text-xs uppercase tracking-wider" for="{{ form.show_sidebar.id_for_label }}">Show Sidebar</label>
+                                {{ form.show_sidebar }}
+                                {% if form.show_sidebar.errors %}
+                                    {% for error in form.show_sidebar.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="space-y-2 {% if not form.show_sidebar.value %}conditional-section disabled{% endif %}" id="sidebar-position-section">
+                                <label class="block text-label-md font-medium text-on-surface-variant text-xs uppercase tracking-wider" for="{{ form.sidebar_position.id_for_label }}">Sidebar Position</label>
+                                {{ form.sidebar_position }}
+                                {% if form.sidebar_position.errors %}
+                                    {% for error in form.sidebar_position.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: Post Display Options -->
+                <section class="space-y-10" id="posts">
+                    <header>
+                        <h2 class="text-display-md font-headline font-extrabold tracking-tight text-on-surface text-3xl mb-2">Post Display Options</h2>
+                        <p class="text-on-surface-variant text-sm">Granular control over the appearance of individual post cards.</p>
+                    </header>
+                    <div class="bg-surface-container-low p-10 rounded-xl space-y-12">
+                        <div class="grid grid-cols-2 gap-x-16 gap-y-8">
+                            <div class="flex items-center justify-between py-2">
+                                <span class="font-medium text-on-surface">Show Featured Images</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    {{ form.show_featured_image }}
+                                    <div class="w-11 h-6 bg-outline-variant/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" style="background-color: {% if form.show_featured_image.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                        <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.show_featured_image.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                                    </div>
+                                </label>
+                            </div>
+                            {% if form.show_featured_image.errors %}
+                                {% for error in form.show_featured_image.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+
+                            <div class="flex items-center justify-between py-2">
+                                <span class="font-medium text-on-surface">Show Author Profile</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    {{ form.show_author }}
+                                    <div class="w-11 h-6 bg-outline-variant/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" style="background-color: {% if form.show_author.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                        <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.show_author.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                                    </div>
+                                </label>
+                            </div>
+                            {% if form.show_author.errors %}
+                                {% for error in form.show_author.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+
+                            <div class="flex items-center justify-between py-2">
+                                <span class="font-medium text-on-surface">Show Publication Date</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    {{ form.show_date }}
+                                    <div class="w-11 h-6 bg-outline-variant/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" style="background-color: {% if form.show_date.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                        <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.show_date.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                                    </div>
+                                </label>
+                            </div>
+                            {% if form.show_date.errors %}
+                                {% for error in form.show_date.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+
+                            <div class="flex items-center justify-between py-2">
+                                <span class="font-medium text-on-surface">Show Reading Time</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    {{ form.show_reading_time }}
+                                    <div class="w-11 h-6 bg-outline-variant/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" style="background-color: {% if form.show_reading_time.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                        <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.show_reading_time.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                                    </div>
+                                </label>
+                            </div>
+                            {% if form.show_reading_time.errors %}
+                                {% for error in form.show_reading_time.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="pt-8 border-t border-surface-container-high space-y-8">
+                            <div class="space-y-4">
+                                <label class="block text-label-md font-medium text-on-surface-variant text-xs uppercase tracking-wider" for="{{ form.featured_image_aspect_ratio.id_for_label }}">Featured Image Aspect Ratio</label>
+                                <div class="flex flex-wrap gap-3">
+                                    <button type="button" class="aspect-ratio-btn px-4 py-2 rounded-md bg-surface-container-lowest {% if form.featured_image_aspect_ratio.value == '16_9' %}border border-primary text-primary{% else %}border border-outline-variant/30 text-on-surface-variant{% endif %} text-sm font-bold" data-ratio="16_9">16:9 Cinema</button>
+                                    <button type="button" class="aspect-ratio-btn px-4 py-2 rounded-md bg-surface-container-lowest {% if form.featured_image_aspect_ratio.value == '4_3' %}border border-primary text-primary{% else %}border border-outline-variant/30 text-on-surface-variant{% endif %} text-sm font-medium" data-ratio="4_3">4:3 Standard</button>
+                                    <button type="button" class="aspect-ratio-btn px-4 py-2 rounded-md bg-surface-container-lowest {% if form.featured_image_aspect_ratio.value == '1_1' %}border border-primary text-primary{% else %}border border-outline-variant/30 text-on-surface-variant{% endif %} text-sm font-medium" data-ratio="1_1">1:1 Square</button>
+                                    <button type="button" class="aspect-ratio-btn px-4 py-2 rounded-md bg-surface-container-lowest {% if form.featured_image_aspect_ratio.value == 'auto' %}border border-primary text-primary{% else %}border border-outline-variant/30 text-on-surface-variant{% endif %} text-sm font-medium" data-ratio="auto">Original</button>
+                                </div>
+                                {{ form.featured_image_aspect_ratio }}
+                                {% if form.featured_image_aspect_ratio.errors %}
+                                    {% for error in form.featured_image_aspect_ratio.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="space-y-4">
+                                <label class="block text-label-md font-medium text-on-surface-variant text-xs uppercase tracking-wider" for="{{ form.show_excerpt.id_for_label }}">Excerpt Length</label>
+                                {{ form.excerpt_length }}
+                                <div class="flex justify-between text-xs font-mono text-on-surface-variant">
+                                    <span>50</span>
+                                    <span class="text-primary font-bold" id="excerpt-length-display">{{ form.excerpt_length.value|default:150 }} chars</span>
+                                    <span>500</span>
+                                </div>
+                                {% if form.excerpt_length.errors %}
+                                    {% for error in form.excerpt_length.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 4: Single Post Settings -->
+                <section class="space-y-10" id="single-post">
+                    <header>
+                        <h2 class="text-display-md font-headline font-extrabold tracking-tight text-on-surface text-3xl mb-2">Single Post Settings</h2>
+                        <p class="text-on-surface-variant text-sm">Control elements visible on individual article pages.</p>
+                    </header>
+                    <div class="bg-surface-container-low p-10 rounded-xl space-y-8">
+                        <div class="grid grid-cols-2 gap-8">
+                            <div class="space-y-2">
+                                <label class="block text-label-md font-medium text-on-surface-variant text-xs uppercase tracking-wider" for="{{ form.share_button_position.id_for_label }}">Social Share Position</label>
+                                {{ form.share_button_position }}
+                                {% if form.share_button_position.errors %}
+                                    {% for error in form.share_button_position.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-label-md font-medium text-on-surface-variant text-xs uppercase tracking-wider" for="{{ form.related_posts_count.id_for_label }}">Related Posts Count</label>
+                                {{ form.related_posts_count }}
+                                {% if form.related_posts_count.errors %}
+                                    {% for error in form.related_posts_count.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-6 bg-surface-container-lowest rounded-lg">
+                            <div class="flex items-center gap-4">
+                                <span class="material-symbols-outlined text-on-surface-variant">account_circle</span>
+                                <div>
+                                    <h4 class="font-bold text-on-surface">Author Bio Section</h4>
+                                    <p class="text-xs text-on-surface-variant">Show author details at the end of posts.</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                {{ form.show_author_bio }}
+                                <div class="w-11 h-6 bg-outline-variant/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" style="background-color: {% if form.show_author_bio.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                    <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.show_author_bio.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                                </div>
+                            </label>
+                        </div>
+                        {% if form.show_author_bio.errors %}
+                            {% for error in form.show_author_bio.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </section>
+
+                <!-- Section 5: Comments Management -->
+                <section class="space-y-10" id="comments">
+                    <header>
+                        <h2 class="text-display-md font-headline font-extrabold tracking-tight text-on-surface text-3xl mb-2">Comments Management</h2>
+                        <p class="text-on-surface-variant text-sm">Manage audience interaction and moderation rules.</p>
+                    </header>
+                    <div class="bg-surface-container-low p-10 rounded-xl space-y-8">
+                        <div class="space-y-4">
+                            <label class="block text-label-md font-medium text-on-surface-variant text-xs uppercase tracking-wider" for="{{ form.comment_system.id_for_label }}">Comment System</label>
+                            <div class="flex gap-4">
+                                <label class="comment-system-option flex-1 p-4 {% if form.comment_system.value == 'native' %}bg-primary-container rounded-lg border border-primary/20{% else %}bg-surface-container-lowest rounded-lg border border-transparent hover:border-primary/20{% endif %} flex flex-col items-center gap-2 cursor-pointer transition-all">
+                                    <input type="radio" name="comment_system_visual" value="native" class="hidden" {% if form.comment_system.value == 'native' %}checked{% endif %}/>
+                                    <span class="material-symbols-outlined {% if form.comment_system.value == 'native' %}text-on-primary-container{% else %}text-on-surface-variant{% endif %}">chat_bubble</span>
+                                    <span class="text-sm font-bold {% if form.comment_system.value == 'native' %}text-on-primary-container{% else %}text-on-surface-variant{% endif %}">Native</span>
+                                </label>
+                                <label class="comment-system-option flex-1 p-4 {% if form.comment_system.value == 'disqus' %}bg-primary-container rounded-lg border border-primary/20{% else %}bg-surface-container-lowest rounded-lg border border-transparent hover:border-primary/20{% endif %} flex flex-col items-center gap-2 cursor-pointer transition-all">
+                                    <input type="radio" name="comment_system_visual" value="disqus" class="hidden" {% if form.comment_system.value == 'disqus' %}checked{% endif %}/>
+                                    <span class="material-symbols-outlined {% if form.comment_system.value == 'disqus' %}text-on-primary-container{% else %}text-on-surface-variant{% endif %}">cloud</span>
+                                    <span class="text-sm font-bold {% if form.comment_system.value == 'disqus' %}text-on-primary-container{% else %}text-on-surface-variant{% endif %}">Disqus</span>
+                                </label>
+                                <label class="comment-system-option flex-1 p-4 {% if form.comment_system.value == 'facebook' %}bg-primary-container rounded-lg border border-primary/20{% else %}bg-surface-container-lowest rounded-lg border border-transparent hover:border-primary/20{% endif %} flex flex-col items-center gap-2 cursor-pointer transition-all">
+                                    <input type="radio" name="comment_system_visual" value="facebook" class="hidden" {% if form.comment_system.value == 'facebook' %}checked{% endif %}/>
+                                    <span class="material-symbols-outlined {% if form.comment_system.value == 'facebook' %}text-on-primary-container{% else %}text-on-surface-variant{% endif %}">social_leaderboard</span>
+                                    <span class="text-sm font-bold {% if form.comment_system.value == 'facebook' %}text-on-primary-container{% else %}text-on-surface-variant{% endif %}">FB Comments</span>
+                                </label>
+                            </div>
+                            {{ form.comment_system }}
+                            {% if form.comment_system.errors %}
+                                {% for error in form.comment_system.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="grid grid-cols-2 gap-8 pt-4">
+                            <div class="flex items-center gap-4">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    {{ form.require_approval }}
+                                    <div class="w-11 h-6 bg-outline-variant/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" style="background-color: {% if form.require_approval.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                        <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.require_approval.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                                    </div>
+                                </label>
+                                <span class="text-sm font-medium text-on-surface">Manual Approval Required</span>
+                            </div>
+                            {% if form.require_approval.errors %}
+                                {% for error in form.require_approval.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+
+                            <div class="flex items-center gap-4">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    {{ form.require_login_to_comment }}
+                                    <div class="w-11 h-6 bg-outline-variant/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" style="background-color: {% if form.require_login_to_comment.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                        <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.require_login_to_comment.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                                    </div>
+                                </label>
+                                <span class="text-sm font-medium text-on-surface">Require Login to Comment</span>
+                            </div>
+                            {% if form.require_login_to_comment.errors %}
+                                {% for error in form.require_login_to_comment.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 6: SEO & Metadata -->
+                <section class="space-y-10" id="seo">
+                    <header>
+                        <h2 class="text-display-md font-headline font-extrabold tracking-tight text-on-surface text-3xl mb-2">SEO &amp; Metadata</h2>
+                        <p class="text-on-surface-variant text-sm">Optimization tools for search engine visibility.</p>
+                    </header>
+                    <div class="bg-surface-container-low p-10 rounded-xl space-y-8">
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-between">
+                                <h4 class="font-bold text-on-surface">Auto-generate Meta Descriptions</h4>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    {{ form.auto_generate_meta }}
+                                    <div class="w-11 h-6 bg-outline-variant/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" style="background-color: {% if form.auto_generate_meta.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                        <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.auto_generate_meta.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                                    </div>
+                                </label>
+                            </div>
+                            {% if form.auto_generate_meta.errors %}
+                                {% for error in form.auto_generate_meta.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+
+                            <div class="flex items-center justify-between">
+                                <h4 class="font-bold text-on-surface">Enable Breadcrumbs</h4>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    {{ form.show_breadcrumbs }}
+                                    <div class="w-11 h-6 bg-outline-variant/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" style="background-color: {% if form.show_breadcrumbs.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                        <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.show_breadcrumbs.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                                    </div>
+                                </label>
+                            </div>
+                            {% if form.show_breadcrumbs.errors %}
+                                {% for error in form.show_breadcrumbs.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+
+                            <div class="flex items-center justify-between">
+                                <h4 class="font-bold text-on-surface">Schema.org Article Markup</h4>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    {{ form.enable_schema_markup }}
+                                    <div class="w-11 h-6 bg-outline-variant/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" style="background-color: {% if form.enable_schema_markup.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                        <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.enable_schema_markup.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                                    </div>
+                                </label>
+                            </div>
+                            {% if form.enable_schema_markup.errors %}
+                                {% for error in form.enable_schema_markup.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 7: Sidebar Widget Selection -->
+                <section class="space-y-10" id="widgets">
+                    <header>
+                        <h2 class="text-display-md font-headline font-extrabold tracking-tight text-on-surface text-3xl mb-2">Sidebar Widgets</h2>
+                        <p class="text-on-surface-variant text-sm">Choose which utilities appear in your global sidebar.</p>
+                    </header>
+                    <div class="bg-surface-container-low p-10 rounded-xl">
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                            <label class="flex items-center p-4 bg-surface-container-lowest rounded-lg {% if form.show_search_widget.value %}border border-primary/20{% else %}border border-transparent{% endif %} cursor-pointer">
+                                {{ form.show_search_widget }}
+                                <span class="font-medium text-on-surface">Search Bar</span>
+                            </label>
+                            {% if form.show_search_widget.errors %}
+                                {% for error in form.show_search_widget.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+
+                            <label class="flex items-center p-4 bg-surface-container-lowest rounded-lg {% if form.show_categories_widget.value %}border border-primary/20{% else %}border border-transparent{% endif %} cursor-pointer">
+                                {{ form.show_categories_widget }}
+                                <span class="font-medium text-on-surface">Categories</span>
+                            </label>
+                            {% if form.show_categories_widget.errors %}
+                                {% for error in form.show_categories_widget.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+
+                            <label class="flex items-center p-4 bg-surface-container-lowest rounded-lg {% if form.show_recent_posts_widget.value %}border border-primary/20{% else %}border border-transparent{% endif %} cursor-pointer">
+                                {{ form.show_recent_posts_widget }}
+                                <span class="font-medium text-on-surface">Recent Posts</span>
+                            </label>
+                            {% if form.show_recent_posts_widget.errors %}
+                                {% for error in form.show_recent_posts_widget.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+
+                            <label class="flex items-center p-4 bg-surface-container-lowest rounded-lg {% if form.show_popular_posts_widget.value %}border border-primary/20{% else %}border border-transparent{% endif %} cursor-pointer">
+                                {{ form.show_popular_posts_widget }}
+                                <span class="font-medium text-on-surface">Popular Posts</span>
+                            </label>
+                            {% if form.show_popular_posts_widget.errors %}
+                                {% for error in form.show_popular_posts_widget.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+
+                            <label class="flex items-center p-4 bg-surface-container-lowest rounded-lg {% if form.show_tags_widget.value %}border border-primary/20{% else %}border border-transparent{% endif %} cursor-pointer">
+                                {{ form.show_tags_widget }}
+                                <span class="font-medium text-on-surface">Tag Cloud</span>
+                            </label>
+                            {% if form.show_tags_widget.errors %}
+                                {% for error in form.show_tags_widget.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+
+                            <label class="flex items-center p-4 bg-surface-container-lowest rounded-lg {% if form.show_newsletter_widget.value %}border border-primary/20{% else %}border border-transparent{% endif %} cursor-pointer">
+                                {{ form.show_newsletter_widget }}
+                                <span class="font-medium text-on-surface">Newsletter</span>
+                            </label>
+                            {% if form.show_newsletter_widget.errors %}
+                                {% for error in form.show_newsletter_widget.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 8: RSS Feed Settings -->
+                <section class="pb-24 space-y-10" id="rss">
+                    <header>
+                        <h2 class="text-display-md font-headline font-extrabold tracking-tight text-on-surface text-3xl mb-2">RSS Feed</h2>
+                        <p class="text-on-surface-variant text-sm">Syndication settings for external readers.</p>
+                    </header>
+                    <div class="bg-surface-container-low p-10 rounded-xl grid grid-cols-2 gap-12 items-center">
+                        <div class="flex items-center gap-4">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                {{ form.enable_rss_feed }}
+                                <div class="w-11 h-6 bg-outline-variant/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" style="background-color: {% if form.enable_rss_feed.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                    <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.enable_rss_feed.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                                </div>
+                            </label>
+                            <span class="font-medium text-on-surface">Active Syndication</span>
+                        </div>
+                        {% if form.enable_rss_feed.errors %}
+                            {% for error in form.enable_rss_feed.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="space-y-2">
+                            <label class="block text-label-md font-medium text-on-surface-variant text-xs uppercase tracking-wider" for="{{ form.rss_posts_count.id_for_label }}">Posts in Feed</label>
+                            <div class="architectural-line bg-surface-container-lowest rounded-t-lg">
+                                {{ form.rss_posts_count }}
+                            </div>
+                            {% if form.rss_posts_count.errors %}
+                                {% for error in form.rss_posts_count.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Preview Column (Sticky) -->
+            <div class="hidden lg:block lg:col-span-4">
+                <div class="sticky top-32 space-y-12">
+                    <!-- Grid vs List Preview -->
+                    <div class="space-y-4">
+                        <h3 class="text-xs font-extrabold uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">visibility</span>
+                            Layout Preview
+                        </h3>
+                        <div class="bg-surface-container-high aspect-video rounded-xl overflow-hidden p-4">
+                            <div class="grid grid-cols-3 gap-2 h-full">
+                                <div class="bg-surface-container-lowest rounded shadow-sm"></div>
+                                <div class="bg-surface-container-lowest rounded shadow-sm"></div>
+                                <div class="bg-surface-container-lowest rounded shadow-sm"></div>
+                                <div class="bg-surface-container-lowest rounded shadow-sm"></div>
+                                <div class="bg-surface-container-lowest rounded shadow-sm"></div>
+                                <div class="bg-surface-container-lowest rounded shadow-sm"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Post Card Preview -->
+                    <div class="space-y-4">
+                        <h3 class="text-xs font-extrabold uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">style</span>
+                            Post Card Live Mockup
+                        </h3>
+                        <div class="bg-surface-container-lowest border border-outline-variant/10 rounded-xl overflow-hidden shadow-sm">
+                            <div class="aspect-video bg-slate-200 overflow-hidden relative">
+                                <img alt="Architectural visual of a modern concrete building" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9YrAdIy-NWcBVG0YaUmhL_L929vH6KtzfkKViYvydQS8S_d0QztNBO0hwHqHgwMpZsqUM9KBJ80ihO5VMbIwl2W8Tl_JkGSfbS_Kit-b7xYvSlDJCTjraqMvdx2tHMXYPsKFTMyS7_CI5bkHYY2x0c3MNRXniJrBj3PRLbkgLv7xvv7YeIFZ_A6JixIN8tJml6o9PuLtBSGofbVJZskksS3wHc9s_DmoQLXGedZG0xya1T_gs4-U9HU3-q0KuQJhBXLPcQd7Ezqs"/>
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                            </div>
+                            <div class="p-6 space-y-3">
+                                {% if form.show_author.value or form.show_date.value %}
+                                <div class="flex items-center gap-3">
+                                    {% if form.show_author.value and form.show_author_avatar.value %}
+                                    <div class="w-6 h-6 rounded-full bg-primary-container flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-[12px] text-on-primary-container">person</span>
+                                    </div>
+                                    {% endif %}
+                                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight">
+                                        {% if form.show_author.value %}John Architect{% endif %}
+                                        {% if form.show_author.value and form.show_date.value %} • {% endif %}
+                                        {% if form.show_date.value %}Oct 24, 2023{% endif %}
+                                    </span>
+                                </div>
+                                {% endif %}
+                                <h4 class="font-headline font-bold text-lg leading-tight text-on-surface">The Precision of Void: Structural Silence in Modern Atriums</h4>
+                                {% if form.show_excerpt.value %}
+                                <p class="text-xs text-on-surface-variant line-clamp-2">Exploring how negative space defines the weight of concrete structures in brutalist revivals.</p>
+                                {% endif %}
+                                {% if form.show_read_more_button.value %}
+                                <div class="pt-2">
+                                    <button class="bg-primary text-on-primary text-[10px] font-bold py-2 px-4 rounded">READ ARTICLE</button>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar Preview -->
+                    <div class="space-y-4">
+                        <h3 class="text-xs font-extrabold uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">list_alt</span>
+                            Sidebar Visualization
+                        </h3>
+                        <div class="bg-surface-container-low border-l-4 border-primary rounded-r-xl p-6 space-y-6">
+                            {% if form.show_search_widget.value %}
+                            <div class="h-8 bg-surface-container-lowest rounded-full flex items-center px-4">
+                                <span class="material-symbols-outlined text-sm text-on-surface-variant">search</span>
+                            </div>
+                            {% endif %}
+                            {% if form.show_recent_posts_widget.value or form.show_popular_posts_widget.value %}
+                            <div class="space-y-3">
+                                <div class="h-3 w-1/2 bg-surface-container-highest rounded"></div>
+                                <div class="h-4 w-full bg-surface-container-highest/50 rounded"></div>
+                                <div class="h-4 w-5/6 bg-surface-container-highest/50 rounded"></div>
+                            </div>
+                            {% endif %}
+                            {% if form.show_tags_widget.value %}
+                            <div class="pt-4 space-y-2">
+                                <div class="h-2 w-1/3 bg-on-surface-variant/20 rounded"></div>
+                                <div class="flex flex-wrap gap-2">
+                                    <div class="h-6 w-12 bg-surface-container-highest rounded"></div>
+                                    <div class="h-6 w-16 bg-surface-container-highest rounded"></div>
+                                    <div class="h-6 w-10 bg-surface-container-highest rounded"></div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</main>
+
+<!-- Success Toast -->
+<div class="fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-inverse-surface text-inverse-on-surface px-6 py-3 rounded-full shadow-xl pointer-events-none opacity-0 transition-opacity" id="success-toast">
+    <span class="material-symbols-outlined text-green-400">check_circle</span>
+    <span class="text-sm font-medium">Changes saved successfully.</span>
+</div>
+
+<!-- JavaScript for Dynamic Interactions -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // === Toggle Switch Styling ===
+        const toggleCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+        toggleCheckboxes.forEach(function(checkbox) {
+            checkbox.classList.add('toggle-checkbox');
+
+            checkbox.addEventListener('change', function() {
+                const toggleDiv = this.parentElement.querySelector('div.w-11.h-6');
+                const toggleKnob = toggleDiv?.querySelector('span.absolute');
+
+                if (toggleDiv) {
+                    toggleDiv.style.backgroundColor = this.checked ? '#0053db' : '#d9e4ea';
+                }
+                if (toggleKnob) {
+                    toggleKnob.style.left = this.checked ? '28px' : '4px';
+                }
+
+                // Handle conditional sections
+                if (this.id === '{{ form.show_sidebar.id_for_label }}') {
+                    const sidebarSection = document.getElementById('sidebar-position-section');
+                    if (sidebarSection) {
+                        sidebarSection.classList.toggle('disabled', !this.checked);
+                    }
+                }
+
+                // Update preview
+                updateBlogPreview();
+            });
+        });
+
+        // === Layout Selection ===
+        const layoutOptions = document.querySelectorAll('input[name="layout_visual"]');
+        const layoutInput = document.getElementById('{{ form.layout.id_for_label }}');
+
+        layoutOptions.forEach(function(option) {
+            option.addEventListener('change', function() {
+                document.querySelectorAll('.layout-option').forEach(function(el) {
+                    el.classList.remove('selected', 'border-primary');
+                    el.classList.add('border-transparent');
+                    el.querySelector('.material-symbols-outlined').classList.remove('text-primary');
+                    el.querySelector('.material-symbols-outlined').classList.add('text-on-surface-variant');
+                    el.querySelector('.font-bold').classList.remove('text-primary');
+                    el.querySelector('.font-bold').classList.add('text-on-surface');
+                });
+
+                const parent = this.closest('.layout-option');
+                parent.classList.add('selected', 'border-primary');
+                parent.classList.remove('border-transparent');
+                parent.querySelector('.material-symbols-outlined').classList.remove('text-on-surface-variant');
+                parent.querySelector('.material-symbols-outlined').classList.add('text-primary');
+                parent.querySelector('.font-bold').classList.remove('text-on-surface');
+                parent.querySelector('.font-bold').classList.add('text-primary');
+
+                if (layoutInput) {
+                    layoutInput.value = this.value;
+                }
+
+                updateBlogPreview();
+            });
+        });
+
+        // === Comment System Selection ===
+        const commentSystemOptions = document.querySelectorAll('input[name="comment_system_visual"]');
+        const commentSystemInput = document.getElementById('{{ form.comment_system.id_for_label }}');
+
+        commentSystemOptions.forEach(function(option) {
+            option.addEventListener('change', function() {
+                document.querySelectorAll('.comment-system-option').forEach(function(el) {
+                    el.classList.remove('selected', 'bg-primary-container', 'border-primary/20');
+                    el.classList.add('bg-surface-container-lowest', 'border-transparent');
+                    el.querySelector('.material-symbols-outlined').classList.remove('text-on-primary-container');
+                    el.querySelector('.material-symbols-outlined').classList.add('text-on-surface-variant');
+                    el.querySelector('span').classList.remove('text-on-primary-container');
+                    el.querySelector('span').classList.add('text-on-surface-variant');
+                });
+
+                const parent = this.closest('.comment-system-option');
+                parent.classList.add('selected', 'bg-primary-container', 'border-primary/20');
+                parent.classList.remove('bg-surface-container-lowest', 'border-transparent');
+                parent.querySelector('.material-symbols-outlined').classList.remove('text-on-surface-variant');
+                parent.querySelector('.material-symbols-outlined').classList.add('text-on-primary-container');
+                parent.querySelector('span').classList.remove('text-on-surface-variant');
+                parent.querySelector('span').classList.add('text-on-primary-container');
+
+                if (commentSystemInput) {
+                    commentSystemInput.value = this.value;
+                }
+            });
+        });
+
+        // === Aspect Ratio Selection ===
+        const aspectRatioBtns = document.querySelectorAll('.aspect-ratio-btn');
+        const aspectRatioInput = document.getElementById('{{ form.featured_image_aspect_ratio.id_for_label }}');
+
+        aspectRatioBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                aspectRatioBtns.forEach(function(b) {
+                    b.classList.remove('selected', 'border-primary', 'text-primary');
+                    b.classList.add('border-outline-variant/30', 'text-on-surface-variant');
+                });
+
+                this.classList.remove('border-outline-variant/30', 'text-on-surface-variant');
+                this.classList.add('selected', 'border-primary', 'text-primary');
+
+                if (aspectRatioInput) {
+                    aspectRatioInput.value = this.getAttribute('data-ratio');
+                }
+
+                updateBlogPreview();
+            });
+        });
+
+        // === Posts Per Page Range Display ===
+        const postsPerPageRange = document.getElementById('{{ form.posts_per_page.id_for_label }}');
+        const postsPerPageDisplay = document.getElementById('posts-per-page-display');
+
+        if (postsPerPageRange && postsPerPageDisplay) {
+            postsPerPageDisplay.textContent = postsPerPageRange.value + ' posts';
+
+            postsPerPageRange.addEventListener('input', function() {
+                postsPerPageDisplay.textContent = this.value + ' posts';
+            });
+        }
+
+        // === Posts Per Row Counter ===
+        const postsPerRowInput = document.getElementById('{{ form.posts_per_row.id_for_label }}');
+        const postsPerRowDisplay = document.getElementById('posts-per-row-display');
+
+        window.decrementPostsPerRow = function() {
+            if (postsPerRowInput && postsPerRowDisplay) {
+                let value = parseInt(postsPerRowInput.value) || 3;
+                if (value > 1) {
+                    value--;
+                    postsPerRowInput.value = value;
+                    postsPerRowDisplay.textContent = value;
+                }
+            }
+        };
+
+        window.incrementPostsPerRow = function() {
+            if (postsPerRowInput && postsPerRowDisplay) {
+                let value = parseInt(postsPerRowInput.value) || 3;
+                if (value < 4) {
+                    value++;
+                    postsPerRowInput.value = value;
+                    postsPerRowDisplay.textContent = value;
+                }
+            }
+        };
+
+        // === Excerpt Length Range Display ===
+        const excerptLengthRange = document.getElementById('{{ form.excerpt_length.id_for_label }}');
+        const excerptLengthDisplay = document.getElementById('excerpt-length-display');
+
+        if (excerptLengthRange && excerptLengthDisplay) {
+            excerptLengthDisplay.textContent = excerptLengthRange.value + ' chars';
+
+            excerptLengthRange.addEventListener('input', function() {
+                excerptLengthDisplay.textContent = this.value + ' chars';
+            });
+        }
+
+        // === Description Character Counter ===
+        const descriptionInput = document.getElementById('{{ form.blog_description.id_for_label }}');
+        const descriptionCounter = document.getElementById('description-counter');
+
+        if (descriptionInput && descriptionCounter) {
+            descriptionCounter.textContent = descriptionInput.value.length + ' / 300';
+
+            descriptionInput.addEventListener('input', function() {
+                descriptionCounter.textContent = this.value.length + ' / 300';
+
+                if (this.value.length > 270) {
+                    descriptionCounter.classList.add('text-error');
+                } else {
+                    descriptionCounter.classList.remove('text-error');
+                }
+            });
+        }
+
+        // === Update Blog Preview ===
+        function updateBlogPreview() {
+            // Update post card preview based on settings
+            const showAuthor = document.getElementById('{{ form.show_author.id_for_label }}')?.checked;
+            const showDate = document.getElementById('{{ form.show_date.id_for_label }}')?.checked;
+            const showExcerpt = document.getElementById('{{ form.show_excerpt.id_for_label }}')?.checked;
+            const showReadMore = document.getElementById('{{ form.show_read_more_button.id_for_label }}')?.checked;
+
+            const authorDateElement = document.querySelector('.flex.items-center.gap-3');
+            const excerptElement = document.querySelector('.line-clamp-2');
+            const readMoreButton = document.querySelector('button.bg-primary');
+
+            if (authorDateElement) {
+                authorDateElement.style.display = (showAuthor || showDate) ? 'flex' : 'none';
+            }
+            if (excerptElement) {
+                excerptElement.style.display = showExcerpt ? 'block' : 'none';
+            }
+            if (readMoreButton) {
+                readMoreButton.parentElement.style.display = showReadMore ? 'block' : 'none';
+            }
+
+            // Update sidebar preview based on widget settings
+            const searchWidget = document.querySelector('.h-8.bg-surface-container-lowest.rounded-full');
+            const recentPostsWidget = document.querySelectorAll('.space-y-3')[1];
+            const tagsWidget = document.querySelector('.pt-4.space-y-2');
+
+            if (searchWidget) {
+                searchWidget.style.display = document.getElementById('{{ form.show_search_widget.id_for_label }}')?.checked ? 'flex' : 'none';
+            }
+            if (recentPostsWidget) {
+                recentPostsWidget.style.display = (document.getElementById('{{ form.show_recent_posts_widget.id_for_label }}')?.checked || document.getElementById('{{ form.show_popular_posts_widget.id_for_label }}')?.checked) ? 'block' : 'none';
+            }
+            if (tagsWidget) {
+                tagsWidget.style.display = document.getElementById('{{ form.show_tags_widget.id_for_label }}')?.checked ? 'block' : 'none';
+            }
+        }
+
+        // === Hide Messages After 5 Seconds ===
+        setTimeout(function() {
+            const messages = document.querySelectorAll('.fixed.top-20');
+            messages.forEach(function(msg) {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    msg.remove();
+                }, 500);
+            });
+        }, 5000);
+
+        // === Form Change Detection ===
+        const form = document.getElementById('blog-form');
+        let formChanged = false;
+
+        form.addEventListener('input', function() {
+            formChanged = true;
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (formChanged) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // === Smooth Scroll for Navigation ===
+        const navLinks = document.querySelectorAll('nav a[href^="#"]');
+        navLinks.forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // === Initialize Preview ===
+        updateBlogPreview();
+    });
+</script>
+
+</body>
+</html>

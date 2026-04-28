@@ -1,0 +1,155 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Edit Customer — {{ customer.display_name }}</h2>
+    <p class="text-slate-500 dark:text-slate-400 text-sm">Commerce profile only. Identity fields are managed via the User record.</p>
+  </div>
+  <a href="{% url 'dashboard:user_settings:customer_detail' prefix customer.pk %}" class="text-sm text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 flex items-center space-x-1">
+    <span class="material-icons-outlined text-sm">arrow_back</span><span>Back</span>
+  </a>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+
+      <!-- Status & Tier -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <h3 class="font-semibold text-slate-900 dark:text-white mb-4">Status &amp; Classification</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Status</label>
+            {{ form.status }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tier</label>
+            {{ form.tier }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Loyalty Points</label>
+            {{ form.loyalty_points }}
+          </div>
+        </div>
+      </div>
+
+      <!-- B2B & Tax -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <h3 class="font-semibold text-slate-900 dark:text-white mb-4">Business Details</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Company Name</label>
+            {{ form.company }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tax ID</label>
+            {{ form.tax_id }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tax Exempt Status</label>
+            {{ form.tax_exempt_status }}
+          </div>
+          <div class="flex items-center space-x-3 pt-5">
+            {{ form.is_b2b }}
+            <label class="text-sm text-slate-700 dark:text-slate-300">B2B Customer</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <h3 class="font-semibold text-slate-900 dark:text-white mb-2">Tags</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Press Enter or comma after each tag to add it</p>
+        <div id="tag-container" class="flex flex-wrap gap-2 p-3 border border-slate-300 dark:border-slate-600 rounded-lg min-h-[48px] cursor-text">
+          <!-- Tags rendered by JS -->
+        </div>
+        {{ form.tags_input }}
+        {% if form.tags_input.errors %}<p class="text-red-500 text-xs mt-1">{{ form.tags_input.errors|join:", " }}</p>{% endif %}
+      </div>
+
+      <!-- Attribution -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <h3 class="font-semibold text-slate-900 dark:text-white mb-4">Attribution</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Acquisition Source</label>
+            {{ form.acquisition_source }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Referral Code</label>
+            {{ form.referral_code }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UTM Source</label>
+            {{ form.utm_source }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UTM Medium</label>
+            {{ form.utm_medium }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Staff Note -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <h3 class="font-semibold text-slate-900 dark:text-white mb-2">Internal Staff Note</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Visible only to staff — not the customer</p>
+        {{ form.staff_note }}
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      {% if form.non_field_errors %}
+      <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">
+        {% for error in form.non_field_errors %}<p class="text-red-600 text-sm">{{ error }}</p>{% endfor %}
+      </div>
+      {% endif %}
+      <button type="submit" class="w-full bg-primary text-white py-2.5 rounded-lg font-medium hover:bg-blue-600 transition-colors">Save Changes</button>
+      <a href="{% url 'dashboard:user_settings:customer_detail' prefix customer.pk %}"
+         class="block w-full text-center py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</a>
+    </div>
+  </div>
+</form>
+
+<script>
+  /* Input styling */
+  document.querySelectorAll("input:not([type=checkbox]):not([type=radio]), select, textarea").forEach(el => {
+    if(!el.id.startsWith("id_tags_input")) {
+      el.classList.add("w-full","px-3","py-2","border","border-slate-300","dark:border-slate-600","rounded-lg","text-sm","dark:bg-slate-700","dark:text-white","focus:ring-2","focus:ring-primary","focus:outline-none");
+    }
+  });
+
+  /* Tag chip widget */
+  const tagsInput = document.querySelector("[data-tags-input]");
+  const container = document.getElementById("tag-container");
+  if(tagsInput && container) {
+    tagsInput.classList.add("hidden");
+    let tags = tagsInput.value ? tagsInput.value.split(",").map(t => t.trim()).filter(Boolean) : [];
+
+    const chipInput = document.createElement("input");
+    chipInput.type = "text";
+    chipInput.placeholder = "Add tag…";
+    chipInput.className = "outline-none text-sm bg-transparent dark:text-white flex-1 min-w-[100px]";
+    container.appendChild(chipInput);
+
+    function renderTags() {
+      container.querySelectorAll(".tag-chip").forEach(c => c.remove());
+      tags.forEach((tag, i) => {
+        const chip = document.createElement("span");
+        chip.className = "tag-chip flex items-center space-x-1 px-2 py-0.5 bg-primary/10 text-primary rounded-full text-xs";
+        chip.innerHTML = `${tag}<button type="button" class="ml-1 text-primary/60 hover:text-red-500" data-i="${i}">✕</button>`;
+        chip.querySelector("button").addEventListener("click", () => { tags.splice(i,1); renderTags(); syncHidden(); });
+        container.insertBefore(chip, chipInput);
+      });
+      syncHidden();
+    }
+    function syncHidden() { tagsInput.value = tags.join(", "); }
+    function addTag(v) { const t = v.trim(); if(t && !tags.includes(t)) { tags.push(t); renderTags(); } chipInput.value=""; }
+    chipInput.addEventListener("keydown", e => { if(e.key==="Enter"||e.key===","){ e.preventDefault(); addTag(chipInput.value); } });
+    chipInput.addEventListener("blur", () => { if(chipInput.value.trim()) addTag(chipInput.value); });
+    container.addEventListener("click", () => chipInput.focus());
+    renderTags();
+  }
+</script>
+{% endblock %}

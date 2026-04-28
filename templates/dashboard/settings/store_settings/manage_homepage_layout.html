@@ -1,0 +1,1061 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{{ title }} | Store Admin</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@700;800&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-error-container": "#752121",
+              "on-surface-variant": "#566166",
+              "on-primary-fixed-variant": "#0050d4",
+              "background": "#f7f9fb",
+              "primary": "#0053db",
+              "surface-container-lowest": "#ffffff",
+              "on-secondary-container": "#435368",
+              "on-secondary": "#f7f9ff",
+              "error-container": "#fe8983",
+              "secondary-dim": "#44546a",
+              "on-secondary-fixed": "#314055",
+              "primary-fixed-dim": "#c7d3ff",
+              "surface-container-highest": "#d9e4ea",
+              "on-tertiary-fixed-variant": "#5b5672",
+              "on-primary": "#f8f7ff",
+              "on-tertiary-fixed": "#3e3a54",
+              "error": "#9f403d",
+              "on-surface": "#2a3439",
+              "on-primary-fixed": "#003798",
+              "surface": "#f7f9fb",
+              "tertiary-dim": "#54506b",
+              "surface-dim": "#cfdce3",
+              "on-secondary-fixed-variant": "#4d5d73",
+              "on-error": "#fff7f6",
+              "on-tertiary": "#fcf7ff",
+              "surface-container": "#e8eff3",
+              "inverse-primary": "#618bff",
+              "secondary-fixed": "#d3e4fe",
+              "surface-variant": "#d9e4ea",
+              "surface-tint": "#0053db",
+              "surface-container-low": "#f0f4f7",
+              "secondary-container": "#d3e4fe",
+              "primary-fixed": "#dbe1ff",
+              "outline": "#717c82",
+              "secondary-fixed-dim": "#c5d6f0",
+              "tertiary-fixed-dim": "#d4cdee",
+              "tertiary": "#605c78",
+              "tertiary-container": "#e3dbfd",
+              "tertiary-fixed": "#e3dbfd",
+              "error-dim": "#4e0309",
+              "on-tertiary-container": "#514d68",
+              "surface-container-high": "#e1e9ee",
+              "primary-container": "#dbe1ff",
+              "on-background": "#2a3439",
+              "inverse-on-surface": "#9a9d9f",
+              "secondary": "#506076",
+              "outline-variant": "#a9b4b9",
+              "on-primary-container": "#0048bf",
+              "primary-dim": "#0048c1",
+              "surface-bright": "#f7f9fb",
+              "inverse-surface": "#0b0f10"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .architectural-line {
+            border-bottom: 2px solid #0053db;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #d9e4ea;
+            border-radius: 10px;
+        }
+
+        /* Form Error States */
+        .form-field-error {
+            border-bottom-color: #9f403d !important;
+            background-color: #fef2f2 !important;
+        }
+        .error-message {
+            color: #9f403d;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Toggle Switch Styling */
+        .toggle-checkbox {
+            opacity: 0;
+            position: absolute;
+        }
+
+        /* Drag and Drop */
+        .section-order-item {
+            transition: all 0.2s ease;
+        }
+        .section-order-item.dragging {
+            opacity: 0.5;
+            transform: scale(1.05);
+        }
+        .section-order-item.over {
+            border-color: #0053db !important;
+            background-color: #dbe1ff !important;
+        }
+
+        /* Conditional Section Opacity */
+        .conditional-section {
+            transition: opacity 0.3s ease;
+        }
+        .conditional-section.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Hero Layout Selection */
+        .hero-layout-option.selected {
+            border-color: #0053db;
+        }
+        .hero-layout-option.selected .text-primary {
+            color: #0053db;
+        }
+
+        /* Banner Layout Selection */
+        .banner-layout-option.selected {
+            border-color: #0053db;
+        }
+        .banner-layout-option.selected .text-primary {
+            color: #0053db;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface custom-scrollbar">
+
+<!-- Django Messages Framework -->
+{% if messages %}
+<div class="fixed top-24 right-8 z-50 space-y-2">
+    {% for message in messages %}
+    <div class="flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg" style="background-color: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#9f403d{% else %}#ffffff{% endif %}; color: {% if message.tags == 'error' %}#fff7f6{% else %}#2a3439{% endif %};">
+        <span class="material-symbols-outlined text-sm">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span class="font-medium text-sm">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- TopNavBar -->
+<header class="sticky top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm dark:shadow-none flex justify-between items-center px-12 py-4">
+    <div class="flex items-center gap-8">
+        <span class="text-xl font-extrabold tracking-tighter text-slate-900 dark:text-white font-headline">{{ title }}</span>
+        <nav class="hidden md:flex gap-6 items-center">
+            <a class="font-headline font-bold text-lg tracking-tight text-[#0053db] dark:text-blue-400 border-b-2 border-[#0053db] pb-1" href="#hero">Hero</a>
+            <a class="font-headline font-bold text-lg tracking-tight text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors pb-1" href="#collections">Collections</a>
+            <a class="font-headline font-bold text-lg tracking-tight text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors pb-1" href="#featured">Featured</a>
+            <a class="font-headline font-bold text-lg tracking-tight text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors pb-1" href="#content">Content</a>
+        </nav>
+    </div>
+    <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 mr-4">
+            <a href="{% url 'homepage_preview' %}" class="p-2 text-on-surface-variant hover:bg-slate-50/50 rounded-md transition-all active:scale-[0.98]" title="Preview">
+                <span class="material-symbols-outlined">visibility</span>
+            </a>
+            <button type="button" class="p-2 text-on-surface-variant hover:bg-slate-50/50 rounded-md transition-all active:scale-[0.98]" title="Settings">
+                <span class="material-symbols-outlined">settings</span>
+            </button>
+        </div>
+        <button type="button" class="px-4 py-2 text-sm font-medium text-secondary hover:bg-slate-50/50 rounded-md transition-all" onclick="window.location.href='{% url 'manage_homepage_layout' %}'">Discard</button>
+        <button type="submit" form="homepage-form" class="px-6 py-2 bg-primary text-on-primary font-bold rounded-md shadow-lg shadow-primary/20 hover:bg-primary-dim transition-all active:scale-[0.95] relative overflow-hidden">
+            <div class="absolute inset-0 bg-white/10 pointer-events-none" style="box-shadow: inset 0 2px 0 0 rgba(255,255,255,0.2);"></div>
+            {% if is_edit %}Save Changes{% else %}Create Layout{% endif %}
+        </button>
+        {% if is_edit %}
+        <a href="{% url 'reset_homepage_layout' %}" class="px-4 py-2 text-sm font-medium text-orange-600 hover:bg-orange-50 rounded-md transition-all" title="Reset to defaults" onclick="return confirm('Are you sure you want to reset to default layout?')">
+            <span class="material-symbols-outlined text-sm align-middle">refresh</span>
+            Reset
+        </a>
+        {% endif %}
+        <img alt="Admin Avatar" class="w-10 h-10 rounded-full object-cover ring-2 ring-surface-container-highest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbqfRbz_XkTo9QaS86oA09GcWojV0M6wkCfAUxhD1UJ4GwvrfAnsHQjGhzjps40QW-DLpceVJHXEQMNaScvH8d1cxKEiQH7kt5mMg9mQlyam-q1BWvnaHOT1PHc_KmCnN_ImwSVfniWtSf-6hjS4CJm_xzsWNepmnWY4iOxgLqYsj6zMr_bJnv9z6LUlHKetlfHwURO8UPcg8h3xjdP2_aIi4iHJG-HcOYBx6sXtW7QcdY_lTJmyC_7mYbixQuDmt35HPdq1uG9tg"/>
+    </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-12 py-16 space-y-24">
+    <form id="homepage-form" method="post" action="{{ action_url }}" novalidate>
+        {% csrf_token %}
+
+        <!-- Header Section -->
+        <section class="space-y-4">
+            <h1 class="font-headline text-5xl font-extrabold text-on-surface tracking-tight">Main Homepage Layout</h1>
+            <p class="text-on-surface-variant text-lg max-w-2xl leading-relaxed">
+                Configure the architectural structure of your store's landing page. Toggle sections, adjust layouts, and define the global visual flow for your customers.
+            </p>
+            {% if is_edit and enabled_sections_count %}
+            <p class="text-xs text-on-surface-variant mt-4">
+                <span class="material-symbols-outlined text-xs align-middle">view_agenda</span>
+                {{ enabled_sections_count|default:0 }} sections enabled •
+                <span class="material-symbols-outlined text-xs align-middle">swap_horiz</span>
+                {{ section_order|length|default:0 }} sections in order
+            </p>
+            {% endif %}
+        </section>
+
+        <!-- 1. Hero Section -->
+        <section class="bg-surface-container-low p-10 rounded-xl space-y-8" id="hero">
+            <div class="flex justify-between items-start">
+                <div class="space-y-1">
+                    <h2 class="font-headline text-2xl font-bold">1. Hero Section</h2>
+                    <p class="text-on-surface-variant text-sm font-body">Manage the first impression of your website.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    {{ form.show_hero }}
+                    <div class="w-11 h-6 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" style="background-color: {% if form.show_hero.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                        <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.show_hero.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                    </div>
+                    <span class="ml-3 text-sm font-medium text-on-surface">Show Hero</span>
+                </label>
+            </div>
+            {% if form.show_hero.errors %}
+                {% for error in form.show_hero.errors %}
+                    <p class="error-message">{{ error }}</p>
+                {% endfor %}
+            {% endif %}
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 {% if not form.show_hero.value %}conditional-section disabled{% endif %}" id="hero-section">
+                <div class="space-y-6">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-on-surface-variant font-label uppercase tracking-widest" for="{{ form.hero_type.id_for_label }}">Hero Type</label>
+                        {{ form.hero_type }}
+                        {% if form.hero_type.errors %}
+                            {% for error in form.hero_type.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-on-surface-variant font-label uppercase tracking-widest" for="{{ form.hero_height.id_for_label }}">Height</label>
+                            {{ form.hero_height }}
+                            {% if form.hero_height.errors %}
+                                {% for error in form.hero_height.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-on-surface-variant font-label uppercase tracking-widest" for="{{ form.hero_autoplay_speed.id_for_label }}">Autoplay Speed</label>
+                            <div class="relative">
+                                {{ form.hero_autoplay_speed }}
+                                <span class="absolute right-4 top-3 text-on-surface-variant text-sm">ms</span>
+                            </div>
+                            {% if form.hero_autoplay_speed.errors %}
+                                {% for error in form.hero_autoplay_speed.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-6 pt-2">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            {{ form.hero_autoplay }}
+                            <span class="text-sm font-medium group-hover:text-primary transition-colors">Hero Autoplay</span>
+                        </label>
+                        {% if form.hero_autoplay.errors %}
+                            {% for error in form.hero_autoplay.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Hero Layout Selection -->
+                <div class="grid grid-cols-2 gap-4">
+                    <label class="hero-layout-option aspect-video bg-surface-container-highest rounded flex flex-col items-center justify-center p-4 {% if form.hero_type.value == 'static' %}border-2 border-primary{% else %}border-2 border-transparent{% endif %} hover:border-primary transition-all cursor-pointer">
+                        <input type="radio" name="hero_type_visual" value="static" class="hidden" {% if form.hero_type.value == 'static' %}checked{% endif %}/>
+                        <div class="w-full h-24 bg-surface-container-lowest rounded shadow-sm flex items-center justify-center">
+                            <span class="material-symbols-outlined text-primary/40 text-4xl">rectangle</span>
+                        </div>
+                        <span class="mt-3 text-xs font-bold font-headline uppercase tracking-tighter {% if form.hero_type.value == 'static' %}text-primary{% else %}text-on-surface-variant{% endif %}">Static Layout</span>
+                    </label>
+                    <label class="hero-layout-option aspect-video bg-surface-container-highest rounded flex flex-col items-center justify-center p-4 {% if form.hero_type.value == 'split' %}border-2 border-primary{% else %}border-2 border-transparent{% endif %} hover:border-primary transition-all cursor-pointer">
+                        <input type="radio" name="hero_type_visual" value="split" class="hidden" {% if form.hero_type.value == 'split' %}checked{% endif %}/>
+                        <div class="w-full h-24 bg-surface-container-lowest rounded shadow-sm flex overflow-hidden">
+                            <div class="w-1/2 h-full bg-surface-container-high"></div>
+                            <div class="w-1/2 h-full flex items-center justify-center">
+                                <span class="material-symbols-outlined text-outline-variant">text_fields</span>
+                            </div>
+                        </div>
+                        <span class="mt-3 text-xs font-bold font-headline uppercase tracking-tighter {% if form.hero_type.value == 'split' %}text-primary{% else %}text-on-surface-variant{% endif %}">Split Layout</span>
+                    </label>
+                    <label class="hero-layout-option aspect-video bg-surface-container-highest rounded flex flex-col items-center justify-center p-4 {% if form.hero_type.value == 'slider' %}border-2 border-primary{% else %}border-2 border-transparent{% endif %} hover:border-primary transition-all cursor-pointer">
+                        <input type="radio" name="hero_type_visual" value="slider" class="hidden" {% if form.hero_type.value == 'slider' %}checked{% endif %}/>
+                        <div class="w-full h-24 bg-surface-container-lowest rounded shadow-sm flex items-center justify-center gap-2">
+                            <div class="w-1 h-1 bg-primary rounded-full"></div>
+                            <div class="w-1 h-1 bg-outline-variant rounded-full"></div>
+                            <div class="w-1 h-1 bg-outline-variant rounded-full"></div>
+                        </div>
+                        <span class="mt-3 text-xs font-bold font-headline uppercase tracking-tighter {% if form.hero_type.value == 'slider' %}text-primary{% else %}text-on-surface-variant{% endif %}">Slider Layout</span>
+                    </label>
+                    <label class="hero-layout-option aspect-video bg-surface-container-highest rounded flex flex-col items-center justify-center p-4 {% if form.hero_type.value == 'video' %}border-2 border-primary{% else %}border-2 border-transparent{% endif %} hover:border-primary transition-all cursor-pointer">
+                        <input type="radio" name="hero_type_visual" value="video" class="hidden" {% if form.hero_type.value == 'video' %}checked{% endif %}/>
+                        <div class="w-full h-24 bg-surface-container-lowest rounded shadow-sm flex items-center justify-center">
+                            <span class="material-symbols-outlined text-outline-variant text-4xl">play_circle</span>
+                        </div>
+                        <span class="mt-3 text-xs font-bold font-headline uppercase tracking-tighter {% if form.hero_type.value == 'video' %}text-primary{% else %}text-on-surface-variant{% endif %}">Video Background</span>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Featured Categories -->
+        <section class="bg-surface p-10 space-y-8" id="collections">
+            <div class="flex justify-between items-start">
+                <div class="space-y-1">
+                    <h2 class="font-headline text-2xl font-bold">2. Featured Categories</h2>
+                    <p class="text-on-surface-variant text-sm font-body">Direct users to specific collection paths.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    {{ form.show_featured_categories }}
+                    <div class="w-11 h-6 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" style="background-color: {% if form.show_featured_categories.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                        <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.show_featured_categories.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                    </div>
+                </label>
+            </div>
+            {% if form.show_featured_categories.errors %}
+                {% for error in form.show_featured_categories.errors %}
+                    <p class="error-message">{{ error }}</p>
+                {% endfor %}
+            {% endif %}
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 {% if not form.show_featured_categories.value %}conditional-section disabled{% endif %}" id="categories-section">
+                <div class="space-y-6 lg:col-span-2">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-on-surface-variant font-label uppercase tracking-widest" for="{{ form.featured_categories_title.id_for_label }}">Section Title</label>
+                        {{ form.featured_categories_title }}
+                        {% if form.featured_categories_title.errors %}
+                            {% for error in form.featured_categories_title.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-on-surface-variant font-label uppercase tracking-widest" for="{{ form.featured_categories_layout.id_for_label }}">Layout Style</label>
+                            {{ form.featured_categories_layout }}
+                            {% if form.featured_categories_layout.errors %}
+                                {% for error in form.featured_categories_layout.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-on-surface-variant font-label uppercase tracking-widest" for="{{ form.featured_categories_count.id_for_label }}">Categories Count</label>
+                            {{ form.featured_categories_count }}
+                            {% if form.featured_categories_count.errors %}
+                                {% for error in form.featured_categories_count.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-surface-container-low rounded-xl p-6 flex flex-col justify-center gap-4">
+                    <div class="flex gap-2">
+                        <div class="w-full h-20 bg-surface-container-lowest rounded-md shadow-sm"></div>
+                        <div class="w-full h-20 bg-surface-container-lowest rounded-md shadow-sm"></div>
+                        <div class="w-full h-20 bg-surface-container-lowest rounded-md shadow-sm opacity-40"></div>
+                    </div>
+                    <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-center text-on-surface-variant">Carousel Preview</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Product Sections Group -->
+        <section class="space-y-12" id="featured">
+            <div class="border-l-4 border-primary pl-6">
+                <h2 class="font-headline text-3xl font-extrabold tracking-tight">Product Grid Management</h2>
+                <p class="text-on-surface-variant">Control the inventory spotlights across the homepage.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Featured Products -->
+                <div class="bg-surface-container-low p-8 rounded-xl space-y-6">
+                    <div class="flex justify-between items-center">
+                        <span class="font-headline font-bold text-lg">Featured Items</span>
+                        {{ form.show_featured_products }}
+                    </div>
+                    {% if form.show_featured_products.errors %}
+                        {% for error in form.show_featured_products.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    <div class="space-y-4 {% if not form.show_featured_products.value %}conditional-section disabled{% endif %}" id="featured-products-section">
+                        {{ form.featured_products_title }}
+                        {% if form.featured_products_title.errors %}
+                            {% for error in form.featured_products_title.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-on-surface-variant font-medium">Display Count</span>
+                            {{ form.featured_products_count }}
+                            {% if form.featured_products_count.errors %}
+                                {% for error in form.featured_products_count.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New Arrivals -->
+                <div class="bg-surface-container-low p-8 rounded-xl space-y-6">
+                    <div class="flex justify-between items-center">
+                        <span class="font-headline font-bold text-lg">New Arrivals</span>
+                        {{ form.show_new_arrivals }}
+                    </div>
+                    {% if form.show_new_arrivals.errors %}
+                        {% for error in form.show_new_arrivals.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    <div class="space-y-4 {% if not form.show_new_arrivals.value %}conditional-section disabled{% endif %}" id="new-arrivals-section">
+                        {{ form.new_arrivals_title }}
+                        {% if form.new_arrivals_title.errors %}
+                            {% for error in form.new_arrivals_title.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Count</span>
+                                {{ form.new_arrivals_count }}
+                                {% if form.new_arrivals_count.errors %}
+                                    {% for error in form.new_arrivals_count.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Recency (Days)</span>
+                                {{ form.new_arrivals_days }}
+                                {% if form.new_arrivals_days.errors %}
+                                    {% for error in form.new_arrivals_days.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Best Sellers -->
+                <div class="bg-surface-container-low p-8 rounded-xl space-y-6">
+                    <div class="flex justify-between items-center">
+                        <span class="font-headline font-bold text-lg">Best Sellers</span>
+                        {{ form.show_best_sellers }}
+                    </div>
+                    {% if form.show_best_sellers.errors %}
+                        {% for error in form.show_best_sellers.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    <div class="space-y-4 {% if not form.show_best_sellers.value %}conditional-section disabled{% endif %}" id="best-sellers-section">
+                        {{ form.best_sellers_title }}
+                        {% if form.best_sellers_title.errors %}
+                            {% for error in form.best_sellers_title.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-on-surface-variant font-medium">Display Count</span>
+                            {{ form.best_sellers_count }}
+                            {% if form.best_sellers_count.errors %}
+                                {% for error in form.best_sellers_count.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sale Items -->
+                <div class="bg-surface-container-low p-8 rounded-xl space-y-6">
+                    <div class="flex justify-between items-center">
+                        <span class="font-headline font-bold text-lg">Sale Section</span>
+                        {{ form.show_sale_section }}
+                    </div>
+                    {% if form.show_sale_section.errors %}
+                        {% for error in form.show_sale_section.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    <div class="space-y-4 {% if not form.show_sale_section.value %}conditional-section disabled{% endif %}" id="sale-section">
+                        {{ form.sale_section_title }}
+                        {% if form.sale_section_title.errors %}
+                            {% for error in form.sale_section_title.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-on-surface-variant font-medium">Display Count</span>
+                            {{ form.sale_section_count }}
+                            {% if form.sale_section_count.errors %}
+                                {% for error in form.sale_section_count.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Promotional Banners -->
+        <section class="bg-surface-container-low p-10 rounded-xl space-y-8">
+            <div class="flex justify-between items-center">
+                <div class="space-y-1">
+                    <h2 class="font-headline text-2xl font-bold">4. Promotional Banners</h2>
+                    <p class="text-on-surface-variant text-sm font-body">Marketing breaks and feature highlights.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    {{ form.show_promo_banners }}
+                    <div class="w-11 h-6 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" style="background-color: {% if form.show_promo_banners.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                        <span class="absolute h-5 w-5 bg-white rounded-full transition-all" style="left: {% if form.show_promo_banners.value %}28px{% else %}4px{% endif %}; top: 2px;"></span>
+                    </div>
+                </label>
+            </div>
+            {% if form.show_promo_banners.errors %}
+                {% for error in form.show_promo_banners.errors %}
+                    <p class="error-message">{{ error }}</p>
+                {% endfor %}
+            {% endif %}
+
+            <div class="space-y-6 {% if not form.show_promo_banners.value %}conditional-section disabled{% endif %}" id="promo-banners-section">
+                <label class="block text-sm font-semibold text-on-surface-variant font-label uppercase tracking-widest" for="{{ form.promo_banner_layout.id_for_label }}">Banner Layout</label>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <label class="banner-layout-option border-2 {% if form.promo_banner_layout.value == 'single' %}border-primary{% else %}border-transparent{% endif %} bg-surface-container-lowest p-6 rounded-lg text-center cursor-pointer hover:border-primary transition-all">
+                        <input type="radio" name="promo_banner_layout_visual" value="single" class="hidden" {% if form.promo_banner_layout.value == 'single' %}checked{% endif %}/>
+                        <div class="h-12 w-full bg-primary/10 rounded mb-4"></div>
+                        <span class="font-bold text-sm {% if form.promo_banner_layout.value == 'single' %}text-primary{% else %}text-on-surface-variant{% endif %}">Single Full-Width</span>
+                    </label>
+                    <label class="banner-layout-option border-2 {% if form.promo_banner_layout.value == 'double' %}border-primary{% else %}border-transparent{% endif %} bg-surface-container-lowest p-6 rounded-lg text-center cursor-pointer hover:border-primary transition-all">
+                        <input type="radio" name="promo_banner_layout_visual" value="double" class="hidden" {% if form.promo_banner_layout.value == 'double' %}checked{% endif %}/>
+                        <div class="flex gap-2 h-12 mb-4">
+                            <div class="w-1/2 h-full bg-surface-container-highest rounded"></div>
+                            <div class="w-1/2 h-full bg-surface-container-highest rounded"></div>
+                        </div>
+                        <span class="font-bold text-sm {% if form.promo_banner_layout.value == 'double' %}text-primary{% else %}text-on-surface-variant{% endif %}">Double Column</span>
+                    </label>
+                    <label class="banner-layout-option border-2 {% if form.promo_banner_layout.value == 'triple' %}border-primary{% else %}border-transparent{% endif %} bg-surface-container-lowest p-6 rounded-lg text-center cursor-pointer hover:border-primary transition-all">
+                        <input type="radio" name="promo_banner_layout_visual" value="triple" class="hidden" {% if form.promo_banner_layout.value == 'triple' %}checked{% endif %}/>
+                        <div class="flex gap-2 h-12 mb-4">
+                            <div class="w-1/3 h-full bg-surface-container-highest rounded"></div>
+                            <div class="w-1/3 h-full bg-surface-container-highest rounded"></div>
+                            <div class="w-1/3 h-full bg-surface-container-highest rounded"></div>
+                        </div>
+                        <span class="font-bold text-sm {% if form.promo_banner_layout.value == 'triple' %}text-primary{% else %}text-on-surface-variant{% endif %}">Triple Column</span>
+                    </label>
+                </div>
+                {% if form.promo_banner_layout.errors %}
+                    {% for error in form.promo_banner_layout.errors %}
+                        <p class="error-message">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- 5. Content & Social -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-16" id="content">
+            <!-- Left Column: Testimonials & Blog -->
+            <div class="space-y-12">
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center border-b border-surface-container-highest pb-4">
+                        <h3 class="font-headline font-bold text-xl">Testimonials</h3>
+                        {{ form.show_testimonials }}
+                    </div>
+                    {% if form.show_testimonials.errors %}
+                        {% for error in form.show_testimonials.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 {% if not form.show_testimonials.value %}conditional-section disabled{% endif %}" id="testimonials-section">
+                        <div class="space-y-1">
+                            <span class="text-[10px] uppercase font-bold text-on-surface-variant">Section Title</span>
+                            {{ form.testimonials_title }}
+                            {% if form.testimonials_title.errors %}
+                                {% for error in form.testimonials_title.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] uppercase font-bold text-on-surface-variant">Display Count</span>
+                            {{ form.testimonials_count }}
+                            {% if form.testimonials_count.errors %}
+                                {% for error in form.testimonials_count.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center border-b border-surface-container-highest pb-4">
+                        <h3 class="font-headline font-bold text-xl">Blog Posts</h3>
+                        {{ form.show_blog_posts }}
+                    </div>
+                    {% if form.show_blog_posts.errors %}
+                        {% for error in form.show_blog_posts.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 {% if not form.show_blog_posts.value %}conditional-section disabled{% endif %}" id="blog-section">
+                        <div class="space-y-1">
+                            <span class="text-[10px] uppercase font-bold text-on-surface-variant">Section Title</span>
+                            {{ form.blog_posts_title }}
+                            {% if form.blog_posts_title.errors %}
+                                {% for error in form.blog_posts_title.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] uppercase font-bold text-on-surface-variant">Post Count</span>
+                            {{ form.blog_posts_count }}
+                            {% if form.blog_posts_count.errors %}
+                                {% for error in form.blog_posts_count.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Social -->
+            <div class="bg-surface-container-low p-8 rounded-xl space-y-10">
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-headline font-bold text-xl">Instagram Feed</h3>
+                        {{ form.show_instagram_feed }}
+                    </div>
+                    {% if form.show_instagram_feed.errors %}
+                        {% for error in form.show_instagram_feed.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    <div class="space-y-4 {% if not form.show_instagram_feed.value %}conditional-section disabled{% endif %}" id="instagram-section">
+                        <div class="space-y-1">
+                            <span class="text-[10px] uppercase font-bold text-on-surface-variant">Feed Title</span>
+                            {{ form.instagram_title }}
+                            {% if form.instagram_title.errors %}
+                                {% for error in form.instagram_title.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] uppercase font-bold text-on-surface-variant">Instagram Handle</span>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2 text-on-surface-variant">@</span>
+                                {{ form.instagram_handle }}
+                            </div>
+                            {% if form.instagram_handle.errors %}
+                                {% for error in form.instagram_handle.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-headline font-bold text-xl">Brand Partners</h3>
+                        {{ form.show_brands }}
+                    </div>
+                    {% if form.show_brands.errors %}
+                        {% for error in form.show_brands.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    <div class="space-y-1 {% if not form.show_brands.value %}conditional-section disabled{% endif %}" id="brands-section">
+                        <span class="text-[10px] uppercase font-bold text-on-surface-variant">Partner Section Title</span>
+                        {{ form.brands_title }}
+                        {% if form.brands_title.errors %}
+                            {% for error in form.brands_title.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. Section Ordering (Bento Style Reorder) -->
+        <section class="space-y-8 pb-24">
+            <div class="flex flex-col items-center text-center space-y-4">
+                <span class="inline-block px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest rounded-full">Hierarchy Control</span>
+                <h2 class="font-headline text-4xl font-extrabold tracking-tight">7. Master Section Ordering</h2>
+                <p class="text-on-surface-variant max-w-xl">Drag and drop these blocks to redefine the vertical sequence of your homepage. The changes will reflect instantly on the storefront.</p>
+            </div>
+
+            <!-- Hidden field for section order -->
+            {{ form.section_order }}
+            {% if form.section_order.errors %}
+                <div class="max-w-5xl mx-auto">
+                    {% for error in form.section_order.errors %}
+                        <p class="error-message">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-5xl mx-auto" id="section-order-container">
+                <!-- Order Items - Generated from section_order -->
+                {% for section in section_order %}
+                <div class="section-order-item group bg-surface-container-lowest border-2 border-transparent hover:border-primary p-6 rounded-xl shadow-sm flex flex-col items-center gap-4 transition-all cursor-move active:scale-95" data-section="{{ section }}">
+                    <div class="w-10 h-10 bg-surface-container-low rounded-full flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined">drag_indicator</span>
+                    </div>
+                    <span class="font-headline font-bold text-sm tracking-tight text-center">
+                        {% if section == 'hero' %}Hero Section
+                        {% elif section == 'categories' %}Featured Categories
+                        {% elif section == 'featured' %}Featured Products
+                        {% elif section == 'new_arrivals' %}New Arrivals
+                        {% elif section == 'best_sellers' %}Best Sellers
+                        {% elif section == 'sale' %}Sale Section
+                        {% elif section == 'promo_banners' %}Promotional Banners
+                        {% elif section == 'testimonials' %}Testimonials
+                        {% elif section == 'blog' %}Blog Journal
+                        {% elif section == 'instagram' %}Instagram Feed
+                        {% elif section == 'brands' %}Brand Partners
+                        {% else %}{{ section|title }}
+                        {% endif %}
+                    </span>
+                    <span class="text-[10px] font-bold text-primary px-2 py-0.5 bg-primary/5 rounded position-badge">Position {{ forloop.counter }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+    </form>
+</main>
+
+<!-- Contextual Preview FAB -->
+<div class="fixed bottom-8 right-8 z-40">
+    <a href="{% url 'homepage_preview' %}" class="flex items-center gap-3 bg-secondary text-on-secondary px-6 py-4 rounded-full shadow-2xl hover:bg-secondary-dim transition-all active:scale-95 group">
+        <span class="material-symbols-outlined group-hover:rotate-12 transition-transform">open_in_new</span>
+        <span class="font-bold text-sm">Live Preview</span>
+    </a>
+</div>
+
+<!-- Footer Status -->
+<footer class="bg-surface-container-highest/30 py-8 px-12 border-t border-surface-container-highest flex justify-between items-center">
+    <div class="flex items-center gap-4">
+        <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+        <span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Model: HomepageLayout v2.4</span>
+    </div>
+    <span class="text-xs text-on-surface-variant">Last updated: {% if is_edit and object.updated_at %}{{ object.updated_at|date:"M d, Y H:i" }}{% else %}Just now{% endif %} by Admin</span>
+</footer>
+
+<!-- JavaScript for Dynamic Interactions -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // === Toggle Switch Styling ===
+        const toggleCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+        toggleCheckboxes.forEach(function(checkbox) {
+            checkbox.classList.add('toggle-checkbox');
+
+            checkbox.addEventListener('change', function() {
+                const toggleDiv = this.parentElement.querySelector('div.w-11.h-6');
+                const toggleKnob = toggleDiv?.querySelector('span.absolute');
+
+                if (toggleDiv) {
+                    toggleDiv.style.backgroundColor = this.checked ? '#0053db' : '#d9e4ea';
+                }
+                if (toggleKnob) {
+                    toggleKnob.style.left = this.checked ? '28px' : '4px';
+                }
+
+                // Handle conditional sections
+                const sectionMap = {
+                    '{{ form.show_hero.id_for_label }}': 'hero-section',
+                    '{{ form.show_featured_categories.id_for_label }}': 'categories-section',
+                    '{{ form.show_featured_products.id_for_label }}': 'featured-products-section',
+                    '{{ form.show_new_arrivals.id_for_label }}': 'new-arrivals-section',
+                    '{{ form.show_best_sellers.id_for_label }}': 'best-sellers-section',
+                    '{{ form.show_sale_section.id_for_label }}': 'sale-section',
+                    '{{ form.show_promo_banners.id_for_label }}': 'promo-banners-section',
+                    '{{ form.show_testimonials.id_for_label }}': 'testimonials-section',
+                    '{{ form.show_blog_posts.id_for_label }}': 'blog-section',
+                    '{{ form.show_instagram_feed.id_for_label }}': 'instagram-section',
+                    '{{ form.show_brands.id_for_label }}': 'brands-section'
+                };
+
+                const sectionId = sectionMap[this.id];
+                if (sectionId) {
+                    const section = document.getElementById(sectionId);
+                    if (section) {
+                        section.classList.toggle('disabled', !this.checked);
+                    }
+                }
+            });
+        });
+
+        // === Hero Layout Selection ===
+        const heroLayoutOptions = document.querySelectorAll('input[name="hero_type_visual"]');
+        const heroTypeInput = document.getElementById('{{ form.hero_type.id_for_label }}');
+
+        heroLayoutOptions.forEach(function(option) {
+            option.addEventListener('change', function() {
+                document.querySelectorAll('.hero-layout-option').forEach(function(el) {
+                    el.classList.remove('selected', 'border-primary');
+                    el.classList.add('border-transparent');
+                    el.querySelector('span').classList.remove('text-primary');
+                    el.querySelector('span').classList.add('text-on-surface-variant');
+                });
+
+                const parent = this.closest('.hero-layout-option');
+                parent.classList.add('selected', 'border-primary');
+                parent.classList.remove('border-transparent');
+                parent.querySelector('span').classList.remove('text-on-surface-variant');
+                parent.querySelector('span').classList.add('text-primary');
+
+                if (heroTypeInput) {
+                    heroTypeInput.value = this.value;
+                }
+            });
+        });
+
+        // === Banner Layout Selection ===
+        const bannerLayoutOptions = document.querySelectorAll('input[name="promo_banner_layout_visual"]');
+        const promoBannerLayoutInput = document.getElementById('{{ form.promo_banner_layout.id_for_label }}');
+
+        bannerLayoutOptions.forEach(function(option) {
+            option.addEventListener('change', function() {
+                document.querySelectorAll('.banner-layout-option').forEach(function(el) {
+                    el.classList.remove('selected', 'border-primary');
+                    el.classList.add('border-transparent');
+                    el.querySelector('span').classList.remove('text-primary');
+                    el.querySelector('span').classList.add('text-on-surface-variant');
+                });
+
+                const parent = this.closest('.banner-layout-option');
+                parent.classList.add('selected', 'border-primary');
+                parent.classList.remove('border-transparent');
+                parent.querySelector('span').classList.remove('text-on-surface-variant');
+                parent.querySelector('span').classList.add('text-primary');
+
+                if (promoBannerLayoutInput) {
+                    promoBannerLayoutInput.value = this.value;
+                }
+            });
+        });
+
+        // === Drag and Drop for Section Ordering ===
+        const container = document.getElementById('section-order-container');
+        const sectionOrderInput = document.getElementById('{{ form.section_order.id_for_label }}');
+        let draggedItem = null;
+
+        if (container && sectionOrderInput) {
+            container.addEventListener('dragstart', function(e) {
+                draggedItem = e.target.closest('.section-order-item');
+                if (draggedItem) {
+                    draggedItem.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                }
+            });
+
+            container.addEventListener('dragend', function(e) {
+                if (draggedItem) {
+                    draggedItem.classList.remove('dragging');
+                    draggedItem = null;
+
+                    // Update position badges
+                    updatePositionBadges();
+
+                    // Update hidden input with new order
+                    updateSectionOrderInput();
+                }
+            });
+
+            container.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+
+                const afterElement = getDragAfterElement(container, e.clientX, e.clientY);
+                const draggable = document.querySelector('.dragging');
+
+                if (draggable) {
+                    if (afterElement == null) {
+                        container.appendChild(draggable);
+                    } else {
+                        container.insertBefore(draggable, afterElement);
+                    }
+                }
+            });
+
+            container.addEventListener('dragenter', function(e) {
+                const target = e.target.closest('.section-order-item');
+                if (target && target !== draggedItem) {
+                    target.classList.add('over');
+                }
+            });
+
+            container.addEventListener('dragleave', function(e) {
+                const target = e.target.closest('.section-order-item');
+                if (target) {
+                    target.classList.remove('over');
+                }
+            });
+
+            container.addEventListener('drop', function(e) {
+                const target = e.target.closest('.section-order-item');
+                if (target) {
+                    target.classList.remove('over');
+                }
+            });
+        }
+
+        function getDragAfterElement(container, x, y) {
+            const draggableElements = [...container.querySelectorAll('.section-order-item:not(.dragging)')];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offsetX = x - box.left - box.width / 2;
+                const offsetY = y - box.top - box.height / 2;
+                const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+
+                if (distance < closest.distance) {
+                    return { distance: distance, element: child };
+                } else {
+                    return closest;
+                }
+            }, { distance: Number.POSITIVE_INFINITY }).element;
+        }
+
+        function updatePositionBadges() {
+            const items = container.querySelectorAll('.section-order-item');
+            items.forEach(function(item, index) {
+                const badge = item.querySelector('.position-badge');
+                if (badge) {
+                    badge.textContent = 'Position ' + (index + 1);
+                }
+            });
+        }
+
+        function updateSectionOrderInput() {
+            const items = container.querySelectorAll('.section-order-item');
+            const sections = [];
+
+            items.forEach(function(item) {
+                sections.push(item.getAttribute('data-section'));
+            });
+
+            if (sectionOrderInput) {
+                sectionOrderInput.value = sections.join(', ');
+            }
+        }
+
+        // === Initialize Conditional Sections ===
+        const toggleMap = {
+            '{{ form.show_hero.id_for_label }}': 'hero-section',
+            '{{ form.show_featured_categories.id_for_label }}': 'categories-section',
+            '{{ form.show_featured_products.id_for_label }}': 'featured-products-section',
+            '{{ form.show_new_arrivals.id_for_label }}': 'new-arrivals-section',
+            '{{ form.show_best_sellers.id_for_label }}': 'best-sellers-section',
+            '{{ form.show_sale_section.id_for_label }}': 'sale-section',
+            '{{ form.show_promo_banners.id_for_label }}': 'promo-banners-section',
+            '{{ form.show_testimonials.id_for_label }}': 'testimonials-section',
+            '{{ form.show_blog_posts.id_for_label }}': 'blog-section',
+            '{{ form.show_instagram_feed.id_for_label }}': 'instagram-section',
+            '{{ form.show_brands.id_for_label }}': 'brands-section'
+        };
+
+        Object.keys(toggleMap).forEach(function(id) {
+            const checkbox = document.getElementById(id);
+            const sectionId = toggleMap[id];
+            if (checkbox && !checkbox.checked) {
+                const section = document.getElementById(sectionId);
+                if (section) section.classList.add('disabled');
+            }
+        });
+
+        // === Initialize Section Order Input ===
+        if (sectionOrderInput) {
+            updateSectionOrderInput();
+        }
+
+        // === Hide Messages After 5 Seconds ===
+        setTimeout(function() {
+            const messages = document.querySelectorAll('.fixed.top-24');
+            messages.forEach(function(msg) {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    msg.remove();
+                }, 500);
+            });
+        }, 5000);
+
+        // === Form Change Detection ===
+        const form = document.getElementById('homepage-form');
+        let formChanged = false;
+
+        form.addEventListener('input', function() {
+            formChanged = true;
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (formChanged) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // === Smooth Scroll for Navigation ===
+        const navLinks = document.querySelectorAll('nav a[href^="#"]');
+        navLinks.forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

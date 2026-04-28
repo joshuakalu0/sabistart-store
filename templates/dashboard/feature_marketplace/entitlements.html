@@ -1,0 +1,18 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<section class="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
+  <h1 class="text-3xl font-semibold text-slate-900">Active Entitlements</h1>
+  <div class="mt-6 grid gap-4 md:grid-cols-2">
+    {% for item in entitlements %}
+    <div class="rounded-2xl border border-slate-200 p-4">
+      <div class="font-semibold text-slate-900">{{ item.feature_name|default:item.feature_code }}</div>
+      <div class="mt-1 text-sm text-slate-500">{{ item.get_status_display }} · {{ item.get_source_display }}</div>
+      <div class="mt-2 text-sm text-slate-500">Expires: {{ item.expires_at|default:"Never" }}</div>
+    </div>
+    {% empty %}
+    <p class="text-sm text-slate-500">No active entitlements yet.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+

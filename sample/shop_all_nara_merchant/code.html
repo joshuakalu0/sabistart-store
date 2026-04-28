@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "on-surface-variant": "#45464d",
+                "secondary-container": "#fd761a",
+                "tertiary-fixed-dim": "#dec29a",
+                "secondary-fixed": "#ffdbca",
+                "surface-container-lowest": "#ffffff",
+                "secondary": "#9d4300",
+                "primary-fixed": "#dae2fd",
+                "on-surface": "#1a1c1c",
+                "on-error-container": "#93000a",
+                "tertiary": "#000000",
+                "on-tertiary-fixed": "#271901",
+                "error-container": "#ffdad6",
+                "outline": "#76777d",
+                "on-secondary-container": "#5c2400",
+                "on-secondary-fixed-variant": "#783200",
+                "primary": "#000000",
+                "on-secondary": "#ffffff",
+                "surface": "#f9f9f9",
+                "on-tertiary": "#ffffff",
+                "inverse-on-surface": "#f0f1f1",
+                "background": "#f9f9f9",
+                "on-error": "#ffffff",
+                "inverse-surface": "#2f3131",
+                "surface-container-highest": "#e2e2e2",
+                "tertiary-container": "#271901",
+                "surface-container": "#eeeeee",
+                "outline-variant": "#c6c6cd",
+                "surface-dim": "#dadada",
+                "secondary-fixed-dim": "#ffb690",
+                "surface-container-high": "#e8e8e8",
+                "error": "#ba1a1a",
+                "on-primary-fixed-variant": "#3f465c",
+                "on-background": "#1a1c1c",
+                "on-tertiary-container": "#98805d",
+                "on-primary-container": "#7c839b",
+                "primary-container": "#131b2e",
+                "on-secondary-fixed": "#341100",
+                "on-primary": "#ffffff",
+                "surface-container-low": "#f3f3f3",
+                "tertiary-fixed": "#fcdeb5",
+                "surface-variant": "#e2e2e2",
+                "surface-bright": "#f9f9f9",
+                "inverse-primary": "#bec6e0",
+                "surface-tint": "#565e74",
+                "on-primary-fixed": "#131b2e",
+                "on-tertiary-fixed-variant": "#574425",
+                "primary-fixed-dim": "#bec6e0"
+              },
+              fontFamily: {
+                "headline": ["Plus Jakarta Sans"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .product-card:hover .hover-image { opacity: 1; }
+        .product-card:hover .base-image { opacity: 0; }
+        .product-card:hover .add-to-cart-btn { transform: translateY(0); opacity: 1; }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface">
+<!-- Announcement Bar -->
+<div class="bg-primary text-on-primary py-2 px-6 text-center text-xs font-label tracking-widest uppercase">
+        Free Delivery Nationwide on orders above ₦150,000
+    </div>
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-[0px_20px_40px_rgba(15,23,42,0.06)]">
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+<div class="flex items-center gap-12">
+<a class="text-2xl font-black text-slate-900 dark:text-slate-50 font-headline" href="#">Digital Atelier</a>
+<div class="hidden md:flex items-center gap-8 font-plus-jakarta tracking-tight font-semibold">
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors" href="#">Home</a>
+<a class="text-slate-900 dark:text-white border-b-2 border-slate-900 dark:border-white pb-1" href="#">Shop</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors" href="#">Categories</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors" href="#">Deals</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors" href="#">About</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden lg:flex items-center bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant/10">
+<span class="material-symbols-outlined text-outline text-xl mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 font-body" placeholder="Search products..." type="text"/>
+</div>
+<button class="text-slate-900 dark:text-slate-50 hover:bg-slate-50 dark:hover:bg-slate-800 p-2 rounded-md transition-all">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+<button class="text-slate-900 dark:text-slate-50 hover:bg-slate-50 dark:hover:bg-slate-800 p-2 rounded-md transition-all">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</button>
+</div>
+</div>
+<div class="bg-slate-100 dark:bg-slate-800 h-[1px]"></div>
+</nav>
+<main class="max-w-7xl mx-auto px-6 pt-32 pb-24">
+<!-- Breadcrumb & Header -->
+<div class="mb-10">
+<nav class="flex text-xs font-label uppercase tracking-widest text-outline mb-4">
+<a class="hover:text-primary transition-colors" href="#">Home</a>
+<span class="mx-2">/</span>
+<a class="hover:text-primary transition-colors" href="#">Shop</a>
+<span class="mx-2">/</span>
+<span class="text-primary font-semibold">Premium Collection</span>
+</nav>
+<h1 class="text-5xl font-headline font-extrabold tracking-tight text-primary mb-2">The Curated Gallery</h1>
+<p class="text-on-surface-variant max-w-2xl">Discover a meticulously selected range of premium essentials designed for the discerning Nigerian professional.</p>
+</div>
+<!-- Filter & Grid Layout -->
+<div class="flex flex-col lg:flex-row gap-12">
+<!-- SIDEBAR: Filters -->
+<aside class="w-full lg:w-72 flex-shrink-0 space-y-10">
+<!-- Categories -->
+<div>
+<h3 class="font-headline font-bold text-lg mb-4 flex items-center justify-between">
+                        Categories
+                        <span class="material-symbols-outlined text-sm">expand_more</span>
+</h3>
+<div class="space-y-3">
+<label class="flex items-center group cursor-pointer">
+<input class="rounded-sm border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+<span class="ml-3 text-sm text-on-surface-variant group-hover:text-primary transition-colors">Tech Accessories</span>
+<span class="ml-auto text-[10px] text-outline bg-surface-container px-1.5 py-0.5 rounded">12</span>
+</label>
+<label class="flex items-center group cursor-pointer">
+<input checked="" class="rounded-sm border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+<span class="ml-3 text-sm text-on-surface-variant group-hover:text-primary transition-colors">Premium Leather</span>
+<span class="ml-auto text-[10px] text-outline bg-surface-container px-1.5 py-0.5 rounded">45</span>
+</label>
+<label class="flex items-center group cursor-pointer">
+<input class="rounded-sm border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+<span class="ml-3 text-sm text-on-surface-variant group-hover:text-primary transition-colors">Office Essentials</span>
+<span class="ml-auto text-[10px] text-outline bg-surface-container px-1.5 py-0.5 rounded">28</span>
+</label>
+</div>
+</div>
+<!-- Price Range -->
+<div>
+<h3 class="font-headline font-bold text-lg mb-4">Price Range</h3>
+<div class="px-2 mb-6">
+<input class="w-full h-1 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-primary" max="500000" min="5000" step="1000" type="range"/>
+</div>
+<div class="flex items-center gap-3">
+<div class="relative flex-1">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold">₦</span>
+<input class="w-full pl-7 pr-3 py-2 bg-surface-container-low border-none rounded text-xs focus:ring-1 focus:ring-primary" type="number" value="5000"/>
+</div>
+<span class="text-outline">−</span>
+<div class="relative flex-1">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold">₦</span>
+<input class="w-full pl-7 pr-3 py-2 bg-surface-container-low border-none rounded text-xs focus:ring-1 focus:ring-primary" type="number" value="250000"/>
+</div>
+</div>
+</div>
+<!-- Color Swatches -->
+<div>
+<h3 class="font-headline font-bold text-lg mb-4">Colors</h3>
+<div class="flex flex-wrap gap-3">
+<button class="w-8 h-8 rounded-full border-2 border-white ring-1 ring-outline-variant bg-slate-900"></button>
+<button class="w-8 h-8 rounded-full border-2 border-white ring-2 ring-primary bg-stone-500"></button>
+<button class="w-8 h-8 rounded-full border-2 border-white ring-1 ring-outline-variant bg-amber-800"></button>
+<button class="w-8 h-8 rounded-full border-2 border-white ring-1 ring-outline-variant bg-neutral-200"></button>
+<button class="w-8 h-8 rounded-full border-2 border-white ring-1 ring-outline-variant bg-blue-900"></button>
+</div>
+</div>
+<!-- Rating -->
+<div>
+<h3 class="font-headline font-bold text-lg mb-4">Rating</h3>
+<div class="space-y-2">
+<button class="flex items-center gap-2 group w-full text-left">
+<div class="flex text-secondary-container">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-lg">star</span>
+</div>
+<span class="text-xs text-on-surface-variant group-hover:text-primary">&amp; Up</span>
+</button>
+</div>
+</div>
+<!-- Availability Toggle -->
+<div class="pt-6 border-t border-outline-variant/20">
+<label class="flex items-center justify-between cursor-pointer">
+<span class="text-sm font-semibold">In Stock Only</span>
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-high rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+</div>
+</label>
+</div>
+</aside>
+<!-- PRODUCT GRID SECTION -->
+<section class="flex-1">
+<!-- Toolbar -->
+<div class="bg-surface-container-lowest rounded-xl px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+<div class="text-sm text-on-surface-variant font-label">
+                        Showing <span class="font-bold text-primary">1–24</span> of 143 products
+                    </div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold uppercase tracking-wider text-outline">Sort by:</span>
+<select class="bg-transparent border-none focus:ring-0 text-sm font-semibold py-0 pr-8 cursor-pointer">
+<option>Featured</option>
+<option>Newest</option>
+<option>Price: Low to High</option>
+<option>Price: High to Low</option>
+</select>
+</div>
+<div class="h-6 w-[1px] bg-outline-variant/30"></div>
+<div class="flex items-center gap-1 bg-surface-container-low p-1 rounded-lg">
+<button class="p-1.5 bg-surface-container-lowest shadow-sm rounded-md text-primary">
+<span class="material-symbols-outlined text-xl">grid_view</span>
+</button>
+<button class="p-1.5 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">view_list</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-12 gap-x-6">
+<!-- Product Card 1 -->
+<div class="product-card group relative">
+<div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 bg-surface-container-low">
+<img class="base-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500" data-alt="Minimalist black leather travel bag" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDkbSfO4CN0onr2yt707BPrfAD_AZFS7AsGSwDtX2rrT7cSQpGBn289kIfVChDdCeaZ4VnOOZWvpAp408_lWRQWAWOi430DZaNab9g04RXMII0sieFMZyVy0Fb2eubXXW2H6DTV9866Q4PgZQxZ0rFEvKDg4B6I3R4lP78Rx_2DSxAMCmbU96SrOEVgSBgVROPiBWyfXLUjt3GqcpU7rMCH-3NExkDvq8DmvoCfSRvYvUunw1A_5Q0998PiOkxa3VXcZnSiAlEk4c"/>
+<img class="hover-image absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500" data-alt="Interior detail of premium leather bag" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_ECeW7Z1BJ4QJIrn8NK4wBJmPmFOaUO5iih9J0mdaxStqrsvYnQdy2h6f261OClR4EAem6oAnp0VcifkAF8a4GnQbVj2EQEJ0D7o7knOPb4K4b_MWdUk6qn18bVRS7bTUMU1WEWOI5Jk1Vmdg7mIo9A5YoC39iqhnp4P75SF8ObIqLON5Sc2l7fZDhBtlc20BPGdhjvG0ziSGDdslvE2sHKl2tNhLhfqEfSaMKoMfc_kTmcno42OTTGPW1Y_NIrBfO29Ve_sIjD4"/>
+<div class="absolute top-4 left-4">
+<span class="bg-primary text-on-primary text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-sm">New In</span>
+</div>
+<button class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-xl">favorite</span>
+</button>
+<!-- Add to Cart Overlay -->
+<div class="absolute inset-x-0 bottom-0 p-4 translate-y-full add-to-cart-btn transition-transform duration-300 ease-out">
+<button class="w-full bg-secondary-container text-white py-3 rounded-lg font-headline font-bold text-sm shadow-xl flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">shopping_bag</span>
+                                    ADD TO CART
+                                </button>
+</div>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline font-bold text-primary group-hover:text-secondary-container transition-colors">Atelier Leather Weekender</h3>
+<div class="flex items-center gap-1 mb-1">
+<div class="flex text-secondary-container scale-75 -ml-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-[10px] text-outline font-bold">(42)</span>
+</div>
+<p class="text-xl font-headline font-extrabold text-primary">₦ 185,000</p>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="product-card group relative">
+<div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 bg-surface-container-low">
+<img class="base-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500" data-alt="Elegant silver minimalist wrist watch" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjfZ3j6QMKrlwYddj61cellnmhNHvdODH6aPxZXEdj-h3n1gF0JM0oYBoVpnWAZnel6aAzNMr0t31gZRNCrvCuQurJllarBJK8phNMrk1cjFxosiMCup3rrYy-Fa2WSuzn9ZIT-NHSNKvn_rcYaFV8ZnCzVzbZwIqiZ9ckN4G80RZYU3b8E0hV5D11QL6cidjlecDf97Ud8R3TPlNCK0u36GIMPe7nejRGJnrG0uHziIV76p3KA-xCT1-fUzuK6CXptLzohfxYHGc"/>
+<img class="hover-image absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500" data-alt="Silver watch detail on wrist" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8McPl6C4okJYyLSgA54lAumYnDaoKPlu539mMhhWDWqoXMbNi2ClGwdaEqp6RkxaO79KsXmdb1asTUBTuC7hfhvMjnjvlqSCSCbYjtQrCHkDdMHVNuR4is_Dm5w5joLKzEbRBiosJzUqGnBP_r2aB4Q2CoUlMceWhDF9FlunTKPqbhcJ3GmVXYEROuXIUTi_l5idK-8QUOJaDZGRI9BDbjIeIdSk9AKhwsKc8D0hhK8bQupY2LVQOV6IlspTthEf7nKYmzeqCbBY"/>
+<div class="absolute top-4 left-4">
+<span class="bg-secondary-container text-white text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-sm">Save 15%</span>
+</div>
+<button class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-xl">favorite</span>
+</button>
+<div class="absolute inset-x-0 bottom-0 p-4 translate-y-full add-to-cart-btn transition-transform duration-300 ease-out">
+<button class="w-full bg-secondary-container text-white py-3 rounded-lg font-headline font-bold text-sm shadow-xl flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">shopping_bag</span>
+                                    ADD TO CART
+                                </button>
+</div>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline font-bold text-primary group-hover:text-secondary-container transition-colors">Echelon Chronograph Silver</h3>
+<div class="flex items-center gap-1 mb-1">
+<div class="flex text-secondary-container scale-75 -ml-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined">star_half</span>
+</div>
+<span class="text-[10px] text-outline font-bold">(128)</span>
+</div>
+<div class="flex items-baseline gap-2">
+<p class="text-xl font-headline font-extrabold text-primary">₦ 95,000</p>
+<p class="text-sm text-outline line-through">₦ 112,000</p>
+</div>
+</div>
+</div>
+<!-- Repeat for more cards -->
+<div class="product-card group relative">
+<div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 bg-surface-container-low">
+<img class="base-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500" data-alt="High-quality off-white cotton polo shirt" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzZ-4GB_TqZRWDI_8ts02BzTCru-VHfbiErmeDqA5KR5-Bv3N_51zJ65-Bzh8VAbJUw2szS3ziS-H8dBDvF_jlGMbts4XLF6CSD7-zrUVa9dEtRpGbGUrWoCfr6-RO-gLn7HLjpB7JM46wdrOtyF-6IGrHPhscuvdeP-XX_X6XEKGtP78Tf1w53WYWYnYllGzlYIizbQlDG8GHLHggBkxuAxr2neMgK6tJREjWz_aRAxTk-Mpa_wyPc3Lp0AVeTkk-mzl88riciHw"/>
+<img class="hover-image absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500" data-alt="Polo shirt fabric texture detail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEI3-_x1KG8Mkfy2wm5YomPq4aAHFGodyjeWAEyd0JtAjDS9xhjkNx9_n13EK_r5I4ase_9SrZiic3nIFKrv4Wd9a6Oxy65LBMWAYET58tcAlPcHhvx9PJQ0Z_YIzt1fXOdAE51zmN0jWU2wFUaWjZV8g0gdMp_tziK-2KJmvlh2Nl7GG7eHzQO_obpXhC0ny1UpnDKXdDYloArLEFfH1gCfWGQXI1APEjQA_dDp46u-40ctH3M1ZHVGhi3DMDvBxMET5a_s5oaAI"/>
+<button class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-xl">favorite</span>
+</button>
+<div class="absolute inset-x-0 bottom-0 p-4 translate-y-full add-to-cart-btn transition-transform duration-300 ease-out">
+<button class="w-full bg-secondary-container text-white py-3 rounded-lg font-headline font-bold text-sm shadow-xl flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">shopping_bag</span>
+                                    ADD TO CART
+                                </button>
+</div>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline font-bold text-primary group-hover:text-secondary-container transition-colors">Pure Cotton Atelier Polo</h3>
+<div class="flex items-center gap-1 mb-1">
+<div class="flex text-secondary-container scale-75 -ml-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-[10px] text-outline font-bold">(89)</span>
+</div>
+<p class="text-xl font-headline font-extrabold text-primary">₦ 28,500</p>
+</div>
+</div>
+<div class="product-card group relative">
+<div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 bg-surface-container-low">
+<img class="base-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500" data-alt="Classic tortoise shell sunglasses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFtjvYbXCOxfiVtJ89XoJdW14Jye-0fay258HQ8xqzdCVuAn5XGNZs83Yt2uFDdrXs6ismbAHWfB1we7ZePJ_ISoNOMnCHv024NvKz9uLKHzDd5FYbPy51Jc_A344qP3PX64hz-xD2dHeppYK5Fl7kNkfWS0pPfzqFCWVNkCMDHgOuAyHk0LpxzGoum0vwDQZm3RYyEbdNJEz-2xnC_wiJ70SuAMRUSL4fmDmpz0epudKpDi2s8z0Fc7o_uTVNBTs8lQVbbCz_Z3M"/>
+<img class="hover-image absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500" data-alt="Sunglasses resting on beach wood" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAujK4Egf7KaQWhx5a0D5AoMKPspCaTApibnCY-CtZ6Df_soz7zKC0Y--QQJ3y5bSMZB-VHjfWbva_wrDVlfF_YrBLWubfKQ8nLGa0yIyyYavlyYTX0Kw7_4oRSfRmkCHQ6KAgiGF6P2R5ZaZ_UIUtwdWLcNv0ipst5mznOQgJSOVNyymUOZ3Njx_JVMBjaaFdczTYX2pPE5HklIWrh0H2yEkjg6ImxLUudY8H8xRkLiysGQQvNOa6n8nlAKGfgpajJ7MHieRN1zeo"/>
+<button class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-xl">favorite</span>
+</button>
+<div class="absolute inset-x-0 bottom-0 p-4 translate-y-full add-to-cart-btn transition-transform duration-300 ease-out">
+<button class="w-full bg-secondary-container text-white py-3 rounded-lg font-headline font-bold text-sm shadow-xl flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">shopping_bag</span>
+                                    ADD TO CART
+                                </button>
+</div>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline font-bold text-primary group-hover:text-secondary-container transition-colors">Legacy Tortoise Shades</h3>
+<div class="flex items-center gap-1 mb-1">
+<div class="flex text-secondary-container scale-75 -ml-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined">star</span>
+</div>
+<span class="text-[10px] text-outline font-bold">(15)</span>
+</div>
+<p class="text-xl font-headline font-extrabold text-primary">₦ 45,000</p>
+</div>
+</div>
+<!-- Repeat Rows to fill grid -->
+<!-- Product Card 5 (Clone of 1 for visual volume) -->
+<div class="product-card group relative">
+<div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 bg-surface-container-low">
+<img class="base-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500" data-alt="Luxury blue velvet loafers" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEPcp0osRFyEQVD7Cn4rK4f43sGSpFyyWF1JSXVpp4gLyc0PRfmkjNOhDCW1QqK-IMycQJqH3Q__WAt5QqIHfjDn5duMhxHAbLhJgoNlq9o_xBg324zGQykyCQlrYl_Vbgqy-vMjvfr6_irz3Kw2b3mCrzGsgAUufIFDFfjJKpFv5E5wuWIHGxQTAGng2U7rav6hyxAN-EO14-8bPSnNF52C_80P558fsUX0Iu0JddFQpf3-VTst5tZ7RnH4LsWzjy6T0I6dhhu4M"/>
+<img class="hover-image absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500" data-alt="Loafers on a polished wooden floor" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCT9H9wbmLpuDgdGyimEUH7e3DEZAzwXrm5wLJScuOy-AV-hUedpbzBYZib8S9d9dabCQ3Hb6ZFEokbrgmvljmvcbf5QkCiz4V8bz77MskTV_M_2jbiQwfy5rnghMl7FVBItuq07wJJxXp95KYR69Jjexzv5PZ6m7WQKuWHsW4Ts4bnd1Z-fKobcohrybPaWrntvI9VDs3-B9mlCIXAeUuU_RbhN9i0EI0TvHO52FGUFBk0ATSJoXUgCaa6uiPWX34kbEQ1U9IeJ5s"/>
+<div class="absolute top-4 left-4">
+<span class="bg-red-600 text-white text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-sm">Sold Out</span>
+</div>
+<div class="absolute inset-x-0 bottom-0 p-4 translate-y-full add-to-cart-btn transition-transform duration-300 ease-out">
+<button class="w-full bg-slate-400 cursor-not-allowed text-white py-3 rounded-lg font-headline font-bold text-sm shadow-xl">
+                                    NOTIFY ME
+                                </button>
+</div>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline font-bold text-primary">Midnight Velvet Loafer</h3>
+<div class="flex items-center gap-1 mb-1">
+<div class="flex text-secondary-container scale-75 -ml-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined">star</span>
+</div>
+<span class="text-[10px] text-outline font-bold">(56)</span>
+</div>
+<p class="text-xl font-headline font-extrabold text-primary opacity-50">₦ 120,000</p>
+</div>
+</div>
+<div class="product-card group relative">
+<div class="relative aspect-[3/4] rounded-xl overflow-hidden mb-4 bg-surface-container-low">
+<img class="base-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500" data-alt="Premium office desk organizer set" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpolKxMU0cPiyUj7aly_4sd2tN2aRG4tpFAfa3pvcQiDKF_J_U4W4--JY6r7twbEWCfQF1WttUyYiShXTFg7fX3Tg8s2LCfxMFo1NeB8BXEZ16Vw7HmnqbRETj_-wANBn79u_T88Tvr90-XCcTb3-_og3tcCBvo6VhPyVIJDKmFzNJRCrLNYF3d_W_JFICLmHwg5ZRXen80HjKLlNmeAMBHwE_Xbr23OjjhCPBdnJ97cj-xR_fHZcW0Yh5LBPFPHaSIED9VfcnCeA"/>
+<img class="hover-image absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500" data-alt="Desk organizer in home office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbSNKGlZUuzCfLIyvFfEWgNsrZwmwAYpP8hawiTdiq7TpF_RAwkKW_jM9-jh3qSkmphgYA90ip4ZNpsAVF4EBqh_WlkQFN_L8ZdwnHbrKtm6PAG5TCgBUtHMJhP2UtKmyW5KHqk9vZuivm0v2jZr7tiqwIO4GeBnTm7Z43t5pkz3QfD3OTzHIMnYOk8gV2NJwP0_T8rBJoIupse9cUKuqxrwjTSJFM4lqR3vvqiJdr4hU9l6UE2oq5GM72H4MKTNPQlZQnFtTeoBU"/>
+<div class="absolute inset-x-0 bottom-0 p-4 translate-y-full add-to-cart-btn transition-transform duration-300 ease-out">
+<button class="w-full bg-secondary-container text-white py-3 rounded-lg font-headline font-bold text-sm shadow-xl flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">shopping_bag</span>
+                                    ADD TO CART
+                                </button>
+</div>
+</div>
+<div class="space-y-1">
+<h3 class="font-headline font-bold text-primary group-hover:text-secondary-container transition-colors">Marble Desktop Suite</h3>
+<div class="flex items-center gap-1 mb-1">
+<div class="flex text-secondary-container scale-75 -ml-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-[10px] text-outline font-bold">(12)</span>
+</div>
+<p class="text-xl font-headline font-extrabold text-primary">₦ 64,200</p>
+</div>
+</div>
+<!-- Add more dummy cards as needed to complete 8 -->
+</div>
+<!-- Pagination -->
+<div class="mt-20 flex items-center justify-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined text-lg">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-white font-bold text-sm">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-low text-on-surface font-semibold text-sm transition-all">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-low text-on-surface font-semibold text-sm transition-all">3</button>
+<span class="px-2 text-outline">...</span>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-low text-on-surface font-semibold text-sm transition-all">6</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined text-lg">chevron_right</span>
+</button>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full pt-16 pb-8 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
+<div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 font-inter text-sm leading-relaxed">
+<div class="md:col-span-1">
+<span class="text-xl font-bold text-slate-900 dark:text-white mb-4 block">Digital Atelier</span>
+<p class="text-slate-500 dark:text-slate-400 mb-6">Redefining Nigerian commerce through editorial curation and premium craftsmanship. Join our movement of discerning entrepreneurs.</p>
+<div class="flex gap-4">
+<a class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white" href="#"><span class="material-symbols-outlined text-sm">share</span></a>
+<a class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white" href="#"><span class="material-symbols-outlined text-sm">alternate_email</span></a>
+<a class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white" href="#"><span class="material-symbols-outlined text-sm">call</span></a>
+</div>
+</div>
+<div>
+<h4 class="font-headline font-bold text-primary dark:text-white mb-6">Quick Links</h4>
+<ul class="space-y-4">
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-orange-600 transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-orange-600 transition-colors" href="#">Terms of Service</a></li>
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-orange-600 transition-colors" href="#">Shipping Info</a></li>
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-orange-600 transition-colors" href="#">Returns</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-headline font-bold text-primary dark:text-white mb-6">Shop Categories</h4>
+<ul class="space-y-4">
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-orange-600 transition-colors" href="#">Leather Goods</a></li>
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-orange-600 transition-colors" href="#">Office Supplies</a></li>
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-orange-600 transition-colors" href="#">Tech Accessories</a></li>
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-orange-600 transition-colors" href="#">Limited Editions</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-headline font-bold text-primary dark:text-white mb-6">Newsletter</h4>
+<p class="text-slate-500 dark:text-slate-400 mb-4">Be the first to know about new arrivals and exclusive atelier events.</p>
+<div class="flex flex-col gap-2">
+<input class="bg-white dark:bg-slate-800 border-none rounded-lg px-4 py-2 focus:ring-1 focus:ring-secondary" placeholder="Your email" type="email"/>
+<button class="bg-primary text-white font-bold py-2 rounded-lg hover:bg-slate-800 transition-colors">SUBSCRIBE</button>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-slate-500 dark:text-slate-400 text-xs">© 2024 Digital Atelier. Empowering Nigerian Entrepreneurs.</p>
+<div class="flex gap-6 items-center">
+<img class="h-4 opacity-50" data-alt="Visa card payment method" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtNRF5iA8gXP-OcZK0xdjs-Apevs9pnl4Kevg7lGyudJD8uehe-W8AM5ZTt7nQQ6-91o55ibZdZP9ZpiUlhCoOLagtRSDXCMRUpeE5UouaUK3fNR_ghFj1EWrE67ej-50iKcrnCj5Lq6mDqJIetQDQeKfLgzafguJHsNnM5hfqHp9T6ljfdK-tUKV9nTx6QUuW0r1eu1XaqDTOIozS62W6FPCROK6YNgKtmwVXFzKJv8TJeF49mpgYMpWLKoz5PU7sB4OIVn1H-iM"/>
+<img class="h-6 opacity-50" data-alt="Mastercard payment method" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYSRP36yl1NXlEuQAK6WAcwO7lz412sQo8EiMParKaLcQqUUtEKr-zcIPEEGrDRZGZhZ1af-R616VtGYZ16K5hIsHQwDDqelPhCiJaVlUfNTjdSar0-_URrVzpsSTPRdroBJ2ZcRqKG0wKFui5K7_46XfTWUKQNp2TqqDUJVdidYkc__VGHKGbdQRyVvrnbDd6SGmYrskChiF-IlIJncp2QD5p-hmleMXP6tSiHIlyK7VBrA5yXfm_xpj6ugNqqOZRTChXJVWRPvk"/>
+<img class="h-4 opacity-50" data-alt="Verve card payment method" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgbePp5MtMQMe9gvjQ85RFAk_XHArZkI6DsbHqoDWtv03dFcIYj6KJ0Z0sFcuxh2Uh2ykoPMJ5jjwXwCC4EYEDsRFsiBbhUmXvPNsDQ6RXjuxv7RaabyiyAN4Bi9AiNX3a130gGqlfTYir0h-CRrTNPTPZ9E8cjfqEuMzx_5g7_-E1ThmS9PakQIRgNGTpyKK-1A5LnnEj7thl86tlZ3e7mTJOU7BXWOgDNyYWfG2F9anbONIv5Mv7GnNmhKR-z5XoUJmgSNvEPRk"/>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,935 @@
+{% extends 'dashboard/_partials/base.html' %}
+
+{% block content %}
+<section class="space-y-6">
+  <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <div class="space-y-1">
+        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-blue-600">POS Register</p>
+        <h1 class="text-2xl font-semibold text-slate-900">{{ store.name }}</h1>
+        <p class="text-sm text-slate-500">
+          Register: {{ register.name }}
+          {% if active_session %} • Session opened {{ active_session.opened_at|date:"M d, Y H:i" }}{% endif %}
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="{% url 'dashboard:pos:dashboard' prefix=prefix %}?store={{ store.id }}"
+           class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-blue-200 hover:text-blue-600">
+          Back to Dashboard
+        </a>
+        <a href="{% url 'dashboard:pos:sessions' prefix=prefix %}?store={{ store.id }}&register={{ register.id }}"
+           class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-blue-200 hover:text-blue-600">
+          Session
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-4">
+    <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Products</p>
+      <p class="mt-3 text-2xl font-semibold text-slate-900">{{ inventory_summary.total_products }}</p>
+    </div>
+    <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Low Stock</p>
+      <p class="mt-3 text-2xl font-semibold text-amber-600">{{ inventory_summary.low_stock_count }}</p>
+    </div>
+    <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Out Of Stock</p>
+      <p class="mt-3 text-2xl font-semibold text-rose-600">{{ inventory_summary.out_of_stock_count }}</p>
+    </div>
+    <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Held Carts</p>
+      <p class="mt-3 text-2xl font-semibold text-slate-900">{{ held_carts|length }}</p>
+    </div>
+  </div>
+
+  <div class="grid gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(25rem,0.95fr)]">
+    <div class="space-y-6">
+      <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
+          <div>
+            <label for="product-search" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Find Product</label>
+            <input id="product-search" type="search" autocomplete="off" placeholder="Search by product name, SKU, or barcode"
+                   class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Tax Rate</p>
+            <p class="mt-2 text-lg font-semibold text-slate-900">{{ tax_rate|floatformat:2 }}%</p>
+            <p class="mt-1 text-xs text-slate-500">Search works live and falls back to cached products when offline.</p>
+          </div>
+        </div>
+
+        <div id="search-results" class="mt-3 hidden rounded-2xl border border-slate-200 bg-slate-50 p-3"></div>
+
+        <div class="mt-5 grid gap-4 lg:grid-cols-3">
+          <div>
+            <label for="customer_name" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Customer Name</label>
+            <input id="customer_name" type="text" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+          </div>
+          <div>
+            <label for="customer_email" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Customer Email</label>
+            <input id="customer_email" type="email" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+          </div>
+          <div>
+            <label for="customer_phone" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Customer Phone</label>
+            <input id="customer_phone" type="text" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+          </div>
+        </div>
+
+        <div class="mt-5 overflow-hidden rounded-3xl border border-slate-200">
+          <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+              <tr>
+                <th class="px-4 py-3">Product</th>
+                <th class="px-4 py-3">Unit Price</th>
+                <th class="px-4 py-3">Qty</th>
+                <th class="px-4 py-3">Line Total</th>
+                <th class="px-4 py-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="cart-body" class="divide-y divide-slate-200 bg-white">
+              <tr id="empty-row">
+                <td colspan="5" class="px-4 py-10 text-center text-sm text-slate-500">Search for a product to begin this sale.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <aside class="space-y-6">
+      <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-semibold text-slate-900">Order Summary</h2>
+            <p class="mt-1 text-sm text-slate-600">Checkout stays local. No hosted gateway redirects.</p>
+          </div>
+          <div id="network-indicator" class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+            Online
+          </div>
+        </div>
+
+        <div class="mt-6 space-y-3 rounded-2xl bg-slate-50 p-4">
+          <div class="flex items-center justify-between text-sm text-slate-600"><span>Subtotal</span><span id="subtotal">NGN 0.00</span></div>
+          <div class="flex items-center justify-between text-sm text-slate-600"><span>Tax</span><span id="tax">NGN 0.00</span></div>
+          <div class="flex items-center justify-between border-t border-slate-200 pt-3 text-base font-semibold text-slate-900"><span>Total</span><span id="grand-total">NGN 0.00</span></div>
+        </div>
+
+        <div class="mt-5 space-y-4">
+          <div>
+            <label for="payment_method" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Payment Method</label>
+            <select id="payment_method" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+              {% for value,label in payment_method_options %}
+                <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div id="single-payment-panel" class="space-y-4">
+            <div>
+              <label for="payment_reference" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Payment Reference</label>
+              <input id="payment_reference" type="text" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+            </div>
+            <div id="bank-name-wrap" class="hidden">
+              <label for="bank_name" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Bank Name</label>
+              <input id="bank_name" type="text" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+            </div>
+            <div id="terminal-reference-wrap" class="hidden">
+              <label for="terminal_reference" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Terminal Reference</label>
+              <input id="terminal_reference" type="text" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+            </div>
+            <div id="custom-label-wrap" class="hidden">
+              <label for="custom_payment_label" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Custom Payment Label</label>
+              <input id="custom_payment_label" type="text" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+            </div>
+            <div id="amount-received-wrap">
+              <label for="amount_received" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Amount Received</label>
+              <input id="amount_received" type="number" min="0" step="0.01" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+            </div>
+          </div>
+
+          <div id="split-payment-panel" class="hidden space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <h3 class="text-sm font-semibold text-slate-900">Split payments</h3>
+                <p class="text-xs text-slate-500">Add multiple rows until the sale total is fully covered.</p>
+              </div>
+              <button id="add-split-row" type="button" class="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">Add row</button>
+            </div>
+            <div id="split-rows" class="space-y-3"></div>
+            <p id="split-summary" class="text-xs text-slate-500">Split totals will appear here.</p>
+          </div>
+
+          <div>
+            <label for="sale_notes" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Notes</label>
+            <textarea id="sale_notes" rows="3" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"></textarea>
+          </div>
+
+          <div>
+            <label for="hold_reference" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Hold Reference</label>
+            <input id="hold_reference" type="text" placeholder="Customer name, counter note, or basket label" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+          </div>
+        </div>
+
+        <div id="sale-feedback" class="mt-4 hidden rounded-2xl px-4 py-3 text-sm font-medium"></div>
+
+        <button id="checkout-btn" type="button" disabled class="mt-5 w-full rounded-2xl bg-blue-600 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300">Complete Sale</button>
+        <div class="mt-3 grid gap-3 sm:grid-cols-2">
+          <button id="hold-cart-btn" type="button" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700">Hold Cart</button>
+          <button id="clear-cart-btn" type="button" class="rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700">Void Cart</button>
+        </div>
+      </div>
+
+      <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-semibold text-slate-900">Offline Queue</h2>
+            <p class="mt-1 text-sm text-slate-600">Offline sales are queued here and synced when your connection returns.</p>
+          </div>
+          <span id="queued-count" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">0 queued</span>
+        </div>
+        <div class="mt-4 flex gap-3">
+          <button id="sync-queued-btn" type="button" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700">Sync queued sales</button>
+        </div>
+        <div id="queued-sales-list" class="mt-4 space-y-3">
+          <p class="text-sm text-slate-500">No queued offline sales.</p>
+        </div>
+      </div>
+
+      <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 class="text-xl font-semibold text-slate-900">Held Carts</h2>
+        <div id="held-carts" class="mt-4 space-y-3">
+          {% for held in held_carts %}
+            <button type="button" data-held-cart="{{ held.id }}" class="block w-full rounded-2xl border border-slate-200 px-4 py-3 text-left text-sm">
+              <span class="font-semibold text-slate-900">{{ held.hold_reference|default:held.id }}</span>
+              <span class="mt-1 block text-slate-500">{{ held.held_at|date:"M d, Y H:i" }}</span>
+            </button>
+          {% empty %}
+            <p class="text-sm text-slate-500">No held carts yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}
+
+{% block js %}
+<script>
+(() => {
+  const CFG = {
+    searchUrl: "{{ search_url }}",
+    addUrl: "{{ cart_add_url }}",
+    updateUrl: "{{ cart_update_url }}",
+    removeUrl: "{{ cart_remove_url }}",
+    holdUrl: "{{ cart_hold_url }}",
+    resumeUrl: "{{ cart_resume_url }}",
+    clearUrl: "{{ cart_clear_url }}",
+    checkoutUrl: "{{ cart_checkout_url }}",
+    offlineSyncUrl: "{{ offline_sync_url }}",
+    taxRate: {{ tax_rate }},
+    storeId: "{{ store.id }}",
+    registerId: "{{ register.id }}",
+    sessionId: "{{ active_session.id }}",
+  };
+
+  const OFFLINE_DB = "sabistart-pos";
+  const OFFLINE_QUEUE_STORE = "offline_sales_queue";
+  const PRODUCT_CACHE_KEY = `sabistart-pos-products:${CFG.storeId}`;
+
+  const searchInput = document.getElementById("product-search");
+  const resultsEl = document.getElementById("search-results");
+  const cartBody = document.getElementById("cart-body");
+  const emptyRow = document.getElementById("empty-row");
+  const subtotalEl = document.getElementById("subtotal");
+  const taxEl = document.getElementById("tax");
+  const totalEl = document.getElementById("grand-total");
+  const checkoutBtn = document.getElementById("checkout-btn");
+  const holdBtn = document.getElementById("hold-cart-btn");
+  const clearBtn = document.getElementById("clear-cart-btn");
+  const feedbackEl = document.getElementById("sale-feedback");
+  const heldCartsEl = document.getElementById("held-carts");
+  const paymentMethodEl = document.getElementById("payment_method");
+  const singlePaymentPanel = document.getElementById("single-payment-panel");
+  const splitPaymentPanel = document.getElementById("split-payment-panel");
+  const bankNameWrap = document.getElementById("bank-name-wrap");
+  const terminalReferenceWrap = document.getElementById("terminal-reference-wrap");
+  const customLabelWrap = document.getElementById("custom-label-wrap");
+  const amountReceivedWrap = document.getElementById("amount-received-wrap");
+  const networkIndicator = document.getElementById("network-indicator");
+  const queuedCountEl = document.getElementById("queued-count");
+  const syncQueuedBtn = document.getElementById("sync-queued-btn");
+  const queuedSalesListEl = document.getElementById("queued-sales-list");
+  const splitRowsEl = document.getElementById("split-rows");
+  const splitSummaryEl = document.getElementById("split-summary");
+  const addSplitRowBtn = document.getElementById("add-split-row");
+  const holdReferenceEl = document.getElementById("hold_reference");
+
+  let cartItems = {{ cart_data.items|safe }};
+  let splitRows = [];
+
+  function getCookie(name) {
+    for (const cookie of document.cookie.split(";")) {
+      const trimmed = cookie.trim();
+      if (trimmed.startsWith(`${name}=`)) return decodeURIComponent(trimmed.slice(name.length + 1));
+    }
+    return "";
+  }
+
+  function money(value) {
+    return `NGN ${Number(value || 0).toFixed(2)}`;
+  }
+
+  function parseMoney(value) {
+    return Number.parseFloat(value || "0") || 0;
+  }
+
+  function feedback(message, tone = "neutral") {
+    feedbackEl.textContent = message;
+    feedbackEl.className = "mt-4 rounded-2xl px-4 py-3 text-sm font-medium";
+    const tones = {
+      success: "bg-emerald-50 text-emerald-700",
+      error: "bg-rose-50 text-rose-700",
+      neutral: "bg-slate-100 text-slate-700",
+    };
+    feedbackEl.className += " " + (tones[tone] || tones.neutral);
+  }
+
+  async function post(url, payload) {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      body: JSON.stringify(payload || {}),
+    });
+    return { ok: response.ok, data: await response.json() };
+  }
+
+  function cartSubtotal() {
+    return cartItems.reduce((sum, item) => sum + Number(item.line_total || 0), 0);
+  }
+
+  function cartTax(subtotal) {
+    return subtotal * (CFG.taxRate / 100);
+  }
+
+  function cartTotal() {
+    const subtotal = cartSubtotal();
+    return subtotal + cartTax(subtotal);
+  }
+
+  function updateNetworkIndicator() {
+    if (navigator.onLine) {
+      networkIndicator.textContent = "Online";
+      networkIndicator.className = "rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700";
+    } else {
+      networkIndicator.textContent = "Offline";
+      networkIndicator.className = "rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700";
+    }
+  }
+
+  function getCachedProducts() {
+    try {
+      return JSON.parse(localStorage.getItem(PRODUCT_CACHE_KEY) || "[]");
+    } catch {
+      return [];
+    }
+  }
+
+  function cacheProducts(products) {
+    const existing = getCachedProducts();
+    const map = new Map(existing.map((item) => [item.id, item]));
+    products.forEach((item) => map.set(item.id, item));
+    localStorage.setItem(PRODUCT_CACHE_KEY, JSON.stringify(Array.from(map.values()).slice(-300)));
+  }
+
+  function renderCart() {
+    cartBody.innerHTML = "";
+    if (!cartItems.length) {
+      cartBody.appendChild(emptyRow);
+      checkoutBtn.disabled = true;
+      subtotalEl.textContent = money(0);
+      taxEl.textContent = money(0);
+      totalEl.textContent = money(0);
+      updateSplitSummary();
+      return;
+    }
+
+    let subtotal = 0;
+    cartItems.forEach((item) => {
+      subtotal += Number(item.line_total);
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="px-4 py-4">
+          <p class="font-medium text-slate-900">${item.product_name}</p>
+          <p class="text-xs text-slate-400">${item.product_sku || ""}</p>
+        </td>
+        <td class="px-4 py-4 text-slate-600">${money(item.unit_price)}</td>
+        <td class="px-4 py-4">
+          <input type="number" min="1" max="${item.max_quantity}" value="${item.quantity}" data-item-id="${item.id}" class="cart-qty-input w-24 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900">
+        </td>
+        <td class="px-4 py-4 font-medium text-slate-900">${money(item.line_total)}</td>
+        <td class="px-4 py-4 text-right">
+          <button type="button" data-remove="${item.id}" class="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600">Remove</button>
+        </td>`;
+      cartBody.appendChild(tr);
+    });
+    const tax = cartTax(subtotal);
+    subtotalEl.textContent = money(subtotal);
+    taxEl.textContent = money(tax);
+    totalEl.textContent = money(subtotal + tax);
+    checkoutBtn.disabled = false;
+    updateSplitSummary();
+  }
+
+  function renderResults(products) {
+    if (!products.length) {
+      resultsEl.innerHTML = `<p class="px-3 py-2 text-sm text-slate-500">No products found.</p>`;
+    } else {
+      resultsEl.innerHTML = products.map((p) => `
+        <button type="button" class="result-btn flex w-full items-center justify-between gap-4 rounded-2xl px-4 py-3 text-left transition hover:bg-white" data-inv-id="${p.id}">
+          <span>
+            <span class="block text-sm font-medium text-slate-900">${p.name}</span>
+            <span class="block text-xs text-slate-400">${p.sku || "—"} • ${p.quantity} in stock</span>
+          </span>
+          <span class="text-sm font-semibold text-slate-900">${money(p.price)}</span>
+        </button>
+      `).join("");
+    }
+    resultsEl.classList.remove("hidden");
+  }
+
+  function updatePaymentVisibility() {
+    const method = paymentMethodEl.value;
+    const isSplit = method === "split";
+    singlePaymentPanel.classList.toggle("hidden", isSplit);
+    splitPaymentPanel.classList.toggle("hidden", !isSplit);
+
+    bankNameWrap.classList.toggle("hidden", method !== "bank_transfer");
+    terminalReferenceWrap.classList.toggle("hidden", method !== "card_terminal");
+    customLabelWrap.classList.toggle("hidden", method !== "custom");
+    amountReceivedWrap.classList.toggle("hidden", method !== "cash");
+
+    if (isSplit && splitRows.length === 0) {
+      splitRows = [newSplitRow("cash"), newSplitRow("card_terminal")];
+      renderSplitRows();
+    }
+    updateSplitSummary();
+  }
+
+  function newSplitRow(method = "cash") {
+    return {
+      id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      payment_method: method,
+      amount: "",
+      reference_number: "",
+      bank_name: "",
+      terminal_reference: "",
+      custom_payment_label: "",
+      amount_received: "",
+    };
+  }
+
+  function splitRowFields(row, index) {
+    const showBank = row.payment_method === "bank_transfer";
+    const showTerminal = row.payment_method === "card_terminal";
+    const showCustom = row.payment_method === "custom";
+    const showCashReceived = row.payment_method === "cash";
+    return `
+      <div class="rounded-2xl border border-slate-200 bg-white p-4">
+        <div class="grid gap-3 md:grid-cols-2">
+          <div>
+            <label class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Method</label>
+            <select data-split-field="payment_method" data-row-index="${index}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900">
+              ${[
+                ["cash", "Cash"],
+                ["bank_transfer", "Bank Transfer"],
+                ["card_terminal", "POS Terminal / Card"],
+                ["mobile_money", "Mobile Money"],
+                ["custom", "Custom Payment"],
+              ].map(([value, label]) => `<option value="${value}" ${row.payment_method === value ? "selected" : ""}>${label}</option>`).join("")}
+            </select>
+          </div>
+          <div>
+            <label class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Amount</label>
+            <input data-split-field="amount" data-row-index="${index}" type="number" min="0" step="0.01" value="${row.amount}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900">
+          </div>
+          <div>
+            <label class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Reference</label>
+            <input data-split-field="reference_number" data-row-index="${index}" type="text" value="${row.reference_number}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900">
+          </div>
+          ${showBank ? `
+          <div>
+            <label class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Bank Name</label>
+            <input data-split-field="bank_name" data-row-index="${index}" type="text" value="${row.bank_name}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900">
+          </div>` : ""}
+          ${showTerminal ? `
+          <div>
+            <label class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Terminal Ref</label>
+            <input data-split-field="terminal_reference" data-row-index="${index}" type="text" value="${row.terminal_reference}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900">
+          </div>` : ""}
+          ${showCustom ? `
+          <div>
+            <label class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Custom Label</label>
+            <input data-split-field="custom_payment_label" data-row-index="${index}" type="text" value="${row.custom_payment_label}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900">
+          </div>` : ""}
+          ${showCashReceived ? `
+          <div>
+            <label class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Amount Received</label>
+            <input data-split-field="amount_received" data-row-index="${index}" type="number" min="0" step="0.01" value="${row.amount_received}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900">
+          </div>` : ""}
+        </div>
+        <div class="mt-3 flex justify-end">
+          <button type="button" data-remove-split="${index}" class="rounded-full border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700">Remove row</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderSplitRows() {
+    splitRowsEl.innerHTML = splitRows.map((row, index) => splitRowFields(row, index)).join("");
+    updateSplitSummary();
+  }
+
+  function updateSplitSummary() {
+    if (paymentMethodEl.value !== "split") {
+      splitSummaryEl.textContent = "";
+      return;
+    }
+    const due = cartTotal();
+    const total = splitRows.reduce((sum, row) => sum + parseMoney(row.amount), 0);
+    splitSummaryEl.textContent = `Assigned: ${money(total)} • Due: ${money(due)}`;
+  }
+
+  function buildSinglePaymentPayload() {
+    const method = paymentMethodEl.value;
+    const payload = {
+      payment_method: method,
+      payment_reference: document.getElementById("payment_reference").value,
+      bank_name: document.getElementById("bank_name").value,
+      terminal_reference: document.getElementById("terminal_reference").value,
+      custom_payment_label: document.getElementById("custom_payment_label").value,
+      amount_received: document.getElementById("amount_received").value,
+    };
+    if (method !== "cash") {
+      delete payload.amount_received;
+    }
+    return payload;
+  }
+
+  function buildSplitPaymentPayload(total) {
+    const cleanedRows = splitRows
+      .map((row) => ({
+        payment_method: row.payment_method,
+        amount: parseMoney(row.amount).toFixed(2),
+        reference_number: row.reference_number || "",
+        bank_name: row.bank_name || "",
+        terminal_reference: row.terminal_reference || "",
+        custom_payment_label: row.custom_payment_label || "",
+        amount_received: row.payment_method === "cash" && row.amount_received ? parseMoney(row.amount_received).toFixed(2) : "",
+      }))
+      .filter((row) => parseMoney(row.amount) > 0);
+
+    const assigned = cleanedRows.reduce((sum, row) => sum + parseMoney(row.amount), 0);
+    if (!cleanedRows.length) {
+      throw new Error("Add at least one split payment row.");
+    }
+    if (assigned + 0.0001 < total) {
+      throw new Error("Split payments do not cover the full sale total.");
+    }
+    return {
+      payment_method: "split",
+      payments: cleanedRows,
+    };
+  }
+
+  function baseCheckoutPayload() {
+    return {
+      customer_name: document.getElementById("customer_name").value,
+      customer_email: document.getElementById("customer_email").value,
+      customer_phone: document.getElementById("customer_phone").value,
+      notes: document.getElementById("sale_notes").value,
+    };
+  }
+
+  function buildCheckoutPayload() {
+    const total = cartTotal();
+    if (paymentMethodEl.value === "split") {
+      return { ...baseCheckoutPayload(), ...buildSplitPaymentPayload(total) };
+    }
+    return { ...baseCheckoutPayload(), ...buildSinglePaymentPayload() };
+  }
+
+  function localReceiptHtml(record) {
+    const total = Number(record.summary.total || 0);
+    const subtotal = Number(record.summary.subtotal || 0);
+    const tax = Number(record.summary.tax || 0);
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Offline Receipt</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 24px; color: #0f172a; }
+          .wrap { max-width: 520px; margin: 0 auto; }
+          table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+          th, td { border-bottom: 1px solid #e2e8f0; padding: 8px 0; text-align: left; font-size: 14px; }
+          th:last-child, td:last-child { text-align: right; }
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <h1>${record.store_name}</h1>
+          <p>Offline receipt</p>
+          <p>Reference: ${record.client_transaction_id}</p>
+          <p>Date: ${new Date(record.created_at).toLocaleString()}</p>
+          <table>
+            <thead>
+              <tr><th>Item</th><th>Qty</th><th>Total</th></tr>
+            </thead>
+            <tbody>
+              ${record.items.map((item) => `<tr><td>${item.product_name}</td><td>${item.quantity}</td><td>${money(item.line_total)}</td></tr>`).join("")}
+            </tbody>
+          </table>
+          <p style="margin-top:16px;">Subtotal: ${money(subtotal)}</p>
+          <p>Tax: ${money(tax)}</p>
+          <p><strong>Total: ${money(total)}</strong></p>
+          <p>This sale is queued locally and will sync when the connection returns.</p>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  function openLocalReceipt(record) {
+    const win = window.open("", "_blank", "noopener,noreferrer");
+    if (!win) return;
+    win.document.open();
+    win.document.write(localReceiptHtml(record));
+    win.document.close();
+  }
+
+  function openOfflineDb() {
+    return new Promise((resolve, reject) => {
+      if (!window.indexedDB) {
+        reject(new Error("IndexedDB is not available in this browser."));
+        return;
+      }
+      const request = window.indexedDB.open(OFFLINE_DB, 1);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(OFFLINE_QUEUE_STORE)) {
+          db.createObjectStore(OFFLINE_QUEUE_STORE, { keyPath: "client_transaction_id" });
+        }
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function queueOfflineSale(record) {
+    const db = await openOfflineDb();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(OFFLINE_QUEUE_STORE, "readwrite");
+      tx.objectStore(OFFLINE_QUEUE_STORE).put(record);
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+    db.close();
+  }
+
+  async function listQueuedSales() {
+    const db = await openOfflineDb();
+    const records = await new Promise((resolve, reject) => {
+      const tx = db.transaction(OFFLINE_QUEUE_STORE, "readonly");
+      const request = tx.objectStore(OFFLINE_QUEUE_STORE).getAll();
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+    db.close();
+    return records.filter((record) => record.store_id === CFG.storeId);
+  }
+
+  async function removeQueuedSales(ids) {
+    const db = await openOfflineDb();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(OFFLINE_QUEUE_STORE, "readwrite");
+      const store = tx.objectStore(OFFLINE_QUEUE_STORE);
+      ids.forEach((id) => store.delete(id));
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+    db.close();
+  }
+
+  async function refreshQueuedCount() {
+    try {
+      const records = await listQueuedSales();
+      queuedCountEl.textContent = `${records.length} queued`;
+      renderQueuedSales(records);
+    } catch {
+      queuedCountEl.textContent = "queue unavailable";
+      queuedSalesListEl.innerHTML = `<p class="text-sm text-slate-500">Offline queue is unavailable in this browser.</p>`;
+    }
+  }
+
+  function renderQueuedSales(records) {
+    if (!records.length) {
+      queuedSalesListEl.innerHTML = `<p class="text-sm text-slate-500">No queued offline sales.</p>`;
+      return;
+    }
+    queuedSalesListEl.innerHTML = records.map((record) => `
+      <div class="rounded-2xl border border-slate-200 px-4 py-3 text-sm">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="font-semibold text-slate-900">${record.client_transaction_id}</p>
+            <p class="mt-1 text-xs text-slate-500">${new Date(record.created_at).toLocaleString()}</p>
+            <p class="mt-2 text-slate-600">${record.items.length} line item(s) &middot; ${money(record.summary.total)}</p>
+          </div>
+          <div class="flex gap-2">
+            <button type="button" data-print-queued="${record.client_transaction_id}" class="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">Print</button>
+            <button type="button" data-remove-queued="${record.client_transaction_id}" class="rounded-full border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700">Remove</button>
+          </div>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  async function syncQueuedSales(showFeedback = true) {
+    if (!navigator.onLine) {
+      if (showFeedback) feedback("You're offline. Queued sales will sync when the connection returns.", "neutral");
+      return;
+    }
+    const records = await listQueuedSales();
+    if (!records.length) {
+      if (showFeedback) feedback("No queued offline sales to sync.", "neutral");
+      await refreshQueuedCount();
+      return;
+    }
+    const response = await post(CFG.offlineSyncUrl, {
+      transactions: records.map((record) => record.payload),
+    });
+    if (!response.ok || !response.data.success) {
+      feedback(response.data?.error || "Could not sync queued sales right now.", "error");
+      return;
+    }
+    const syncedIds = (response.data.transactions || []).map((item) => item.client_transaction_id);
+    await removeQueuedSales(syncedIds);
+    await refreshQueuedCount();
+    feedback(`Synced ${syncedIds.length} queued sale(s).`, "success");
+  }
+
+  let searchTimer;
+  searchInput?.addEventListener("input", () => {
+    clearTimeout(searchTimer);
+    const q = searchInput.value.trim();
+    const looksLikeBarcode = /^\d{4,}$/.test(q);
+    if (q.length < 2 && !looksLikeBarcode) {
+      resultsEl.classList.add("hidden");
+      return;
+    }
+    searchTimer = setTimeout(async () => {
+      if (!navigator.onLine) {
+        const cached = getCachedProducts().filter((item) => {
+          const text = `${item.name} ${item.sku || ""} ${item.barcode || ""}`.toLowerCase();
+          return text.includes(q.toLowerCase());
+        });
+        renderResults(cached);
+        return;
+      }
+      const response = await fetch(`${CFG.searchUrl}?q=${encodeURIComponent(q)}`);
+      const data = await response.json();
+      cacheProducts(data.products || []);
+      renderResults(data.products || []);
+    }, 280);
+  });
+
+  resultsEl?.addEventListener("click", async (e) => {
+    const button = e.target.closest(".result-btn");
+    if (!button) return;
+    const response = await post(CFG.addUrl, { inventory_id: button.dataset.invId });
+    if (response.data.success) {
+      cartItems = response.data.cart.items;
+      renderCart();
+      searchInput.value = "";
+      resultsEl.classList.add("hidden");
+    } else {
+      feedback(response.data.error || "Could not add item.", "error");
+    }
+  });
+
+  cartBody?.addEventListener("change", async (e) => {
+    if (!e.target.classList.contains("cart-qty-input")) return;
+    const response = await post(CFG.updateUrl, { item_id: e.target.dataset.itemId, quantity: parseInt(e.target.value || "1", 10) });
+    if (response.data.success) {
+      cartItems = response.data.cart.items;
+      renderCart();
+    } else {
+      feedback(response.data.error || "Could not update quantity.", "error");
+    }
+  });
+
+  cartBody?.addEventListener("click", async (e) => {
+    const button = e.target.closest("[data-remove]");
+    if (!button) return;
+    const response = await post(CFG.removeUrl, { item_id: button.dataset.remove });
+    if (response.data.success) {
+      cartItems = response.data.cart.items;
+      renderCart();
+    } else {
+      feedback(response.data.error || "Could not remove item.", "error");
+    }
+  });
+
+  heldCartsEl?.addEventListener("click", async (e) => {
+    const button = e.target.closest("[data-held-cart]");
+    if (!button) return;
+    const response = await post(CFG.resumeUrl, { cart_id: button.dataset.heldCart });
+    if (response.data.success) {
+      feedback("Held cart resumed.", "success");
+      window.location.reload();
+    } else {
+      feedback(response.data.error || "Could not resume cart.", "error");
+    }
+  });
+
+  holdBtn?.addEventListener("click", async () => {
+    const response = await post(CFG.holdUrl, { reference: holdReferenceEl?.value || "" });
+    if (response.data.success) {
+      feedback("Cart held.", "success");
+      window.location.reload();
+    } else {
+      feedback(response.data.error || "Could not hold cart.", "error");
+    }
+  });
+
+  clearBtn?.addEventListener("click", async () => {
+    const response = await post(CFG.clearUrl, {});
+    if (response.data.success) {
+      cartItems = response.data.cart.items;
+      renderCart();
+      feedback("Cart voided.", "success");
+    } else {
+      feedback(response.data.error || "Could not void cart.", "error");
+    }
+  });
+
+  addSplitRowBtn?.addEventListener("click", () => {
+    splitRows.push(newSplitRow("cash"));
+    renderSplitRows();
+  });
+
+  splitRowsEl?.addEventListener("input", (e) => {
+    const field = e.target.dataset.splitField;
+    const index = Number(e.target.dataset.rowIndex);
+    if (!field || Number.isNaN(index) || !splitRows[index]) return;
+    splitRows[index][field] = e.target.value;
+    if (field === "payment_method") {
+      splitRows[index] = { ...newSplitRow(e.target.value), id: splitRows[index].id, payment_method: e.target.value, amount: splitRows[index].amount };
+      renderSplitRows();
+      return;
+    }
+    updateSplitSummary();
+  });
+
+  splitRowsEl?.addEventListener("click", (e) => {
+    const button = e.target.closest("[data-remove-split]");
+    if (!button) return;
+    splitRows.splice(Number(button.dataset.removeSplit), 1);
+    renderSplitRows();
+  });
+
+  paymentMethodEl?.addEventListener("change", updatePaymentVisibility);
+  syncQueuedBtn?.addEventListener("click", () => syncQueuedSales(true));
+  queuedSalesListEl?.addEventListener("click", async (e) => {
+    const printButton = e.target.closest("[data-print-queued]");
+    if (printButton) {
+      const records = await listQueuedSales();
+      const record = records.find((item) => item.client_transaction_id === printButton.dataset.printQueued);
+      if (record) {
+        openLocalReceipt(record);
+      }
+      return;
+    }
+    const removeButton = e.target.closest("[data-remove-queued]");
+    if (removeButton) {
+      await removeQueuedSales([removeButton.dataset.removeQueued]);
+      await refreshQueuedCount();
+      feedback("Queued offline sale removed.", "neutral");
+    }
+  });
+  window.addEventListener("online", () => {
+    updateNetworkIndicator();
+    syncQueuedSales(false);
+  });
+  window.addEventListener("offline", updateNetworkIndicator);
+
+  checkoutBtn?.addEventListener("click", async () => {
+    let payload;
+    try {
+      payload = buildCheckoutPayload();
+    } catch (error) {
+      feedback(error.message || "Could not prepare this sale.", "error");
+      return;
+    }
+
+    try {
+      const response = await post(CFG.checkoutUrl, payload);
+      if (response.data.success) {
+        feedback(`Sale ${response.data.transaction_number} complete. Opening receipt...`, "success");
+        cartItems = [];
+        renderCart();
+        if (holdReferenceEl) holdReferenceEl.value = "";
+        if (response.data.receipt_url) window.open(response.data.receipt_url, "_blank", "noopener,noreferrer");
+        if (response.data.detail_url) window.location.href = response.data.detail_url;
+        return;
+      }
+      throw new Error(response.data.error || "Could not complete sale.");
+    } catch (error) {
+      const offlineRecord = {
+        client_transaction_id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        created_at: new Date().toISOString(),
+        store_id: CFG.storeId,
+        store_name: "{{ store.name|escapejs }}",
+        register_id: CFG.registerId,
+        session_id: CFG.sessionId,
+        items: cartItems.map((item) => ({ ...item })),
+        summary: {
+          subtotal: cartSubtotal(),
+          tax: cartTax(cartSubtotal()),
+          total: cartTotal(),
+        },
+        payload: {
+          ...payload,
+          client_transaction_id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+          items: cartItems.map((item) => ({ inventory_id: item.inventory_id, quantity: item.quantity })),
+        },
+      };
+      offlineRecord.client_transaction_id = offlineRecord.payload.client_transaction_id;
+      try {
+        await queueOfflineSale(offlineRecord);
+        await refreshQueuedCount();
+        openLocalReceipt(offlineRecord);
+        feedback("Connection lost. Sale saved offline and queued for sync.", "success");
+        cartItems = [];
+        renderCart();
+        if (holdReferenceEl) holdReferenceEl.value = "";
+      } catch (queueError) {
+        feedback(error.message || queueError.message || "Could not complete or queue this sale.", "error");
+      }
+    }
+  });
+
+  updateNetworkIndicator();
+  updatePaymentVisibility();
+  renderCart();
+  refreshQueuedCount();
+  if (navigator.onLine) {
+    syncQueuedSales(false);
+  }
+})();
+</script>
+{% endblock %}

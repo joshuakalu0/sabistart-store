@@ -1,0 +1,158 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+  <div class="space-y-8">
+    <section class="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.34em] text-blue-600">Store Control</p>
+          <h2 class="mt-3 text-3xl font-extrabold text-slate-950 dark:text-white">{{ store_name|default:"Your Store" }}</h2>
+          <p class="mt-3 max-w-2xl text-sm leading-7 text-slate-500 dark:text-slate-400">The tenant dashboard now exposes only live sections. Use these quick links to move between catalog, payments, staff, POS, marketplace, and domain operations.</p>
+        </div>
+        <a href="{% url 'dashboard:feature_marketplace:catalog' prefix %}" class="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700">
+          <span class="material-icons-outlined text-sm">store</span>
+          <span>Browse add-ons</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <a href="{% url 'dashboard:product_settings:product_list' prefix %}" class="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800">
+        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Catalog</p>
+        <h3 class="mt-3 text-lg font-bold text-slate-950 dark:text-white">Products</h3>
+        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Manage products, attributes, categories, brands, and tags.</p>
+      </a>
+      <a href="{% url 'dashboard:payments_tenant:tenant_home' prefix %}" class="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800">
+        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Revenue</p>
+        <h3 class="mt-3 text-lg font-bold text-slate-950 dark:text-white">Payments</h3>
+        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Track balances, transactions, disputes, refunds, and payout status.</p>
+      </a>
+      <a href="{% url 'dashboard:pos:dashboard' prefix %}" class="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800">
+        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Operations</p>
+        <h3 class="mt-3 text-lg font-bold text-slate-950 dark:text-white">Point of Sale</h3>
+        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Run in-store sales, inventory movement, and local discounts.</p>
+      </a>
+      <a href="{% url 'dashboard:user_settings:staff_list' prefix %}" class="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800">
+        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">People</p>
+        <h3 class="mt-3 text-lg font-bold text-slate-950 dark:text-white">Users & Staff</h3>
+        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Manage store users, staff roles, permissions, customers, and audit logs.</p>
+      </a>
+    </section>
+
+    <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {% for kpi in overview_bundle.kpis %}
+      <article class="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
+        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">{{ kpi.label }}</p>
+        <p class="mt-3 text-3xl font-extrabold text-slate-950" data-home-kpi-format="{{ kpi.format }}" data-home-kpi-value="{{ kpi.value }}"></p>
+        <p class="mt-2 text-sm text-slate-500">{{ kpi.helper }}</p>
+      </article>
+      {% endfor %}
+    </section>
+
+    <section class="grid gap-6 xl:grid-cols-2">
+      <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h3 class="text-lg font-bold text-slate-950 dark:text-white">Revenue Trend</h3>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Rolling 30-day revenue snapshot from the shared analytics layer.</p>
+          </div>
+          {% if feature_access_map.advanced_analytics.active %}
+          <a href="{% url 'dashboard:analytics:overview' prefix %}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Open analytics</a>
+          {% endif %}
+        </div>
+        <div class="mt-5 h-72">
+          <canvas id="homeRevenueChart"></canvas>
+        </div>
+      </div>
+      <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h3 class="text-lg font-bold text-slate-950 dark:text-white">Traffic Trend</h3>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Tracked page views over the same period so sales and traffic stay in the same frame.</p>
+          </div>
+          {% if feature_access_map.advanced_analytics.active %}
+          <a href="{% url 'dashboard:monitoring:overview' prefix %}" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Traffic analytics</a>
+          {% endif %}
+        </div>
+        <div class="mt-5 h-72">
+          <canvas id="homeTrafficChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid gap-6 xl:grid-cols-2">
+      <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <h3 class="text-lg font-bold text-slate-950 dark:text-white">Live workspace areas</h3>
+        <div class="mt-5 grid gap-3 sm:grid-cols-2">
+          <a href="{% url 'dashboard:pricing:currency_list' prefix %}" class="rounded-[1.25rem] border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600 hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">Pricing & promotions</a>
+          <a href="{% url 'dashboard:store_settings:manage_theme_settings' prefix %}" class="rounded-[1.25rem] border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600 hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">Storefront & theme settings</a>
+          <a href="{% url 'dashboard:notification_dashboard_index' prefix %}" class="rounded-[1.25rem] border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600 hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">Notifications</a>
+          <a href="{% url 'dashboard:domain:list' prefix %}" class="rounded-[1.25rem] border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600 hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">Domains & SSL</a>
+          {% if feature_access_map.advanced_analytics.active %}
+          <a href="{% url 'dashboard:monitoring:overview' prefix %}" class="rounded-[1.25rem] border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600 hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">Traffic analytics</a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <h3 class="text-lg font-bold text-slate-950 dark:text-white">What changed</h3>
+        <ul class="mt-5 space-y-3 text-sm leading-7 text-slate-500 dark:text-slate-400">
+          <li>Only live dashboard modules are shown in navigation now.</li>
+          <li>Marketplace, payments, POS, domains, pricing, products, and staff flows stay one click away.</li>
+          <li>Permission and feature bootstrap commands can now seed realistic data for full entitlement testing.</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+{% endblock %}
+
+{% block js %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    (() => {
+      const bundle = {{ overview_bundle_json|safe }};
+      const revenue = bundle.charts.revenue_trend;
+      const traffic = bundle.charts.traffic_trend;
+
+      function money(value) {
+        return new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(Number(value || 0));
+      }
+
+      document.querySelectorAll("[data-home-kpi-format]").forEach((node) => {
+        const format = node.dataset.homeKpiFormat;
+        const value = node.dataset.homeKpiValue;
+        if (format === "currency") {
+          node.textContent = money(value);
+        } else if (format === "decimal") {
+          node.textContent = Number(value || 0).toFixed(2);
+        } else {
+          node.textContent = new Intl.NumberFormat().format(Number(value || 0));
+        }
+      });
+
+      new Chart(document.getElementById("homeRevenueChart"), {
+        type: "line",
+        data: {
+          labels: revenue.labels,
+          datasets: revenue.datasets,
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+        },
+      });
+
+      new Chart(document.getElementById("homeTrafficChart"), {
+        type: "line",
+        data: {
+          labels: traffic.labels,
+          datasets: traffic.datasets,
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+        },
+      });
+    })();
+  </script>
+{% endblock %}

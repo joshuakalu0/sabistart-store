@@ -1,0 +1,80 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Payout Batches</h2>
+    <p class="text-slate-600 dark:text-slate-400">Cross-tenant platform payout batch processing</p>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 mb-4">
+  <div class="p-4">
+    <form method="get" class="flex flex-wrap gap-3">
+      <select name="status" class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white">
+        <option value="">All Status</option>
+        {% for val, label in status_choices %}
+        <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <input type="date" name="date_from" value="{{ date_from }}"
+             class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white"/>
+      <input type="date" name="date_to" value="{{ date_to }}"
+             class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white"/>
+      <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg text-sm">Filter</button>
+    </form>
+  </div>
+</div>
+
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          {% for col in "Reference,Status,Items,Total Amount,Currency,Gateway,Initiated,Actions" %}
+          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+        {% for batch in batches %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700">
+          <td class="px-4 py-3">
+            <a href="{% url 'dashboard:payments_system:payout_batch_detail' prefix batch.id %}" class="font-mono text-primary hover:underline text-xs">{{ batch.batch_reference }}</a>
+          </td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-1 rounded-full text-xs font-medium
+              {% if batch.status == 'completed' %}bg-green-100 text-green-700
+              {% elif batch.status == 'processing' %}bg-blue-100 text-blue-700
+              {% elif batch.status == 'failed' %}bg-red-100 text-red-700
+              {% elif batch.status == 'partial_success' %}bg-amber-100 text-amber-700
+              {% else %}bg-slate-100 text-slate-600{% endif %}">
+              {{ batch.status|capfirst }}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ batch.total_items }}</td>
+          <td class="px-4 py-3 font-mono text-slate-900 dark:text-white">{{ batch.total_amount }}</td>
+          <td class="px-4 py-3 font-mono text-slate-500">{{ batch.currency }}</td>
+          <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ batch.gateway.name|default:"—" }}</td>
+          <td class="px-4 py-3 text-slate-500">{{ batch.initiated_at|date:"d M Y H:i" }}</td>
+          <td class="px-4 py-3">
+            <a href="{% url 'dashboard:payments_system:payout_batch_detail' prefix batch.id %}" class="text-primary hover:underline">View</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="px-6 py-10 text-center text-slate-400">No payout batches found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if batches.has_other_pages %}
+  <div class="px-4 py-3 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
+    <span class="text-sm text-slate-500">Page {{ batches.number }} of {{ batches.paginator.num_pages }}</span>
+    <div class="flex space-x-2">
+      {% if batches.has_previous %}<a href="?page={{ batches.previous_page_number }}&status={{ status_filter }}" class="px-3 py-1 border border-slate-300 dark:border-slate-600 rounded text-sm hover:bg-slate-50 dark:hover:bg-slate-700">Prev</a>{% endif %}
+      {% if batches.has_next %}<a href="?page={{ batches.next_page_number }}&status={{ status_filter }}" class="px-3 py-1 border border-slate-300 dark:border-slate-600 rounded text-sm hover:bg-slate-50 dark:hover:bg-slate-700">Next</a>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

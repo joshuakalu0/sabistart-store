@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Analytics Export</title>
+    <style>
+      body { font-family: Arial, sans-serif; color: #0f172a; font-size: 12px; }
+      h1, h2 { margin: 0 0 10px; }
+      .kpis { margin: 20px 0; }
+      .kpis td { padding: 6px 10px; border: 1px solid #cbd5e1; }
+      table { width: 100%; border-collapse: collapse; margin-top: 14px; }
+      th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; }
+      th { background: #f8fafc; }
+      .muted { color: #64748b; }
+    </style>
+  </head>
+  <body>
+    <h1>{{ bundle.page_key|default:"analytics"|title }} Analytics Export</h1>
+    {% if pdf_unavailable %}
+      <p class="muted">PDF generation library is not installed in this environment yet. This HTML summary was returned instead.</p>
+    {% endif %}
+    <table class="kpis">
+      <tbody>
+        {% for kpi in bundle.kpis %}
+          <tr>
+            <td><strong>{{ kpi.label }}</strong></td>
+            <td>{{ kpi.value }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h2>{{ bundle.table_title }}</h2>
+    <table>
+      <thead>
+        <tr>
+          {% for column in bundle.table_columns %}
+            <th>{{ column }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in bundle.table_matrix %}
+          <tr>
+            {% for value in row %}
+              <td>{{ value }}</td>
+            {% endfor %}
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="{{ bundle.table_columns|length }}">No rows available for this export.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </body>
+</html>

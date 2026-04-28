@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Media Debug</title>
+</head>
+<body>
+    <h1>Media URL Debug</h1>
+    
+    <h2>Settings</h2>
+    <p>MEDIA_URL: {{ MEDIA_URL }}</p>
+    <p>MEDIA_ROOT: {{ MEDIA_ROOT }}</p>
+    
+    <h2>Sample Product Images</h2>
+    {% for product in products %}
+        <div style="border: 1px solid #ccc; margin: 10px; padding: 10px;">
+            <h3>{{ product.name }}</h3>
+            <p>SKU: {{ product.sku }}</p>
+            {% if product.images.first %}
+                <p>Image URL: {{ product.images.first.image.url }}</p>
+                <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" style="max-width: 200px; max-height: 200px;" onerror="this.style.border='2px solid red'; this.alt='Image failed to load';">
+            {% else %}
+                <p>No images</p>
+            {% endif %}
+        </div>
+    {% endfor %}
+</body>
+</html>

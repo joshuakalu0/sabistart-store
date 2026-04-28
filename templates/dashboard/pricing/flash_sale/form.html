@@ -1,0 +1,155 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="max-w-6xl mx-auto">
+  <div class="flex items-center space-x-4 mb-6">
+    <a href="{{ list_url }}" class="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+      <span class="material-icons-outlined">arrow_back</span>
+    </a>
+    <div>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">{{ form_title }}</h2>
+      <p class="text-slate-600 dark:text-slate-400">Create time-limited flash sales with countdown timers</p>
+    </div>
+  </div>
+
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden p-6">
+    <form method="post" enctype="multipart/form-data" class="space-y-8">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+      <div class="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm border border-red-200 dark:border-red-800">
+        {{ form.non_field_errors }}
+      </div>
+      {% endif %}
+
+      <!-- Basic Info -->
+      <div>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 pb-2 border-b border-slate-200 dark:border-slate-700">Basic Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {% for field in form %}
+            {% if field.name in "name,slug" %}
+            <div class="space-y-1">
+              <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ field.label }} {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}</label>
+              {{ field }}
+              {% if field.help_text %}<p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ field.help_text|safe }}</p>{% endif %}
+              {% if field.errors %}<p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ field.errors.0 }}</p>{% endif %}
+            </div>
+            {% endif %}
+          {% endfor %}
+          <div class="space-y-1 md:col-span-2">
+            <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ form.description.label }}</label>
+            {{ form.description }}
+            {% if form.description.help_text %}<p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ form.description.help_text|safe }}</p>{% endif %}
+            {% if form.description.errors %}<p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ form.description.errors.0 }}</p>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Display & Branding -->
+      <div>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 pb-2 border-b border-slate-200 dark:border-slate-700">Display & Branding</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {% for field in form %}
+            {% if field.name in "banner_image,badge_label,show_countdown_timer,is_publicly_visible" %}
+            <div class="space-y-1 {% if field.name == 'banner_image' %}md:col-span-2{% endif %} {% if field.field.widget.input_type == 'checkbox' %}flex items-center space-x-2 space-y-0 h-full pt-6{% endif %}">
+              {% if field.field.widget.input_type == 'checkbox' %}
+                {{ field }}
+                <label for="{{ field.id_for_label }}" class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ field.label }}</label>
+              {% else %}
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ field.label }} {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}</label>
+                {{ field }}
+              {% endif %}
+              {% if field.help_text %}<p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ field.help_text|safe }}</p>{% endif %}
+              {% if field.errors %}<p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ field.errors.0 }}</p>{% endif %}
+            </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Discount Settings -->
+      <div>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 pb-2 border-b border-slate-200 dark:border-slate-700">Discount Settings</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {% for field in form %}
+            {% if field.name in "applies_to_all_products,global_discount_percentage,priority" %}
+            <div class="space-y-1 {% if field.field.widget.input_type == 'checkbox' %}flex items-center space-x-2 space-y-0 h-full pt-6{% endif %}">
+              {% if field.field.widget.input_type == 'checkbox' %}
+                {{ field }}
+                <label for="{{ field.id_for_label }}" class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ field.label }}</label>
+              {% else %}
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ field.label }} {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}</label>
+                {{ field }}
+              {% endif %}
+              {% if field.help_text %}<p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ field.help_text|safe }}</p>{% endif %}
+              {% if field.errors %}<p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ field.errors.0 }}</p>{% endif %}
+            </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <p class="text-sm text-blue-800 dark:text-blue-300">
+            <span class="material-icons-outlined text-sm align-middle mr-1">info</span>
+            If "Applies to All Products" is unchecked, you'll need to add specific products via Flash Sale Items after saving.
+          </p>
+        </div>
+      </div>
+
+      <!-- Schedule & Status -->
+      <div>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 pb-2 border-b border-slate-200 dark:border-slate-700">Schedule & Status</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {% for field in form %}
+            {% if field.name in "starts_at,ends_at,is_active" %}
+            <div class="space-y-1 {% if field.field.widget.input_type == 'checkbox' %}flex items-center space-x-2 space-y-0 h-full pt-6{% endif %}">
+              {% if field.field.widget.input_type == 'checkbox' %}
+                {{ field }}
+                <label for="{{ field.id_for_label }}" class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ field.label }}</label>
+              {% else %}
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ field.label }} {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}</label>
+                {{ field }}
+              {% endif %}
+              {% if field.help_text %}<p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ field.help_text|safe }}</p>{% endif %}
+              {% if field.errors %}<p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ field.errors.0 }}</p>{% endif %}
+            </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end space-x-3 pt-6 border-t border-slate-200 dark:border-slate-700">
+        {% if is_edit %}
+        <a href="{{ detail_url }}" class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">Cancel</a>
+        {% else %}
+        <a href="{{ list_url }}" class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">Cancel</a>
+        {% endif %}
+        <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors flex items-center">
+          <span class="material-icons-outlined text-sm mr-2">bolt</span>
+          Save Flash Sale
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Conditional field visibility
+  const appliesToAllCheckbox = document.getElementById("id_applies_to_all_products");
+  const globalDiscountField = document.getElementById("id_global_discount_percentage")?.closest(".space-y-1");
+
+  function updateDiscountFields() {
+    if (!appliesToAllCheckbox || !globalDiscountField) return;
+    
+    if (appliesToAllCheckbox.checked) {
+      globalDiscountField.style.display = "block";
+    } else {
+      globalDiscountField.style.display = "none";
+    }
+  }
+
+  if (appliesToAllCheckbox) {
+    appliesToAllCheckbox.addEventListener("change", updateDiscountFields);
+    updateDiscountFields();
+  }
+});
+</script>
+{% endblock %}

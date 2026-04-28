@@ -1,0 +1,33 @@
+{% extends "account/_platform_base.html" %}
+{% block page_intro %}<p class="mt-2 text-sm text-slate-500">Searchable, filterable platform-wide transaction log built from the public projection index.</p>{% endblock %}
+{% block content %}
+  {% include "system_pay/_subnav.html" %}
+  <div class="rounded-[1.75rem] border border-slate-200 bg-white shadow-sm">
+    <div class="border-b border-slate-200 px-6 py-5">
+      <form method="get" class="grid gap-4 md:grid-cols-[1fr_180px_180px_auto]">
+        <input type="text" name="q" value="{{ q }}" placeholder="Reference, email, order" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm" />
+        <input type="text" name="status" value="{{ selected_status }}" placeholder="Status" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm" />
+        <input type="text" name="gateway" value="{{ selected_gateway }}" placeholder="Gateway" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm" />
+        <button type="submit" class="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white">Filter</button>
+      </form>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <thead class="bg-slate-50"><tr><th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Reference</th><th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Tenant</th><th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Gateway</th><th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Status</th><th class="px-6 py-4 text-right font-semibold uppercase tracking-[0.18em] text-slate-400">Amount</th></tr></thead>
+        <tbody class="divide-y divide-slate-200">
+          {% for transaction in transactions %}
+            <tr>
+              <td class="px-6 py-4"><p class="font-semibold text-slate-950">{{ transaction.internal_reference }}</p><p class="mt-1 text-xs text-slate-500">{{ transaction.customer_email|default:"-" }}</p></td>
+              <td class="px-6 py-4 text-slate-500">{{ transaction.schema_name }}</td>
+              <td class="px-6 py-4 text-slate-500">{{ transaction.gateway_provider|default:"-" }}</td>
+              <td class="px-6 py-4 text-slate-500">{{ transaction.status|title }}</td>
+              <td class="px-6 py-4 text-right font-semibold text-slate-950">{{ transaction.amount }} {{ transaction.currency }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5" class="px-6 py-10 text-center text-sm text-slate-500">No transactions matched your filters.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

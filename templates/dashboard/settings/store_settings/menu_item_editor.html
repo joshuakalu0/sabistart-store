@@ -1,0 +1,100 @@
+{% load static %}
+
+<!-- Menu Item Editor Component -->
+<div class="menu-item-editor {% if depth > 0 %}menu-item-nested{% endif %} {% if depth > 1 %}menu-item-nested-2{% endif %}" data-item-id="{{ node.item.pk }}">
+    <div class="bg-surface-container-low p-6 rounded-xl {% if node.item.parent %}border-l-4 border-transparent hover:border-surface-variant{% else %}border-l-4 border-primary{% endif %} shadow-sm space-y-4 transition-all">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <span class="material-symbols-outlined text-outline-variant drag-handle cursor-grab">drag_indicator</span>
+                <span class="font-bold text-lg {% if not node.item.is_active %}text-on-surface-variant{% endif %}">{{ node.item.label }}</span>
+                {% if not node.item.parent %}
+                <span class="px-2 py-0.5 bg-primary-container text-on-primary-container text-[10px] font-bold uppercase rounded tracking-tighter">Root</span>
+                {% endif %}
+                {% if node.item.show_as_mega_menu %}
+                <span class="px-2 py-0.5 bg-secondary-container text-secondary text-[10px] font-bold uppercase rounded tracking-tighter">Mega Menu</span>
+                {% endif %}
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="{% url 'navigation_menu_item_edit' node.item.pk %}" class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" title="Edit">settings</a>
+                <a href="{% url 'navigation_menu_item_delete' node.item.pk %}" class="material-symbols-outlined text-on-surface-variant hover:text-error transition-colors" title="Delete" data-delete-url="{% url 'navigation_menu_item_delete' node.item.pk %}">delete</a>
+                <button type="button" class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors toggle-children" title="{% if node.has_children %}Collapse{% else %}Expand{% endif %}">
+                    {% if node.has_children %}expand_less{% else %}expand_more{% endif %}
+                </button>
+            </div>
+        </div>
+
+        <!-- Item Detail Fields (Expanded for root items) -->
+        {% if not node.item.parent %}
+        <div class="item-details grid grid-cols-12 gap-6 pt-4 border-t border-surface-variant/30 {% if node.has_children %}hidden{% endif %}">
+            <div class="col-span-6 space-y-1">
+                <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Label</label>
+                <input class="w-full bg-surface-container-lowest border-0 border-b-2 border-surface-variant architectural-line px-0 py-1 font-medium text-on-surface" type="text" value="{{ node.item.label }}" readonly/>
+            </div>
+            <div class="col-span-6 space-y-1">
+                <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Link Type</label>
+                <input class="w-full bg-surface-container-lowest border-0 border-b-2 border-surface-variant architectural-line px-0 py-1 font-medium text-on-surface" type="text" value="{{ node.item.get_link_type_display }}" readonly/>
+            </div>
+            {% if node.item.icon_class %}
+            <div class="col-span-12 space-y-1">
+                <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Icon Class (Material Symbol)</label>
+                <div class="flex gap-4 items-center">
+                    <input class="flex-1 bg-surface-container-lowest border-0 border-b-2 border-surface-variant architectural-line px-0 py-1 font-medium text-on-surface" type="text" value="{{ node.item.icon_class }}" readonly/>
+                    <span class="material-symbols-outlined bg-surface-container-lowest p-2 rounded border border-outline-variant/20">{{ node.item.icon_class }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Mega Menu Contextual Settings -->
+            {% if node.item.show_as_mega_menu %}
+            <div class="col-span-12 mt-4 p-4 bg-primary-container/20 rounded-lg border border-primary/10 mega-menu-section">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">auto_awesome_motion</span>
+                        <span class="font-bold text-sm text-on-primary-container">Mega Menu Settings</span>
+                    </div>
+                    <div class="relative inline-flex items-center cursor-pointer">
+                        <input checked="" class="sr-only peer" type="checkbox" disabled/>
+                        <div class="w-11 h-6 bg-primary rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex justify-between text-xs font-bold text-on-surface-variant uppercase tracking-widest">
+                        <span>Mega Menu Columns</span>
+                        <span class="text-primary">{{ node.item.mega_menu_columns }} Columns</span>
+                    </div>
+                    <input class="w-full h-1 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-primary" max="6" min="1" type="range" value="{{ node.item.mega_menu_columns }}" disabled/>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Nested Children -->
+        {% if node.children %}
+        <div class="children-container pl-8 space-y-4 pt-4">
+            {% for child in node.children %}
+            <div class="bg-surface-container-lowest p-4 rounded-lg border border-outline-variant/20 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <span class="material-symbols-outlined text-outline-variant drag-handle cursor-grab text-sm">drag_indicator</span>
+                    <span class="font-semibold text-sm {% if not child.item.is_active %}text-on-surface-variant{% endif %}">{{ child.item.label }}</span>
+                    {% if child.item.show_as_mega_menu %}
+                    <span class="px-2 py-0.5 bg-secondary-container text-secondary text-[10px] font-bold uppercase rounded tracking-tighter">Mega</span>
+                    {% endif %}
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="{% url 'navigation_menu_item_edit' child.item.pk %}" class="material-symbols-outlined text-on-surface-variant text-sm hover:text-primary transition-colors">edit</a>
+                    <a href="{% url 'navigation_menu_item_delete' child.item.pk %}" class="material-symbols-outlined text-on-surface-variant text-sm hover:text-error transition-colors" data-delete-url="{% url 'navigation_menu_item_delete' child.item.pk %}">delete</a>
+                </div>
+            </div>
+            {% endfor %}
+            <a href="{% url 'navigation_menu_item_create' object.pk %}" class="flex items-center gap-2 text-xs font-bold text-primary px-2 hover:underline">
+                <span class="material-symbols-outlined text-xs">add_circle</span> Add Sub-item
+            </a>
+        </div>
+        {% else %}
+        <a href="{% url 'navigation_menu_item_create' object.pk %}" class="flex items-center gap-2 text-xs font-bold text-primary px-2 hover:underline mt-4">
+            <span class="material-symbols-outlined text-xs">add_circle</span> Add Sub-item
+        </a>
+        {% endif %}
+    </div>
+</div>

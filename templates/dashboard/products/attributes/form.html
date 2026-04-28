@@ -1,0 +1,1410 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load static %}
+{% block content %}
+  <form method="post" id="attributeForm">
+    {% csrf_token %}
+    <input type="hidden" id="saveStatus" name="save_status" value="active" />
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <div class="flex items-center space-x-4">
+            <a href="{% url 'dashboard:product_settings:attribute_list' prefix %}"
+               class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+              <svg class="w-5 h-5 text-gray-600"
+                   fill="none"
+                   stroke="currentColor"
+                   viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+            </a>
+            <div>
+              <h1 class="text-xl font-bold text-gray-900">{{ attribute.name|default:'Create Attribute' }}</h1>
+              <p class="text-xs text-gray-500 hidden sm:block">Define product characteristics and variant options</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Form Area -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- STEP 1: Basic Information -->
+          <div id="step1Section" class="section-visible animate-fade-in">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+              <div class="p-4 sm:p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <svg class="w-5 h-5 mr-2 text-primary-600"
+                       fill="none"
+                       stroke="currentColor"
+                       viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                    </path>
+                  </svg>
+                  Basic Information
+                </h2>
+                <div class="space-y-4">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label for="attributeName"
+                             class="block text-sm font-medium text-gray-700 required-field">Attribute Name</label>
+                      <input type="text"
+                             id="attributeName"
+                             name="name"
+                             class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                             placeholder="e.g., Color, Size"
+                             oninput="generateSlug()"
+                             value="{{ attribute.name|default:'' }}" />
+                      <p class="mt-1 text-xs text-gray-500">The display name shown to customers</p>
+                    </div>
+                    <div>
+                      <label for="attributeSlug" class="block text-sm font-medium text-gray-700">URL Slug</label>
+                      <div class="mt-1 flex rounded-md shadow-sm">
+                        <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">/attributes/</span>
+                        <input type="text"
+                               id="attributeSlug"
+                               name="slug"
+                               class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md focus:ring-primary-500 focus:border-primary-500 sm:text-sm border border-gray-300"
+                               placeholder="attribute-name"
+                               value="{{ attribute.slug|default:'' }}" />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label for="attributeGroup" class="block text-sm font-medium text-gray-700">Attribute Group</label>
+                    <select id="attributeGroup"
+                            name="group"
+                            class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3">
+                      <option value="">No Group</option>
+                      {% for group in groups %}
+                        <option
+                          value="{{ group.id }}"
+                          {% if
+                            attribute.group=""
+                            ="group" %}selected{% endif %}
+                            >{{ group.name }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <div>
+                      <label for="attributeType"
+                             class="block text-sm font-medium text-gray-700 required-field">Attribute Type</label>
+                      <select id="attributeType"
+                              name="attribute_type"
+                              class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                              onchange="handleAttributeTypeChange()">
+                        <option value="">Select Type...</option>
+                        <optgroup label="Text Inputs">
+                          <option
+                            value="text"
+                            {% if
+                              attribute.attribute_type=""
+                              ="text" %}selected{% endif %}
+                              >Text</option>
+                            <option
+                              value="number"
+                              {% if
+                                attribute.attribute_type=""
+                                ="number" %}selected{% endif %}
+                                >Number (Integer)</option>
+                              <option
+                                value="decimal"
+                                {% if
+                                  attribute.attribute_type=""
+                                  ="decimal" %}selected{% endif %}
+                                  >Decimal</option>
+                                <option
+                                  value="url"
+                                  {% if
+                                    attribute.attribute_type=""
+                                    ="url" %}selected{% endif %}
+                                    >URL</option>
+                                  <option
+                                    value="email"
+                                    {% if
+                                      attribute.attribute_type=""
+                                      ="email" %}selected{% endif %}
+                                      >Email</option>
+                                  </optgroup>
+                                  <optgroup label="Selection">
+                                    <option
+                                      value="select"
+                                      {% if
+                                        attribute.attribute_type=""
+                                        ="select" %}selected{% endif %}
+                                        >Select (Single Choice)</option>
+                                      <option
+                                        value="multiselect"
+                                        {% if
+                                          attribute.attribute_type=""
+                                          ="multiselect" %}selected{% endif %}
+                                          >Multi-Select</option>
+                                        <option
+                                          value="boolean"
+                                          {% if
+                                            attribute.attribute_type=""
+                                            ="boolean" %}selected{% endif %}
+                                            >Boolean (Yes/No)</option>
+                                          <option
+                                            value="range"
+                                            {% if
+                                              attribute.attribute_type=""
+                                              ="range" %}selected{% endif %}
+                                              >Range Slider</option>
+                                          </optgroup>
+                                          <optgroup label="Media">
+                                            <option
+                                              value="color"
+                                              {% if
+                                                attribute.attribute_type=""
+                                                ="color" %}selected{% endif %}
+                                                >Color</option>
+                                              <option
+                                                value="image"
+                                                {% if
+                                                  attribute.attribute_type=""
+                                                  ="image" %}selected{% endif %}
+                                                  >Image</option>
+                                                <option
+                                                  value="file"
+                                                  {% if
+                                                    attribute.attribute_type=""
+                                                    ="file" %}selected{% endif %}
+                                                    >File Upload</option>
+                                                </optgroup>
+                                                <optgroup label="Other">
+                                                  <option
+                                                    value="date"
+                                                    {% if
+                                                      attribute.attribute_type=""
+                                                      ="date" %}selected{% endif %}
+                                                      >Date</option>
+                                                  </optgroup>
+                                                </select>
+                                                <p class="mt-1 text-xs text-gray-500">Determines how customers interact with this attribute</p>
+                                              </div>
+                                              <!-- Type-Specific Info Box -->
+                                              <div id="typeInfoBox" class="hidden p-4 rounded-lg border animate-fade-in">
+                                                <div class="flex items-start space-x-3">
+                                                  <svg class="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"
+                                                       fill="none"
+                                                       stroke="currentColor"
+                                                       viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                    </path>
+                                                  </svg>
+                                                  <div>
+                                                    <h4 class="font-medium text-primary-800" id="typeInfoTitle"></h4>
+                                                    <p class="text-sm text-primary-700 mt-1" id="typeInfoDescription"></p>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                              <div>
+                                                <label for="attributeDescription"
+                                                       class="block text-sm font-medium text-gray-700">
+                                                  Description
+                                                </label>
+                                                <textarea id="attributeDescription" name="description" rows="3" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3" placeholder="Describe what this attribute represents...">
+{{ attribute.description|default:'' }}</textarea>
+                                              </div>
+                                              <div>
+                                                <label for="attributeHelpText"
+                                                       class="block text-sm font-medium text-gray-700">
+                                                  Help Text
+                                                </label>
+                                                <input type="text"
+                                                       id="attributeHelpText"
+                                                       name="help_text"
+                                                       class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                                                       placeholder="Short hint shown to users"
+                                                       value="{{ attribute.help_text|default:'' }}" />
+                                              </div>
+                                              <div>
+                                                <label for="attributeUnit" class="block text-sm font-medium text-gray-700">Unit of Measurement</label>
+                                                <input type="text"
+                                                       id="attributeUnit"
+                                                       name="unit"
+                                                       class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                                                       placeholder="e.g., cm, kg, inches, liters"
+                                                       value="{{ attribute.unit|default:'' }}" />
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <!-- STEP 2: Values & Configuration (Dynamic based on type) -->
+                                      <div id="step2Section" class="section-hidden animate-fade-in">
+                                        <!-- For Select/Multi-Select Types -->
+                                        <div id="selectValuesSection"
+                                             class="bg-white rounded-xl shadow-sm border border-gray-200"
+                                             style="display: none">
+                                          <div class="p-4 sm:p-6">
+                                            <div class="flex items-center justify-between mb-4">
+                                              <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                                                <svg class="w-5 h-5 mr-2 text-primary-600"
+                                                     fill="none"
+                                                     stroke="currentColor"
+                                                     viewBox="0 0 24 24">
+                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z">
+                                                  </path>
+                                                </svg>
+                                                Predefined Values
+                                              </h2>
+                                              <button type="button"
+                                                      onclick="addAttributeValue()"
+                                                      class="px-3 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm flex items-center space-x-1">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                                </svg>
+                                                <span>Add Value</span>
+                                              </button>
+                                            </div>
+                                            <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                              <p class="text-sm text-blue-700 flex items-start">
+                                                <svg class="w-4 h-4 inline mr-2 flex-shrink-0"
+                                                     fill="none"
+                                                     stroke="currentColor"
+                                                     viewBox="0 0 24 24">
+                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                  </path>
+                                                </svg>
+                                                Define predefined options for this attribute. Customers will
+                                                select from these values.
+                                              </p>
+                                            </div>
+                                            <div id="attributeValuesList" class="space-y-3"></div>
+                                            <div class="mt-4 pt-4 border-t border-gray-200">
+                                              <button type="button"
+                                                      onclick="toggleBulkAdd()"
+                                                      class="text-sm text-primary-600 hover:text-primary-700 flex items-center space-x-1">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                                                </svg>
+                                                <span>Bulk Add Values</span>
+                                              </button>
+                                              <div id="bulkAddSection" class="mt-3 hidden">
+                                                <textarea id="bulkValues"
+                                                          rows="4"
+                                                          class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                                                          placeholder="Enter each value on a new line&#10;Red&#10;Blue&#10;Green"></textarea>
+                                                <div class="mt-2 flex space-x-2">
+                                                  <button type="button"
+                                                          onclick="processBulkAdd()"
+                                                          class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm">
+                                                    Add All
+                                                  </button>
+                                                  <button type="button"
+                                                          onclick="toggleBulkAdd()"
+                                                          class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                                                    Cancel
+                                                  </button>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <!-- For Color Type -->
+                                        <div id="colorValuesSection"
+                                             class="bg-white rounded-xl shadow-sm border border-gray-200"
+                                             style="display: none">
+                                          <div class="p-4 sm:p-6">
+                                            <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                              <svg class="w-5 h-5 mr-2 text-primary-600"
+                                                   fill="none"
+                                                   stroke="currentColor"
+                                                   viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01">
+                                                </path>
+                                              </svg>
+                                              Color Options
+                                            </h2>
+                                            <div class="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                                              <p class="text-sm text-purple-700">Define available colors with hex codes and visual swatches.</p>
+                                            </div>
+                                            <div id="colorValuesList" class="space-y-3"></div>
+                                            <button type="button"
+                                                    onclick="addColorValue()"
+                                                    class="mt-4 w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-primary-500 hover:text-primary-600 transition-colors">
+                                              + Add Color Option
+                                            </button>
+                                          </div>
+                                        </div>
+                                        <!-- For Boolean Type -->
+                                        <div id="booleanValuesSection"
+                                             class="bg-white rounded-xl shadow-sm border border-gray-200"
+                                             style="display: none">
+                                          <div class="p-4 sm:p-6">
+                                            <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                              <svg class="w-5 h-5 mr-2 text-primary-600"
+                                                   fill="none"
+                                                   stroke="currentColor"
+                                                   viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                </path>
+                                              </svg>
+                                              Boolean Options
+                                            </h2>
+                                            <div class="space-y-4">
+                                              <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                                <div>
+                                                  <label class="text-sm font-medium text-gray-700">Yes Label</label>
+                                                  <p class="text-xs text-gray-500">Text shown for true/yes value</p>
+                                                </div>
+                                                <input type="text"
+                                                       id="booleanYesLabel"
+                                                       value="Yes"
+                                                       class="w-32 rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-2" />
+                                              </div>
+                                              <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                                <div>
+                                                  <label class="text-sm font-medium text-gray-700">No Label</label>
+                                                  <p class="text-xs text-gray-500">Text shown for false/no value</p>
+                                                </div>
+                                                <input type="text"
+                                                       id="booleanNoLabel"
+                                                       value="No"
+                                                       class="w-32 rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-2" />
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <!-- For Range Type -->
+                                        <div id="rangeValuesSection"
+                                             class="bg-white rounded-xl shadow-sm border border-gray-200"
+                                             style="display: none">
+                                          <div class="p-4 sm:p-6">
+                                            <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                              <svg class="w-5 h-5 mr-2 text-primary-600"
+                                                   fill="none"
+                                                   stroke="currentColor"
+                                                   viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
+                                                </path>
+                                              </svg>
+                                              Range Configuration
+                                            </h2>
+                                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                              <div>
+                                                <label class="block text-sm font-medium text-gray-700">Minimum Value</label>
+                                                <input type="number"
+                                                       id="rangeMin"
+                                                       class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                                                       value="0"
+                                                       oninput="updateRangePreview()" />
+                                              </div>
+                                              <div>
+                                                <label class="block text-sm font-medium text-gray-700">Maximum Value</label>
+                                                <input type="number"
+                                                       id="rangeMax"
+                                                       class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                                                       value="100"
+                                                       oninput="updateRangePreview()" />
+                                              </div>
+                                              <div>
+                                                <label class="block text-sm font-medium text-gray-700">Step Value</label>
+                                                <input type="number"
+                                                       id="rangeStep"
+                                                       class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                                                       value="1"
+                                                       step="0.1"
+                                                       oninput="updateRangePreview()" />
+                                              </div>
+                                            </div>
+                                            <div class="mt-4">
+                                              <label class="block text-sm font-medium text-gray-700">Default Value</label>
+                                              <input type="number"
+                                                     id="rangeDefault"
+                                                     class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                                                     value="50"
+                                                     oninput="updateRangePreview()" />
+                                            </div>
+                                            <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                                              <p class="text-sm font-medium text-gray-700 mb-2">Preview:</p>
+                                              <input type="range"
+                                                     id="rangePreview"
+                                                     min="0"
+                                                     max="100"
+                                                     value="50"
+                                                     class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                                     disabled />
+                                              <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                                <span id="rangePreviewMin">0</span>
+                                                <span id="rangePreviewValue">50</span>
+                                                <span id="rangePreviewMax">100</span>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <!-- For Number/Decimal Types -->
+                                        <div id="numericValuesSection"
+                                             class="bg-white rounded-xl shadow-sm border border-gray-200"
+                                             style="display: none">
+                                          <div class="p-4 sm:p-6">
+                                            <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                              <svg class="w-5 h-5 mr-2 text-primary-600"
+                                                   fill="none"
+                                                   stroke="currentColor"
+                                                   viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+                                              </svg>
+                                              Numeric Validation
+                                            </h2>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                              <div>
+                                                <label class="block text-sm font-medium text-gray-700">Minimum Value</label>
+                                                <input type="number"
+                                                       id="numericMin"
+                                                       class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                                                       placeholder="e.g., 0" />
+                                              </div>
+                                              <div>
+                                                <label class="block text-sm font-medium text-gray-700">Maximum Value</label>
+                                                <input type="number"
+                                                       id="numericMax"
+                                                       class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                                                       placeholder="e.g., 1000" />
+                                              </div>
+                                            </div>
+                                            <div class="mt-4">
+                                              <label class="block text-sm font-medium text-gray-700">Default Value</label>
+                                              <input type="number"
+                                                     id="numericDefault"
+                                                     class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                                                     placeholder="e.g., 10" />
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <!-- For Date Type -->
+                                        <div id="dateValuesSection"
+                                             class="bg-white rounded-xl shadow-sm border border-gray-200"
+                                             style="display: none">
+                                          <div class="p-4 sm:p-6">
+                                            <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                              <svg class="w-5 h-5 mr-2 text-primary-600"
+                                                   fill="none"
+                                                   stroke="currentColor"
+                                                   viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                </path>
+                                              </svg>
+                                              Date Configuration
+                                            </h2>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                              <div>
+                                                <label class="block text-sm font-medium text-gray-700">Minimum Date</label>
+                                                <input type="date"
+                                                       id="dateMin"
+                                                       class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3" />
+                                              </div>
+                                              <div>
+                                                <label class="block text-sm font-medium text-gray-700">Maximum Date</label>
+                                                <input type="date"
+                                                       id="dateMax"
+                                                       class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3" />
+                                              </div>
+                                            </div>
+                                            <div class="mt-4">
+                                              <label class="block text-sm font-medium text-gray-700">Date Format</label>
+                                              <select id="dateFormat"
+                                                      class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3">
+                                                <option value="YYYY-MM-DD">YYYY-MM-DD (2024-01-15)</option>
+                                                <option value="MM/DD/YYYY">MM/DD/YYYY (01/15/2024)</option>
+                                                <option value="DD/MM/YYYY">DD/MM/YYYY (15/01/2024)</option>
+                                              </select>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <!-- For File/Image Types -->
+                                        <div id="fileValuesSection"
+                                             class="bg-white rounded-xl shadow-sm border border-gray-200"
+                                             style="display: none">
+                                          <div class="p-4 sm:p-6">
+                                            <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                              <svg class="w-5 h-5 mr-2 text-primary-600"
+                                                   fill="none"
+                                                   stroke="currentColor"
+                                                   viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                                                </path>
+                                              </svg>
+                                              File Upload Configuration
+                                            </h2>
+                                            <div class="space-y-4">
+                                              <div>
+                                                <label class="block text-sm font-medium text-gray-700">Allowed File Types</label>
+                                                <div class="mt-2 flex flex-wrap gap-2">
+                                                  <label class="inline-flex items-center px-3 py-1.5 rounded-lg border border-gray-300 bg-white">
+                                                    <input type="checkbox"
+                                                           class="rounded border-gray-300 text-primary-600"
+                                                           value="pdf"
+                                                           checked />
+                                                    <span class="ml-2 text-sm">PDF</span>
+                                                  </label>
+                                                  <label class="inline-flex items-center px-3 py-1.5 rounded-lg border border-gray-300 bg-white">
+                                                    <input type="checkbox"
+                                                           class="rounded border-gray-300 text-primary-600"
+                                                           value="doc" />
+                                                    <span class="ml-2 text-sm">DOC</span>
+                                                  </label>
+                                                  <label class="inline-flex items-center px-3 py-1.5 rounded-lg border border-gray-300 bg-white">
+                                                    <input type="checkbox"
+                                                           class="rounded border-gray-300 text-primary-600"
+                                                           value="jpg" />
+                                                    <span class="ml-2 text-sm">JPG</span>
+                                                  </label>
+                                                  <label class="inline-flex items-center px-3 py-1.5 rounded-lg border border-gray-300 bg-white">
+                                                    <input type="checkbox"
+                                                           class="rounded border-gray-300 text-primary-600"
+                                                           value="png" />
+                                                    <span class="ml-2 text-sm">PNG</span>
+                                                  </label>
+                                                </div>
+                                              </div>
+                                              <div>
+                                                <label class="block text-sm font-medium text-gray-700">Maximum File Size (MB)</label>
+                                                <input type="number"
+                                                       id="fileMaxSize"
+                                                       class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                                                       value="10" />
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <!-- For Text/URL/Email Types -->
+                                        <div id="textValuesSection"
+                                             class="bg-white rounded-xl shadow-sm border border-gray-200"
+                                             style="display: none">
+                                          <div class="p-4 sm:p-6">
+                                            <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                              <svg class="w-5 h-5 mr-2 text-primary-600"
+                                                   fill="none"
+                                                   stroke="currentColor"
+                                                   viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                                </path>
+                                              </svg>
+                                              Text Validation
+                                            </h2>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                              <div>
+                                                <label class="block text-sm font-medium text-gray-700">Minimum Length</label>
+                                                <input type="number"
+                                                       id="textMinLength"
+                                                       class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                                                       placeholder="e.g., 1" />
+                                              </div>
+                                              <div>
+                                                <label class="block text-sm font-medium text-gray-700">Maximum Length</label>
+                                                <input type="number"
+                                                       id="textMaxLength"
+                                                       class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                                                       placeholder="e.g., 500" />
+                                              </div>
+                                            </div>
+                                            <div class="mt-4">
+                                              <label class="block text-sm font-medium text-gray-700">Default Value</label>
+                                              <input type="text"
+                                                     id="textDefault"
+                                                     class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                                                     placeholder="Default text value" />
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <!-- STEP 3: Settings -->
+                                      <div id="step3Section" class="section-hidden animate-fade-in">
+                                        <!-- Usage Settings -->
+                                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+                                          <div class="p-4 sm:p-6">
+                                            <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                              <svg class="w-5 h-5 mr-2 text-primary-600"
+                                                   fill="none"
+                                                   stroke="currentColor"
+                                                   viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                                                </path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                              </svg>
+                                              Usage Settings
+                                            </h2>
+                                            <div class="space-y-3">
+                                              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                                <div>
+                                                  <label class="text-sm font-medium text-gray-700">Required Field</label>
+                                                  <p class="text-xs text-gray-500">Customers must provide a value</p>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                  <input type="checkbox"
+                                                         id="isRequired"
+                                                         name="is_required"
+                                                         class="sr-only peer" />
+                                                  <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600">
+                                                  </div>
+                                                </label>
+                                              </div>
+                                              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                                <div>
+                                                  <label class="text-sm font-medium text-gray-700">Unique Value</label>
+                                                  <p class="text-xs text-gray-500">Each product must have a unique value</p>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                  <input type="checkbox" id="isUnique" name="is_unique" class="sr-only peer" />
+                                                  <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600">
+                                                  </div>
+                                                </label>
+                                              </div>
+                                              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                                <div>
+                                                  <label class="text-sm font-medium text-gray-700">Variant Option</label>
+                                                  <p class="text-xs text-gray-500">Use this attribute to create product variants</p>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                  <input type="checkbox"
+                                                         id="isVariantOption"
+                                                         name="is_variant_option"
+                                                         class="sr-only peer"
+                                                         onchange="handleVariantOptionChange()" />
+                                                  <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600">
+                                                  </div>
+                                                </label>
+                                              </div>
+                                              <div id="variantWarning"
+                                                   class="hidden p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                                <p class="text-sm text-yellow-700 flex items-start">
+                                                  <svg class="w-5 h-5 mr-2 flex-shrink-0"
+                                                       fill="none"
+                                                       stroke="currentColor"
+                                                       viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                                    </path>
+                                                  </svg>
+                                                  Enabling this will allow products to create variants based
+                                                  on this attribute.
+                                                </p>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <!-- Display & Filter Settings -->
+                                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+                                          <div class="p-4 sm:p-6">
+                                            <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                              <svg class="w-5 h-5 mr-2 text-primary-600"
+                                                   fill="none"
+                                                   stroke="currentColor"
+                                                   viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                </path>
+                                              </svg>
+                                              Display & Filter Settings
+                                            </h2>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                                <div>
+                                                  <label class="text-sm font-medium text-gray-700">Filterable</label>
+                                                  <p class="text-xs text-gray-500">Show in filters</p>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                  <input type="checkbox"
+                                                         id="isFilterable"
+                                                         name="is_filterable"
+                                                         class="sr-only peer"
+                                                         checked />
+                                                  <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600">
+                                                  </div>
+                                                </label>
+                                              </div>
+                                              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                                <div>
+                                                  <label class="text-sm font-medium text-gray-700">Searchable</label>
+                                                  <p class="text-xs text-gray-500">Include in search</p>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                  <input type="checkbox"
+                                                         id="isSearchable"
+                                                         name="is_searchable"
+                                                         class="sr-only peer"
+                                                         checked />
+                                                  <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600">
+                                                  </div>
+                                                </label>
+                                              </div>
+                                              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                                <div>
+                                                  <label class="text-sm font-medium text-gray-700">Comparable</label>
+                                                  <p class="text-xs text-gray-500">Show in comparison</p>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                  <input type="checkbox"
+                                                         id="isComparable"
+                                                         name="is_comparable"
+                                                         class="sr-only peer"
+                                                         checked />
+                                                  <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600">
+                                                  </div>
+                                                </label>
+                                              </div>
+                                              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                                <div>
+                                                  <label class="text-sm font-medium text-gray-700">Visible on Frontend</label>
+                                                  <p class="text-xs text-gray-500">Display on product pages</p>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                  <input type="checkbox"
+                                                         id="isVisibleOnFront"
+                                                         name="is_visible_on_front"
+                                                         class="sr-only peer"
+                                                         checked />
+                                                  <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600">
+                                                  </div>
+                                                </label>
+                                              </div>
+                                            </div>
+                                            <div class="mt-4">
+                                              <label for="displayOrder" class="block text-sm font-medium text-gray-700">Display Order</label>
+                                              <input type="number"
+                                                     id="displayOrder"
+                                                     name="display_order"
+                                                     value="0"
+                                                     class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                                                     min="0" />
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <!-- Sidebar -->
+                                    <div class="space-y-6">
+                                      <!-- Preview Card -->
+                                      <div class="bg-white rounded-xl shadow-sm border border-gray-200 sticky top-40">
+                                        <div class="p-4 sm:p-6">
+                                          <h3 class="text-sm font-medium text-gray-500 mb-4">Attribute Preview</h3>
+                                          <div class="border border-gray-200 rounded-lg p-4 mb-4">
+                                            <div class="flex items-center justify-between mb-2">
+                                              <span id="previewName" class="font-semibold text-gray-900">Attribute Name</span>
+                                              <span id="previewType"
+                                                    class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">Type</span>
+                                            </div>
+                                            <p id="previewDescription" class="text-sm text-gray-500 mb-3">Description will appear here</p>
+                                            <div id="previewValues" class="flex flex-wrap gap-1"></div>
+                                          </div>
+                                          <div class="space-y-2 text-sm">
+                                            <div class="flex items-center justify-between">
+                                              <span class="text-gray-500">Slug</span>
+                                              <span id="previewSlug" class="font-mono text-gray-700">-</span>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                              <span class="text-gray-500">Group</span>
+                                              <span id="previewGroup" class="text-gray-700">-</span>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                              <span class="text-gray-500">Unit</span>
+                                              <span id="previewUnit" class="text-gray-700">-</span>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                              <span class="text-gray-500">Required</span>
+                                              <span id="previewRequired" class="text-gray-700">No</span>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                              <span class="text-gray-500">Variant Option</span>
+                                              <span id="previewVariant" class="text-gray-700">No</span>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <!-- Quick Tips -->
+                                      <div class="bg-gradient-to-br from-primary-50 to-blue-50 rounded-xl shadow-sm border border-primary-100">
+                                        <div class="p-4 sm:p-6">
+                                          <h3 class="text-sm font-semibold text-primary-800 mb-3 flex items-center">
+                                            <svg class="w-4 h-4 mr-2"
+                                                 fill="none"
+                                                 stroke="currentColor"
+                                                 viewBox="0 0 24 24">
+                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
+                                              </path>
+                                            </svg>
+                                            Quick Tips
+                                          </h3>
+                                          <ul class="space-y-2 text-xs text-primary-700">
+                                            <li class="flex items-start">
+                                              <span class="mr-2">•</span>
+                                              <span>Use <strong>Select</strong> type for attributes like Color or
+                                              Size</span>
+                                            </li>
+                                            <li class="flex items-start">
+                                              <span class="mr-2">•</span>
+                                              <span>Enable <strong>Variant Option</strong> for product
+                                              variations</span>
+                                            </li>
+                                            <li class="flex items-start">
+                                              <span class="mr-2">•</span>
+                                              <span>Set <strong>Filterable</strong> for customer filtering</span>
+                                            </li>
+                                          </ul>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </main>
+                              </form>
+                              <!-- Save Confirmation Modal -->
+                              <div id="saveModal"
+                                   class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                                <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-xl bg-white animate-fade-in">
+                                  <div class="text-center">
+                                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                                      <svg class="h-6 w-6 text-green-600"
+                                           fill="none"
+                                           stroke="currentColor"
+                                           viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                      </svg>
+                                    </div>
+                                    <h3 class="text-lg font-medium text-gray-900 mb-2">Attribute Saved Successfully!</h3>
+                                    <p class="text-sm text-gray-500 mb-4">Your attribute has been created.</p>
+                                    <div class="flex justify-center space-x-3">
+                                      <button onclick="closeModal()"
+                                              class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                                        Close
+                                      </button>
+                                      <button onclick=" closeModal(); window.location.href = '{% url 'dashboard:product_settings:attribute_list' prefix %}'; "
+                                              class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm">
+                                        View All Attributes
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <!-- Value Edit Modal -->
+                              <div id="valueModal"
+                                   class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                                <div class="relative top-10 mx-auto p-4 sm:p-6 border w-full max-w-md shadow-lg rounded-xl bg-white animate-fade-in">
+                                  <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-medium text-gray-900">Edit Attribute Value</h3>
+                                    <button onclick="closeValueModal()" class="text-gray-400 hover:text-gray-600">
+                                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                      </svg>
+                                    </button>
+                                  </div>
+                                  <div class="space-y-4">
+                                    <input type="hidden" id="editValueIndex" />
+                                    <div>
+                                      <label class="block text-sm font-medium text-gray-700">Value</label>
+                                      <input type="text"
+                                             id="editValueName"
+                                             class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                                             placeholder="e.g., Red, Large" />
+                                    </div>
+                                    <div>
+                                      <label class="block text-sm font-medium text-gray-700">Color (Hex)</label>
+                                      <div class="flex items-center space-x-2 mt-1">
+                                        <input type="color"
+                                               id="editValueColor"
+                                               class="h-10 w-10 rounded cursor-pointer border border-gray-300" />
+                                        <input type="text"
+                                               id="editValueColorText"
+                                               class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-2"
+                                               placeholder="#FF0000" />
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <label class="block text-sm font-medium text-gray-700">Extra Price</label>
+                                      <div class="mt-1 relative rounded-md shadow-sm">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                          <span class="text-gray-500 sm:text-sm">$</span>
+                                        </div>
+                                        <input type="number"
+                                               id="editValueExtraPrice"
+                                               step="0.01"
+                                               class="block w-full pl-7 pr-12 rounded-lg border-gray-300 focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                                               placeholder="0.00" />
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <label class="block text-sm font-medium text-gray-700">Description</label>
+                                      <textarea id="editValueDescription"
+                                                rows="2"
+                                                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                                                placeholder="Optional description"></textarea>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                      <label class="text-sm font-medium text-gray-700">Active</label>
+                                      <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="editValueActive" class="sr-only peer" checked />
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600">
+                                        </div>
+                                      </label>
+                                    </div>
+                                  </div>
+                                  <div class="mt-6 flex justify-end space-x-3">
+                                    <button onclick="closeValueModal()"
+                                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                                      Cancel
+                                    </button>
+                                    <button onclick="saveValueEdit()"
+                                            class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm">
+                                      Save Changes
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            {% endblock %}
+                            {% block js %}
+                              <script>
+      // Essential State
+      let attributeValues = [];
+      let colorValues = [];
+      const isEditing = {{ attribute.id|default:0|yesno:"true,false" }};
+
+      // Initialize existing values if editing
+      {% if attribute.id %}
+      {% for value in attribute.values.all %}
+      attributeValues.push({
+        id: "{{ value.id }}",
+        value: "{{ value.value }}",
+        slug: "{{ value.slug }}",
+        color_hex: "{{ value.color_hex }}",
+        extra_price: {{ value.extra_price|floatformat:2 }},
+        description: "{{ value.description|escapejs }}",
+        display_order: {{ value.display_order }},
+        is_active: {{ value.is_active|yesno:"true,false" }},
+      });
+      {% endfor %}
+      {% endif %}
+
+      // Generate Slug
+      function generateSlug() {
+        const name = document.getElementById("attributeName").value;
+        const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+        document.getElementById("attributeSlug").value = slug;
+      }
+
+      // Handle Attribute Type Change - Simplified
+      function handleAttributeTypeChange() {
+        const type = document.getElementById("attributeType").value;
+        const sections = ["selectValuesSection", "colorValuesSection", "booleanValuesSection", "rangeValuesSection", "numericValuesSection", "dateValuesSection", "fileValuesSection", "textValuesSection"];
+
+        sections.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = "none";
+        });
+
+        const typeInfoBox = document.getElementById("typeInfoBox");
+        if (type) {
+          typeInfoBox.classList.remove("hidden");
+          // Hide preview update for simplicity
+
+          // Show appropriate section
+          const sectionMap = {
+            "text": "textValuesSection",
+            "number": "numericValuesSection",
+            "decimal": "numericValuesSection",
+            "boolean": "booleanValuesSection",
+            "color": "colorValuesSection",
+            "date": "dateValuesSection",
+            "url": "textValuesSection",
+            "email": "textValuesSection",
+            "file": "fileValuesSection",
+            "image": "fileValuesSection",
+            "select": "selectValuesSection",
+            "multiselect": "selectValuesSection",
+            "range": "rangeValuesSection"
+          };
+
+          const sectionId = sectionMap[type];
+          if (sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) section.style.display = "block";
+          }
+
+          // Update variant option availability
+          const variantCheckbox = document.getElementById("isVariantOption");
+          if (variantCheckbox) {
+            const allowsVariant = ["text", "number", "decimal", "color", "image", "select", "range"].includes(type);
+            if (!allowsVariant) {
+              variantCheckbox.checked = false;
+              variantCheckbox.disabled = true;
+            } else {
+              variantCheckbox.disabled = false;
+            }
+          }
+        } else {
+          typeInfoBox.classList.add("hidden");
+        }
+      }
+
+      function handleVariantOptionChange() {
+        const isVariant = document.getElementById("isVariantOption").checked;
+        const warning = document.getElementById("variantWarning");
+        warning.classList.toggle("hidden", !isVariant);
+      }
+
+      // Select/Multi-Select Value Management - Simplified
+      function addAttributeValue() {
+        attributeValues.push({
+          id: Date.now().toString(),
+          value: "",
+          slug: "",
+          color_hex: "",
+          extra_price: 0,
+          description: "",
+          display_order: attributeValues.length,
+          is_active: true,
+        });
+        renderAttributeValues();
+      }
+
+      function renderAttributeValues() {
+        const container = document.getElementById("attributeValuesList");
+        if (attributeValues.length === 0) {
+          container.innerHTML = `
+                    <div class="text-center py-8">
+                        <p class="text-sm text-gray-500">No values added yet</p>
+                        <button onclick="addAttributeValue()" class="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm">Add Your First Value</button>
+                    </div>
+                `;
+          return;
+        }
+
+        container.innerHTML = attributeValues.map((val, index) => `
+                    <div class="value-row border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-3">
+                                ${val.color_hex ? `<div class="w-6 h-6 rounded-full" style="background-color: ${val.color_hex}"></div>` : ""}
+                                <div>
+                                    <p class="font-medium text-gray-900">${val.value || "Untitled"}</p>
+                                    <p class="text-xs text-gray-500">${val.slug || "no-slug"}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2 py-1 ${val.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"} text-xs rounded">${val.is_active ? "Active" : "Inactive"}</span>
+                                <button onclick="editAttributeValue(${index})" class="p-2 text-gray-400 hover:text-primary-600 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                </button>
+                                <button onclick="removeAttributeValue(${index})" class="p-2 text-gray-400 hover:text-red-600 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join("");
+      }
+
+      function editAttributeValue(index) {
+        const val = attributeValues[index];
+        document.getElementById("editValueIndex").value = index;
+        document.getElementById("editValueName").value = val.value;
+        document.getElementById("editValueColor").value = val.color_hex || "#000000";
+        document.getElementById("editValueColorText").value = val.color_hex || "";
+        document.getElementById("editValueExtraPrice").value = val.extra_price || 0;
+        document.getElementById("editValueDescription").value = val.description || "";
+        document.getElementById("editValueActive").checked = val.is_active;
+        document.getElementById("valueModal").classList.remove("hidden");
+      }
+
+      function saveValueEdit() {
+        const index = parseInt(document.getElementById("editValueIndex").value);
+        const val = attributeValues[index];
+        val.value = document.getElementById("editValueName").value;
+        val.slug = val.value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+        val.color_hex = document.getElementById("editValueColorText").value;
+        val.extra_price = parseFloat(document.getElementById("editValueExtraPrice").value) || 0;
+        val.description = document.getElementById("editValueDescription").value;
+        val.is_active = document.getElementById("editValueActive").checked;
+        attributeValues[index] = val;
+        renderAttributeValues();
+        closeValueModal();
+      }
+
+      function removeAttributeValue(index) {
+        if (confirm("Are you sure you want to remove this value?")) {
+          attributeValues.splice(index, 1);
+          renderAttributeValues();
+        }
+      }
+
+      // Color Value Management - Simplified
+      function addColorValue() {
+        colorValues.push({
+          id: Date.now().toString(),
+          name: "",
+          hex: "#000000",
+          display_order: colorValues.length,
+        });
+        renderColorValues();
+      }
+
+      function renderColorValues() {
+        const container = document.getElementById("colorValuesList");
+        container.innerHTML = colorValues.map((color, index) => `
+                    <div class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
+                        <input type="color" value="${color.hex}" onchange="updateColorValue(${index}, 'hex', this.value)" class="w-10 h-10 rounded cursor-pointer">
+                        <input type="text" value="${color.name}" placeholder="Color name" onchange="updateColorValue(${index}, 'name', this.value)" class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-2">
+                        <button onclick="removeColorValue(${index})" class="p-2 text-red-600 hover:text-red-700">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                `).join("");
+      }
+
+      function updateColorValue(index, field, value) {
+        colorValues[index][field] = value;
+      }
+
+      function removeColorValue(index) {
+        colorValues.splice(index, 1);
+        renderColorValues();
+      }
+
+      // Bulk Add - Simplified
+      function toggleBulkAdd() {
+        document.getElementById("bulkAddSection").classList.toggle("hidden");
+      }
+
+      function processBulkAdd() {
+        const text = document.getElementById("bulkValues").value;
+        const lines = text.split("\n").filter(line => line.trim());
+        lines.forEach((line, i) => {
+          attributeValues.push({
+            id: Date.now().toString() + i,
+            value: line.trim(),
+            slug: line.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
+            color_hex: "",
+            extra_price: 0,
+            description: "",
+            display_order: attributeValues.length + i,
+            is_active: true,
+          });
+        });
+        renderAttributeValues();
+        document.getElementById("bulkValues").value = "";
+        toggleBulkAdd();
+      }
+
+      function closeValueModal() {
+        document.getElementById("valueModal").classList.add("hidden");
+      }
+
+      // Range Preview - Simplified
+      function updateRangePreview() {
+        const min = document.getElementById("rangeMin")?.value || 0;
+        const max = document.getElementById("rangeMax")?.value || 100;
+        const value = document.getElementById("rangeDefault")?.value || 50;
+        const preview = document.getElementById("rangePreview");
+        if (preview) {
+          preview.min = min;
+          preview.max = max;
+          preview.value = value;
+        }
+        document.getElementById("rangePreviewMin").textContent = min;
+        document.getElementById("rangePreviewMax").textContent = max;
+        document.getElementById("rangePreviewValue").textContent = value;
+      }
+
+      // Form submission handler - Simplified
+      document.getElementById('attributeForm').addEventListener('submit', function(e) {
+        const existingFields = document.querySelectorAll('.dynamic-form-field');
+        existingFields.forEach(field => field.remove());
+        const name = document.getElementById("attributeName").value.trim();
+        const type = document.getElementById("attributeType").value;
+
+        if (!name) {
+          alert("Please enter an attribute name");
+          e.preventDefault();
+          return;
+        }
+
+        if (!type) {
+          alert("Please select an attribute type");
+          e.preventDefault();
+          return;
+        }
+
+        function addHiddenField(name, value) {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = name;
+          input.value = value;
+          input.className = 'dynamic-form-field';
+          document.getElementById('attributeForm').appendChild(input);
+        }
+
+        if (type === "select" || type === "multiselect") {
+          attributeValues.forEach((val, index) => {
+            addHiddenField(`values[${index}][value]`, val.value);
+            addHiddenField(`values[${index}][slug]`, val.slug);
+            addHiddenField(`values[${index}][color_hex]`, val.color_hex);
+            addHiddenField(`values[${index}][extra_price]`, val.extra_price);
+            addHiddenField(`values[${index}][description]`, val.description);
+            addHiddenField(`values[${index}][display_order]`, val.display_order);
+            addHiddenField(`values[${index}][is_active]`, val.is_active);
+          });
+        }
+
+        if (type === "color") {
+          colorValues.forEach((color, index) => {
+            addHiddenField(`color_values[${index}][name]`, color.name);
+            addHiddenField(`color_values[${index}][hex]`, color.hex);
+            addHiddenField(`color_values[${index}][display_order]`, color.display_order);
+          });
+        }
+
+        const saveStatus = document.getElementById('saveStatus').value;
+        addHiddenField('is_active', saveStatus === "active");
+      });
+
+      // Color picker sync
+      document.getElementById("editValueColor")?.addEventListener("input", function(e) {
+        document.getElementById("editValueColorText").value = e.target.value;
+      });
+
+      document.getElementById("editValueColorText")?.addEventListener("input", function(e) {
+        if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+          document.getElementById("editValueColor").value = e.target.value;
+        }
+      });
+
+      // Initialize
+      {% if attribute.attribute_type %}
+      handleAttributeTypeChange();
+      {% endif %}
+                              </script>
+                              // Form submission handler
+                              document.getElementById('attributeForm').addEventListener('submit', function(e) {
+                              // Remove existing hidden fields to prevent duplicates
+                              const existingFields = document.querySelectorAll('.dynamic-form-field');
+                              existingFields.forEach(field => field.remove());
+                              const name = document.getElementById("attributeName").value.trim();
+                              const type = document.getElementById("attributeType").value;
+                              if (!name) {
+                              alert("Please enter an attribute name");
+                              e.preventDefault();
+                              return;
+                              }
+                              if (!type) {
+                              alert("Please select an attribute type");
+                              e.preventDefault();
+                              return;
+                              }
+                              // Add values for select/multiselect types
+                              if (type === "select" || type === "multiselect") {
+                              attributeValues.forEach((val, index) => {
+                              addHiddenField(`values[${index}][value]`, val.value);
+                              addHiddenField(`values[${index}][slug]`, val.slug);
+                              addHiddenField(`values[${index}][color_hex]`, val.color_hex);
+                              addHiddenField(`values[${index}][extra_price]`, val.extra_price);
+                              addHiddenField(`values[${index}][description]`, val.description);
+                              addHiddenField(`values[${index}][display_order]`, val.display_order);
+                              addHiddenField(`values[${index}][is_active]`, val.is_active);
+                              });
+                              }
+                              // Add color values
+                              if (type === "color") {
+                              colorValues.forEach((color, index) => {
+                              addHiddenField(`color_values[${index}][name]`, color.name);
+                              addHiddenField(`color_values[${index}][hex]`, color.hex);
+                              addHiddenField(`color_values[${index}][display_order]`, color.display_order);
+                              });
+                              }
+                              // Set active status based on save button clicked
+                              const saveStatus = document.getElementById('saveStatus').value;
+                              addHiddenField('is_active', saveStatus === "active");
+                              });
+                              // Helper function to add hidden fields
+                              function addHiddenField(name, value) {
+                              const input = document.createElement('input');
+                              input.type = 'hidden';
+                              input.name = name;
+                              input.value = value;
+                              input.className = 'dynamic-form-field';
+                              document.getElementById('attributeForm').appendChild(input);
+                              }
+                              function closeModal() {
+                              document.getElementById("saveModal").classList.add("hidden");
+                              }
+                              // Color picker sync
+                              document
+                              .getElementById("editValueColor")
+                              ?.addEventListener("input", function (e) {
+                              document.getElementById("editValueColorText").value = e.target.value;
+                              });
+                              document
+                              .getElementById("editValueColorText")
+                              ?.addEventListener("input", function (e) {
+                              if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                              document.getElementById("editValueColor").value = e.target.value;
+                              }
+                              });
+                              // Add event listeners for live preview updates
+                              [
+                              "attributeName",
+                              "attributeType",
+                              "attributeDescription",
+                              "attributeSlug",
+                              "attributeGroup",
+                              "attributeUnit",
+                              "isRequired",
+                              "isVariantOption",
+                              ].forEach((id) => {
+                              const el = document.getElementById(id);
+                              if (el) {
+                              el.addEventListener("input", updatePreview);
+                              el.addEventListener("change", updatePreview);
+                              }
+                              });
+                              // Initialize
+                              updateStepUI();
+                              updatePreview();
+                              // Set initial type if editing
+                              {% if attribute.attribute_type %}
+                                handleAttributeTypeChange();
+                              {% endif %}
+                              </script>
+                            {% endblock %}
+                            <!-- Bottom bar with action buttons -->
+                            <div class="bg-gray-50 border-t border-gray-200 px-6 sm:px-8 lg:px-10 py-6 z-50 mt-12 shadow-lg">
+                              <div class="max-w-7xl mx-auto flex justify-end items-center space-x-3">
+                                <a href="{% url 'dashboard:product_settings:attribute_list' prefix %}"
+                                   class="px-6 py-3 text-gray-700 hover:text-gray-900 transition-colors flex items-center space-x-2 text-lg">
+                                  <svg class="w-5 h-5"
+                                       fill="none"
+                                       stroke="currentColor"
+                                       viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                  </svg>
+                                  Cancel
+                                </a>
+                                <button type="submit"
+                                        onclick="document.getElementById('saveStatus').value = 'draft'"
+                                        class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2 text-lg">
+                                  <svg class="w-5 h-5"
+                                       fill="none"
+                                       stroke="currentColor"
+                                       viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"></path>
+                                  </svg>
+                                  Save as Draft
+                                </button>
+                                <button type="submit"
+                                        onclick="document.getElementById('saveStatus').value = 'active'"
+                                        class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 border-2 border-blue-500 text-lg font-semibold">
+                                  <svg class="w-5 h-5"
+                                       fill="none"
+                                       stroke="currentColor"
+                                       viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                  </svg>
+                                  Publish Attribute
+                                </button>
+                              </div>
+                            </div>
+                          </form>

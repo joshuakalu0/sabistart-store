@@ -1,0 +1,104 @@
+{% extends "dashboard/_partials/base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      Social Media Preview
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Preview how social media links will appear on your storefront
+    </p>
+  </div>
+  <a
+    href="{% url 'dashboard:store_settings:manage_social_media_links' prefix %}"
+    class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+  >
+    <span class="material-icons-outlined text-sm mr-2">arrow_back</span>
+    Back to Settings
+  </a>
+</div>
+
+<div
+  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+>
+  <div class="p-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div>
+        <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Social Media Links Preview</h3>
+        <div class="bg-slate-50 dark:bg-slate-900 rounded-lg p-6">
+          <div class="flex items-center space-x-4">
+            {% if object.facebook_url %}
+            <a href="{{ object.facebook_url }}" target="_blank" class="text-slate-600 hover:text-blue-600">
+              <span class="material-icons-outlined text-2xl">facebook</span>
+            </a>
+            {% endif %}
+            {% if object.instagram_url %}
+            <a href="{{ object.instagram_url }}" target="_blank" class="text-slate-600 hover:text-pink-600">
+              <span class="material-icons-outlined text-2xl">camera_alt</span>
+            </a>
+            {% endif %}
+            {% if object.twitter_url %}
+            <a href="{{ object.twitter_url }}" target="_blank" class="text-slate-600 hover:text-blue-400">
+              <span class="material-icons-outlined text-2xl">alternate_email</span>
+            </a>
+            {% endif %}
+            {% if object.pinterest_url %}
+            <a href="{{ object.pinterest_url }}" target="_blank" class="text-slate-600 hover:text-red-600">
+              <span class="material-icons-outlined text-2xl">push_pin</span>
+            </a>
+            {% endif %}
+            {% if object.youtube_url %}
+            <a href="{{ object.youtube_url }}" target="_blank" class="text-slate-600 hover:text-red-600">
+              <span class="material-icons-outlined text-2xl">smart_display</span>
+            </a>
+            {% endif %}
+            {% if object.linkedin_url %}
+            <a href="{{ object.linkedin_url }}" target="_blank" class="text-slate-600 hover:text-blue-700">
+              <span class="material-icons-outlined text-2xl">work_outline</span>
+            </a>
+            {% endif %}
+            {% if object.snapchat_url %}
+            <a href="{{ object.snapchat_url }}" target="_blank" class="text-slate-600 hover:text-yellow-500">
+              <span class="material-icons-outlined text-2xl">videocam</span>
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Configuration Summary</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Active Platforms</label>
+            <p class="mt-1 text-slate-600 dark:text-slate-400">{{ active_platforms|length }} platforms configured</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Icon Style</label>
+            <p class="mt-1 text-slate-600 dark:text-slate-400">{{ object.get_icon_style_display }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Icon Size</label>
+            <p class="mt-1 text-slate-600 dark:text-slate-400">{{ object.icon_size }}px</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">WhatsApp Number</label>
+            <p class="mt-1 text-slate-600 dark:text-slate-400">{{ object.whatsapp_number|default:"Not configured" }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Product Sharing</label>
+            <p class="mt-1 text-slate-600 dark:text-slate-400">
+              {% if object.enable_product_sharing %}
+              Enabled with {{ object.sharing_platforms|length }} platforms
+              {% else %}
+              Disabled
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

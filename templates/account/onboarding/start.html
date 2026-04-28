@@ -1,0 +1,17 @@
+{% extends "account/_auth_base.html" %}
+{% block auth_content %}
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-blue-600">SABIStart Onboarding</p>
+    <h1 class="mt-3 text-3xl font-extrabold text-slate-950">Launch your commerce workspace</h1>
+    <p class="mt-2 text-sm leading-6 text-slate-500">We’ll take you from account setup to plan selection, billing, subdomain reservation, and first store launch in one guided flow.</p>
+  </div>
+  <div class="mt-8 grid gap-4">
+    {% for step in progress_steps %}
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold {% if step.active %}text-slate-950{% else %}text-slate-500{% endif %}">{{ forloop.counter }}. {{ step.label }}</div>
+    {% endfor %}
+  </div>
+  <div class="mt-8 flex flex-wrap gap-3">
+    <a href="{% url 'platform:onboarding_account' %}" class="inline-flex items-center justify-center rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">Start onboarding</a>
+    <a href="{% url 'platform:login' %}" class="inline-flex items-center justify-center rounded-2xl bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-200">I already have an account</a>
+  </div>
+{% endblock %}

@@ -1,0 +1,140 @@
+<div class="space-y-6">
+  <!-- Basic Information -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Basic Information
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Name:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ category.name }}</span
+        >
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Slug:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ category.slug }}</span
+        >
+      </div>
+      {% if category.description %}
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Description:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ category.description }}</span
+        >
+      </div>
+      {% endif %} {% if category.parent %}
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Parent:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ category.parent.name }}</span
+        >
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Display Settings -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Display Settings
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Display Order:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ category.display_order }}</span
+        >
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Status:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1">
+          {% if category.is_active %}
+          <span
+            class="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 text-xs rounded-full"
+            >Active</span
+          >
+          {% else %}
+          <span
+            class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 text-xs rounded-full"
+            >Inactive</span
+          >
+          {% endif %}
+        </span>
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Visible:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1">
+          {% if category.is_visible %}
+          <span
+            class="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 text-xs rounded-full"
+            >Yes</span
+          >
+          {% else %}
+          <span
+            class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 text-xs rounded-full"
+            >No</span
+          >
+          {% endif %}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Media -->
+  {% if category.image %}
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Image
+    </h4>
+    <div class="flex items-start">
+      <span class="text-sm text-slate-500 dark:text-slate-400 w-24"></span>
+      <img
+        src="{{ category.image.url }}"
+        alt="{{ category.name }}"
+        class="w-32 h-24 object-cover rounded-lg border border-slate-200 dark:border-slate-700"
+      />
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Dates -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Dates
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Created:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ category.created_at|date:"M d, Y H:i" }}</span
+        >
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Updated:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ category.updated_at|date:"M d, Y H:i" }}</span
+        >
+      </div>
+    </div>
+  </div>
+</div>

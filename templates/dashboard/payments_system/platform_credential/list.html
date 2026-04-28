@@ -1,0 +1,87 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div class="flex items-center space-x-4">
+    <a href="{% url 'dashboard:payments_system:gateway_detail' prefix gateway.id %}"
+       class="p-2 text-slate-500 hover:text-primary rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+      <span class="material-icons-outlined">arrow_back</span>
+    </a>
+    <div>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">Platform Credentials — {{ gateway.name }}</h2>
+      <p class="text-slate-600 dark:text-slate-400">API keys used in Platform Mode for all tenants</p>
+    </div>
+  </div>
+  <a href="{% url 'dashboard:payments_system:credential_create' prefix gateway.id %}"
+     class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center space-x-2 text-sm">
+    <span class="material-icons-outlined text-sm">add</span><span>Add Credential</span>
+  </a>
+</div>
+
+<!-- Env Filter -->
+<div class="mb-4">
+  <form method="get" class="flex gap-2">
+    <select name="env" class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white">
+      <option value="">All Environments</option>
+      <option value="test" {% if env_filter == 'test' %}selected{% endif %}>Test</option>
+      <option value="live" {% if env_filter == 'live' %}selected{% endif %}>Live</option>
+    </select>
+    <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg text-sm">Filter</button>
+  </form>
+</div>
+
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          {% for col in "Name,Environment,Priority,Account ID,Active,Healthy,Actions" %}
+          <th class="px-5 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+        {% for cred in credentials %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700">
+          <td class="px-5 py-4 font-medium text-slate-900 dark:text-white">{{ cred.name }}</td>
+          <td class="px-5 py-4">
+            <span class="px-2 py-1 rounded-full text-xs font-medium {% if cred.environment == 'live' %}bg-green-100 text-green-700{% else %}bg-amber-100 text-amber-700{% endif %}">
+              {{ cred.environment|capfirst }}
+            </span>
+          </td>
+          <td class="px-5 py-4 text-slate-600 dark:text-slate-400">{{ cred.priority }}</td>
+          <td class="px-5 py-4 font-mono text-xs text-slate-500 dark:text-slate-400">{{ cred.account_id|default:"—" }}</td>
+          <td class="px-5 py-4">
+            <span class="px-2 py-1 rounded-full text-xs {% if cred.is_active %}bg-green-100 text-green-700{% else %}bg-slate-100 text-slate-500{% endif %}">
+              {{ cred.is_active|yesno:"Active,Inactive" }}
+            </span>
+          </td>
+          <td class="px-5 py-4">
+            <span class="px-2 py-1 rounded-full text-xs {% if cred.is_healthy %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+              {{ cred.is_healthy|yesno:"Healthy,Unhealthy" }}
+            </span>
+          </td>
+          <td class="px-5 py-4 font-medium space-x-3 whitespace-nowrap">
+            <a href="{% url 'dashboard:payments_system:credential_edit' prefix gateway.id cred.id %}" class="text-primary hover:text-blue-700">Edit</a>
+            <button class="text-red-600 hover:text-red-800 delete-btn"
+                    data-name="{{ cred.name }}" data-url="{% url 'dashboard:payments_system:credential_delete' prefix gateway.id cred.id %}">Delete</button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="px-6 py-10 text-center text-slate-400">No credentials configured for {{ gateway.name }}.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll(".delete-btn").forEach(btn => {
+  btn.addEventListener("click", function () {
+    openDeleteModal("Delete Credential",
+      `Are you sure you want to delete credential "${this.dataset.name}"?`,
+      () => fetch(this.dataset.url, {method:"POST",headers:{"X-CSRFToken":"{{ csrf_token }}","Content-Type":"application/x-www-form-urlencoded"}}).then(() => location.reload())
+    );
+  });
+});
+</script>
+{% endblock %}

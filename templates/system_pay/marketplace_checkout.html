@@ -1,0 +1,70 @@
+{% extends "account/_platform_base.html" %}
+
+{% block content %}
+<section class="mx-auto max-w-3xl space-y-6">
+  <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-primary">System Payment</p>
+    <h1 class="mt-3 text-3xl font-semibold text-slate-900">Complete your marketplace purchase</h1>
+    <p class="mt-3 text-sm text-slate-600">
+      This purchase is being processed through the platform payment system using the configured
+      <span class="font-semibold text-slate-900">{{ selected_gateway.name|default:"payment gateway" }}</span>.
+    </p>
+  </div>
+
+  <div class="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+    <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+      <h2 class="text-lg font-semibold text-slate-900">Purchase summary</h2>
+      <dl class="mt-6 space-y-4 text-sm">
+        <div class="flex items-center justify-between gap-4">
+          <dt class="text-slate-500">Reference</dt>
+          <dd class="font-medium text-slate-900">{{ purchase.purchase_reference }}</dd>
+        </div>
+        <div class="flex items-center justify-between gap-4">
+          <dt class="text-slate-500">Gateway</dt>
+          <dd class="font-medium text-slate-900">{{ purchase.gateway_name|default:purchase.gateway_provider|title }}</dd>
+        </div>
+        <div class="flex items-center justify-between gap-4">
+          <dt class="text-slate-500">Billing cycle</dt>
+          <dd class="font-medium text-slate-900">{{ purchase.billing_cycle|title }}</dd>
+        </div>
+        <div class="flex items-center justify-between gap-4">
+          <dt class="text-slate-500">Subtotal</dt>
+          <dd class="font-medium text-slate-900">{{ purchase.currency }} {{ purchase.subtotal }}</dd>
+        </div>
+        <div class="flex items-center justify-between gap-4">
+          <dt class="text-slate-500">Discount</dt>
+          <dd class="font-medium text-slate-900">-{{ purchase.currency }} {{ purchase.discount_amount }}</dd>
+        </div>
+        <div class="flex items-center justify-between gap-4 border-t border-slate-200 pt-4">
+          <dt class="text-base font-semibold text-slate-900">Total</dt>
+          <dd class="text-xl font-semibold text-slate-900">{{ purchase.currency }} {{ purchase.total_amount }}</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+      <h2 class="text-lg font-semibold text-slate-900">Finish payment</h2>
+      <p class="mt-3 text-sm text-slate-600">
+        Confirm to complete this add-on purchase with the selected system gateway, or cancel to return to the marketplace.
+      </p>
+      <form method="post" class="mt-6 space-y-3">
+        {% csrf_token %}
+        <button type="submit" name="action" value="confirm" class="w-full rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white">
+          Pay with {{ purchase.gateway_name|default:"selected gateway" }}
+        </button>
+        <button type="submit" name="action" value="cancel" class="w-full rounded-full border border-slate-200 px-6 py-3 text-sm font-semibold text-slate-700">
+          Cancel purchase
+        </button>
+      </form>
+      {% if purchase.payment_metadata.provider_checkout_url and not purchase.payment_metadata.is_test %}
+      <a href="{{ purchase.payment_metadata.provider_checkout_url }}" class="mt-3 inline-flex w-full items-center justify-center rounded-full border border-slate-200 px-6 py-3 text-sm font-semibold text-slate-700">
+        Open provider checkout
+      </a>
+      {% endif %}
+      <p class="mt-4 text-xs text-slate-500">
+        Provider: {{ purchase.gateway_provider|upper }}{% if purchase.payment_metadata.gateway_environment %} · {{ purchase.payment_metadata.gateway_environment|title }}{% endif %}
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}

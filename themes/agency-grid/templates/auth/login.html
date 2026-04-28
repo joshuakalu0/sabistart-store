@@ -1,0 +1,44 @@
+{% extends "_partials/_mini_base.html" %}
+
+{% block content %}
+<div class="grid w-full gap-8 lg:grid-cols-[0.95fr,1.05fr]">
+    <div class="mini-card p-8 lg:p-10">
+        <p class="eyebrow">Welcome Back</p>
+        <h1 class="brand-font mt-3 text-4xl font-extrabold text-slate-950">Sign in to your storefront account.</h1>
+        <p class="mt-4 text-sm leading-7 text-slate-500">Access orders, addresses, wishlist activity, and the account hub tied to this store.</p>
+        <form method="post" class="mt-8 space-y-5">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next_url }}">
+            {% for field in form %}
+                <div>
+                    <label class="mb-2 block text-sm font-semibold text-slate-700">{{ field.label }}</label>
+                    <div class="field-shell">{{ field }}</div>
+                    {% if field.errors %}<p class="mt-2 text-sm text-rose-600">{{ field.errors|join:", " }}</p>{% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="button-primary w-full">Sign In</button>
+        </form>
+        <div class="mt-6 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
+            <a href="{% url 'tenant:password_reset' %}" class="font-semibold text-[color:var(--color-secondary)]">Forgot password?</a>
+            <a href="{% url 'tenant:register' %}" class="font-semibold text-[color:var(--color-secondary)]">Create account</a>
+        </div>
+    </div>
+    <div class="mini-card flex flex-col justify-between p-8 lg:p-10">
+        <div>
+            <p class="eyebrow">Why Sign In</p>
+            <h2 class="brand-font mt-3 text-4xl font-extrabold text-slate-950">A faster path through repeat purchases.</h2>
+        </div>
+        <div class="mt-8 grid gap-4">
+            <div class="rounded-[1.5rem] bg-slate-50 p-5">
+                <p class="brand-font text-2xl font-bold text-slate-950">Order history</p>
+                <p class="mt-2 text-sm leading-6 text-slate-500">Track fulfillment, payments, and previous orders from one customer dashboard.</p>
+            </div>
+            <div class="rounded-[1.5rem] bg-slate-50 p-5">
+                <p class="brand-font text-2xl font-bold text-slate-950">Saved preferences</p>
+                <p class="mt-2 text-sm leading-6 text-slate-500">Keep your address book, recent browsing, and account preferences linked to this store.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,22 +1,34 @@
+"""
+system/account/signals.py
+==========================
+Signals for platform-level account events.
+
+These signals run in the PUBLIC schema context.
+"""
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.contrib.auth.models import User
-from system.account.models import Owner
+
+from system.account.models import PlatformUser
 
 
-@receiver(post_save, sender=User)
-def create_owner_from_user(sender, instance, created, **kwargs):
+@receiver(post_save, sender=PlatformUser)
+def platform_user_post_save(sender, instance, created, **kwargs):
     """
-    Signal to automatically create Owner when Django User is created.
-    This runs in the public schema for platform-level users.
+    Signal fired after a PlatformUser is saved.
+
+    On creation:
+      - Could trigger a welcome email (handled by the view/service layer)
+      - Could create default API keys (handled by the view/service layer)
+
+    NOTE: Do NOT create Shop (tenant) here automatically.
+    Shop creation is an explicit user action — the platform user
+    must go through the onboarding flow to create their first shop.
     """
     if created:
-        try:
-            # Create Owner profile for the new User
-            Owner.objects.create(
-                user=instance,
-            )
-            print(f"Owner created for user: {instance.username}")
-
-        except Exception as e:
-            print(f"Failed to create Owner for user {instance.username}: {e}")
+        # Log creation for audit purposes
+        # In production, you might trigger:
+        #   - Welcome email via Celery task
+        #   - Analytics event
+        #   - Default notification preferences
+        pass

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<section class="container-shell pt-6">
+    <div class="surface-card overflow-hidden px-6 py-8 lg:px-10 lg:py-10">
+        <div class="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+            <div class="space-y-6">
+                <p class="eyebrow">Creative Showcase</p>
+                <h1 class="brand-font text-5xl font-bold leading-tight text-slate-950 lg:text-6xl">Lead with featured work, then let the story of the brand unfold.</h1>
+                <p class="max-w-xl text-base leading-7 text-slate-500">{{ shop.description|default:"Built for creators, premium visual brands, and curated product stories that benefit from mood, proof, and depth." }}</p>
+                <div class="flex flex-wrap gap-3">
+                    <a href="{% url 'category:shop_all' %}" class="button-primary">Browse Collection</a>
+                    <a href="{% url 'category:deals' %}" class="button-secondary">See Campaigns</a>
+                </div>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2">
+                {% for product in featured_products|slice:":4" %}
+                    <article class="surface-card-soft flex min-h-[15rem] flex-col justify-between p-5">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Featured Work</p>
+                            <h2 class="brand-font mt-4 text-2xl font-bold text-slate-950">{{ product.name }}</h2>
+                            {% if product.short_description %}<p class="mt-3 text-sm leading-6 text-slate-500">{{ product.short_description|truncatechars:90 }}</p>{% endif %}
+                        </div>
+                        <a href="{% url 'product:detail' product.slug %}" class="mt-6 text-sm font-semibold text-[color:var(--color-primary)]">Open story</a>
+                    </article>
+                {% empty %}
+                    <div class="surface-card-soft p-6 text-sm text-slate-500 md:col-span-2">Add featured products to start shaping the showcase narrative.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="space-y-12">
+    <section class="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+        <div class="surface-card p-6">
+            <p class="eyebrow">About the Brand</p>
+            <h2 class="brand-font mt-3 text-3xl font-bold text-slate-950">A storefront rhythm built like a case-study page.</h2>
+            <p class="mt-4 text-sm leading-7 text-slate-600">Use this layout for artisan collections, premium launches, or any catalog where products need context, proof, and visual breathing room.</p>
+        </div>
+        <div class="grid gap-4">
+            {% for category in featured_categories|slice:":3" %}
+                <a href="/c/{{ category.slug }}/" class="surface-card-soft block p-5 transition hover:-translate-y-1">
+                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Collection</p>
+                    <h3 class="mt-3 text-xl font-bold text-slate-950">{{ category.name }}</h3>
+                </a>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="space-y-5">
+        <div class="flex items-end justify-between gap-4">
+            <div>
+                <p class="eyebrow">Testimonials</p>
+                <h2 class="brand-font mt-3 text-3xl font-bold text-slate-950">Signals of trust around the work.</h2>
+            </div>
+        </div>
+        <div class="grid gap-4 md:grid-cols-3">
+            {% for highlight in service_highlights|slice:":3" %}
+                <article class="surface-card-soft p-5">
+                    <p class="text-lg font-semibold text-slate-900">{{ highlight.title }}</p>
+                    <p class="mt-3 text-sm leading-6 text-slate-500">{{ highlight.description }}</p>
+                </article>
+            {% empty %}
+                <div class="surface-card-soft p-5 text-sm text-slate-500 md:col-span-3">Highlight quality promises, delivery confidence, or craft standards here.</div>
+            {% endfor %}
+        </div>
+    </section>
+</section>
+{% endblock %}

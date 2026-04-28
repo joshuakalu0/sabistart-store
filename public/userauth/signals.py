@@ -1,28 +1,69 @@
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.contrib.auth.models import User
-from public.userauth.models import User as TenantUser
+# from django.db.models.signals import post_save, pre_delete
+# from django.dispatch import receiver
+# from django.contrib.auth.models import User as AuthUser
+# from django.utils import timezone
+# from .models import User, Role
 
 
-@receiver(post_save, sender=User)
-def create_tenant_user_from_django_user(sender, instance, created, **kwargs):
-    """
-    Signal to automatically create tenant User when Django User is created.
-    This runs in tenant schema for store-level users.
-    """
-    if created:
-        try:
-            # Only create tenant user if we're in a tenant schema
-            from django_tenants.utils import tenant_context
-            from django.db import connection
+# @receiver(post_save, sender=AuthUser)
+# def create_or_update_tenant_user(sender, instance, created, **kwargs):
+#     """
+#     Signal to create or update tenant user when Django auth user is created/updated.
+#     Ensures synchronization between auth user and tenant user profiles.
+#     """
+#     if created:
+#         # Create tenant user for new auth user
+#         tenant_user = User.objects.create(
+#             auth_user=instance,
+#             first_name=instance.first_name or '',
+#             last_name=instance.last_name or '',
+#             email=instance.email or '',
+#             user_type='customer',  # Default to customer
+#             status='pending' if not instance.is_active else 'active',
+#         )
 
-            # Check if we're in a tenant schema (not public)
-            if hasattr(connection, 'tenant') and connection.tenant.schema_name != 'public':
-                # Create tenant User profile
-                TenantUser.objects.create(
-                    user=instance
-                )
-                print(f"Tenant user created for: {instance.username}")
+#         # Assign default customer role
+#         try:
+#             customer_role = Role.objects.get(slug='customer')
+#             tenant_user.roles.add(customer_role)
+#         except Role.DoesNotExist:
+#             pass
+#     else:
+#         # Update existing tenant user
+#         try:
+#             tenant_user = User.objects.get(auth_user=instance)
+#             tenant_user.first_name = instance.first_name or tenant_user.first_name
+#             tenant_user.last_name = instance.last_name or tenant_user.last_name
+#             tenant_user.email = instance.email or tenant_user.email
+#             tenant_user.status = 'active' if instance.is_active else 'inactive'
+#             tenant_user.save()
+#         except User.DoesNotExist:
+#             pass
 
-        except Exception as e:
-            print(f"Failed to create tenant user for {instance.username}: {e}")
+
+# @receiver(pre_delete, sender=AuthUser)
+# def handle_auth_user_deletion(sender, instance, **kwargs):
+#     """
+#     Signal to handle auth user deletion.
+#     Ensures proper cleanup of related tenant user data.
+#     """
+#     try:
+#         tenant_user = User.objects.get(auth_user=instance)
+#         # Mark as inactive instead of deleting to preserve data integrity
+#         tenant_user.status = 'inactive'
+#         tenant_user.save()
+#     except User.DoesNotExist:
+#         pass
+
+
+# @receiver(post_save, sender=User)
+# def update_customer_metrics_on_user_save(sender, instance, created, **kwargs):
+#     """
+#     Signal to update customer metrics when user is saved.
+#     Only applies to customer user types.
+#     """
+#     if instance.user_type == 'customer' and not created:
+#         # Update last activity
+#         instance.last_activity = timezone.now()
+#         # Note: Actual metrics update should be done via separate task
+#         # to avoid performance issues during user save operations

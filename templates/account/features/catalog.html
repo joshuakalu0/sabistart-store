@@ -1,0 +1,79 @@
+{% extends "account/features/base.html" %}
+{% block page_intro %}
+  <p class="mt-2 text-sm text-slate-500">Create sellable features and wire them to the real storefront, dashboard, and entitlement surfaces already implemented.</p>
+{% endblock %}
+{% block content %}
+  <div class="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
+    <div class="space-y-6">
+      <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <h3 class="text-lg font-bold text-slate-950">Add category</h3>
+        <form method="post" class="mt-5 space-y-4">
+          {% csrf_token %}
+          {% for field in category_form %}
+            {% include "shared/forms/field.html" with field=field %}
+          {% endfor %}
+          <button class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700" name="save_category" type="submit">Save category</button>
+        </form>
+      </div>
+      <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <h3 class="text-lg font-bold text-slate-950">Add feature</h3>
+        <form method="post" class="mt-5 grid gap-4">
+          {% csrf_token %}
+          {% for field in feature_form %}
+            {% include "shared/forms/field.html" with field=field %}
+          {% endfor %}
+          <button class="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700" name="save_feature" type="submit">Save feature</button>
+        </form>
+      </div>
+    </div>
+    <div class="space-y-6">
+      <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <h3 class="text-lg font-bold text-slate-950">Categories</h3>
+        <div class="mt-4 flex flex-wrap gap-2">
+          {% for category in categories %}
+            <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">{{ category.name }}</span>
+          {% empty %}
+            <span class="text-sm text-slate-500">No categories yet.</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <h3 class="text-lg font-bold text-slate-950">Active features</h3>
+        <div class="mt-6 overflow-x-auto">
+          <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-slate-50">
+              <tr>
+                <th class="px-4 py-3 text-left font-semibold text-slate-400">Feature</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-400">Type</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-400">Flags</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-400">Category</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+              {% for feature in features %}
+                <tr class="hover:bg-slate-50">
+                  <td class="px-4 py-3">
+                    <p class="font-semibold text-slate-950">{{ feature.name }}</p>
+                    <p class="mt-1 font-mono text-xs text-slate-500">{{ feature.code }}</p>
+                  </td>
+                  <td class="px-4 py-3 text-slate-500">{{ feature.get_feature_type_display }}</td>
+                  <td class="px-4 py-3">
+                    <div class="flex flex-wrap gap-2">
+                      {% if feature.is_globally_enabled %}<span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">Global On</span>{% endif %}
+                      {% if feature.is_globally_disabled %}<span class="rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-700">Global Off</span>{% endif %}
+                      {% if feature.store_setting_key %}<span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{{ feature.store_setting_key }}</span>{% endif %}
+                    </div>
+                  </td>
+                  <td class="px-4 py-3 text-slate-500">{{ feature.category.name|default:"-" }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500">No features available.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

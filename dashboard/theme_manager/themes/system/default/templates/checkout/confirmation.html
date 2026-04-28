@@ -1,0 +1,36 @@
+{% extends "system/default/templates/base.html" %}
+
+{% block content %}
+<section class="mx-auto max-w-6xl space-y-8">
+    <div class="surface-card overflow-hidden px-8 py-10 text-center">
+        <p class="eyebrow">Order Confirmed</p>
+        <h1 class="section-title mt-3">{{ order.order_number }}</h1>
+        <p class="section-copy mx-auto mt-4 max-w-2xl text-base">The order has been created successfully and is now attached to this storefront session. Next-step updates will follow through the selected checkout contact channel.</p>
+        <div class="mt-6 flex flex-wrap justify-center gap-3">
+            <a href="{% url 'tenant:account_orders' %}" class="button-secondary">View Orders</a>
+            <a href="{% url 'category:shop_all' %}" class="button-primary">Continue Shopping</a>
+        </div>
+    </div>
+
+    <div class="grid gap-8 xl:grid-cols-2">
+        <div class="surface-card p-6">
+            <p class="eyebrow">Order Snapshot</p>
+            <div class="mt-5 space-y-3 text-sm text-slate-600">
+                <div class="flex justify-between"><span>Status</span><span>{{ order.get_status_display }}</span></div>
+                <div class="flex justify-between"><span>Payment</span><span>{{ order.get_financial_status_display }}</span></div>
+                <div class="flex justify-between"><span>Total</span><span>{{ order.total_price }}</span></div>
+                <div class="flex justify-between"><span>Shipping</span><span>{{ order.shipping_method_name }}</span></div>
+            </div>
+        </div>
+
+        <div class="surface-card p-6">
+            <p class="eyebrow">Delivery Address</p>
+            {% if shipping_address %}
+                <p class="mt-4 text-sm leading-7 text-slate-600">{{ shipping_address.full_name }}<br>{{ shipping_address.full_address }}</p>
+            {% else %}
+                <p class="mt-4 text-sm text-slate-500">Shipping address snapshot unavailable.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

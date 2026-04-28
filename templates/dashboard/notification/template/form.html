@@ -1,0 +1,153 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+
+    <!-- Page header -->
+    <div class="sm:flex sm:justify-between sm:items-center mb-8">
+        <div class="mb-4 sm:mb-0">
+            <h1 class="text-2xl md:text-3xl text-slate-800 font-bold">{% if is_new %}{% trans "Create Template" %}{% else %}{% trans "Edit Template settings:" %} {{ template.name }}{% endif %}</h1>
+        </div>
+        <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
+            <a href="{% url 'dashboard:notification_template_list' prefix=prefix %}" class="btn bg-white border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-600">
+                Cancel
+            </a>
+            <button type="submit" form="template-form" class="btn bg-indigo-500 hover:bg-indigo-600 text-white">
+                {% if is_new %}Continue to Editor{% else %}Save Changes{% endif %}
+            </button>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white shadow-lg rounded-sm mb-8">
+        <form id="template-form" method="POST" action="">
+            {% csrf_token %}
+            <div class="p-6 space-y-6">
+
+                <section>
+                    <h2 class="text-xl leading-snug text-slate-800 font-bold mb-1">General Info</h2>
+                    <div class="grid gap-5 md:grid-cols-2">
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+                            {{ form.name }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.event_slug.id_for_label }}">{{ form.event_slug.label }}</label>
+                            {{ form.event_slug }}
+                            <div class="text-xs text-slate-400 mt-1">Unique slug triggering this template (e.g., user.created)</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
+                            {{ form.category }}
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium mb-1" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                            {{ form.description }}
+                        </div>
+                    </div>
+                </section>
+
+                <hr class="border-slate-200" />
+
+                <section>
+                    <h2 class="text-xl leading-snug text-slate-800 font-bold mb-1">Routing</h2>
+                    <div class="text-sm text-slate-500 mb-4">Set which channel this template uses.</div>
+                    <div class="grid gap-5 md:grid-cols-2">
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.channel_type.id_for_label }}">{{ form.channel_type.label }}</label>
+                            {{ form.channel_type }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.channel.id_for_label }}">{{ form.channel.label }}</label>
+                            {{ form.channel }}
+                            <div class="text-xs text-slate-400 mt-1">Optional. If empty, uses the default channel for the selected type.</div>
+                        </div>
+                    </div>
+                </section>
+
+                <hr class="border-slate-200" />
+
+                <section>
+                    <h2 class="text-xl leading-snug text-slate-800 font-bold mb-1">Delivery Settings</h2>
+                    <div class="grid gap-5 md:grid-cols-3">
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
+                            {{ form.status }}
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="block text-sm font-medium mb-1" for="{{ form.is_enabled.id_for_label }}">{{ form.is_enabled.label }}</label>
+                            {{ form.is_enabled }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.locale.id_for_label }}">{{ form.locale.label }}</label>
+                            {{ form.locale }}
+                        </div>
+                    </div>
+                    <div class="grid gap-5 md:grid-cols-4 mt-5">
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.max_send_attempts.id_for_label }}">{{ form.max_send_attempts.label }}</label>
+                            {{ form.max_send_attempts }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.retry_delay_seconds.id_for_label }}">{{ form.retry_delay_seconds.label }}</label>
+                            {{ form.retry_delay_seconds }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.send_delay_seconds.id_for_label }}">{{ form.send_delay_seconds.label }}</label>
+                            {{ form.send_delay_seconds }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.dedup_window_seconds.id_for_label }}">{{ form.dedup_window_seconds.label }}</label>
+                            {{ form.dedup_window_seconds }}
+                        </div>
+                    </div>
+                </section>
+
+                <hr class="border-slate-200" />
+
+                <section>
+                    <h2 class="text-xl leading-snug text-slate-800 font-bold mb-1">A/B Testing</h2>
+                    <div class="text-sm text-slate-500 mb-4">Traffic splitting between variants.</div>
+                    <div class="grid gap-5 md:grid-cols-3">
+                        <div class="flex flex-col">
+                            <label class="block text-sm font-medium mb-1" for="{{ form.ab_test_enabled.id_for_label }}">{{ form.ab_test_enabled.label }}</label>
+                            {{ form.ab_test_enabled }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.ab_test_percentage.id_for_label }}">{{ form.ab_test_percentage.label }}</label>
+                            {{ form.ab_test_percentage }}
+                            <div class="text-xs text-slate-400 mt-1">% of traffic to variant A (this template)</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.ab_test_variant_b.id_for_label }}">{{ form.ab_test_variant_b.label }}</label>
+                            {{ form.ab_test_variant_b }}
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<style>
+    form input[type="text"], form input[type="number"], form select, form textarea {
+        width: 100%;
+        border-radius: 0.25rem;
+        border-color: #cbd5e1;
+        background-color: #fff;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    form input[type="checkbox"] {
+        width: 1rem;
+        height: 1rem;
+        border-color: #cbd5e1;
+        margin-top: 0.25rem;
+        border-radius: 0.125rem;
+    }
+</style>
+{% endblock %}

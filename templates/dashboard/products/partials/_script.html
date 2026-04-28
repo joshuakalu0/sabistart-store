@@ -1,0 +1,315 @@
+<script>
+  // CSRF Token for AJAX
+  const csrfToken = '{{ csrf_token }}';
+
+  // Available data from Django
+  const availableCategories = {{ categories_json|safe }};
+  const availableTags = {{ tags|safe }};
+  const availableAttributes = {{ attributes|safe }};
+
+  // State management
+  let productType = '{{ form.basic_form.instance.product_type|default:"simple" }}';
+  let selectedCategories = [{% if is_edit %}{% for category in product.categories.all %}{id: '{{ category.id }}', name: '{{ category.name }}'}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}];
+  let selectedTags = [{% if is_edit %}{% for tag in product.tags.all %}{id: '{{ tag.id }}', name: '{{ tag.name }}'}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}];
+  let selectedAttributes = [];
+  let variants = [];
+  let images = [];
+  let videos = [];
+  let specifications = [{% if is_edit and product.specifications %}{% for key, value in product.specifications.items %}{key: '{{ key }}', value: '{{ value }}'}{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}];
+  let features = [{% if is_edit and product.features %}{% for feature in product.features %}'{{ feature }}'{% if not forloop.last %},{% endif %}{% endfor %}{% endif %}];
+
+  console.log("Product creation script loaded");
+  let currentTab = 0;
+  const totalTabs = 5;
+
+  function switchTab(tabIndex) {
+    console.log("Switching to tab:", tabIndex);
+
+    // Hide all tabs
+    const allTabs = document.querySelectorAll(".tab-content");
+    console.log("Found tabs:", allTabs.length);
+    allTabs.forEach((tab) => tab.classList.add("hidden"));
+
+    // Remove active state from all tab buttons
+    const tabButtons = document.querySelectorAll(".tab-button");
+    console.log("Found tab buttons:", tabButtons.length);
+    tabButtons.forEach((btn) => {
+      btn.classList.remove("border-primary", "text-primary", "font-bold");
+      btn.classList.add("border-transparent", "text-slate-500", "font-medium");
+    });
+
+    // Show selected tab
+    const targetTab = document.getElementById(`tab-${tabIndex}`);
+    if (targetTab) {
+      targetTab.classList.remove("hidden");
+    } else {
+      console.error("Tab not found:", `tab-${tabIndex}`);
+    }
+
+    // Add active state to selected tab button
+    const activeButton = document.querySelector(`[data-tab="${tabIndex}"]`);
+    if (activeButton) {
+      activeButton.classList.remove(
+        "border-transparent",
+        "text-slate-500",
+        "font-medium",
+      );
+      activeButton.classList.add("border-primary", "text-primary", "font-bold");
+    } else {
+      console.error("Tab button not found:", `[data-tab="${tabIndex}"]`);
+    }
+
+    currentTab = tabIndex;
+    updateNavigation();
+    updateProgress();
+    updateSummary();
+  }
+
+  function nextTab() {
+    console.log("Next tab clicked, current:", currentTab);
+    if (currentTab < totalTabs - 1) {
+      saveAndContinue();
+    }
+  }
+
+  function saveAndContinue() {
+    const form = document.querySelector('form');
+    const formData = new FormData(form);
+    const nextBtn = document.getElementById('nextBtn');
+
+    // Show loading state
+    nextBtn.disabled = true;
+    nextBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span> Saving...';
+
+    // Get CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    // Determine the correct endpoint - all tabs use the same update endpoint
+    let endpoint = form.action || window.location.href;
+    endpoint = endpoint.replace('/edit/', '/update/');
+
+    fetch(endpoint, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRFToken': csrfToken
+      }
+    })
+    .then(response => {
+      console.log('Response status:', response.status);
+      console.log('Content-Type:', response.headers.get('content-type'));
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        return response.json();
+      } else {
+        // Server returned HTML instead of JSON - likely a redirect or error page
+        return response.text().then(text => {
+          console.log('HTML Response:', text.substring(0, 500));
+          throw new Error('Server returned HTML instead of JSON. Check server logs.');
+        });
+      }
+    })
+    .then(data => {
+      console.log('Response data:', data);
+      if (data.success) {
+        // Update form action with product ID for subsequent saves
+        if (data.product_id && !form.action.includes('/edit/')) {
+          const currentUrl = window.location.href;
+          const newUrl = currentUrl.replace('/create/', `/edit/${data.product_id}/`);
+          form.action = newUrl;
+          // Update browser URL without reload
+          window.history.replaceState({}, '', newUrl);
+        }
+        switchTab(currentTab + 1);
+      } else {
+        // Show errors
+        if (data.errors) {
+          showFormErrors(data.errors);
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Save error:', error);
+      alert(`Error saving product: ${error.message}. Check console for details.`);
+    })
+    .finally(() => {
+      // Reset button state
+      nextBtn.disabled = false;
+      nextBtn.innerHTML = 'Save & Continue <span class="material-symbols-outlined">arrow_forward</span>';
+    });
+  }
+
+  function showFormErrors(errors) {
+    // Clear previous errors
+    document.querySelectorAll('.error-message').forEach(el => el.remove());
+    document.querySelectorAll('.border-red-500').forEach(el => {
+      el.classList.remove('border-red-500');
+    });
+
+    // Show new errors
+    Object.keys(errors).forEach(fieldName => {
+      const field = document.getElementById(`id_${fieldName}`);
+      if (field) {
+        field.classList.add('border-red-500');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message text-red-500 text-sm mt-1';
+        errorDiv.textContent = errors[fieldName][0];
+        field.parentNode.appendChild(errorDiv);
+      }
+    });
+  }
+
+  function prevTab() {
+    console.log("Previous tab clicked, current:", currentTab);
+    if (currentTab > 0) {
+      switchTab(currentTab - 1);
+    }
+  }
+
+  function updateNavigation() {
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const submitBtn = document.getElementById("submitBtn");
+
+    // Show/hide Previous button
+    if (currentTab > 0) {
+      prevBtn.classList.remove("hidden");
+    } else {
+      prevBtn.classList.add("hidden");
+    }
+
+    // Show/hide Submit button
+    if (currentTab === totalTabs - 1) {
+      nextBtn.classList.add("hidden");
+      submitBtn.classList.remove("hidden");
+    } else {
+      nextBtn.classList.remove("hidden");
+      submitBtn.classList.add("hidden");
+    }
+  }
+
+  function updateProgress() {
+    const progress = ((currentTab + 1) / totalTabs) * 100;
+    const progressText = document.getElementById("progressText");
+    const progressBar = document.getElementById("progressBar");
+
+    progressText.textContent = `Progress: ${Math.round(progress)}%`;
+    progressBar.style.width = `${progress}%`;
+  }
+
+  function updateSummary() {
+    const summaryItems = [
+      "summary-basic",
+      "summary-content",
+      "summary-pricing",
+      "summary-shipping",
+      "summary-variants",
+    ];
+
+    summaryItems.forEach((itemId, index) => {
+      const item = document.getElementById(itemId);
+      if (item) {
+        const icon = item.querySelector(".material-symbols-outlined");
+        const text = item.querySelector("span:last-child");
+
+        if (index <= currentTab) {
+          icon.textContent = "check_circle";
+          icon.classList.remove("text-slate-300");
+          icon.classList.add("text-emerald-500");
+          text.classList.remove("text-slate-400");
+          text.classList.add("text-slate-600", "dark:text-slate-400");
+        } else {
+          icon.textContent = "radio_button_unchecked";
+          icon.classList.remove("text-emerald-500");
+          icon.classList.add("text-slate-300");
+          text.classList.remove("text-slate-600", "dark:text-slate-400");
+          text.classList.add("text-slate-400");
+        }
+      }
+    });
+  }
+
+  function submitForm() {
+    const form = document.querySelector('form');
+    const formData = new FormData(form);
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Show loading state
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span> Creating...';
+
+    fetch(form.action || window.location.href, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        window.location.href = data.redirect_url || '/dashboard/products/';
+      } else {
+        if (data.errors) {
+          showFormErrors(data.errors);
+        }
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Create Product <span class="material-symbols-outlined">check_circle</span>';
+      }
+    })
+    .catch(error => {
+      console.error('Submit error:', error);
+      alert('Error creating product. Please try again.');
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Create Product <span class="material-symbols-outlined">check_circle</span>';
+    });
+  }
+
+  function slugify(text) {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w\-]+/g, "")
+      .replace(/\-\-+/g, "-")
+      .replace(/^-+/, "")
+      .replace(/-+$/, "");
+  }
+
+  function generateSlug() {
+    const nameField = document.getElementById("id_name");
+    const slugField = document.getElementById("id_slug");
+
+    if (nameField && slugField && nameField.value) {
+      slugField.value = slugify(nameField.value);
+    }
+  }
+
+  // Auto-generate slug as user types
+  document.addEventListener("DOMContentLoaded", function () {
+    console.log("DOM content loaded");
+    const nameField = document.getElementById("id_name");
+    const slugField = document.getElementById("id_slug");
+
+    if (nameField && slugField) {
+      nameField.addEventListener("input", function () {
+        if (!slugField.value || slugField.dataset.autoGenerated !== "false") {
+          slugField.value = slugify(this.value);
+          slugField.dataset.autoGenerated = "true";
+        }
+      });
+
+      // Mark as manually edited if user types in slug field
+      slugField.addEventListener("input", function () {
+        this.dataset.autoGenerated = "false";
+      });
+    }
+  });
+</script>

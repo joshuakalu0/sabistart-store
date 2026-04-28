@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <section class="space-y-8">
+    <div class="surface-card p-8 lg:p-10">
+      {% if breadcrumbs %}
+        <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+          {% for crumb in breadcrumbs %}
+            {% if crumb.url %}<a href="{{ crumb.url }}" class="transition hover:text-slate-900">{{ crumb.label }}</a>{% else %}<span>{{ crumb.label }}</span>{% endif %}
+            {% if not forloop.last %}<span>/</span>{% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+      <div class="mt-6 grid gap-8 lg:grid-cols-[1fr_320px]">
+        <article class="space-y-5">
+          <p class="eyebrow">Frequently Asked Question</p>
+          <h1 class="section-title">{{ faq.question }}</h1>
+          <div class="prose prose-slate max-w-none text-slate-700">{{ faq.answer|safe }}</div>
+        </article>
+        <aside class="surface-card-soft p-6">
+          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Need something else?</p>
+          <h2 class="brand-font mt-3 text-2xl font-bold text-slate-950">More help</h2>
+          <div class="mt-5 space-y-4">
+            {% for related in related_faqs %}
+              <a href="{% url 'support:faq_detail' faq_slug=related.slug %}" class="block rounded-2xl border border-slate-200 bg-white px-4 py-4 transition hover:border-slate-300">
+                <p class="font-semibold text-slate-900">{{ related.question }}</p>
+              </a>
+            {% empty %}
+              <p class="text-sm text-slate-500">No other FAQs yet.</p>
+            {% endfor %}
+          </div>
+          <div class="mt-6">
+            <a href="{% url 'support:contact_us' %}" class="button-primary">Contact Us</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+{% endblock %}

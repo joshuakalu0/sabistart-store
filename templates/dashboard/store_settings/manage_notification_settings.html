@@ -1,0 +1,873 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{{ title }} | Store Admin</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "on-error": "#fff7f6",
+                "surface-container-high": "#e1e9ee",
+                "on-error-container": "#752121",
+                "on-surface-variant": "#566166",
+                "primary-dim": "#0048c1",
+                "inverse-on-surface": "#9a9d9f",
+                "tertiary-dim": "#54506b",
+                "tertiary-fixed": "#e3dbfd",
+                "primary-container": "#dbe1ff",
+                "tertiary": "#605c78",
+                "surface": "#f7f9fb",
+                "outline-variant": "#a9b4b9",
+                "tertiary-fixed-dim": "#d4cdee",
+                "surface-container-highest": "#d9e4ea",
+                "surface-container-lowest": "#ffffff",
+                "on-primary-fixed": "#003798",
+                "on-background": "#2a3439",
+                "on-primary-fixed-variant": "#0050d4",
+                "primary-fixed": "#dbe1ff",
+                "on-tertiary": "#fcf7ff",
+                "inverse-primary": "#618bff",
+                "surface-variant": "#d9e4ea",
+                "error-container": "#fe8983",
+                "on-tertiary-fixed-variant": "#5b5672",
+                "on-secondary-fixed": "#314055",
+                "surface-tint": "#0053db",
+                "secondary": "#506076",
+                "surface-container-low": "#f0f4f7",
+                "secondary-fixed-dim": "#c5d6f0",
+                "on-tertiary-fixed": "#3e3a54",
+                "on-secondary-fixed-variant": "#4d5d73",
+                "on-primary-container": "#0048bf",
+                "primary": "#0053db",
+                "on-primary": "#f8f7ff",
+                "tertiary-container": "#e3dbfd",
+                "surface-container": "#e8eff3",
+                "outline": "#717c82",
+                "primary-fixed-dim": "#c7d3ff",
+                "on-secondary-container": "#435368",
+                "error-dim": "#4e0309",
+                "error": "#9f403d",
+                "inverse-surface": "#0b0f10",
+                "surface-bright": "#f7f9fb",
+                "on-tertiary-container": "#514d68",
+                "secondary-dim": "#44546a",
+                "on-secondary": "#f7f9ff",
+                "on-surface": "#2a3439",
+                "secondary-fixed": "#d3e4fe",
+                "background": "#f7f9fb",
+                "surface-dim": "#cfdce3",
+                "secondary-container": "#d3e4fe"
+              },
+              fontFamily: {
+                "headline": ["Manrope"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+            },
+          },
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+        /* Toggle Switch Styling */
+        .toggle-checkbox {
+            opacity: 0;
+            position: absolute;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #0053db;
+        }
+        .toggle-checkbox:checked + .toggle-label::after {
+            transform: translateX(100%);
+        }
+
+        /* Form Error States */
+        .form-field-error {
+            border: 2px solid #9f403d !important;
+            background-color: #fef2f2 !important;
+        }
+        .error-message {
+            color: #9f403d;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Conditional Section Opacity */
+        .conditional-section {
+            transition: opacity 0.3s ease;
+        }
+        .conditional-section.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary-container">
+
+<!-- Django Messages Framework -->
+{% if messages %}
+<div class="fixed top-24 right-8 z-50 space-y-2">
+    {% for message in messages %}
+    <div class="flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg" style="background-color: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#9f403d{% else %}#ffffff{% endif %}; color: {% if message.tags == 'error' %}#fff7f6{% else %}#2a3439{% endif %};">
+        <span class="material-symbols-outlined text-sm">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span class="font-medium text-sm">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 w-full z-50 sticky bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm shadow-slate-200/50 dark:shadow-none">
+    <div class="flex justify-between items-center max-w-[1440px] mx-auto px-8 h-20">
+        <div class="text-2xl font-extrabold tracking-tighter text-blue-700 dark:text-blue-500 font-headline">{{ title }}</div>
+        <nav class="hidden md:flex gap-8 items-center">
+            <a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-300 transition-all duration-200" href="{% url 'manage_notification_settings' %}">Dashboard</a>
+            <a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-300 transition-all duration-200" href="#">Triggers</a>
+            <a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-300 transition-all duration-200" href="#">Templates</a>
+            <a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-300 transition-all duration-200" href="{% url 'notification_logs' %}">Logs</a>
+        </nav>
+        <div class="flex items-center gap-4">
+            <span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Help">help</span>
+            <a href="{% url 'manage_notification_settings' %}" class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Settings">settings</a>
+            <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden">
+                <img alt="Admin Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMh9o_cq6S6PPA-bib_W429KpKbhS0V4JOK25VdJXx4zcr_lEJ5zLxxo24sYXW4z6TxpXfFLs-a9IsmGvhn2ASiubxO6j9vY4URqB3FW0_J6C30r9PB7W8Wpxan26FvPAUteRmi6AkLXGzaIOgKkK6HfynJorEBpVb1n4YcAYx8TVJUqAu1rU4QhqjinEo31cquXi41b5NqWegYCcReMQgMjPbheUiHd6wq6xtT3aArMKJuCDLK-LaZpGFcrW77YUsSz3khTcWcag"/>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Contextual Sticky Action Bar -->
+<div class="sticky top-20 z-40 bg-white/80 backdrop-blur-md border-b border-outline-variant/10">
+    <div class="max-w-[1440px] mx-auto px-8 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold font-headline tracking-tight text-on-surface">Notification Settings</h1>
+            <p class="text-on-surface-variant text-sm mt-1">Configure automated workflows and customer touchpoints.</p>
+            {% if is_edit %}
+            <p class="text-xs text-on-surface-variant mt-2">
+                <span class="material-symbols-outlined text-xs align-middle">mail</span>
+                {{ enabled_email_notifications|default:0 }} email notifications •
+                <span class="material-symbols-outlined text-xs align-middle">sms</span>
+                {{ enabled_sms_notifications|default:0 }} SMS notifications •
+                <span class="material-symbols-outlined text-xs align-middle">shield_person</span>
+                {{ enabled_admin_notifications|default:0 }} admin alerts
+            </p>
+            {% endif %}
+        </div>
+        <div class="flex gap-3">
+            <button type="button" class="px-6 py-2.5 text-sm font-semibold text-on-surface-variant hover:bg-surface-container transition-all rounded-md active:scale-95" onclick="window.location.href='{% url 'manage_notification_settings' %}'">Discard</button>
+            <button type="submit" form="notification-form" class="px-6 py-2.5 text-sm font-semibold bg-primary text-on-primary shadow-sm hover:bg-primary-dim transition-all rounded-md active:scale-95 flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">save</span>
+                {% if is_edit %}Save Changes{% else %}Create Settings{% endif %}
+            </button>
+        </div>
+    </div>
+</div>
+
+<main class="max-w-[1440px] mx-auto px-8 py-12">
+    <form id="notification-form" method="post" action="{{ action_url }}" novalidate>
+        {% csrf_token %}
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <!-- Left Column: Form Controls -->
+            <div class="lg:col-span-8 space-y-16">
+
+                <!-- Order Notifications -->
+                <section>
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="material-symbols-outlined text-primary">shopping_bag</span>
+                        <h2 class="text-xl font-bold font-headline text-on-surface">Order Notifications</h2>
+                    </div>
+                    <div class="bg-surface-container-low rounded-xl p-8 space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                            <!-- Confirmation Email -->
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <span class="text-sm font-medium text-on-surface group-hover:text-primary transition-colors">Confirmation Email</span>
+                                <div class="relative inline-block w-11 h-6 transition duration-200 ease-in-out bg-surface-container-highest rounded-full">
+                                    {{ form.send_order_confirmation }}
+                                    <span class="toggle-label absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition duration-200 rounded-full bg-surface-container-highest peer-checked:bg-primary before:content-[''] before:absolute before:h-5 before:w-5 before:left-0.5 before:bottom-0.5 before:bg-white before:transition before:duration-200 peer-checked:before:translate-x-5" style="background-color: {% if form.send_order_confirmation.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                        <span class="absolute h-5 w-5 left-0.5 bottom-0.5 bg-white rounded-full transition duration-200" style="transform: {% if form.send_order_confirmation.value %}translateX(100%){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </label>
+                            {% if form.send_order_confirmation.errors %}
+                                {% for error in form.send_order_confirmation.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+
+                            <!-- Processing Status -->
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <span class="text-sm font-medium text-on-surface group-hover:text-primary transition-colors">Processing Status</span>
+                                <div class="relative inline-block w-11 h-6 transition duration-200 ease-in-out bg-surface-container-highest rounded-full">
+                                    {{ form.send_order_processing }}
+                                    <span class="toggle-label absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition duration-200 rounded-full bg-surface-container-highest peer-checked:bg-primary before:content-[''] before:absolute before:h-5 before:w-5 before:left-0.5 before:bottom-0.5 before:bg-white before:transition before:duration-200 peer-checked:before:translate-x-5" style="background-color: {% if form.send_order_processing.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                        <span class="absolute h-5 w-5 left-0.5 bottom-0.5 bg-white rounded-full transition duration-200" style="transform: {% if form.send_order_processing.value %}translateX(100%){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </label>
+
+                            <!-- Shipped Update -->
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <span class="text-sm font-medium text-on-surface group-hover:text-primary transition-colors">Shipped Update</span>
+                                <div class="relative inline-block w-11 h-6 transition duration-200 ease-in-out bg-surface-container-highest rounded-full">
+                                    {{ form.send_order_shipped }}
+                                    <span class="toggle-label absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition duration-200 rounded-full bg-surface-container-highest peer-checked:bg-primary before:content-[''] before:absolute before:h-5 before:w-5 before:left-0.5 before:bottom-0.5 before:bg-white before:transition before:duration-200 peer-checked:before:translate-x-5" style="background-color: {% if form.send_order_shipped.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                        <span class="absolute h-5 w-5 left-0.5 bottom-0.5 bg-white rounded-full transition duration-200" style="transform: {% if form.send_order_shipped.value %}translateX(100%){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </label>
+
+                            <!-- Delivered Confirmation -->
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <span class="text-sm font-medium text-on-surface group-hover:text-primary transition-colors">Delivered Confirmation</span>
+                                <div class="relative inline-block w-11 h-6 transition duration-200 ease-in-out bg-surface-container-highest rounded-full">
+                                    {{ form.send_order_delivered }}
+                                    <span class="toggle-label absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition duration-200 rounded-full bg-surface-container-highest peer-checked:bg-primary before:content-[''] before:absolute before:h-5 before:w-5 before:left-0.5 before:bottom-0.5 before:bg-white before:transition before:duration-200 peer-checked:before:translate-x-5" style="background-color: {% if form.send_order_delivered.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                        <span class="absolute h-5 w-5 left-0.5 bottom-0.5 bg-white rounded-full transition duration-200" style="transform: {% if form.send_order_delivered.value %}translateX(100%){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </label>
+
+                            <!-- Cancelled Order -->
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <span class="text-sm font-medium text-on-surface group-hover:text-primary transition-colors">Cancelled Order</span>
+                                <div class="relative inline-block w-11 h-6 transition duration-200 ease-in-out bg-surface-container-highest rounded-full">
+                                    {{ form.send_order_cancelled }}
+                                    <span class="toggle-label absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition duration-200 rounded-full bg-surface-container-highest peer-checked:bg-primary before:content-[''] before:absolute before:h-5 before:w-5 before:left-0.5 before:bottom-0.5 before:bg-white before:transition before:duration-200 peer-checked:before:translate-x-5" style="background-color: {% if form.send_order_cancelled.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                        <span class="absolute h-5 w-5 left-0.5 bottom-0.5 bg-white rounded-full transition duration-200" style="transform: {% if form.send_order_cancelled.value %}translateX(100%){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </label>
+
+                            <!-- Refunded Notification -->
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <span class="text-sm font-medium text-on-surface group-hover:text-primary transition-colors">Refunded Notification</span>
+                                <div class="relative inline-block w-11 h-6 transition duration-200 ease-in-out bg-surface-container-highest rounded-full">
+                                    {{ form.send_order_refunded }}
+                                    <span class="toggle-label absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition duration-200 rounded-full bg-surface-container-highest peer-checked:bg-primary before:content-[''] before:absolute before:h-5 before:w-5 before:left-0.5 before:bottom-0.5 before:bg-white before:transition before:duration-200 peer-checked:before:translate-x-5" style="background-color: {% if form.send_order_refunded.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                        <span class="absolute h-5 w-5 left-0.5 bottom-0.5 bg-white rounded-full transition duration-200" style="transform: {% if form.send_order_refunded.value %}translateX(100%){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Customer & Account -->
+                <section>
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="material-symbols-outlined text-primary">person</span>
+                        <h2 class="text-xl font-bold font-headline text-on-surface">Customer &amp; Account</h2>
+                    </div>
+                    <div class="bg-surface-container-low rounded-xl p-8 space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Welcome Email -->
+                            <label class="flex items-center justify-between cursor-pointer">
+                                <div>
+                                    <span class="text-sm font-medium block">Welcome Email</span>
+                                    <span class="text-xs text-on-surface-variant">Sent when a new user registers</span>
+                                </div>
+                                <div class="relative inline-block w-11 h-6">
+                                    {{ form.send_welcome_email }}
+                                    <span class="toggle-label absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition duration-200 rounded-full bg-surface-container-highest peer-checked:bg-primary before:content-[''] before:absolute before:h-5 before:w-5 before:left-0.5 before:bottom-0.5 before:bg-white before:transition before:duration-200 peer-checked:before:translate-x-5" style="background-color: {% if form.send_welcome_email.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                        <span class="absolute h-5 w-5 left-0.5 bottom-0.5 bg-white rounded-full transition duration-200" style="transform: {% if form.send_welcome_email.value %}translateX(100%){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </label>
+
+                            <!-- Verification Email -->
+                            <label class="flex items-center justify-between cursor-pointer">
+                                <div>
+                                    <span class="text-sm font-medium block">Verification Email</span>
+                                    <span class="text-xs text-on-surface-variant">2FA and account activation</span>
+                                </div>
+                                <div class="relative inline-block w-11 h-6">
+                                    {{ form.send_account_verification }}
+                                    <span class="toggle-label absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition duration-200 rounded-full bg-surface-container-highest peer-checked:bg-primary before:content-[''] before:absolute before:h-5 before:w-5 before:left-0.5 before:bottom-0.5 before:bg-white before:transition before:duration-200 peer-checked:before:translate-x-5" style="background-color: {% if form.send_account_verification.value %}#0053db{% else %}#d9e4ea{% endif %};">
+                                        <span class="absolute h-5 w-5 left-0.5 bottom-0.5 bg-white rounded-full transition duration-200" style="transform: {% if form.send_account_verification.value %}translateX(100%){% else %}translateX(0){% endif %};"></span>
+                                    </span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Wishlist Reminder -->
+                        <div class="pt-6 border-t border-outline-variant/10">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div class="max-w-md">
+                                    <label class="text-sm font-medium block" for="{{ form.send_wishlist_reminder.id_for_label }}">Wishlist Reminder</label>
+                                    <p class="text-xs text-on-surface-variant">Remind customers about items left in their wishlist after a specific period.</p>
+                                </div>
+                                <div class="flex items-center gap-3 {% if not form.send_wishlist_reminder.value %}conditional-section disabled{% endif %}" id="wishlist-section">
+                                    <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Send after</span>
+                                    {{ form.wishlist_reminder_days }}
+                                    <span class="text-sm font-medium text-on-surface-variant">days</span>
+                                </div>
+                            </div>
+                            {% if form.send_wishlist_reminder.errors %}
+                                {% for error in form.send_wishlist_reminder.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                            {% if form.wishlist_reminder_days.errors %}
+                                {% for error in form.wishlist_reminder_days.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Marketing Automation -->
+                <section>
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="material-symbols-outlined text-primary">campaign</span>
+                        <h2 class="text-xl font-bold font-headline text-on-surface">Marketing Automation</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Abandoned Cart -->
+                        <div class="bg-surface-container-low rounded-xl p-6 flex flex-col justify-between">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="font-bold text-on-surface">Abandoned Cart</h3>
+                                    <p class="text-xs text-on-surface-variant mt-1">Recovery series for idle checkouts</p>
+                                </div>
+                                {{ form.send_abandoned_cart }}
+                            </div>
+                            <div class="{% if not form.send_abandoned_cart.value %}conditional-section disabled{% endif %}" id="abandoned-cart-section">
+                                <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider block mb-2" for="{{ form.abandoned_cart_delay_hours.id_for_label }}">Delay Hours</label>
+                                {{ form.abandoned_cart_delay_hours }}
+                                {% if form.abandoned_cart_delay_hours.errors %}
+                                    {% for error in form.abandoned_cart_delay_hours.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                                <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider block mb-2 mt-4" for="{{ form.abandoned_cart_series_count.id_for_label }}">Series Count</label>
+                                {{ form.abandoned_cart_series_count }}
+                                {% if form.abandoned_cart_series_count.errors %}
+                                    {% for error in form.abandoned_cart_series_count.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Back in Stock -->
+                        <div class="bg-surface-container-low rounded-xl p-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="font-bold text-on-surface">Back in Stock</h3>
+                                    <p class="text-xs text-on-surface-variant mt-1">Notify waitlisted customers</p>
+                                </div>
+                                {{ form.send_back_in_stock }}
+                            </div>
+                            {% if form.send_back_in_stock.value %}
+                            <div class="flex items-center gap-2 mt-4 text-xs font-bold text-primary">
+                                <span class="material-symbols-outlined text-sm">auto_awesome</span>
+                                INSTANT TRIGGER ENABLED
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Price Drop Alerts -->
+                        <div class="bg-surface-container-low rounded-xl p-6">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-bold text-on-surface">Price Drop Alerts</h3>
+                                    <p class="text-xs text-on-surface-variant mt-1">Automatic alerts for liked items</p>
+                                </div>
+                                {{ form.send_price_drop_alert }}
+                            </div>
+                        </div>
+
+                        <!-- Weekly Newsletter -->
+                        <div class="bg-surface-container-low rounded-xl p-6">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-bold text-on-surface">Weekly Newsletter</h3>
+                                    <p class="text-xs text-on-surface-variant mt-1">Curated content and highlights</p>
+                                </div>
+                                {{ form.send_newsletter }}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SMS & Push Matrix -->
+                <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- SMS Notifications -->
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-primary">sms</span>
+                                <h2 class="text-xl font-bold font-headline text-on-surface">SMS</h2>
+                            </div>
+                            {{ form.enable_sms }}
+                        </div>
+                        {% if form.enable_sms.errors %}
+                            {% for error in form.enable_sms.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="bg-surface-container-low rounded-xl p-6 space-y-4 {% if not form.enable_sms.value %}conditional-section disabled{% endif %}" id="sms-section">
+                            <div>
+                                <label class="text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest block mb-2" for="{{ form.sms_provider.id_for_label }}">Provider Configuration</label>
+                                {{ form.sms_provider }}
+                                {% if form.sms_provider.errors %}
+                                    {% for error in form.sms_provider.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="space-y-3 pt-4 border-t border-outline-variant/10">
+                                <label class="flex items-center justify-between text-xs font-medium cursor-pointer">
+                                    <span>Order Confirmation</span>
+                                    {{ form.sms_order_confirmation }}
+                                </label>
+                                <label class="flex items-center justify-between text-xs font-medium cursor-pointer">
+                                    <span>Delivery Updates</span>
+                                    {{ form.sms_order_shipped }}
+                                </label>
+                                <label class="flex items-center justify-between text-xs font-medium cursor-pointer">
+                                    <span>Identity Verification</span>
+                                    {{ form.sms_verification_code }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Push Notifications -->
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-primary">notifications_active</span>
+                                <h2 class="text-xl font-bold font-headline text-on-surface">Push</h2>
+                            </div>
+                            {{ form.enable_push_notifications }}
+                        </div>
+                        <div class="bg-surface-container-low rounded-xl p-6 flex flex-col items-center justify-center text-center h-[216px] {% if not form.enable_push_notifications.value %}conditional-section disabled{% endif %}" id="push-section">
+                            <span class="material-symbols-outlined text-outline-variant text-4xl mb-3">notifications_off</span>
+                            <p class="text-sm font-medium text-on-surface-variant">Push notifications are currently {% if form.enable_push_notifications.value %}enabled{% else %}disabled{% endif %} for this instance.</p>
+                            {% if not form.enable_push_notifications.value %}
+                            <button type="button" class="mt-4 text-xs font-bold text-primary hover:underline">CONFIGURE WEB-PUSH SDK</button>
+                            {% else %}
+                            <div class="mt-4 space-y-3 w-full">
+                                <label class="flex items-center justify-between text-xs font-medium cursor-pointer">
+                                    <span>Order Updates</span>
+                                    {{ form.push_order_updates }}
+                                </label>
+                                <label class="flex items-center justify-between text-xs font-medium cursor-pointer">
+                                    <span>Promotional</span>
+                                    {{ form.push_promotional }}
+                                </label>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Admin Internal Alerts -->
+                <section>
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="material-symbols-outlined text-primary">shield_person</span>
+                        <h2 class="text-xl font-bold font-headline text-on-surface">Admin Internal Alerts</h2>
+                    </div>
+                    <div class="bg-surface-container-low rounded-xl p-8">
+                        <!-- Admin Notification Emails -->
+                        <div class="mb-8">
+                            <label class="text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest block mb-3" for="{{ form.admin_notification_emails.id_for_label }}">Master Alert Recipient List</label>
+                            <div class="relative">
+                                {{ form.admin_notification_emails }}
+                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-primary">EDITING</span>
+                            </div>
+                            {% if form.admin_notification_emails.errors %}
+                                {% for error in form.admin_notification_emails.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                            <p class="text-xs text-on-surface-variant mt-2">Comma-separated list of admin emails to notify</p>
+                        </div>
+
+                        <!-- Admin Alert Toggles -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                {{ form.notify_admin_new_order }}
+                                <span class="text-sm font-medium">New Order Placed</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                {{ form.notify_admin_failed_payment }}
+                                <span class="text-sm font-medium">Failed Payment</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                {{ form.notify_admin_new_customer }}
+                                <span class="text-sm font-medium">New Customer Sign-up</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                {{ form.notify_admin_new_review }}
+                                <span class="text-sm font-medium">New Product Review</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                {{ form.notify_admin_low_stock }}
+                                <span class="text-sm font-medium">Low Stock Alert</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                {{ form.notify_admin_out_of_stock }}
+                                <span class="text-sm font-medium">Out of Stock Alert</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                {{ form.notify_admin_refund_request }}
+                                <span class="text-sm font-medium">Refund Request</span>
+                            </label>
+                        </div>
+
+                        <!-- Low Stock Threshold -->
+                        <div class="mt-8 pt-8 border-t border-outline-variant/10 flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div class="flex items-center gap-4">
+                                <span class="material-symbols-outlined text-error">warning</span>
+                                <div>
+                                    <span class="text-sm font-bold block">Low Stock Threshold</span>
+                                    <span class="text-xs text-on-surface-variant">Alert when SKU counts drop below this value.</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                {{ form.low_stock_threshold }}
+                                <span class="text-sm font-medium text-on-surface-variant">units</span>
+                            </div>
+                        </div>
+                        {% if form.low_stock_threshold.errors %}
+                            {% for error in form.low_stock_threshold.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </section>
+
+                <!-- Global Delivery Preferences -->
+                <section>
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="material-symbols-outlined text-primary">tune</span>
+                        <h2 class="text-xl font-bold font-headline text-on-surface">Global Delivery Preferences</h2>
+                    </div>
+                    <div class="bg-surface-container-low rounded-xl p-8 space-y-10">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                            <!-- Sender Identity -->
+                            <div class="space-y-4">
+                                <label class="text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest block">Sender Identity</label>
+                                <div class="space-y-3">
+                                    {{ form.email_from_name }}
+                                    {{ form.email_reply_to }}
+                                </div>
+                            </div>
+
+                            <!-- Operational Controls -->
+                            <div class="space-y-4">
+                                <label class="text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest block">Operational Controls</label>
+                                <div class="space-y-3">
+                                    <label class="flex items-center gap-3 cursor-pointer">
+                                        {{ form.respect_customer_timezone }}
+                                        <span class="text-sm font-medium">Respect customer timezone</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 cursor-pointer">
+                                        {{ form.include_tracking_link }}
+                                        <span class="text-sm font-medium">Append tracking links automatically</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 cursor-pointer">
+                                        {{ form.include_order_details_in_email }}
+                                        <span class="text-sm font-medium">Include full order details</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quiet Hours -->
+                        <div class="pt-8 border-t border-outline-variant/10">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                <div class="flex items-center gap-4">
+                                    <span class="material-symbols-outlined text-on-surface-variant">bedtime</span>
+                                    <div>
+                                        <label class="text-sm font-bold block" for="{{ form.quiet_hours_enabled.id_for_label }}">Quiet Hours Delivery Hold</label>
+                                        <span class="text-xs text-on-surface-variant">Queue non-essential notifications during late hours.</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4 {% if not form.quiet_hours_enabled.value %}conditional-section disabled{% endif %}" id="quiet-hours-section">
+                                    {{ form.quiet_hours_start }}
+                                    <span class="text-xs font-bold text-outline">TO</span>
+                                    {{ form.quiet_hours_end }}
+                                </div>
+                            </div>
+                            {% if form.quiet_hours_enabled.errors %}
+                                {% for error in form.quiet_hours_enabled.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                            {% if form.quiet_hours_start.errors %}
+                                {% for error in form.quiet_hours_start.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                            {% if form.quiet_hours_end.errors %}
+                                {% for error in form.quiet_hours_end.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- Right Column: Live Preview Sticky -->
+            <div class="lg:col-span-4">
+                <div class="sticky top-44 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Live Dynamic Preview</span>
+                        <div class="flex gap-2">
+                            <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                            <span class="text-[10px] font-bold text-emerald-600">SYNCED</span>
+                        </div>
+                    </div>
+
+                    <!-- Email Mockup Card -->
+                    <div class="bg-white rounded-xl shadow-2xl shadow-slate-200 overflow-hidden border border-outline-variant/10">
+                        <div class="bg-slate-50 p-4 border-b border-slate-100 flex items-center justify-between">
+                            <div class="flex gap-1.5">
+                                <div class="w-2.5 h-2.5 rounded-full bg-slate-200"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-slate-200"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-slate-200"></div>
+                            </div>
+                            <span class="text-[10px] font-mono text-slate-400">template_welcome_v2.html</span>
+                        </div>
+                        <div class="p-8">
+                            <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mb-6">
+                                <span class="material-symbols-outlined text-on-primary text-2xl">check_circle</span>
+                            </div>
+                            <h3 class="text-2xl font-extrabold font-headline mb-2 text-on-surface">{{ form.popup_title.value|default:'Welcome to the family!' }}</h3>
+                            <p class="text-sm text-on-surface-variant leading-relaxed mb-6">
+                                We're thrilled to have you here, {{customer_name}}. Your account is now active and ready for your first architectural project.
+                            </p>
+                            <div class="bg-surface-container-low rounded p-4 mb-8">
+                                <span class="text-[10px] font-bold text-on-surface-variant uppercase mb-2 block">Quick Action</span>
+                                <div class="w-full bg-primary h-10 rounded-md flex items-center justify-center text-on-primary text-xs font-bold">
+                                    COMPLETELY SETUP PROFILE
+                                </div>
+                            </div>
+                            <div class="border-t border-slate-100 pt-6">
+                                <p class="text-[10px] text-slate-400 text-center uppercase tracking-widest">
+                                    Manage your preferences in <span class="text-primary cursor-pointer">Account Settings</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Usage Stats -->
+                    <div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20">
+                        <h4 class="text-xs font-extrabold text-on-surface mb-4 uppercase tracking-widest">Monthly Quota</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-[10px] font-bold mb-1.5">
+                                    <span>EMAIL VOLUME</span>
+                                    <span>82%</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+                                    <div class="h-full bg-primary w-[82%]"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-[10px] font-bold mb-1.5">
+                                    <span>SMS SEGMENTS</span>
+                                    <span>{% if sms_configured %}14%{% else %}0%{% endif %}</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+                                    <div class="h-full bg-primary w-[{% if sms_configured %}14{% else %}0{% endif %}%]"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Test Notifications -->
+                    {% if is_edit %}
+                    <div class="bg-surface-container-low rounded-xl p-6 border border-outline-variant/20">
+                        <h4 class="text-xs font-extrabold text-on-surface mb-4 uppercase tracking-widest">Test Notifications</h4>
+                        <div class="space-y-2">
+                            <a href="{% url 'test_notification' 'order_confirmation' %}" class="block w-full px-4 py-2 text-xs font-bold text-primary bg-primary/10 rounded hover:bg-primary/20 transition-colors text-center">
+                                Test Order Confirmation
+                            </a>
+                            <a href="{% url 'test_notification' 'welcome_email' %}" class="block w-full px-4 py-2 text-xs font-bold text-primary bg-primary/10 rounded hover:bg-primary/20 transition-colors text-center">
+                                Test Welcome Email
+                            </a>
+                            {% if sms_configured %}
+                            <a href="{% url 'test_notification' 'sms_order_shipped' %}" class="block w-full px-4 py-2 text-xs font-bold text-primary bg-primary/10 rounded hover:bg-primary/20 transition-colors text-center">
+                                Test SMS Notification
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </form>
+</main>
+
+<!-- Footer Shell -->
+<footer class="w-full py-12 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center px-8 gap-4">
+        <div class="font-headline font-semibold text-slate-900 dark:text-slate-100">{{ title }}</div>
+        <p class="font-inter text-sm text-slate-500 dark:text-slate-400">© 2024 NotifyCore Systems. Architectural Ledger v1.0</p>
+        <div class="flex gap-6">
+            <a class="text-slate-500 hover:text-blue-600 font-inter text-sm transition-colors" href="#">Documentation</a>
+            <a class="text-slate-500 hover:text-blue-600 font-inter text-sm transition-colors" href="#">API Reference</a>
+            <a class="text-slate-500 hover:text-blue-600 font-inter text-sm transition-colors" href="#">Support</a>
+        </div>
+    </div>
+</footer>
+
+<!-- JavaScript for Dynamic Interactions -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // === Toggle Switch Styling ===
+        const toggleCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+        toggleCheckboxes.forEach(function(checkbox) {
+            checkbox.classList.add('toggle-checkbox');
+
+            checkbox.addEventListener('change', function() {
+                const toggleLabel = this.parentElement.querySelector('.toggle-label');
+                const toggleKnob = toggleLabel?.querySelector('span.absolute');
+
+                if (toggleLabel) {
+                    toggleLabel.style.backgroundColor = this.checked ? '#0053db' : '#d9e4ea';
+                }
+                if (toggleKnob) {
+                    toggleKnob.style.transform = this.checked ? 'translateX(100%)' : 'translateX(0)';
+                }
+
+                // Handle conditional sections
+                if (this.id === '{{ form.send_wishlist_reminder.id_for_label }}') {
+                    const section = document.getElementById('wishlist-section');
+                    if (section) {
+                        section.classList.toggle('disabled', !this.checked);
+                    }
+                }
+
+                if (this.id === '{{ form.send_abandoned_cart.id_for_label }}') {
+                    const section = document.getElementById('abandoned-cart-section');
+                    if (section) {
+                        section.classList.toggle('disabled', !this.checked);
+                    }
+                }
+
+                if (this.id === '{{ form.enable_sms.id_for_label }}') {
+                    const section = document.getElementById('sms-section');
+                    if (section) {
+                        section.classList.toggle('disabled', !this.checked);
+                    }
+                }
+
+                if (this.id === '{{ form.enable_push_notifications.id_for_label }}') {
+                    const section = document.getElementById('push-section');
+                    if (section) {
+                        section.classList.toggle('disabled', !this.checked);
+                    }
+                }
+
+                if (this.id === '{{ form.quiet_hours_enabled.id_for_label }}') {
+                    const section = document.getElementById('quiet-hours-section');
+                    if (section) {
+                        section.classList.toggle('disabled', !this.checked);
+                    }
+                }
+            });
+        });
+
+        // === Hide Messages After 5 Seconds ===
+        setTimeout(function() {
+            const messages = document.querySelectorAll('.fixed.top-24');
+            messages.forEach(function(msg) {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    msg.remove();
+                }, 500);
+            });
+        }, 5000);
+
+        // === Form Change Detection ===
+        const form = document.getElementById('notification-form');
+        let formChanged = false;
+
+        form.addEventListener('input', function() {
+            formChanged = true;
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (formChanged) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // === Initialize Conditional Sections ===
+        const wishlistCheckbox = document.getElementById('{{ form.send_wishlist_reminder.id_for_label }}');
+        if (wishlistCheckbox && !wishlistCheckbox.checked) {
+            const section = document.getElementById('wishlist-section');
+            if (section) section.classList.add('disabled');
+        }
+
+        const abandonedCartCheckbox = document.getElementById('{{ form.send_abandoned_cart.id_for_label }}');
+        if (abandonedCartCheckbox && !abandonedCartCheckbox.checked) {
+            const section = document.getElementById('abandoned-cart-section');
+            if (section) section.classList.add('disabled');
+        }
+
+        const smsCheckbox = document.getElementById('{{ form.enable_sms.id_for_label }}');
+        if (smsCheckbox && !smsCheckbox.checked) {
+            const section = document.getElementById('sms-section');
+            if (section) section.classList.add('disabled');
+        }
+
+        const pushCheckbox = document.getElementById('{{ form.enable_push_notifications.id_for_label }}');
+        if (pushCheckbox && !pushCheckbox.checked) {
+            const section = document.getElementById('push-section');
+            if (section) section.classList.add('disabled');
+        }
+
+        const quietHoursCheckbox = document.getElementById('{{ form.quiet_hours_enabled.id_for_label }}');
+        if (quietHoursCheckbox && !quietHoursCheckbox.checked) {
+            const section = document.getElementById('quiet-hours-section');
+            if (section) section.classList.add('disabled');
+        }
+
+        // === Smooth Scroll for Navigation ===
+        const navLinks = document.querySelectorAll('nav a[href^="#"]');
+        navLinks.forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

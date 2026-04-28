@@ -1,0 +1,29 @@
+{% extends "system/classic/templates/base.html" %}
+
+{% block content %}
+<section class="grid gap-8 xl:grid-cols-[300px,1fr]">
+    {% include "system/classic/templates/_partials/account_nav.html" %}
+    <div class="surface-card">
+        <div class="px-8 py-8 border-b border-stone-100">
+            <p class="eyebrow">Profile</p>
+            <div class="accent-bar mt-3 mb-4"></div>
+            <h1 class="section-title">Manage Your Details</h1>
+        </div>
+        <div class="px-8 py-8">
+            <form method="post" class="grid gap-5 md:grid-cols-2">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div>
+                        <label class="block mb-2" style="font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#5c5347">{{ field.label }}</label>
+                        <div class="field-shell">{{ field }}</div>
+                        {% if field.errors %}<p class="mt-2 text-xs text-red-700">{{ field.errors|join:", " }}</p>{% endif %}
+                    </div>
+                {% endfor %}
+                <div class="md:col-span-2">
+                    <button type="submit" class="button-primary">Save Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

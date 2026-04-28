@@ -1,0 +1,54 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+  <section class="space-y-6">
+    <div class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-slate-200">
+      <p class="text-xs font-semibold uppercase tracking-[0.28em] text-blue-600">Store Themes</p>
+      <h1 class="mt-3 text-3xl font-extrabold text-slate-950">Installed themes</h1>
+      <p class="mt-2 text-sm leading-6 text-slate-500">Manage installed theme packages, configure their content, and choose which single theme is active for the storefront.</p>
+    </div>
+    <div class="grid gap-6 xl:grid-cols-2">
+      {% for install in themes %}
+        <article class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h2 class="text-xl font-bold text-slate-950">{{ install.theme.name }}</h2>
+                {% if active_theme and install.theme_id == active_theme.theme_id %}
+                  <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">Active</span>
+                {% endif %}
+                {% if install.install_status == "disabled" %}
+                  <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">Disabled</span>
+                {% endif %}
+              </div>
+              <p class="mt-2 text-sm text-slate-500">{{ install.theme.description|default:"Marketplace theme installed for this tenant."|truncatechars:180 }}</p>
+              <p class="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ install.theme.category.name|default:"General" }} • {{ install.installed_version }}</p>
+            </div>
+            {% if active_theme and install.theme_id == active_theme.theme_id %}
+              <form method="post" action="{% url 'dashboard:themes:deactivate' prefix=prefix theme_id=install.theme.id %}">{% csrf_token %}<button class="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Deactivate</button></form>
+            {% else %}
+              <form method="post" action="{% url 'dashboard:themes:activate' prefix=prefix theme_id=install.theme.id %}">{% csrf_token %}<button class="rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white">Activate</button></form>
+            {% endif %}
+          </div>
+          <div class="mt-5 flex flex-wrap gap-3">
+            <a href="{% url 'dashboard:themes:configure' prefix=prefix theme_id=install.theme.id %}" class="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">Configure</a>
+            {% if install.install_status == "disabled" %}
+              <form method="post" action="{% url 'dashboard:themes:install' prefix=prefix theme_id=install.theme.id %}">{% csrf_token %}<button class="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Reinstall</button></form>
+            {% else %}
+              <form method="post" action="{% url 'dashboard:themes:disable' prefix=prefix theme_id=install.theme.id %}">{% csrf_token %}<button class="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Disable</button></form>
+            {% endif %}
+            <form method="post" action="{% url 'dashboard:themes:remove' prefix=prefix theme_id=install.theme.id %}">{% csrf_token %}<button class="rounded-full border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700">Remove</button></form>
+          </div>
+          <div class="mt-5 flex flex-wrap gap-3">
+            {% for page in install.theme.base_pages.all|slice:":4" %}
+              <span class="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">{{ page.page_name }}</span>
+            {% endfor %}
+          </div>
+        </article>
+      {% empty %}
+        <div class="rounded-[2rem] bg-white p-10 text-center text-slate-500 shadow-sm ring-1 ring-slate-200 xl:col-span-2">
+          No themes are installed yet. Browse the marketplace to acquire and install one.
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

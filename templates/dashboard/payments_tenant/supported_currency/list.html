@@ -1,0 +1,45 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">Supported Currencies</h2>
+      <p class="text-slate-600 dark:text-slate-400">Choose which currencies your store accepts for payments.</p>
+    </div>
+    <a href="{% url 'dashboard:payments_tenant:supported_currency_create' prefix %}" class="px-4 py-2 rounded-lg bg-primary text-white text-sm">Add Currency</a>
+  </div>
+
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          <th class="px-4 py-3 text-left text-xs uppercase text-slate-500">Currency</th>
+          <th class="px-4 py-3 text-left text-xs uppercase text-slate-500">Default</th>
+          <th class="px-4 py-3 text-left text-xs uppercase text-slate-500">Enabled</th>
+          <th class="px-4 py-3 text-left text-xs uppercase text-slate-500">Preferred Gateway</th>
+          <th class="px-4 py-3 text-left text-xs uppercase text-slate-500">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+        {% for currency in currencies %}
+        <tr>
+          <td class="px-4 py-3 font-mono dark:text-white">{{ currency.currency_code }}</td>
+          <td class="px-4 py-3">{% if currency.is_default %}Yes{% else %}No{% endif %}</td>
+          <td class="px-4 py-3">{% if currency.is_enabled %}Yes{% else %}No{% endif %}</td>
+          <td class="px-4 py-3">{{ currency.preferred_gateway.gateway.name|default:"—" }}</td>
+          <td class="px-4 py-3 flex gap-3">
+            <a href="{% url 'dashboard:payments_tenant:supported_currency_edit' prefix currency.id %}" class="text-primary hover:underline">Edit</a>
+            <form method="post" action="{% url 'dashboard:payments_tenant:supported_currency_delete' prefix currency.id %}">
+              {% csrf_token %}
+              <button type="submit" class="text-red-600 hover:underline">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="px-6 py-10 text-center text-slate-500">No supported currencies configured yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

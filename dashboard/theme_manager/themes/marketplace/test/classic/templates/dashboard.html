@@ -1,0 +1,61 @@
+{% extends "system/classic/templates/base.html" %}
+
+{% block content %}
+<section class="grid gap-8 xl:grid-cols-[300px,1fr]">
+    {% include "system/classic/templates/_partials/account_nav.html" %}
+    <div class="space-y-8">
+        <div class="surface-card">
+            <div class="px-8 py-8 border-b border-stone-100">
+                <p class="eyebrow">Account Overview</p>
+                <div class="accent-bar mt-3 mb-5"></div>
+                <h1 class="section-title">Your Account Dashboard</h1>
+                <p class="section-copy mt-3 text-base font-light">Track orders, manage preferences, and access all account tools from one central hub.</p>
+            </div>
+            <div class="grid gap-px bg-stone-100 grid-cols-2 md:grid-cols-4">
+                <div class="bg-white px-8 py-8">
+                    <p class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-3" style="letter-spacing:.2em">Orders</p>
+                    <p class="brand-font text-5xl font-semibold text-stone-900">{{ metrics.total_orders }}</p>
+                </div>
+                <div class="bg-white px-8 py-8">
+                    <p class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-3" style="letter-spacing:.2em">Wishlist</p>
+                    <p class="brand-font text-5xl font-semibold text-stone-900">{{ metrics.wishlist_count }}</p>
+                </div>
+                <div class="bg-white px-8 py-8">
+                    <p class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-3" style="letter-spacing:.2em">Viewed</p>
+                    <p class="brand-font text-5xl font-semibold text-stone-900">{{ metrics.recently_viewed_count }}</p>
+                </div>
+                <div class="bg-white px-8 py-8">
+                    <p class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-3" style="letter-spacing:.2em">Compare</p>
+                    <p class="brand-font text-5xl font-semibold text-stone-900">{{ metrics.compare_count }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="surface-card">
+            <div class="px-8 py-6 border-b border-stone-100 flex items-center justify-between gap-4">
+                <div>
+                    <p class="eyebrow">Orders</p>
+                    <h2 class="brand-font mt-2 text-2xl font-semibold text-stone-900">Recent Activity</h2>
+                </div>
+                <a href="{% url 'tenant:account_orders' %}" class="button-secondary">View All</a>
+            </div>
+            <div class="divide-y divide-stone-100">
+                {% for order in recent_orders %}
+                    <a href="{% url 'tenant:account_order_detail' order.id %}" class="flex flex-wrap items-center justify-between gap-4 px-8 py-5 hover:bg-stone-50 transition block">
+                        <div>
+                            <p class="brand-font text-xl font-semibold text-stone-900">{{ order.order_number }}</p>
+                            <p class="mt-1 text-xs text-stone-400 uppercase tracking-widest" style="letter-spacing:.14em">{{ order.placed_at }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs font-bold uppercase tracking-widest text-stone-400" style="letter-spacing:.14em">{{ order.get_status_display }}</p>
+                            <p class="mt-1 brand-font text-xl font-semibold text-stone-900">{{ order.total_price }}</p>
+                        </div>
+                    </a>
+                {% empty %}
+                    <div class="px-8 py-8 text-sm text-stone-400 font-light">No orders yet. Once you place an order it will appear here.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

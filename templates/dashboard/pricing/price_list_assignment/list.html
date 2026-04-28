@@ -1,0 +1,81 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load string_utils %}
+{% block content %}
+<div class="flex items-center space-x-4 mb-6">
+  <a href="{{ detail_url }}" class="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+    <span class="material-icons-outlined">arrow_back</span>
+  </a>
+  <div class="flex-1">
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Customer Assignments</h2>
+    <p class="text-slate-600 dark:text-slate-400 text-sm">Managing assignments for: <span class="font-semibold">{{ price_list.name }}</span></p>
+  </div>
+  <a href="{{ create_url }}" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2 text-sm font-medium">
+    <span class="material-icons-outlined text-[18px]">add</span><span>Assign Customer</span>
+  </a>
+</div>
+
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden flex flex-col">
+  <div class="overflow-x-auto">
+    <table class="w-full">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          {% for col in "Assigned To,Type,Override Priority,Added By,Added On,Actions"|split:"," %}
+          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+        {% for a in assignments %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900 dark:text-white">
+            {% if a.customer_group %}
+              <div class="flex items-center"><span class="material-icons-outlined text-slate-400 mr-2 text-[18px]">groups</span> {{ a.customer_group.name }}</div>
+            {% else %}
+              <div class="flex items-center"><span class="material-icons-outlined text-slate-400 mr-2 text-[18px]">person</span> {{ a.customer.email }}</div>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+            {% if a.customer_group %}Group{% else %}Individual{% endif %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-slate-700 dark:text-slate-300">
+            {{ a.override_priority|default:price_list.priority }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+            {{ a.assigned_by.email }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-xs text-slate-500">
+            {{ a.created_at|date:"M d, Y" }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+            <a href="{% url 'dashboard:pricing:price_list_assignment_edit' prefix price_list.id a.id %}" class="text-primary hover:text-blue-700">Edit</a>
+            <button class="text-red-600 hover:text-red-800 delete-btn"
+                    data-name="this assignment"
+                    data-url="{% url 'dashboard:pricing:price_list_assignment_delete' prefix price_list.id a.id %}">Remove</button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="px-6 py-10 text-center text-slate-400 dark:text-slate-500">No customers or groups are assigned to this price list.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50">
+    {{ assignments|length }} assignment{{ assignments|length|pluralize }}
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+      openDeleteModal("Remove Assignment",
+        `Are you sure you want to remove ${this.dataset.name}? The customer(s) will no longer receive these prices.`,
+        () => {
+          fetch(this.dataset.url, {method:"POST", headers:{"X-CSRFToken":"{{ csrf_token }}","Content-Type":"application/x-www-form-urlencoded"}})
+            .then(() => location.reload());
+        });
+    });
+  });
+});
+</script>
+{% endblock %}

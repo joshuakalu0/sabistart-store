@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "inverse-primary": "#bec6e0",
+              "error-container": "#ffdad6",
+              "surface-dim": "#dadada",
+              "tertiary-fixed": "#fcdeb5",
+              "on-primary-fixed": "#131b2e",
+              "surface-container-lowest": "#ffffff",
+              "on-error": "#ffffff",
+              "tertiary-container": "#271901",
+              "secondary-fixed-dim": "#ffb690",
+              "inverse-on-surface": "#f0f1f1",
+              "surface-container-high": "#e8e8e8",
+              "on-surface-variant": "#45464d",
+              "on-secondary-fixed-variant": "#783200",
+              "on-background": "#1a1c1c",
+              "outline": "#76777d",
+              "on-secondary-fixed": "#341100",
+              "secondary": "#9d4300",
+              "surface": "#f9f9f9",
+              "primary": "#000000",
+              "on-tertiary-fixed": "#271901",
+              "on-tertiary": "#ffffff",
+              "tertiary": "#000000",
+              "on-primary-fixed-variant": "#3f465c",
+              "surface-tint": "#565e74",
+              "secondary-fixed": "#ffdbca",
+              "on-primary": "#ffffff",
+              "primary-fixed-dim": "#bec6e0",
+              "outline-variant": "#c6c6cd",
+              "inverse-surface": "#2f3131",
+              "surface-variant": "#e2e2e2",
+              "secondary-container": "#fd761a",
+              "error": "#ba1a1a",
+              "on-tertiary-fixed-variant": "#574425",
+              "on-primary-container": "#7c839b",
+              "on-surface": "#1a1c1c",
+              "background": "#f9f9f9",
+              "on-secondary": "#ffffff",
+              "on-secondary-container": "#5c2400",
+              "surface-container-highest": "#e2e2e2",
+              "surface-container": "#eeeeee",
+              "tertiary-fixed-dim": "#dec29a",
+              "surface-container-low": "#f3f3f3",
+              "on-error-container": "#93000a",
+              "primary-container": "#131b2e",
+              "surface-bright": "#f9f9f9",
+              "primary-fixed": "#dae2fd",
+              "on-tertiary-container": "#98805d"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tap-highlight-transparent {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface">
+<!-- TopNavBar (Shared Component) -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm">
+<nav class="flex justify-between items-center px-6 h-16 w-full max-w-7xl mx-auto font-['Plus_Jakarta_Sans'] tracking-tight">
+<div class="text-xl font-bold text-slate-900 dark:text-slate-50">Nara Merchant</div>
+<div class="hidden md:flex items-center space-x-8">
+<a class="text-slate-500 dark:text-slate-400 hover:text-orange-600 transition-colors" href="#">Shop</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-orange-600 transition-colors" href="#">Categories</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-orange-600 transition-colors" href="#">Orders</a>
+</div>
+<div class="flex items-center space-x-5">
+<button class="text-slate-900 dark:text-slate-50 scale-95 active:opacity-80 transition-all">
+<span class="material-symbols-outlined">shopping_bag</span>
+</button>
+<button class="text-slate-900 dark:text-slate-50 scale-95 active:opacity-80 transition-all">
+<span class="material-symbols-outlined">person</span>
+</button>
+</div>
+</nav>
+</header>
+<main class="pt-24 pb-32 max-w-7xl mx-auto px-6">
+<!-- Progress Bar -->
+<div class="mb-12 max-w-3xl mx-auto">
+<div class="flex items-center justify-between relative">
+<div class="absolute top-1/2 left-0 w-full h-0.5 bg-surface-container -z-10 -translate-y-1/2"></div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-primary-container text-white flex items-center justify-center font-bold shadow-lg ring-4 ring-surface">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<span class="text-xs font-headline font-bold uppercase tracking-widest text-primary">Information</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-secondary-container text-white flex items-center justify-center font-bold shadow-lg ring-4 ring-surface">
+                        2
+                    </div>
+<span class="text-xs font-headline font-bold uppercase tracking-widest text-secondary">Shipping</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-bold ring-4 ring-surface">
+                        3
+                    </div>
+<span class="text-xs font-headline font-bold uppercase tracking-widest text-on-surface-variant">Payment</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+<!-- Left Column: Forms -->
+<div class="lg:col-span-7 space-y-12">
+<!-- Contact Info -->
+<section class="space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="text-2xl font-headline font-extrabold tracking-tight text-primary">Contact Info</h2>
+<a class="text-sm font-semibold text-secondary hover:underline transition-all" href="#">Already have an account? Login</a>
+</div>
+<div class="bg-surface-container-low rounded-xl p-1 focus-within:ring-1 ring-primary-container transition-all">
+<input class="w-full bg-transparent border-none focus:ring-0 px-4 py-4 font-body placeholder:text-outline" placeholder="Email address" type="email"/>
+</div>
+</section>
+<!-- Delivery Address -->
+<section class="space-y-6">
+<h2 class="text-2xl font-headline font-extrabold tracking-tight text-primary">Delivery Address</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="bg-surface-container-low rounded-xl p-1">
+<input class="w-full bg-transparent border-none focus:ring-0 px-4 py-4 font-body" placeholder="First Name" type="text"/>
+</div>
+<div class="bg-surface-container-low rounded-xl p-1">
+<input class="w-full bg-transparent border-none focus:ring-0 px-4 py-4 font-body" placeholder="Last Name" type="text"/>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-xl p-1">
+<input class="w-full bg-transparent border-none focus:ring-0 px-4 py-4 font-body" placeholder="Phone Number" type="tel"/>
+</div>
+<div class="bg-surface-container-low rounded-xl p-1">
+<input class="w-full bg-transparent border-none focus:ring-0 px-4 py-4 font-body" placeholder="Address line 1" type="text"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="bg-surface-container-low rounded-xl p-1">
+<input class="w-full bg-transparent border-none focus:ring-0 px-4 py-4 font-body" placeholder="City" type="text"/>
+</div>
+<div class="bg-surface-container-low rounded-xl p-1">
+<input class="w-full bg-transparent border-none focus:ring-0 px-4 py-4 font-body" placeholder="State" type="text"/>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-xl p-1">
+<select class="w-full bg-transparent border-none focus:ring-0 px-4 py-4 font-body text-outline appearance-none">
+<option>Nigeria</option>
+<option>Ghana</option>
+<option>Kenya</option>
+</select>
+</div>
+</section>
+<!-- Shipping Method -->
+<section class="space-y-6">
+<h2 class="text-2xl font-headline font-extrabold tracking-tight text-primary">Shipping Method</h2>
+<div class="space-y-3">
+<label class="flex items-center justify-between p-5 rounded-xl bg-surface-container-lowest border border-outline-variant/20 hover:border-secondary-container transition-all cursor-pointer group">
+<div class="flex items-center gap-4">
+<input checked="" class="w-5 h-5 text-secondary border-outline focus:ring-secondary" name="shipping" type="radio"/>
+<div>
+<p class="font-bold text-primary">Standard Shipping</p>
+<p class="text-sm text-on-surface-variant">3-5 Business Days</p>
+</div>
+</div>
+<span class="font-bold text-primary">₦ 1,500</span>
+</label>
+<label class="flex items-center justify-between p-5 rounded-xl bg-surface-container-lowest border border-outline-variant/20 hover:border-secondary-container transition-all cursor-pointer group">
+<div class="flex items-center gap-4">
+<input class="w-5 h-5 text-secondary border-outline focus:ring-secondary" name="shipping" type="radio"/>
+<div>
+<p class="font-bold text-primary">Express Shipping</p>
+<p class="text-sm text-on-surface-variant">1-2 Business Days</p>
+</div>
+</div>
+<span class="font-bold text-primary">₦ 3,500</span>
+</label>
+<label class="flex items-center justify-between p-5 rounded-xl bg-surface-container-lowest border border-outline-variant/20 hover:border-secondary-container transition-all cursor-pointer group">
+<div class="flex items-center gap-4">
+<input class="w-5 h-5 text-secondary border-outline focus:ring-secondary" name="shipping" type="radio"/>
+<div>
+<p class="font-bold text-primary">Same Day Delivery</p>
+<p class="text-sm text-on-surface-variant">Orders before 11AM</p>
+</div>
+</div>
+<span class="font-bold text-primary">₦ 5,000</span>
+</label>
+</div>
+</section>
+<!-- Payment Method -->
+<section class="space-y-6">
+<h2 class="text-2xl font-headline font-extrabold tracking-tight text-primary">Payment Method</h2>
+<div class="grid grid-cols-3 gap-3">
+<button class="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-primary-container bg-surface-container-lowest transition-all">
+<span class="material-symbols-outlined text-primary mb-1">payments</span>
+<span class="text-xs font-bold uppercase tracking-tighter">Paystack</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 rounded-xl border border-outline-variant/30 bg-surface-container-lowest hover:border-outline-variant transition-all">
+<span class="material-symbols-outlined text-outline mb-1">account_balance_wallet</span>
+<span class="text-xs font-bold uppercase tracking-tighter text-outline">Flutterwave</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 rounded-xl border border-outline-variant/30 bg-surface-container-lowest hover:border-outline-variant transition-all">
+<span class="material-symbols-outlined text-outline mb-1">account_balance</span>
+<span class="text-xs font-bold uppercase tracking-tighter text-outline">Transfer</span>
+</button>
+</div>
+<div class="p-6 bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/10 space-y-4">
+<div class="bg-surface-container-low rounded-xl p-1">
+<input class="w-full bg-transparent border-none focus:ring-0 px-4 py-4 font-body tracking-widest" placeholder="Card Number" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low rounded-xl p-1">
+<input class="w-full bg-transparent border-none focus:ring-0 px-4 py-4 font-body" placeholder="MM/YY" type="text"/>
+</div>
+<div class="bg-surface-container-low rounded-xl p-1">
+<input class="w-full bg-transparent border-none focus:ring-0 px-4 py-4 font-body" placeholder="CVV" type="text"/>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Sticky Sidebar -->
+<aside class="lg:col-span-5 sticky top-24">
+<div class="bg-surface-container-lowest rounded-3xl p-8 shadow-[0px_20px_40px_rgba(15,23,42,0.06)] space-y-8">
+<div class="flex items-center justify-between border-b border-surface-container pb-6">
+<h3 class="text-lg font-headline font-bold text-primary">Order Summary</h3>
+<span class="bg-primary text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase">3 Items</span>
+</div>
+<!-- Collapsed Product List -->
+<div class="space-y-4">
+<div class="flex items-center gap-4 group">
+<div class="relative w-16 h-16 bg-surface-container-low rounded-xl overflow-hidden flex-shrink-0">
+<img alt="product" class="w-full h-full object-cover" data-alt="High-end red athletic sneakers" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAk9ZSj29VNmKMXT_5icksmjwVEju7v0hAUFv3xPKpHMX1iFED9ci86v66CW1nEDw0kSG2OXiw067H0Lpp5UJ653YAAa1GeJL_DFCi0KfgvcY6BuonOVBRIvu6ACYbNg2g5Qq2MMLwdq2qXhCeF7c8Y6efVLL7D16PvuGGMhqlK67K6igcZ5nRm1tNnYdyZZT6itxDaPM3-9G4ts-_PoL4-lpdrOdyxJpkVyxaYwClDyCF-a8rlaGrIPdDg8HQVQWCs1yeQnfYVexY"/>
+<div class="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">1</div>
+</div>
+<div class="flex-1">
+<p class="font-headline font-bold text-primary text-sm">Swift Runner X1</p>
+<p class="text-xs text-on-surface-variant">Size: 42 | Color: Red</p>
+</div>
+<p class="font-bold text-primary text-sm">₦ 45,000</p>
+</div>
+<div class="flex items-center gap-4 group">
+<div class="relative w-16 h-16 bg-surface-container-low rounded-xl overflow-hidden flex-shrink-0">
+<img alt="product" class="w-full h-full object-cover" data-alt="Modern white luxury watch" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMAI7_H3Owv0jX4LBYFagLqUDKeJwFD6HEERa37m1bbcH9s7GJVD-yRIrvi6jwLpHoUCzjG3MBjcFN6FkUSVdiQCQc1lJX2BIaUPrNpFoAiGFxbiaxLA-LLYJZ-wrFGoq4VSBmKXSl2ixZy4ri57sQmFRJaHcwnJzyslrKdHqcaXZ-kOxEuRghDeje_p-gmWMYCinEogQ_Dj-pcwgGr8bwar_IozS076kgCqrw3ObABf87rAUZ2ohQeJlpqM2kRb463jrbn4a1yeg"/>
+<div class="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">1</div>
+</div>
+<div class="flex-1">
+<p class="font-headline font-bold text-primary text-sm">Minimalist Timepiece</p>
+<p class="text-xs text-on-surface-variant">Classic White</p>
+</div>
+<p class="font-bold text-primary text-sm">₦ 28,500</p>
+</div>
+</div>
+<!-- Pricing Breakdown -->
+<div class="space-y-4 pt-6 border-t border-surface-container">
+<div class="flex justify-between items-center text-sm font-medium">
+<span class="text-on-surface-variant">Subtotal</span>
+<span class="text-primary">₦ 73,500</span>
+</div>
+<div class="flex justify-between items-center text-sm font-medium">
+<span class="text-on-surface-variant">Shipping</span>
+<span class="text-primary">₦ 1,500</span>
+</div>
+<div class="flex justify-between items-center text-sm font-medium">
+<span class="text-on-surface-variant">Discount (NARA10)</span>
+<span class="text-error font-bold">- ₦ 7,350</span>
+</div>
+<div class="flex justify-between items-center pt-4 text-xl">
+<span class="font-headline font-extrabold text-primary">Total</span>
+<span class="font-headline font-extrabold text-primary">₦ 67,650</span>
+</div>
+</div>
+<!-- Place Order Button -->
+<button class="w-full bg-secondary-container text-white font-headline font-bold py-5 rounded-2xl shadow-xl shadow-secondary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+<span>Place Order</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<div class="flex items-center justify-center gap-4 pt-4 opacity-40 grayscale">
+<img alt="visa" class="h-4" data-alt="Visa logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0izuinnoBet9bzncrakUmMACCNK_J0nwEcLb9XH5HOrT5PcE10jYWBBfdc-s55oJxJTtfj9WeayK3-S6vo3o7pXQwLHS9aUbuOYAkdITyqptv3J66sqhsHAMH2JPb0XpoIo7Z0jLUu7Hnc9QPBb5x6SipbrF7UdS1ZFgefAjpO5htiOFHUGFobC8ubg0MZXFcVeiM1ZHE9bZ-P9t8e5-WK6nayyNSslReDcBnbrgejeSrHTI3QcSJYK07FRYTDpDeB7I6LpT8Blg"/>
+<img alt="mastercard" class="h-6" data-alt="Mastercard logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCx1IjvkOsZheH4l0OIzzcmWFeoh6aNzljFGQKnUox6wzEd_s1Ocl0mWyeAWdjWvXkBTFJrpe_TAmLvFUli8KmTSTlyncFDC768dcL5S_GZfpDUxcyIonSkzIoBjODYyQkgc9Jp2F--Mo9Eh-FgZPmiF2qNkA0_fWx6JdhkrhzjtadFlzj96PNIf-89n8MtDkpBBdvN-U0ehkkuO3DVUbICYsbUxOm5nNa2udRIqPqXhXk9Qb65LdtC7GWHVvp7x8a8gxY2vxNsfXs"/>
+<div class="h-4 w-px bg-on-surface mx-1"></div>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Secure Checkout</span>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- BottomNavBar (Shared Component - Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-safe bg-white dark:bg-slate-900 shadow-[0px_-4px_20px_rgba(15,23,42,0.06)] rounded-t-2xl z-50">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 tap-highlight-transparent active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[11px] font-semibold font-['Plus_Jakarta_Sans']">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 tap-highlight-transparent active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="text-[11px] font-semibold font-['Plus_Jakarta_Sans']">Search</span>
+</a>
+<a class="flex flex-col items-center justify-center text-orange-600 dark:text-orange-500 bg-orange-50 dark:bg-orange-900/20 rounded-xl px-3 py-1 tap-highlight-transparent active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="text-[11px] font-semibold font-['Plus_Jakarta_Sans']">Cart</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 tap-highlight-transparent active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[11px] font-semibold font-['Plus_Jakarta_Sans']">Profile</span>
+</a>
+</nav>
+</body></html>

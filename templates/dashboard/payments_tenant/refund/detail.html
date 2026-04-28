@@ -1,0 +1,62 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="space-y-6 max-w-3xl mx-auto">
+  <div class="flex items-center space-x-4">
+    <a href="{% url 'dashboard:payments_tenant:refund_list' prefix %}"
+       class="p-2 text-slate-500 hover:text-primary rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+      <span class="material-icons-outlined">arrow_back</span>
+    </a>
+    <div>
+      {% if is_refund_form %}
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">Initiate Refund</h2>
+      <p class="text-slate-500 dark:text-slate-400">Transaction: <span class="font-mono text-xs">{{ txn.internal_reference }}</span></p>
+      {% else %}
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white font-mono">{{ refund.refund_reference }}</h2>
+      <span class="px-2 py-0.5 rounded-full text-xs {% if refund.status == 'success' %}bg-green-100 text-green-700{% elif refund.status == 'failed' %}bg-red-100 text-red-700{% else %}bg-amber-100 text-amber-700{% endif %}">{{ refund.status|capfirst }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if is_refund_form %}
+  <!-- Refund Form -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+    <div class="mb-4 p-4 bg-slate-50 dark:bg-slate-700 rounded-lg text-sm grid grid-cols-2 gap-3">
+      <div><p class="text-slate-500">Original Amount</p><p class="font-bold text-slate-900 dark:text-white">{{ txn.amount }} {{ txn.currency }}</p></div>
+      <div><p class="text-slate-500">Refundable</p><p class="font-bold text-green-600">{{ txn.refundable_amount }} {{ txn.currency }}</p></div>
+    </div>
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="p-3 bg-red-50 text-red-600 rounded-lg text-sm">{{ form.non_field_errors }}</div>{% endif %}
+      {% for field in form %}
+      <div class="space-y-1">
+        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ field.label }}{% if field.field.required %} <span class="text-red-500">*</span>{% endif %}</label>
+        {{ field }}
+        {% if field.help_text %}<p class="text-xs text-slate-500 mt-1">{{ field.help_text|safe }}</p>{% endif %}
+        {% if field.errors %}<p class="text-sm text-red-600 mt-1">{{ field.errors.0 }}</p>{% endif %}
+      </div>
+      {% endfor %}
+      <div class="flex justify-end space-x-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+        <a href="{% url 'dashboard:payments_tenant:transaction_detail' prefix txn.id %}" class="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">Cancel</a>
+        <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-blue-600">Process Refund</button>
+      </div>
+    </form>
+  </div>
+
+  {% else %}
+  <!-- Refund Detail -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+    <div class="grid grid-cols-2 gap-4 text-sm">
+      <div><p class="text-slate-500">Amount</p><p class="font-bold text-xl dark:text-white">{{ refund.amount }} {{ refund.currency }}</p></div>
+      <div><p class="text-slate-500">Reason</p><p class="dark:text-white">{{ refund.reason|capfirst }}</p></div>
+      <div><p class="text-slate-500">Transaction</p><p><a href="{% url 'dashboard:payments_tenant:transaction_detail' prefix refund.transaction.id %}" class="font-mono text-xs text-primary hover:underline">{{ refund.transaction.internal_reference }}</a></p></div>
+      <div><p class="text-slate-500">Gateway Ref</p><p class="font-mono text-xs dark:text-white">{{ refund.gateway_reference|default:"—" }}</p></div>
+      <div><p class="text-slate-500">Initiated</p><p class="dark:text-white">{{ refund.created_at|date:"d M Y H:i" }}</p></div>
+      {% if refund.completed_at %}<div><p class="text-slate-500">Completed</p><p class="dark:text-white">{{ refund.completed_at|date:"d M Y H:i" }}</p></div>{% endif %}
+      {% if refund.reason_detail %}<div class="col-span-2"><p class="text-slate-500">Detail</p><p class="dark:text-slate-300">{{ refund.reason_detail }}</p></div>{% endif %}
+      {% if refund.customer_note %}<div class="col-span-2"><p class="text-slate-500">Customer Note</p><p class="dark:text-slate-300">{{ refund.customer_note }}</p></div>{% endif %}
+      {% if refund.failure_reason %}<div class="col-span-2"><p class="text-red-600 font-medium">Failure Reason</p><p class="text-red-600 dark:text-red-400">{{ refund.failure_reason }}</p></div>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+body.theme-meridian {
+  --color-primary: #121417;
+  --color-secondary: #35424f;
+  --color-accent: #b99563;
+  --color-background: #f5f3ef;
+  --color-surface: #ece7dd;
+  --color-border: #cdc3b2;
+}
+
+body.theme-meridian {
+  background:
+    radial-gradient(circle at top right, rgba(185, 149, 99, 0.18), transparent 30%),
+    linear-gradient(180deg, #faf8f4 0%, #f2ede5 100%);
+}
+
+body.theme-meridian .surface-card,
+body.theme-meridian .panel {
+  border-radius: 1.6rem;
+  box-shadow: 0 20px 44px rgba(18, 20, 23, 0.06);
+}
+
+body.theme-meridian .button-primary {
+  background: linear-gradient(135deg, #c4a16d, #8e7451);
+}
+
+body.theme-meridian .chip {
+  background: rgba(255, 255, 255, 0.92);
+}

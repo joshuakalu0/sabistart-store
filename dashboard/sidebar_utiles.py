@@ -1,162 +1,120 @@
-from django.urls import reverse
+from django.db import connection
+
+from sabistart_store.navigation import iter_tenant_navigation
 
 
-def main_sidebar(prefix):
-    return [
-        ['Business Setting',
-         {
-             'dashboard': {
-                 'name': 'Dashboard',
-                 'url': reverse('dashboard:dashboard_home:home', kwargs={'prefix': prefix}),
-                 'icon': 'home',
-                 'active': True,
-             },
-             'business setup': {
-                 'name': 'Business Setup',
-                 'url': reverse('dashboard:dashboard_settings:general', kwargs={'prefix': prefix}),
-                 'icon': 'settings',
-                 'active': False,
-             },
-             'categories': {
-                 'name': 'Categories',
-                 'url': '#',
-                 'icon': 'category',
-                 'active': False,
-                 'sub_menu': [
-                     {
-                        'name': 'List',
-                        'url': reverse('dashboard:dashboard_categories:list', kwargs={'prefix': prefix}),
-                        'icon': 'list',
-                        'active': False,
-                     },
-                     {
-                         'name': 'Add',
-                         'url': reverse('dashboard:dashboard_categories:create', kwargs={'prefix': prefix}),
-                         'icon': 'add',
-                         'active': False,
-                     },
-                 ]
-             },
-             'tags': {
-                 'name': 'Tags',
-                 'url': '#',
-                 'icon': 'local_offer',
-                 'active': False,
-                 'sub_menu': [
-                     {
-                        'name': 'List',
-                        'url': reverse('dashboard:dashboard_categories:tag_list', kwargs={'prefix': prefix}),
-                        'icon': 'list',
-                        'active': False,
-                     },
-                     {
-                         'name': 'Add',
-                         'url': reverse('dashboard:dashboard_categories:tag_create', kwargs={'prefix': prefix}),
-                         'icon': 'add',
-                         'active': False,
-                     },
-                 ]
-             },
-             'brands': {
-                 'name': 'Brands',
-                 'url': '#',
-                 'icon': 'storefront',
-                 'active': False,
-                 'sub_menu': [
-                     {
-                        'name': 'List',
-                        'url': reverse('dashboard:dashboard_categories:brand_list', kwargs={'prefix': prefix}),
-                        'icon': 'list',
-                        'active': False,
-                     },
-                     {
-                         'name': 'Add',
-                         'url': reverse('dashboard:dashboard_categories:brand_create', kwargs={'prefix': prefix}),
-                         'icon': 'add',
-                         'active': False,
-                     },
-                 ]
-             },
-             'products': {
-                 'name': 'Products',
-                 'url': '#',
-                 'icon': 'inventory_2',
-                 'active': False,
-                 'sub_menu': [
-                     {
-                         'name': 'List',
-                         'url': reverse('dashboard:product_settings:product_list', kwargs={'prefix': prefix}),
-                         'icon': 'list',
-                         'active': False,
-                     },
-                     {
-                         'name': 'Add',
-                         'url': reverse('dashboard:product_settings:product_create', kwargs={'prefix': prefix}),
-                         'icon': 'add',
-                         'active': False,
-                     },
-                 ]
-             },
-             'attributes': {
-                 'name': 'Attributes',
-                 'url': '#',
-                 'icon': 'filter_alt',
-                 'active': False,
-                 'sub_menu': [
-                     {
-                         'name': 'Attribute Groups',
-                         'url': reverse('dashboard:product_settings:attribute_group_list', kwargs={'prefix': prefix}),
-                         'icon': 'category',
-                         'active': False,
-                     },
-                     {
-                         'name': 'Attributes',
-                         'url': reverse('dashboard:product_settings:attribute_list', kwargs={'prefix': prefix}),
-                         'icon': 'tag',
-                         'active': False,
-                     },
-                 ]
-             },
-             'system vat': {
-                 'name': 'System Vat',
-                 'url': '#',
-                 'icon': 'receipt_long',
-                 'active': False,
-                 'sub_menu': [
-                     {
-                         'name': 'System Vat',
-                         'url': '#',
-                         'icon': 'receipt_long',
-                         'active': False,
-                     },
-                 ]
-             },
-         }],]
+def _apply_active_menu(sidebar, active_menu):
+    if not active_menu:
+        return sidebar
+
+    for _, entries in sidebar:
+        for key, values in entries.items():
+            submenu_active = False
+            for sub_item in values.get("sub_menu", []):
+                is_active = sub_item.get("key") == active_menu
+                sub_item["active"] = is_active
+                submenu_active = submenu_active or is_active
+
+            active_keys = set(values.get("active_keys", []))
+            values["active"] = key == active_menu or submenu_active or active_menu in active_keys
+
+    return sidebar
+
+
+def _filter_sidebar_by_features(sidebar):
+    schema_name = getattr(connection, "schema_name", "public")
+    if schema_name == "public":
+        return sidebar
+
+    try:
+        from dashboard.feature_marketplace.services import FeatureEntitlementEngine
+    except Exception:
+        return sidebar
+
+    engine = FeatureEntitlementEngine(schema_name)
+    filtered = []
+    for title, entries in sidebar:
+        next_entries = {}
+        for key, values in entries.items():
+            feature_code = values.get("feature_code")
+            if feature_code and not engine.has_feature(feature_code):
+                continue
+
+            sub_menu = values.get("sub_menu")
+            if sub_menu:
+                values["sub_menu"] = [
+                    item
+                    for item in sub_menu
+                    if not item.get("feature_code") or engine.has_feature(item["feature_code"])
+                ]
+                if not values["sub_menu"] and values.get("url") == "#":
+                    continue
+
+            next_entries[key] = values
+
+        if next_entries:
+            filtered.append([title, next_entries])
+    return filtered
+
+
+def _build_tenant_sidebar(prefix):
+    sidebar = []
+    for section in iter_tenant_navigation(prefix):
+        entries = {}
+        for item in section["items"]:
+            entries[item["key"]] = {
+                "name": item["name"],
+                "url": item["url"],
+                "icon": item["icon"],
+                "active": False,
+                "feature_code": item.get("feature_code"),
+                "active_keys": item.get("active_keys", ()),
+                "sub_menu": [
+                    {
+                        "name": child["name"],
+                        "url": child["url"],
+                        "icon": child["icon"],
+                        "active": False,
+                        "key": child["key"],
+                        "feature_code": child.get("feature_code"),
+                    }
+                    for child in item.get("children", [])
+                ],
+            }
+        if entries:
+            sidebar.append([section["title"], entries])
+    return sidebar
+
+
+def main_sidebar(prefix, active_menu=None):
+    sidebar = _build_tenant_sidebar(prefix)
+    sidebar = _filter_sidebar_by_features(sidebar)
+    return _apply_active_menu(sidebar, active_menu)
 
 
 def business_setup_sidebar(prefix):
     return [['Business Setting', 'Configure your store settings'], {
         'general': {
             'name': 'General',
-            'url': reverse('dashboard:dashboard_settings:general', kwargs={'prefix': prefix}),
+            'url': "#",
             'icon': 'settings',
             'active': True,
         },
         'branding': {
             'name': 'Branding',
-            'url': reverse('dashboard:dashboard_settings:branding', kwargs={'prefix': prefix}),
+            'url': "#",
             'icon': 'storefront',
             'active': False,
         },
         'seo': {
             'name': 'Seo',
-            'url': reverse('dashboard:dashboard_settings:seo', kwargs={'prefix': prefix}),
+            'url': "#",
             'icon': 'search',
             'active': False,
         },
         'payment': {
             'name': 'Payment',
-            'url': reverse('dashboard:dashboard_settings:payment', kwargs={'prefix': prefix}),
+            'url': "#",
             'icon': 'payment',
             'active': False,
         },
@@ -172,28 +130,23 @@ def business_setup_sidebar(prefix):
             'icon': 'email',
             'active': False,
         },
-    }]
+    }
+    ]
 
 
 def get_sidebar_with_active(page, prefix):
     sidebar = main_sidebar(prefix)
-    for key, values in sidebar[0][1].items():
+    for _, values in sidebar[0][1].items():
         clean_v = values['name'].lower()
-        if clean_v == page:
-            values['active'] = True
-        else:
-            values['active'] = False
+        values['active'] = clean_v == page
     return sidebar
 
 
 def get_sub_sidebar_with_active(page, prefix):
     sidebar = business_setup_sidebar(prefix)
-    for key, values in sidebar[1].items():
+    for _, values in sidebar[1].items():
         clean_v = values['name'].lower()
-        if clean_v == page:
-            values['active'] = True
-        else:
-            values['active'] = False
+        values['active'] = clean_v == page
     return sidebar
 
 

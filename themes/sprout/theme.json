@@ -1,0 +1,41 @@
+{
+  "name": "Sprout",
+  "description": "A bright, playful storefront theme built for beauty, gifts, family, and approachable lifestyle brands that want warmth without clutter.",
+  "version": "1.0.0",
+  "currency": "NGN",
+  "price": "0.00",
+  "is_free": true,
+  "is_published": false,
+  "is_featured": false,
+  "status": "suspended",
+  "catalog_visibility": "hidden",
+  "is_internal": true,
+  "preview_image_path": "sprout/images/preview.svg",
+  "thumbnail_path": "sprout/images/preview.svg",
+  "features": [
+    "Friendly colorful surfaces",
+    "Playful lifestyle presentation",
+    "Warm approachable commerce layout"
+  ],
+  "category": {
+    "slug": "family-lifestyle",
+    "name": "Family & Lifestyle",
+    "description": "Bright, welcoming themes for gifts, home, family, and wellness storefronts.",
+    "sort_order": 40,
+    "is_active": true
+  },
+  "metadata": {
+    "tone": "playful",
+    "audience": "beauty, gifts, family, lifestyle"
+  },
+  "pages": [
+    "home.html",
+    "catalog/listing.html",
+    "catalog/product_detail.html",
+    "cart/cart.html",
+    "checkout/info.html",
+    "auth/login.html",
+    "account/dashboard.html",
+    "shared/info_page.html"
+  ]
+}

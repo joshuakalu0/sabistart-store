@@ -1,0 +1,50 @@
+{% extends "system/classic/templates/base.html" %}
+
+{% block content %}
+<section class="mx-auto max-w-5xl space-y-8">
+    <div class="surface-card p-8 lg:p-10">
+        <div class="flex flex-wrap gap-3"><span class="chip">1. Information</span><span class="chip chip-active">2. Shipping</span><span class="chip">3. Payment</span><span class="chip">4. Review</span></div>
+        <div class="accent-bar mt-5 mb-5"></div>
+        <h1 class="section-title">Choose Fulfilment Option</h1>
+        <p class="section-copy mt-3 text-base font-light">Select the delivery method that fits your order timeline and budget.</p>
+    </div>
+
+    <div class="grid gap-8 xl:grid-cols-[1.05fr,0.95fr]">
+        <div class="surface-card p-8">
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                {% for method in shipping_methods %}
+                    <label class="flex cursor-pointer items-start gap-4 px-5 py-5 border hover:border-stone-400 transition" style="border-color:var(--color-border)">
+                        <input type="radio" name="shipping_method" value="{{ method.code }}" {% if form.shipping_method.value == method.code %}checked{% endif %}>
+                        <span class="flex-1">
+                            <span class="block brand-font text-2xl font-semibold text-stone-900">{{ method.label }}</span>
+                            <span class="mt-1 block text-sm text-stone-500 font-light">{{ method.description }}</span>
+                        </span>
+                        <span class="brand-font text-xl font-semibold text-stone-900 flex-shrink-0">{{ method.amount_display }}</span>
+                    </label>
+                {% endfor %}
+                {% if form.shipping_method.errors %}<p class="text-xs text-red-700">{{ form.shipping_method.errors|join:", " }}</p>{% endif %}
+                <button type="submit" class="button-primary mt-2">Continue to Payment</button>
+            </form>
+        </div>
+
+        <div class="surface-card">
+            <div class="px-6 py-5 border-b border-stone-100">
+                <p class="eyebrow">Current Bag</p>
+            </div>
+            <div class="divide-y divide-stone-100">
+                {% for item in cart.items %}
+                    <div class="flex justify-between gap-3 px-6 py-3 text-sm text-stone-600">
+                        <span class="font-light">{{ item.product_name }} ×{{ item.quantity }}</span>
+                        <span class="font-semibold text-stone-900 flex-shrink-0">{{ item.line_total_display }}</span>
+                    </div>
+                {% endfor %}
+                <div class="flex justify-between gap-3 px-6 py-4 font-bold text-stone-900">
+                    <span>Total</span>
+                    <span>{{ cart.grand_total_display }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

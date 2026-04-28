@@ -1,0 +1,45 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">Payment Gateways</h2>
+      <p class="text-slate-600 dark:text-slate-400">Manage checkout gateways, routing mode, and direct credentials.</p>
+    </div>
+    <a href="{% url 'dashboard:payments_tenant:supported_currency_list' prefix %}" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-sm">Currencies</a>
+  </div>
+
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+    {% for mode in modes %}
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white">{{ mode.gateway.name }}</h3>
+          <p class="text-sm text-slate-500">{{ mode.gateway.provider|upper }}</p>
+        </div>
+        <div class="flex gap-2">
+          {% if mode.is_default %}<span class="px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs">Default</span>{% endif %}
+          <span class="px-2 py-1 rounded-full text-xs {% if mode.is_active %}bg-green-100 text-green-700{% else %}bg-slate-100 text-slate-600{% endif %}">
+            {{ mode.get_status_display }}
+          </span>
+        </div>
+      </div>
+      <dl class="grid grid-cols-2 gap-3 text-sm">
+        <div><dt class="text-slate-500">Mode</dt><dd class="font-medium dark:text-white">{{ mode.get_mode_display }}</dd></div>
+        <div><dt class="text-slate-500">Currencies</dt><dd class="dark:text-white">{{ mode.accepted_currencies|join:", "|default:"—" }}</dd></div>
+        <div><dt class="text-slate-500">Own Credentials</dt><dd class="dark:text-white">{% if mode.direct_credential %}{{ mode.direct_credential.get_status_display }}{% else %}Not submitted{% endif %}</dd></div>
+        <div><dt class="text-slate-500">Checkout Label</dt><dd class="dark:text-white">{{ mode.checkout_label|default:mode.gateway.name }}</dd></div>
+      </dl>
+      <div class="mt-5 flex gap-2">
+        <a href="{% url 'dashboard:payments_tenant:gateway_mode_detail' prefix mode.id %}" class="px-4 py-2 rounded-lg bg-primary text-white text-sm">Manage</a>
+        <a href="{% url 'dashboard:payments_tenant:credential_list' prefix mode.id %}" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-sm">Credentials</a>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-span-full bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center text-slate-500">
+      No payment gateways are configured yet.
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

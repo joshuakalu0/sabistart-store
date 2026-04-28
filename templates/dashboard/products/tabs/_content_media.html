@@ -1,34 +1,591 @@
-<h3 class="text-xl font-bold mb-6 flex items-center gap-2">
-  <span class="material-symbols-outlined text-primary">perm_media</span>
-  Content & Media
-</h3>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-  <div class="col-span-2">
-    <label class="block text-sm font-semibold mb-2">Short Description</label>
-    {{ form.short_description }} {% if form.short_description.errors %}<span
-      class="text-red-500 text-sm"
-      >{{ form.short_description.errors.0 }}</span
-    >{% endif %}
+<section
+  class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
+>
+  <div class="flex items-center gap-2 mb-6">
+    <span class="material-symbols-outlined text-slate-400">subject</span>
+    <h3 class="text-lg font-bold">Basic Content</h3>
   </div>
-  <div class="col-span-2">
-    <label class="block text-sm font-semibold mb-2">Description</label>
-    {{ form.description }} {% if form.description.errors %}<span
-      class="text-red-500 text-sm"
-      >{{ form.description.errors.0 }}</span
-    >{% endif %}
-  </div>
-  <div class="col-span-2">
-    <label class="block text-sm font-semibold mb-2">Product Images</label>
-    <!-- Image upload functionality would go here -->
-    <div
-      class="flex flex-wrap gap-2 p-3 bg-slate-50 dark:bg-slate-800/50 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg"
-    >
-      <button
-        type="button"
-        class="text-xs text-slate-400 font-medium hover:text-primary"
+  <div class="space-y-6">
+    <div>
+      <div class="flex justify-between items-end mb-2">
+        <label
+          class="text-sm font-bold text-slate-700 dark:text-slate-300"
+          >Short Description</label
+        >
+        <span class="text-xs text-slate-400 font-medium">124 / 500 characters</span>
+      </div>
+      {{ form.short_description }}
+      {% if form.short_description.errors %}
+        <p class="text-red-500 text-xs mt-1">{{ form.short_description.errors }}</p>
+      {% endif %}
+    </div>
+    <div>
+      <label
+        class="text-sm font-bold text-slate-700 dark:text-slate-300 block mb-2"
+        >Product Description</label
       >
-        + Add Image
-      </button>
+      <div class="border-0 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg shadow-slate-200/20 dark:shadow-slate-900/20">
+        <!-- Quill Editor Container -->
+        <div id="quill-editor" class="min-h-[200px] p-4 text-slate-700 dark:text-slate-300"></div>
+        <!-- Hidden textarea for form submission -->
+        <textarea name="description" id="id_description" style="display: none;">{{ form.description.value|default:'' }}</textarea>
+      </div>
+      {% if form.description.errors %}
+        <p class="text-red-500 text-xs mt-1">{{ form.description.errors }}</p>
+      {% endif %}
     </div>
   </div>
-</div>
+</section>
+
+<!-- Specifications Section -->
+<section
+  class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
+>
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-2">
+      <span class="material-symbols-outlined text-slate-400">settings_suggest</span>
+      <h3 class="text-lg font-bold">Specifications</h3>
+    </div>
+    <button class="text-primary text-xs font-bold hover:underline">
+      Add Common Templates
+    </button>
+  </div>
+  <div id="specifications-container" class="space-y-3">
+    {% if specifications %}
+      {% for label, value in specifications.items %}
+      <div class="flex gap-2">
+        <input
+          class="flex-1 rounded-lg border-slate-200 text-xs dark:bg-slate-800 dark:border-slate-700"
+          placeholder="Label"
+          type="text"
+          name="spec_label"
+          value="{{ label }}"
+        />
+        <input
+          class="flex-[1.5] rounded-lg border-slate-200 text-xs dark:bg-slate-800 dark:border-slate-700"
+          placeholder="Value"
+          type="text"
+          name="spec_value"
+          value="{{ value }}"
+        />
+        <button type="button" class="p-2 text-slate-400 hover:text-red-500" onclick="deleteSpecification(this)">
+          <span class="material-symbols-outlined text-[18px]">delete</span>
+        </button>
+      </div>
+      {% endfor %}
+    {% endif %}
+    <button
+      type="button"
+      class="w-full py-2 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-500 hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-1 mt-2"
+      onclick="addSpecification(event)"
+    >
+      <span class="material-symbols-outlined text-[16px]">add</span>
+      Add Property
+    </button>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section
+  class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
+>
+  <div class="flex items-center gap-2 mb-6">
+    <span class="material-symbols-outlined text-slate-400">verified</span>
+    <h3 class="text-lg font-bold">Key Features</h3>
+  </div>
+  <div class="space-y-4">
+    <div class="relative">
+      <input
+        id="feature-input"
+        class="w-full rounded-lg border-slate-200 pr-20 text-sm dark:bg-slate-800 dark:border-slate-700"
+        placeholder="Enter feature and press Enter..."
+        type="text"
+        onkeypress="handleFeatureInput(event)"
+      />
+      <button
+        class="absolute right-2 top-1.5 bg-slate-100 px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider text-slate-500"
+        onclick="addFeature()"
+      >
+        Add
+      </button>
+    </div>
+    <div id="features-container" class="flex flex-wrap gap-2">
+      {% if features %}
+        {% for feature in features %}
+        <div class="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
+          {{ feature }}
+          <input type="hidden" name="existing_features" value="{{ feature }}">
+          <button type="button" class="material-symbols-outlined text-[14px]" onclick="removeFeature(this)">
+            close
+          </button>
+        </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Product Media Section -->
+<section
+  class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
+>
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center gap-2">
+      <span class="material-symbols-outlined text-slate-400">photo_library</span>
+      <h3 class="text-lg font-bold">Product Media</h3>
+    </div>
+    <div class="flex items-center gap-4">
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input
+          checked
+          class="w-4 h-4 text-primary border-slate-300 rounded focus:ring-primary"
+          type="checkbox"
+        />
+        <span class="text-xs font-bold text-slate-700">Enable Zoom</span>
+      </label>
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input
+          checked
+          class="w-4 h-4 text-primary border-slate-300 rounded focus:ring-primary"
+          type="checkbox"
+        />
+        <span class="text-xs font-bold text-slate-700">Show in Public Gallery</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Media Gallery -->
+  <div class="grid grid-cols-1 gap-8">
+    <!-- Images Gallery -->
+    <div>
+      <label class="text-sm font-bold block mb-3">Images Gallery</label>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <!-- Formset Management Form -->
+        {% if image_formset %}
+          {{ image_formset.management_form }}
+        {% endif %}
+        
+        <!-- Drag & Drop Zone -->
+        <div
+          class="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-lg aspect-square flex flex-col items-center justify-center p-4 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer group"
+          onclick="document.getElementById('image-upload').click()"
+        >
+          <span class="material-symbols-outlined text-primary text-3xl mb-2 group-hover:scale-110 transition-transform">cloud_upload</span>
+          <span class="text-xs font-bold text-center">Drag or Click to Upload</span>
+          <span class="text-[10px] text-slate-400 mt-1">PNG, JPG up to 10MB</span>
+          <input type="file" id="image-upload" class="hidden" accept="image/*" multiple onchange="handleImageUpload(event)">
+        </div>
+
+        {% if image_formset %}
+          {% for form in image_formset %}
+            <div class="image-form-container" style="display: none;" data-form-index="{{ forloop.counter0 }}">
+              {{ form.as_p }}
+            </div>
+            {% if form.instance.image %}
+            <div class="relative aspect-square group rounded-lg overflow-hidden border {% if form.instance.is_primary %}border-2 border-primary shadow-lg{% else %}border-slate-200 dark:border-slate-800{% endif %}" data-form-index="{{ forloop.counter0 }}">
+              <img alt="{{ form.instance.alt_text|default:'Product image' }}" class="w-full h-full object-cover" src="{{ form.instance.image.url }}" />
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                <button type="button" class="bg-white/90 text-slate-900 px-3 py-1 text-[10px] font-bold rounded" onclick="setPrimaryImage(this)">
+                  {% if form.instance.is_primary %}Edit Caption{% else %}Set Primary{% endif %}
+                </button>
+                <button type="button" class="bg-red-500 text-white p-1 rounded-full" onclick="removeImage(this)">
+                  <span class="material-symbols-outlined text-[16px]">delete</span>
+                </button>
+              </div>
+              {% if form.instance.is_primary %}
+              <div class="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">
+                PRIMARY
+              </div>
+              {% endif %}
+            </div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+
+        <!-- Primary Image -->
+        <div
+          class="relative aspect-square group rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 hidden"
+        >
+          <img
+            alt="Main product"
+            class="w-full h-full object-cover"
+            data-alt="Main product photo of an ergonomic computer mouse"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtEpaZmLJRVR2Y_VFTCXF9suCJ_eN4Wq4eZkrNxrbygmR70ZUDkA5-Gf3M4-HuxqrmCSlR9_ZD_GYficQ6y0tR0EKf6GH3OiXvKiDoI4RgNy2tHL3A1oufeirWDSwBX8o-hSDVEK_21I7AXu9CMowZsVxIEwHJR0OCqMvmSSzJTe1Bb0ZOVQTfNkMBTxv4mLwPfccjPVkz5NNAqlH8MgLh_slmziwtPLK1JLjqKLpxegGdC9N9pkz4P7El_7qIwgnCUxZ96RIhaMiU"
+          />
+          <div
+            class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2"
+          >
+            <button class="bg-white text-slate-900 px-3 py-1 text-[10px] font-bold rounded">
+              Edit Caption
+            </button>
+            <button class="bg-red-500 text-white p-1 rounded-full">
+              <span class="material-symbols-outlined text-[16px]">delete</span>
+            </button>
+          </div>
+          <div class="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">
+            PRIMARY
+          </div>
+        </div>
+
+        <!-- Regular Image -->
+        <div
+          class="relative aspect-square group rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 hidden"
+        >
+          <img
+            alt="Side view"
+            class="w-full h-full object-cover"
+            data-alt="Side profile view of the ergonomic mouse"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjBwCpNM7hBs9zXEbPh3P2-3Fsp5ajmpKnPmmUVdOJ98_-Yl2-5Yn0rEGUZUFx_nvkhpA9XeM2N9nPZKAJD_sISc9hbkHBstoSM4ImXszNlwXXBwfyCf6olAz6NQXd3RdOnbkbe_O5X5IGX4WxngfL5BdhGckJ03BdxGWpYrOyQ_wqhv9lXU4ZK-1wk4M3O_vpF5gDH_m7FDG9KNW_1PfqDGxFJ0LQleTCNwqqi6B3-gNZ7XHKCqM5jvXPI2egknUci4B1giL9_ajs"
+          />
+          <div
+            class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2"
+          >
+            <button class="bg-white/90 text-slate-900 px-3 py-1 text-[10px] font-bold rounded">
+              Set Primary
+            </button>
+            <button class="bg-red-500 text-white p-1 rounded-full">
+              <span class="material-symbols-outlined text-[16px]">delete</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Regular Image 2 -->
+        <div
+          class="relative aspect-square group rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 hidden"
+        >
+          <img
+            alt="Bottom view"
+            class="w-full h-full object-cover"
+            data-alt="Bottom view of the ergonomic mouse showing sensor and buttons"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQX5j4a7v88c0kU6X8s9d0f1g2h3j4k5l6m7n8o9p0q1r2s3t4u5v6w7x8y9z0"
+          />
+          <div
+            class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2"
+          >
+            <button class="bg-white/90 text-slate-900 px-3 py-1 text-[10px] font-bold rounded">
+              Set Primary
+            </button>
+            <button class="bg-red-500 text-white p-1 rounded-full">
+              <span class="material-symbols-outlined text-[16px]">delete</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Media Management Actions -->
+  <div class="mt-6 flex items-center justify-between">
+    <div class="flex gap-2">
+      <button
+        class="text-xs font-bold flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded hover:bg-slate-50"
+      >
+        <span class="material-symbols-outlined text-[16px]">zoom_in</span>
+        Zoom
+      </button>
+      <button
+        class="text-xs font-bold flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded hover:bg-slate-50"
+      >
+        <span class="material-symbols-outlined text-[16px]">grid_view</span>
+        Gallery Toggle
+      </button>
+      <button
+        class="text-xs font-bold flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded hover:bg-slate-50"
+      >
+        <span class="material-symbols-outlined text-[16px]">sort</span>
+        Reorder
+      </button>
+    </div>
+
+    <div class="text-xs text-slate-500">
+      3 images uploaded
+    </div>
+  </div>
+</section>
+
+<!-- Quill.js WYSIWYG Editor -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+<style>
+  /* Custom Quill editor styling */
+  .ql-toolbar {
+    border: none !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2) !important;
+    background: rgba(248, 250, 252, 0.8) !important;
+    backdrop-filter: blur(8px);
+    border-radius: 16px 16px 0 0 !important;
+    padding: 12px 16px !important;
+  }
+  
+  .ql-container {
+    border: none !important;
+    font-size: 14px !important;
+    border-radius: 0 0 16px 16px !important;
+  }
+  
+  .ql-editor {
+    min-height: 200px !important;
+    padding: 20px !important;
+    line-height: 1.6 !important;
+  }
+  
+  .ql-editor.ql-blank::before {
+    color: rgb(148, 163, 184) !important;
+    font-style: normal !important;
+  }
+  
+  /* Dark mode styles */
+  .dark .ql-toolbar {
+    background: rgba(30, 41, 59, 0.8) !important;
+    border-bottom-color: rgba(71, 85, 105, 0.3) !important;
+  }
+  
+  .dark .ql-editor {
+    color: rgb(226, 232, 240) !important;
+  }
+  
+  .dark .ql-editor.ql-blank::before {
+    color: rgb(100, 116, 139) !important;
+  }
+  
+  /* Toolbar button styling */
+  .ql-toolbar .ql-formats {
+    margin-right: 12px !important;
+  }
+  
+  .ql-toolbar button {
+    border-radius: 6px !important;
+    margin: 0 2px !important;
+  }
+  
+  .ql-toolbar button:hover {
+    background: rgba(59, 130, 246, 0.1) !important;
+  }
+  
+  .ql-toolbar button.ql-active {
+    background: rgba(59, 130, 246, 0.2) !important;
+    color: rgb(59, 130, 246) !important;
+  }
+</style>
+
+<script>
+  // Initialize Quill editor
+  let quill;
+  document.addEventListener('DOMContentLoaded', function() {
+    quill = new Quill('#quill-editor', {
+      theme: 'snow',
+      modules: {
+        toolbar: [
+          [{ 'header': [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ 'color': [] }, { 'background': [] }],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          [{ 'align': [] }],
+          ['link', 'image'],
+          ['clean']
+        ]
+      },
+      placeholder: 'Write a detailed product description...'
+    });
+    
+    // Set initial content if editing
+    const initialContent = document.getElementById('id_description').value;
+    if (initialContent) {
+      quill.root.innerHTML = initialContent;
+    }
+    
+    // Update hidden textarea on content change
+    quill.on('text-change', function() {
+      document.getElementById('id_description').value = quill.root.innerHTML;
+    });
+  });
+  
+  // Ensure content is saved before form submission
+  document.addEventListener('submit', function() {
+    if (quill) {
+      document.getElementById('id_description').value = quill.root.innerHTML;
+    }
+  });
+
+  function addSpecification(event) {
+    event.preventDefault();
+    const container = document.getElementById('specifications-container');
+    const addButton = container.querySelector('button[onclick="addSpecification(event)"]');
+    const newSpec = document.createElement('div');
+    newSpec.className = 'flex gap-2';
+    newSpec.innerHTML = `
+      <input
+        class="flex-1 rounded-lg border-slate-200 text-xs dark:bg-slate-800 dark:border-slate-700"
+        placeholder="Label"
+        type="text"
+        name="spec_label"
+      />
+      <input
+        class="flex-[1.5] rounded-lg border-slate-200 text-xs dark:bg-slate-800 dark:border-slate-700"
+        placeholder="Value"
+        type="text"
+        name="spec_value"
+      />
+      <button type="button" class="p-2 text-slate-400 hover:text-red-500" onclick="deleteSpecification(this)">
+        <span class="material-symbols-outlined text-[18px]">delete</span>
+      </button>
+    `;
+    container.insertBefore(newSpec, addButton);
+  }
+
+  function deleteSpecification(button) {
+    event.preventDefault();
+    button.closest('.flex').remove();
+  }
+
+  function addFeature() {
+    event.preventDefault();
+    const input = document.getElementById('feature-input');
+    const featuresContainer = document.getElementById('features-container');
+
+    if (input.value.trim()) {
+      const newFeature = document.createElement('div');
+      newFeature.className = 'bg-primary/10 text-primary px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2';
+      newFeature.innerHTML = `
+        ${input.value}
+        <input type="hidden" name="existing_features" value="${input.value}">
+        <button type="button" class="material-symbols-outlined text-[14px]" onclick="removeFeature(this)">
+          close
+        </button>
+      `;
+      featuresContainer.appendChild(newFeature);
+      input.value = '';
+    }
+  }
+
+  function removeFeature(button) {
+    event.preventDefault();
+    button.closest('.bg-primary\\/10').remove();
+  }
+
+  function handleFeatureInput(event) {
+    if (event.key === 'Enter') {
+      addFeature();
+    }
+  }
+
+  function handleImageUpload(event) {
+    const files = event.target.files;
+    const gallery = document.querySelector('.grid.grid-cols-2.sm\\:grid-cols-3');
+    const managementForm = document.querySelector('input[name$="-TOTAL_FORMS"]');
+    
+    if (!managementForm) {
+      console.error('Management form not found');
+      return;
+    }
+    
+    let totalForms = parseInt(managementForm.value);
+    
+    Array.from(files).forEach((file, index) => {
+      if (file.type.startsWith('image/')) {
+        // Create hidden form for this image
+        const formContainer = document.createElement('div');
+        formContainer.className = 'image-form-container';
+        formContainer.style.display = 'none';
+        
+        // Create file input for the formset
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.name = `images-${totalForms}-image`;
+        fileInput.files = createFileList([file]);
+        
+        // Create other required fields
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = `images-${totalForms}-id`;
+        idInput.value = '';
+        
+        const deleteInput = document.createElement('input');
+        deleteInput.type = 'hidden';
+        deleteInput.name = `images-${totalForms}-DELETE`;
+        deleteInput.value = 'false';
+        
+        formContainer.appendChild(fileInput);
+        formContainer.appendChild(idInput);
+        formContainer.appendChild(deleteInput);
+        
+        // Add to DOM
+        gallery.appendChild(formContainer);
+        
+        // Create preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const imageDiv = document.createElement('div');
+          imageDiv.className = 'relative aspect-square group rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800';
+          imageDiv.setAttribute('data-form-index', totalForms);
+          imageDiv.innerHTML = `
+            <img alt="${file.name}" class="w-full h-full object-cover" src="${e.target.result}" />
+            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+              <button type="button" class="bg-white/90 text-slate-900 px-3 py-1 text-[10px] font-bold rounded" onclick="setPrimaryImage(this)">
+                Set Primary
+              </button>
+              <button type="button" class="bg-red-500 text-white p-1 rounded-full" onclick="removeImage(this)">
+                <span class="material-symbols-outlined text-[16px]">delete</span>
+              </button>
+            </div>
+          `;
+          gallery.appendChild(imageDiv);
+        };
+        reader.readAsDataURL(file);
+        
+        totalForms++;
+      }
+    });
+    
+    // Update management form
+    managementForm.value = totalForms;
+    
+    // Clear the file input
+    event.target.value = '';
+  }
+  
+  function createFileList(files) {
+    const dt = new DataTransfer();
+    files.forEach(file => dt.items.add(file));
+    return dt.files;
+  }
+
+  function setPrimaryImage(button) {
+    document.querySelectorAll('.border-primary').forEach(el => {
+      el.classList.remove('border-primary', 'border-2', 'shadow-lg');
+      el.classList.add('border-slate-200', 'dark:border-slate-800');
+      el.querySelector('.absolute.top-2.left-2')?.remove();
+    });
+    
+    const imageDiv = button.closest('.relative');
+    imageDiv.classList.remove('border-slate-200', 'dark:border-slate-800');
+    imageDiv.classList.add('border-primary', 'border-2', 'shadow-lg');
+    
+    const primaryBadge = document.createElement('div');
+    primaryBadge.className = 'absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded shadow';
+    primaryBadge.textContent = 'PRIMARY';
+    imageDiv.appendChild(primaryBadge);
+  }
+
+  function removeImage(button) {
+    const imageDiv = button.closest('.relative');
+    const formIndex = imageDiv.getAttribute('data-form-index');
+    
+    if (formIndex) {
+      // Mark for deletion if it's an existing image
+      const deleteInput = document.querySelector(`input[name="images-${formIndex}-DELETE"]`);
+      if (deleteInput) {
+        deleteInput.value = 'true';
+      }
+      
+      // Remove the form container
+      const formContainer = document.querySelector(`.image-form-container[data-form-index="${formIndex}"]`);
+      if (formContainer) {
+        formContainer.remove();
+      }
+    }
+    
+    imageDiv.remove();
+  }
+</script>

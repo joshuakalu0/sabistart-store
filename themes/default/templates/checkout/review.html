@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="mx-auto max-w-6xl space-y-8">
+    <div class="surface-card p-8 lg:p-10">
+        <div class="flex flex-wrap gap-3">
+            <span class="chip">1. Information</span>
+            <span class="chip">2. Shipping</span>
+            <span class="chip">3. Payment</span>
+            <span class="chip chip-active">4. Review</span>
+        </div>
+        <h1 class="section-title mt-5">Confirm the order details.</h1>
+        <p class="section-copy mt-3 text-base">Review shipping, payment, and line items before placing the order in the store system.</p>
+    </div>
+
+    <div class="grid gap-8 xl:grid-cols-[1.05fr,0.95fr]">
+        <div class="surface-card p-6">
+            <div class="grid gap-4 md:grid-cols-2">
+                <div class="surface-card-soft p-5">
+                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Customer</p>
+                    <p class="mt-3 text-sm leading-7 text-slate-900">{{ checkout_state.first_name }} {{ checkout_state.last_name }}<br>{{ checkout_state.email }}<br>{{ checkout_state.phone }}</p>
+                </div>
+                <div class="surface-card-soft p-5">
+                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Delivery</p>
+                    <p class="mt-3 text-sm leading-7 text-slate-900">{{ checkout_state.address1 }}{% if checkout_state.address2 %}, {{ checkout_state.address2 }}{% endif %}<br>{{ checkout_state.city }}, {{ checkout_state.state }} {{ checkout_state.postal_code }}<br>{{ checkout_state.country_code }}</p>
+                </div>
+                <div class="surface-card-soft p-5">
+                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Shipping Method</p>
+                    <p class="mt-3 text-sm leading-7 text-slate-900">{{ checkout_state.shipping_method }}</p>
+                </div>
+                <div class="surface-card-soft p-5">
+                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Payment Method</p>
+                    <p class="mt-3 text-sm leading-7 text-slate-900">{{ checkout_state.payment_method }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="surface-card p-6">
+            <p class="eyebrow">Cart Summary</p>
+            <div class="mt-5 space-y-3 text-sm text-slate-600">
+                {% for item in cart.items %}
+                    <div class="flex justify-between gap-3">
+                        <span>{{ item.product_name }} x{{ item.quantity }}</span>
+                        <span>{{ item.line_total_display }}</span>
+                    </div>
+                {% endfor %}
+                <div class="flex justify-between border-t border-slate-200 pt-3 text-base font-semibold text-slate-950">
+                    <span>Total</span>
+                    <span>{{ cart.grand_total_display }}</span>
+                </div>
+            </div>
+            <form method="post" class="mt-6">
+                {% csrf_token %}
+                <button type="submit" class="button-primary w-full">Place Order</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

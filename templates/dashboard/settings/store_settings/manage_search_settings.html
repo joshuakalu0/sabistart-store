@@ -1,0 +1,932 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{{ title }} | Store Admin</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-primary-fixed": "#003798",
+                        "on-primary-fixed-variant": "#0050d4",
+                        "surface-container-low": "#f0f4f7",
+                        "on-primary-container": "#0048bf",
+                        "outline-variant": "#a9b4b9",
+                        "secondary": "#506076",
+                        "on-tertiary-fixed": "#3e3a54",
+                        "surface-tint": "#0053db",
+                        "error": "#9f403d",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-dim": "#cfdce3",
+                        "tertiary": "#605c78",
+                        "surface-container": "#e8eff3",
+                        "tertiary-dim": "#54506b",
+                        "on-tertiary-container": "#514d68",
+                        "tertiary-container": "#e3dbfd",
+                        "surface-variant": "#d9e4ea",
+                        "on-secondary": "#f7f9ff",
+                        "error-dim": "#4e0309",
+                        "primary-fixed-dim": "#c7d3ff",
+                        "primary-dim": "#0048c1",
+                        "secondary-fixed": "#d3e4fe",
+                        "on-primary": "#f8f7ff",
+                        "inverse-on-surface": "#9a9d9f",
+                        "on-secondary-container": "#435368",
+                        "primary-container": "#dbe1ff",
+                        "background": "#f7f9fb",
+                        "on-tertiary-fixed-variant": "#5b5672",
+                        "on-tertiary": "#fcf7ff",
+                        "primary": "#0053db",
+                        "on-secondary-fixed": "#314055",
+                        "surface-container-high": "#e1e9ee",
+                        "tertiary-fixed": "#e3dbfd",
+                        "inverse-primary": "#618bff",
+                        "secondary-fixed-dim": "#c5d6f0",
+                        "on-surface": "#2a3439",
+                        "on-error-container": "#752121",
+                        "on-secondary-fixed-variant": "#4d5d73",
+                        "secondary-container": "#d3e4fe",
+                        "secondary-dim": "#44546a",
+                        "tertiary-fixed-dim": "#d4cdee",
+                        "surface-container-highest": "#d9e4ea",
+                        "surface": "#f7f9fb",
+                        "primary-fixed": "#dbe1ff",
+                        "on-background": "#2a3439",
+                        "inverse-surface": "#0b0f10",
+                        "surface-bright": "#f7f9fb",
+                        "outline": "#717c82",
+                        "on-surface-variant": "#566166",
+                        "on-error": "#fff7f6",
+                        "error-container": "#fe8983"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            background: #e8eff3;
+            border-radius: 2px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #0053db;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        /* Form Error States */
+        .form-field-error {
+            border-bottom-color: #9f403d !important;
+            background-color: #fef2f2 !important;
+        }
+        .error-message {
+            color: #9f403d;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Toggle Switch Styling */
+        .toggle-checkbox {
+            opacity: 0;
+            position: absolute;
+        }
+
+        /* Layout Selection */
+        .layout-option.selected {
+            border-color: #0053db;
+        }
+        .layout-option.selected .indicator {
+            border-color: #0053db;
+            border-width: 4px;
+        }
+
+        /* Scope Checkbox Cards */
+        .scope-card:hover {
+            background-color: #e8eff3;
+        }
+        .scope-card:hover .scope-label {
+            color: #0053db;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+
+<!-- Django Messages Framework -->
+{% if messages %}
+<div class="fixed top-20 right-8 z-50 space-y-2">
+    {% for message in messages %}
+    <div class="flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg" style="background-color: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#9f403d{% else %}#ffffff{% endif %}; color: {% if message.tags == 'error' %}#fff7f6{% else %}#2a3439{% endif %};">
+        <span class="material-symbols-outlined text-sm">
+            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+        </span>
+        <span class="font-medium text-sm">{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm dark:shadow-none glass-nav">
+    <nav class="flex justify-between items-center w-full px-8 h-16 max-w-full">
+        <div class="flex items-center gap-12">
+            <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50 font-manrope">{{ title }}</span>
+            <div class="hidden md:flex items-center gap-8 font-manrope text-sm font-medium">
+                <a class="text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-400 pb-1" href="#behavior">Behavior</a>
+                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#scope">Scope</a>
+                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#results">Results</a>
+                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#analytics">Analytics</a>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="{ url 'search_settings_test' %}" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors active:scale-95 transition-transform duration-150">Preview</a>
+            <button type="submit" form="search-form" class="px-5 py-2 text-sm font-bold bg-primary text-on-primary rounded-md shadow-sm hover:bg-primary-dim active:scale-95 transition-all duration-150">
+                {% if is_edit %}Publish Changes{% else %}Create Settings{% endif %}
+            </button>
+            <div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden ml-4">
+                <img alt="Administrator Profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDv5A2rT4b7TdgWZSqxA8ZGymyjZL7YT2j6l6OBKBbwpfnfVJrMPgO6BZD5CKzb2_Dr7eVVcut1tDGAGFLc6hdeLg8N-CWPaiHpikfn6Rjx76FAY452tnlEdw5qnfFcBfEx_nnBoz07j7iTP6VlcLFT556HUltQbwxugI2vYu3gCIA7gw28mT-qkOloxX50AcvmAvbFORC-6vLs6QOf0wiVtKwK-H-p3talFlT5tuQg4V83BgNMIp8PxA0cvEw1LdrhvxRJogRqw2I"/>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="pt-24 pb-32 px-8 max-w-7xl mx-auto space-y-24">
+    <form id="search-form" method="post" action="{{ action_url }}" novalidate>
+        {% csrf_token %}
+
+        <!-- Section 1: Search Behavior & Autocomplete -->
+        <section class="space-y-10" id="behavior">
+            <div class="flex flex-col gap-2">
+                <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Search Behavior &amp; Autocomplete</h2>
+                <p class="text-on-surface-variant text-sm max-w-2xl">Configure how the search engine interacts with users during the typing phase.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-7 bg-surface-container-low p-8 rounded-xl space-y-8">
+                    <!-- Enable Autocomplete Toggle -->
+                    <div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-lg">
+                        <div>
+                            <p class="font-bold text-on-surface">Enable Autocomplete</p>
+                            <p class="text-xs text-on-surface-variant">Suggest results as users type</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            {{ form.enable_autocomplete }}
+                            <div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" style="background-color: {% if form.enable_autocomplete.value %}#0053db{% else %}#d9e4ea{% endif %};"></div>
+                        </label>
+                    </div>
+                    {% if form.enable_autocomplete.errors %}
+                        {% for error in form.enable_autocomplete.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="space-y-6">
+                        <!-- Autocomplete Delay Range -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider" for="{{ form.autocomplete_delay.id_for_label }}">Delay (ms)</label>
+                                <span class="text-xs font-bold text-primary" id="delay-display">{{ form.autocomplete_delay.value|default:300 }}ms</span>
+                            </div>
+                            {{ form.autocomplete_delay }}
+                            {% if form.autocomplete_delay.errors %}
+                                {% for error in form.autocomplete_delay.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Min Characters & Max Suggestions -->
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider" for="{{ form.min_characters.id_for_label }}">Min Characters</label>
+                                {{ form.min_characters }}
+                                {% if form.min_characters.errors %}
+                                    {% for error in form.min_characters.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider" for="{{ form.max_suggestions.id_for_label }}">Max Suggestions</label>
+                                {{ form.max_suggestions }}
+                                {% if form.max_suggestions.errors %}
+                                    {% for error in form.max_suggestions.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Preview -->
+                <div class="lg:col-span-5 bg-surface-container-highest p-8 rounded-xl flex flex-col items-center justify-center space-y-4">
+                    <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-4">Live Preview</p>
+                    <div class="w-full max-w-md bg-white rounded-xl shadow-lg border border-outline-variant/20 overflow-hidden">
+                        <div class="p-4 border-b border-surface-container flex items-center gap-3">
+                            <span class="material-symbols-outlined text-on-surface-variant">search</span>
+                            <input class="flex-1 text-sm border-none focus:ring-0 p-0" placeholder="Search for leather..." type="text" value="leather" readonly/>
+                        </div>
+                        <div class="p-2">
+                            <div class="flex items-center gap-3 p-2 bg-primary-container/30 rounded-lg">
+                                <div class="w-10 h-10 bg-slate-200 rounded shrink-0">
+                                    <img alt="Product" class="w-full h-full object-cover rounded" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQtA4HxHf8kAtbHT-YT82KQgsjY_6W0qwNRdpVra0xljzJRupexUusXNoi1rr0v-JL8M_fK7aAbCPRLFbNvyhBeZoiS5QARciEfeaD5ou8m3cETIPK2dwT0uDhjZr6nOjz9mPwl5nGMrIFTIXzjXMJQYA2rZiWuYAXzqMUtNRhiWLJbIBN1kpH5KpsB53i3-SKP_Oe4XpMA3a8bn4-PsZb2yQirGY1PEHPy-9IAt6WrDmdXAdzs0RtT0p9UtTErysCHZJpxNJdcDA"/>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold">Leather Weekender Bag</p>
+                                    <p class="text-[10px] text-on-surface-variant">In Accessories • $249.00</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 p-2 hover:bg-surface-container-low rounded-lg transition-colors">
+                                <div class="w-10 h-10 bg-slate-200 rounded shrink-0">
+                                    <img alt="Product" class="w-full h-full object-cover rounded" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpF5vqfFUlw1U9lcbQwvK9Hb4t7V9PjVLjNaHntVvpqIUsF9JuF8k1GYSjcHQnumuInkp8H1AM-5pivyPFyJby9vs_RfoMmwLynvGC7yF-9tQa8dX9sT58ZnWh1C6ITtZEJK_kBJf8QAw9sJ6Jvv-U2Zu06lWC0uTcjgQwPpQTOWiEawHNmfdoAcCVH1I-1I014F4oMEfwTDSMxHxxgKf-NhvHw_umqi_9HtY6aQ3U5kzSivN-s6iVLMlm7arDZgGVzBY0oXX3lOU"/>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold">Slim Leather Wallet</p>
+                                    <p class="text-[10px] text-on-surface-variant">In Wallets • $45.00</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Search Scope -->
+        <section class="space-y-10" id="scope">
+            <div class="flex flex-col gap-2">
+                <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Search Scope</h2>
+                <p class="text-on-surface-variant text-sm max-w-2xl">Define which data points the algorithm should index and query.</p>
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                        <div class="bg-error-container/20 border border-error-container text-error px-4 py-3 rounded-lg text-sm">
+                            <span class="material-symbols-outlined text-sm align-middle">error</span>
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- Product Title -->
+                <label class="scope-card flex items-center gap-4 p-5 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-colors group">
+                    {{ form.search_product_title }}
+                    <span class="scope-label font-medium text-on-surface group-hover:text-primary transition-colors">Product Title</span>
+                </label>
+
+                <!-- Description -->
+                <label class="scope-card flex items-center gap-4 p-5 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-colors group">
+                    {{ form.search_product_description }}
+                    <span class="scope-label font-medium text-on-surface group-hover:text-primary transition-colors">Description</span>
+                </label>
+
+                <!-- SKU / Barcode -->
+                <label class="scope-card flex items-center gap-4 p-5 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-colors group">
+                    {{ form.search_product_sku }}
+                    <span class="scope-label font-medium text-on-surface group-hover:text-primary transition-colors">SKU / Barcode</span>
+                </label>
+
+                <!-- Tags -->
+                <label class="scope-card flex items-center gap-4 p-5 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-colors group">
+                    {{ form.search_product_tags }}
+                    <span class="scope-label font-medium text-on-surface group-hover:text-primary transition-colors">Tags</span>
+                </label>
+
+                <!-- Categories -->
+                <label class="scope-card flex items-center gap-4 p-5 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-colors group">
+                    {{ form.search_categories }}
+                    <span class="scope-label font-medium text-on-surface group-hover:text-primary transition-colors">Categories</span>
+                </label>
+
+                <!-- Pages -->
+                <label class="scope-card flex items-center gap-4 p-5 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-colors group">
+                    {{ form.search_pages }}
+                    <span class="scope-label font-medium text-on-surface group-hover:text-primary transition-colors">Pages</span>
+                </label>
+
+                <!-- Blog Posts -->
+                <label class="scope-card flex items-center gap-4 p-5 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-colors group">
+                    {{ form.search_blog_posts }}
+                    <span class="scope-label font-medium text-on-surface group-hover:text-primary transition-colors">Blog Posts</span>
+                </label>
+
+                <!-- Vendors -->
+                <label class="scope-card flex items-center gap-4 p-5 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-colors group">
+                    {{ form.search_vendors }}
+                    <span class="scope-label font-medium text-on-surface group-hover:text-primary transition-colors">Vendors</span>
+                </label>
+            </div>
+            {% if form.search_products.errors %}
+                {% for error in form.search_products.errors %}
+                    <p class="error-message">{{ error }}</p>
+                {% endfor %}
+            {% endif %}
+        </section>
+
+        <!-- Section 3: Autocomplete Display -->
+        <section class="space-y-10">
+            <div class="flex flex-col gap-2">
+                <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Autocomplete Display</h2>
+                <p class="text-on-surface-variant text-sm max-w-2xl">Toggle visual elements within the search dropdown for a richer user experience.</p>
+            </div>
+            <div class="bg-surface-container-low rounded-2xl p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-8">
+                <div class="flex items-center justify-between border-b border-outline-variant/10 pb-4">
+                    <span class="text-sm font-semibold">Show Images</span>
+                    {{ form.show_product_images }}
+                </div>
+                <div class="flex items-center justify-between border-b border-outline-variant/10 pb-4">
+                    <span class="text-sm font-semibold">Show Prices</span>
+                    {{ form.show_product_prices }}
+                </div>
+                <div class="flex items-center justify-between border-b border-outline-variant/10 pb-4">
+                    <span class="text-sm font-semibold">Show Ratings</span>
+                    {{ form.show_product_ratings }}
+                </div>
+                <div class="flex items-center justify-between border-b border-outline-variant/10 pb-4">
+                    <span class="text-sm font-semibold">Stock Status</span>
+                    {{ form.show_stock_status }}
+                </div>
+                <div class="flex items-center justify-between border-b border-outline-variant/10 pb-4">
+                    <span class="text-sm font-semibold">Category Suggestions</span>
+                    {{ form.show_category_suggestions }}
+                </div>
+                <div class="flex items-center justify-between border-b border-outline-variant/10 pb-4">
+                    <span class="text-sm font-semibold">Popular Searches</span>
+                    {{ form.show_popular_searches }}
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider" for="{{ form.popular_searches_count.id_for_label }}">Popular Searches Count</label>
+                    {{ form.popular_searches_count }}
+                    {% if form.popular_searches_count.errors %}
+                        {% for error in form.popular_searches_count.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Search Results Page -->
+        <section class="space-y-10" id="results">
+            <div class="flex flex-col gap-2">
+                <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Search Results Page</h2>
+                <p class="text-on-surface-variant text-sm max-w-2xl">Control the layout and pagination of the main search landing page.</p>
+            </div>
+
+            <!-- Layout Selection -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <label class="layout-option bg-surface-container-low p-6 rounded-xl flex flex-col gap-4 border-2 {% if form.results_layout.value == 'grid' %}border-primary selected{% else %}border-transparent hover:border-outline-variant{% endif %} transition-all cursor-pointer">
+                    <input type="radio" name="results_layout" value="grid" class="hidden" {% if form.results_layout.value == 'grid' %}checked{% endif %}/>
+                    <div class="h-32 bg-surface-container-highest rounded-lg flex items-center justify-center">
+                        <span class="material-symbols-outlined text-4xl {% if form.results_layout.value == 'grid' %}text-primary{% else %}text-on-surface-variant{% endif %}">grid_view</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold">Grid Layout</span>
+                        <div class="w-4 h-4 rounded-full {% if form.results_layout.value == 'grid' %}border-4 border-primary indicator{% else %}border-2 border-outline-variant{% endif %}"></div>
+                    </div>
+                </label>
+
+                <label class="layout-option bg-surface-container-low p-6 rounded-xl flex flex-col gap-4 border-2 {% if form.results_layout.value == 'list' %}border-primary selected{% else %}border-transparent hover:border-outline-variant{% endif %} transition-all cursor-pointer">
+                    <input type="radio" name="results_layout" value="list" class="hidden" {% if form.results_layout.value == 'list' %}checked{% endif %}/>
+                    <div class="h-32 bg-surface-container-highest rounded-lg flex items-center justify-center">
+                        <span class="material-symbols-outlined text-4xl {% if form.results_layout.value == 'list' %}text-primary{% else %}text-on-surface-variant{% endif %}">view_list</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold">List Layout</span>
+                        <div class="w-4 h-4 rounded-full {% if form.results_layout.value == 'list' %}border-4 border-primary indicator{% else %}border-2 border-outline-variant{% endif %}"></div>
+                    </div>
+                </label>
+
+                <label class="layout-option bg-surface-container-low p-6 rounded-xl flex flex-col gap-4 border-2 {% if form.results_layout.value == 'mixed' %}border-primary selected{% else %}border-transparent hover:border-outline-variant{% endif %} transition-all cursor-pointer">
+                    <input type="radio" name="results_layout" value="mixed" class="hidden" {% if form.results_layout.value == 'mixed' %}checked{% endif %}/>
+                    <div class="h-32 bg-surface-container-highest rounded-lg flex items-center justify-center">
+                        <span class="material-symbols-outlined text-4xl {% if form.results_layout.value == 'mixed' %}text-primary{% else %}text-on-surface-variant{% endif %}">dashboard_customize</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold">Mixed View</span>
+                        <div class="w-4 h-4 rounded-full {% if form.results_layout.value == 'mixed' %}border-4 border-primary indicator{% else %}border-2 border-outline-variant{% endif %}"></div>
+                    </div>
+                </label>
+            </div>
+            {% if form.results_layout.errors %}
+                {% for error in form.results_layout.errors %}
+                    <p class="error-message">{{ error }}</p>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Results Per Page & Interactions -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-surface-container-low p-8 rounded-2xl">
+                <div class="space-y-4">
+                    <label class="text-sm font-bold block" for="{{ form.results_per_page.id_for_label }}">Results Per Page</label>
+                    <div class="flex gap-4">
+                        <button type="button" class="results-per-page-btn px-6 py-2 bg-surface-container-lowest {% if form.results_per_page.value == 24 %}border-b-2 border-primary font-bold text-primary{% else %}border-b-2 border-transparent{% endif %}" data-value="24">24</button>
+                        <button type="button" class="results-per-page-btn px-6 py-2 bg-surface-container-lowest {% if form.results_per_page.value == 48 %}border-b-2 border-primary font-bold text-primary{% else %}border-b-2 border-transparent{% endif %}" data-value="48">48</button>
+                        <button type="button" class="results-per-page-btn px-6 py-2 bg-surface-container-lowest {% if form.results_per_page.value == 96 %}border-b-2 border-primary font-bold text-primary{% else %}border-b-2 border-transparent{% endif %}" data-value="96">96</button>
+                    </div>
+                    {{ form.results_per_page }}
+                    {% if form.results_per_page.errors %}
+                        {% for error in form.results_per_page.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="space-y-4">
+                    <label class="text-sm font-bold block">Interactions</label>
+                    <div class="flex gap-8">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            {{ form.show_filters }}
+                            <span class="text-sm">Enable Filters</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            {{ form.show_sort_options }}
+                            <span class="text-sm">Enable Sorting</span>
+                        </label>
+                    </div>
+                    <div class="flex gap-8 pt-2">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            {{ form.show_search_term }}
+                            <span class="text-sm">Show Search Term</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            {{ form.show_result_count }}
+                            <span class="text-sm">Show Result Count</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Search Algorithm -->
+        <section class="space-y-10">
+            <div class="flex flex-col gap-2">
+                <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Search Algorithm</h2>
+                <p class="text-on-surface-variant text-sm max-w-2xl">The brains of the operation. Adjust how strictly queries are matched.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Fuzzy Search Settings -->
+                <div class="bg-surface-container-low p-8 rounded-xl space-y-8">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-lg">Fuzzy Search Settings</h3>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            {{ form.enable_fuzzy_search }}
+                            <div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" style="background-color: {% if form.enable_fuzzy_search.value %}#0053db{% else %}#d9e4ea{% endif %};"></div>
+                        </label>
+                    </div>
+                    {% if form.enable_fuzzy_search.errors %}
+                        {% for error in form.enable_fuzzy_search.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="space-y-4">
+                        <div class="flex justify-between text-xs font-bold uppercase text-on-surface-variant">
+                            <span>Strict</span>
+                            <span>Threshold: <span id="fuzzy-threshold-display">{{ form.fuzzy_threshold.value|default:2 }}</span></span>
+                            <span>Loose</span>
+                        </div>
+                        {{ form.fuzzy_threshold }}
+                        {% if form.fuzzy_threshold.errors %}
+                            {% for error in form.fuzzy_threshold.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="p-4 bg-surface-container-lowest rounded-lg {% if form.enable_synonym_search.value %}border-b-2 border-primary{% else %}border-b-2 border-transparent hover:border-outline-variant{% endif %} cursor-pointer transition-all">
+                            {{ form.enable_synonym_search }}
+                            <p class="text-xs font-bold uppercase text-on-surface-variant mb-1">Synonyms</p>
+                            <p class="text-sm font-bold">{% if form.enable_synonym_search.value %}Active{% else %}Inactive{% endif %}</p>
+                        </label>
+                        <label class="p-4 bg-surface-container-lowest rounded-lg {% if form.enable_partial_match.value %}border-b-2 border-primary{% else %}border-b-2 border-transparent hover:border-outline-variant{% endif %} cursor-pointer transition-all">
+                            {{ form.enable_partial_match }}
+                            <p class="text-xs font-bold uppercase text-on-surface-variant mb-1">Partial Matches</p>
+                            <p class="text-sm font-bold">{% if form.enable_partial_match.value %}Enabled{% else %}Whole words only{% endif %}</p>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Ranking Priority -->
+                <div class="bg-surface-container-low p-8 rounded-xl space-y-6">
+                    <h3 class="font-bold text-lg" for="{{ form.search_ranking.id_for_label }}">Ranking Priority</h3>
+                    <div class="space-y-3">
+                        <label class="flex items-center gap-4 p-3 bg-surface-container-lowest rounded-lg shadow-sm cursor-pointer {% if form.search_ranking.value == 'relevance' %}border-l-4 border-primary{% endif %}">
+                            <input type="radio" name="search_ranking" value="relevance" class="hidden" {% if form.search_ranking.value == 'relevance' %}checked{% endif %}/>
+                            <span class="material-symbols-outlined text-primary">drag_indicator</span>
+                            <span class="text-sm font-bold flex-1">Relevance Score</span>
+                            <span class="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded-full font-bold">1.0x</span>
+                        </label>
+                        <label class="flex items-center gap-4 p-3 bg-surface-container-lowest rounded-lg shadow-sm cursor-pointer {% if form.search_ranking.value == 'popularity' %}border-l-4 border-primary{% endif %}">
+                            <input type="radio" name="search_ranking" value="popularity" class="hidden" {% if form.search_ranking.value == 'popularity' %}checked{% endif %}/>
+                            <span class="material-symbols-outlined text-primary">drag_indicator</span>
+                            <span class="text-sm font-bold flex-1">Product Popularity</span>
+                            <span class="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded-full font-bold">0.8x</span>
+                        </label>
+                        <label class="flex items-center gap-4 p-3 bg-surface-container-lowest rounded-lg shadow-sm cursor-pointer {% if form.search_ranking.value == 'newest' %}border-l-4 border-primary{% endif %}">
+                            <input type="radio" name="search_ranking" value="newest" class="hidden" {% if form.search_ranking.value == 'newest' %}checked{% endif %}/>
+                            <span class="material-symbols-outlined text-primary">drag_indicator</span>
+                            <span class="text-sm font-bold flex-1">Newest First</span>
+                            <span class="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded-full font-bold">0.5x</span>
+                        </label>
+                        <label class="flex items-center gap-4 p-3 bg-surface-container-lowest rounded-lg shadow-sm cursor-pointer {% if form.search_ranking.value == 'price_asc' %}border-l-4 border-primary{% endif %}">
+                            <input type="radio" name="search_ranking" value="price_asc" class="hidden" {% if form.search_ranking.value == 'price_asc' %}checked{% endif %}/>
+                            <span class="material-symbols-outlined text-primary">drag_indicator</span>
+                            <span class="text-sm font-bold flex-1">Price: Low to High</span>
+                            <span class="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded-full font-bold">0.3x</span>
+                        </label>
+                        <label class="flex items-center gap-4 p-3 bg-surface-container-lowest rounded-lg shadow-sm cursor-pointer {% if form.search_ranking.value == 'price_desc' %}border-l-4 border-primary{% endif %}">
+                            <input type="radio" name="search_ranking" value="price_desc" class="hidden" {% if form.search_ranking.value == 'price_desc' %}checked{% endif %}/>
+                            <span class="material-symbols-outlined text-primary">drag_indicator</span>
+                            <span class="text-sm font-bold flex-1">Price: High to Low</span>
+                            <span class="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded-full font-bold">0.3x</span>
+                        </label>
+                    </div>
+                    {% if form.search_ranking.errors %}
+                        {% for error in form.search_ranking.errors %}
+                            <p class="error-message">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    <p class="text-[10px] text-center text-on-surface-variant pt-2">Select default ranking for search results.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: No Results Handling -->
+        <section class="space-y-10">
+            <div class="flex flex-col gap-2">
+                <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">No Results Handling</h2>
+                <p class="text-on-surface-variant text-sm max-w-2xl">Optimize the "dead end" experience when no matches are found.</p>
+            </div>
+            <div class="bg-surface-container-low p-8 rounded-2xl grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div class="space-y-6">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase text-on-surface-variant tracking-wider" for="{{ form.no_results_message.id_for_label }}">Empty State Message</label>
+                        {{ form.no_results_message }}
+                        <p class="text-xs text-on-surface-variant">Use {'{query}'} placeholder for the search term</p>
+                        {% if form.no_results_message.errors %}
+                            {% for error in form.no_results_message.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="space-y-4">
+                        <p class="text-xs font-bold uppercase text-on-surface-variant">Alternative Content Toggles</p>
+                        <div class="space-y-2">
+                            <label class="flex items-center justify-between p-3 bg-surface-container-lowest rounded-lg">
+                                <span class="text-sm font-medium">Show Suggested Products</span>
+                                {{ form.show_popular_products_on_no_results }}
+                            </label>
+                            <label class="flex items-center justify-between p-3 bg-surface-container-lowest rounded-lg">
+                                <span class="text-sm font-medium">Show Popular Categories</span>
+                                {{ form.show_all_categories_on_no_results }}
+                            </label>
+                            <label class="flex items-center justify-between p-3 bg-surface-container-lowest rounded-lg">
+                                <span class="text-sm font-medium">Show 'Did You Mean' Suggestions</span>
+                                {{ form.show_suggestions_on_no_results }}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase text-on-surface-variant tracking-wider" for="{{ form.popular_products_title.id_for_label }}">Popular Products Section Title</label>
+                        {{ form.popular_products_title }}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase text-on-surface-variant tracking-wider" for="{{ form.popular_products_count.id_for_label }}">Popular Products Count</label>
+                        {{ form.popular_products_count }}
+                        {% if form.popular_products_count.errors %}
+                            {% for error in form.popular_products_count.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="bg-white/50 border-2 border-dashed border-outline-variant/30 rounded-xl flex items-center justify-center p-12 text-center">
+                    <div class="max-w-xs space-y-4">
+                        <span class="material-symbols-outlined text-6xl text-on-surface-variant/20">search_off</span>
+                        <p class="text-sm italic text-on-surface-variant">Preview: "{{ form.no_results_message.value|default:'Sorry, we couldn\'t find anything matching \"{query}\". Try checking your spelling or using more general terms.' }}"</p>
+                        <div class="flex justify-center gap-2">
+                            <div class="w-8 h-2 bg-primary/20 rounded-full"></div>
+                            <div class="w-12 h-2 bg-primary/20 rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Search Analytics -->
+        <section class="space-y-10" id="analytics">
+            <div class="flex flex-col gap-2">
+                <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Search Analytics</h2>
+                <p class="text-on-surface-variant text-sm max-w-2xl">Monitor how users are interacting with your search to find optimization opportunities.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Track All Queries -->
+                <div class="p-8 bg-surface-container-low rounded-xl space-y-4 flex flex-col items-center text-center">
+                    <div class="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center text-primary">
+                        <span class="material-symbols-outlined">analytics</span>
+                    </div>
+                    <h3 class="font-bold">Track All Queries</h3>
+                    <p class="text-xs text-on-surface-variant">Store every search string and its performance.</p>
+                    <label class="relative inline-flex items-center cursor-pointer pt-2">
+                        {{ form.track_search_queries }}
+                        <div class="w-11 h-6 bg-surface-container-highest rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full" style="background-color: {% if form.track_search_queries.value %}#0053db{% else %}#d9e4ea{% endif %};"></div>
+                    </label>
+                </div>
+
+                <!-- No-Result Alerts -->
+                <div class="p-8 bg-surface-container-low rounded-xl space-y-4 flex flex-col items-center text-center">
+                    <div class="w-12 h-12 bg-tertiary-container rounded-full flex items-center justify-center text-tertiary">
+                        <span class="material-symbols-outlined">warning</span>
+                    </div>
+                    <h3 class="font-bold">No-Result Alerts</h3>
+                    <p class="text-xs text-on-surface-variant">Flag keywords that return zero results in real-time.</p>
+                    <label class="relative inline-flex items-center cursor-pointer pt-2">
+                        {{ form.track_no_results_queries }}
+                        <div class="w-11 h-6 bg-surface-container-highest rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full" style="background-color: {% if form.track_no_results_queries.value %}#0053db{% else %}#d9e4ea{% endif %};"></div>
+                    </label>
+                </div>
+
+                <!-- Click-Through Rate -->
+                <div class="p-8 bg-surface-container-low rounded-xl space-y-4 flex flex-col items-center text-center">
+                    <div class="w-12 h-12 bg-secondary-container rounded-full flex items-center justify-center text-secondary">
+                        <span class="material-symbols-outlined">ads_click</span>
+                    </div>
+                    <h3 class="font-bold">Click-Through Rate</h3>
+                    <p class="text-xs text-on-surface-variant">Analyze which results get clicked most often.</p>
+                    <label class="relative inline-flex items-center cursor-pointer pt-2">
+                        {{ form.track_click_through }}
+                        <div class="w-11 h-6 bg-surface-container-highest rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full" style="background-color: {% if form.track_click_through.value %}#0053db{% else %}#d9e4ea{% endif %};"></div>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Advanced Features -->
+        <section class="space-y-10">
+            <div class="flex flex-col gap-2">
+                <h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Advanced Features</h2>
+                <p class="text-on-surface-variant text-sm max-w-2xl">Modern interaction methods for mobile and power users.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Voice Search -->
+                <div class="bg-surface-container-low p-6 rounded-2xl flex flex-col gap-6">
+                    <div class="flex justify-between items-start">
+                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                            <span class="material-symbols-outlined text-primary">mic</span>
+                        </div>
+                        {{ form.enable_voice_search }}
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg">Voice Search</h4>
+                        <p class="text-xs text-on-surface-variant mt-1">Enable microphone input for search queries on compatible browsers.</p>
+                    </div>
+                </div>
+
+                <!-- Barcode Search -->
+                <div class="bg-surface-container-low p-6 rounded-2xl flex flex-col gap-6">
+                    <div class="flex justify-between items-start">
+                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                            <span class="material-symbols-outlined text-primary">barcode_scanner</span>
+                        </div>
+                        {{ form.enable_barcode_search }}
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg">Barcode Search</h4>
+                        <p class="text-xs text-on-surface-variant mt-1">Allow customers to scan physical products to find them in your catalog.</p>
+                    </div>
+                </div>
+
+                <!-- Visual Search -->
+                <div class="bg-surface-container-low p-6 rounded-2xl flex flex-col gap-6">
+                    <div class="flex justify-between items-start">
+                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                            <span class="material-symbols-outlined text-primary">image_search</span>
+                        </div>
+                        {{ form.enable_image_search }}
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg">Visual Search</h4>
+                        <p class="text-xs text-on-surface-variant mt-1">AI-powered image matching. Users can upload photos to find similar items.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </form>
+</main>
+
+<!-- Floating Footer Action Bar -->
+<div class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-on-surface text-surface py-4 px-8 rounded-full shadow-2xl flex items-center gap-8 z-50">
+    <div class="flex flex-col">
+        <span class="text-[10px] font-bold uppercase tracking-widest text-surface/50">Current Status</span>
+        <span class="text-xs font-semibold">{% if is_edit %}Editing Live Settings{% else %}Creating New Settings{% endif %}</span>
+    </div>
+    <div class="w-px h-8 bg-surface/20"></div>
+    <div class="flex gap-4">
+        <button type="button" class="px-6 py-2 bg-surface text-on-surface rounded-full text-xs font-bold hover:bg-surface-container transition-colors" onclick="window.location.href='{ url 'manage_search_settings' %}'">Discard Draft</button>
+        <button type="submit" form="search-form" class="px-6 py-2 bg-primary text-on-primary rounded-full text-xs font-bold hover:bg-primary-dim shadow-lg shadow-primary/20">Apply Changes Now</button>
+    </div>
+</div>
+
+<!-- JavaScript for Dynamic Interactions -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // === Range Input Display Updates ===
+
+        // Autocomplete Delay
+        const delayRange = document.getElementById('{{ form.autocomplete_delay.id_for_label }}');
+        const delayDisplay = document.getElementById('delay-display');
+        if (delayRange && delayDisplay) {
+            delayRange.addEventListener('input', function() {
+                delayDisplay.textContent = this.value + 'ms';
+            });
+        }
+
+        // Fuzzy Threshold
+        const fuzzyRange = document.getElementById('{{ form.fuzzy_threshold.id_for_label }}');
+        const fuzzyDisplay = document.getElementById('fuzzy-threshold-display');
+        if (fuzzyRange && fuzzyDisplay) {
+            fuzzyRange.addEventListener('input', function() {
+                fuzzyDisplay.textContent = this.value;
+            });
+        }
+
+        // === Toggle Switch Styling ===
+        const toggleCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+        toggleCheckboxes.forEach(function(checkbox) {
+            checkbox.classList.add('toggle-checkbox');
+
+            checkbox.addEventListener('change', function() {
+                const toggleDiv = this.parentElement.querySelector('div.w-11.h-6');
+                if (toggleDiv) {
+                    toggleDiv.style.backgroundColor = this.checked ? '#0053db' : '#d9e4ea';
+                }
+
+                // Handle card-style toggles
+                const card = this.closest('label.p-4');
+                if (card) {
+                    if (this.checked) {
+                        card.classList.add('border-b-2', 'border-primary');
+                        card.classList.remove('border-transparent');
+                    } else {
+                        card.classList.remove('border-b-2', 'border-primary');
+                        card.classList.add('border-b-2', 'border-transparent');
+                    }
+                }
+            });
+        });
+
+        // === Layout Selection ===
+        const layoutOptions = document.querySelectorAll('.layout-option');
+        layoutOptions.forEach(function(option) {
+            option.addEventListener('click', function() {
+                layoutOptions.forEach(function(o) {
+                    o.classList.remove('selected', 'border-primary');
+                    o.classList.add('border-transparent');
+                    o.querySelector('.indicator')?.classList.remove('border-4', 'border-primary');
+                    o.querySelector('.indicator')?.classList.add('border-2', 'border-outline-variant');
+                    o.querySelector('.material-symbols-outlined')?.classList.remove('text-primary');
+                    o.querySelector('.material-symbols-outlined')?.classList.add('text-on-surface-variant');
+                });
+
+                this.classList.add('selected', 'border-primary');
+                this.classList.remove('border-transparent');
+                const indicator = this.querySelector('.indicator');
+                if (indicator) {
+                    indicator.classList.remove('border-2', 'border-outline-variant');
+                    indicator.classList.add('border-4', 'border-primary');
+                }
+                this.querySelector('.material-symbols-outlined')?.classList.remove('text-on-surface-variant');
+                this.querySelector('.material-symbols-outlined')?.classList.add('text-primary');
+            });
+        });
+
+        // === Results Per Page Selection ===
+        const resultsPerPageBtns = document.querySelectorAll('.results-per-page-btn');
+        const resultsPerPageInput = document.getElementById('{{ form.results_per_page.id_for_label }}');
+
+        resultsPerPageBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                resultsPerPageBtns.forEach(function(b) {
+                    b.classList.remove('border-b-2', 'border-primary', 'font-bold', 'text-primary');
+                    b.classList.add('border-b-2', 'border-transparent');
+                });
+
+                this.classList.remove('border-b-2', 'border-transparent');
+                this.classList.add('border-b-2', 'border-primary', 'font-bold', 'text-primary');
+
+                if (resultsPerPageInput) {
+                    resultsPerPageInput.value = this.getAttribute('data-value');
+                }
+            });
+        });
+
+        // === Ranking Selection ===
+        const rankingOptions = document.querySelectorAll('input[name="search_ranking"]');
+        rankingOptions.forEach(function(option) {
+            option.addEventListener('change', function() {
+                document.querySelectorAll('label:has(input[name="search_ranking"])').forEach(function(label) {
+                    label.classList.remove('border-l-4', 'border-primary');
+                });
+
+                if (this.checked) {
+                    this.closest('label').classList.add('border-l-4', 'border-primary');
+                }
+            });
+        });
+
+        // === Hide Messages After 5 Seconds ===
+        setTimeout(function() {
+            const messages = document.querySelectorAll('.fixed.top-20');
+            messages.forEach(function(msg) {
+                msg.style.opacity = '0';
+                msg.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    msg.remove();
+                }, 500);
+            });
+        }, 5000);
+
+        // === Form Change Detection ===
+        const form = document.getElementById('search-form');
+        let formChanged = false;
+
+        form.addEventListener('input', function() {
+            formChanged = true;
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (formChanged) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // === Smooth Scroll for Navigation ===
+        const navLinks = document.querySelectorAll('nav a[href^="#"]');
+        navLinks.forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // === Scope Card Checkbox Styling ===
+        const scopeCards = document.querySelectorAll('.scope-card');
+        scopeCards.forEach(function(card) {
+            const checkbox = card.querySelector('input[type="checkbox"]');
+            if (checkbox && checkbox.checked) {
+                card.style.backgroundColor = '#dbe1ff';
+                card.querySelector('.scope-label').style.color = '#0053db';
+            }
+
+            checkbox?.addEventListener('change', function() {
+                if (this.checked) {
+                    card.style.backgroundColor = '#dbe1ff';
+                    card.querySelector('.scope-label').style.color = '#0053db';
+                } else {
+                    card.style.backgroundColor = '';
+                    card.querySelector('.scope-label').style.color = '';
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

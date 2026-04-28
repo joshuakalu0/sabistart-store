@@ -1,0 +1,27 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<section class="grid gap-6 xl:grid-cols-[1fr_1fr]">
+  <div class="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
+    <h1 class="text-3xl font-semibold text-slate-900">Marketplace Checkout</h1>
+    <form method="post" class="mt-6 space-y-4">
+      {% csrf_token %}
+      {% for field in form %}
+        {% include "shared/forms/field.html" with field=field %}
+      {% endfor %}
+      <button class="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white" type="submit">Create purchase</button>
+    </form>
+  </div>
+  <div class="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
+    <h2 class="text-lg font-semibold text-slate-900">Preview</h2>
+    {% if preview and preview.success %}
+      <div class="mt-4 space-y-3">
+        <div class="flex items-center justify-between"><span class="text-slate-500">Subtotal</span><span class="font-medium">{{ preview.currency }} {{ preview.subtotal }}</span></div>
+        <div class="flex items-center justify-between"><span class="text-slate-500">Discount</span><span class="font-medium">-{{ preview.currency }} {{ preview.discount_amount }}</span></div>
+        <div class="flex items-center justify-between border-t border-slate-200 pt-3"><span class="text-slate-900 font-semibold">Total</span><span class="text-xl font-semibold">{{ preview.currency }} {{ preview.total_amount }}</span></div>
+      </div>
+    {% else %}
+      <p class="mt-4 text-sm text-slate-500">Select a feature or bundle to preview the charge.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

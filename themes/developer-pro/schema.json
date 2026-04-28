@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "fields": [
+    {"key": "github_stats", "label": "GitHub stats", "type": "textarea", "required": false},
+    {"key": "repositories", "label": "Repositories", "type": "list", "required": false, "help_text": "One repository summary per line."},
+    {"key": "tech_stack", "label": "Tech stack", "type": "list", "required": false},
+    {"key": "coding_activity", "label": "Coding activity", "type": "textarea", "required": false},
+    {"key": "certifications", "label": "Certifications", "type": "list", "required": false}
+  ]
+}

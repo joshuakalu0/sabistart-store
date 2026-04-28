@@ -1,0 +1,122 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load string_utils %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Buy X Get Y Campaigns</h2>
+    <p class="text-slate-600 dark:text-slate-400">Manage BOGO and bundle promotions</p>
+  </div>
+  <a href="{{ create_url }}" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2">
+    <span class="material-icons-outlined text-sm">add</span><span>Create BxGy Campaign</span>
+  </a>
+</div>
+
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mb-6">
+  <div class="p-6">
+    <form method="get" class="flex flex-col sm:flex-row gap-4">
+      <div class="relative flex-1">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+          <span class="material-icons-outlined text-slate-400 text-sm">search</span>
+        </span>
+        <input type="text" name="q" value="{{ q }}" placeholder="Search by name..."
+               class="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-primary dark:bg-slate-700 dark:text-white"/>
+      </div>
+      <div class="w-full sm:w-48">
+        <select name="status" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary">
+          <option value="">All Statuses</option>
+          <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+          <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+        </select>
+      </div>
+      <button type="submit" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+        Filter
+      </button>
+    </form>
+  </div>
+</div>
+
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          {% for col in "Campaign Name,Status,Buy Quantity,Get Quantity,Scheduling,Actions"|split:"," %}
+          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+        {% for bxgy in campaigns %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          <td class="px-6 py-4">
+            <div class="font-bold text-slate-900 dark:text-white text-base">{{ bxgy.name }}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            {% if bxgy.is_active %}
+            <span class="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 text-xs rounded-full">Active</span>
+            {% else %}
+            <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-xs rounded-full">Inactive</span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700 dark:text-slate-300 font-medium">
+            Buy {{ bxgy.buy_quantity }} item(s)
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 dark:text-blue-400">
+            Get {{ bxgy.get_quantity }}
+            {% if bxgy.discount_percent == 100 %}Free
+            {% else %}at {{ bxgy.discount_percent|floatformat:0 }}% Off{% endif %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-xs text-slate-600 dark:text-slate-400">
+            {% if bxgy.starts_at or bxgy.ends_at %}
+              {% if bxgy.starts_at %}From: {{ bxgy.starts_at|date:"M d, Y" }}<br>{% endif %}
+              {% if bxgy.ends_at %}Until: {{ bxgy.ends_at|date:"M d, Y" }}{% endif %}
+            {% else %}
+              <span class="text-slate-400">None</span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+            <a href="{% url 'dashboard:pricing:bxgy_detail' prefix bxgy.id %}" class="text-primary hover:text-blue-700">Manage Details</a>
+            <button class="text-red-600 hover:text-red-800 delete-btn"
+                    data-name="{{ bxgy.name }}"
+                    data-url="{% url 'dashboard:pricing:bxgy_delete' prefix bxgy.id %}">Delete</button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="px-6 py-10 text-center text-slate-400 dark:text-slate-500">No Buy X Get Y campaigns found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if campaigns.has_other_pages %}
+  <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800">
+    <div class="text-sm text-slate-500">
+      Showing {{ campaigns.start_index }} to {{ campaigns.end_index }} of {{ campaigns.paginator.count }} items
+    </div>
+    <div class="flex space-x-2">
+      {% if campaigns.has_previous %}
+      <a href="?q={{ q|default:'' }}&status={{ status }}&page={{ campaigns.previous_page_number }}" class="px-3 py-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-md hover:bg-slate-50 dark:hover:bg-slate-600">Prev</a>
+      {% endif %}
+      {% if campaigns.has_next %}
+      <a href="?q={{ q|default:'' }}&status={{ status }}&page={{ campaigns.next_page_number }}" class="px-3 py-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-md hover:bg-slate-50 dark:hover:bg-slate-600">Next</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+      openDeleteModal("Delete Campaign",
+        `Are you sure you want to delete "${this.dataset.name}"? All assigned items will also be removed.`,
+        () => {
+          fetch(this.dataset.url, {method:"POST", headers:{"X-CSRFToken":"{{ csrf_token }}","Content-Type":"application/x-www-form-urlencoded"}})
+            .then(() => location.reload());
+        });
+    });
+  });
+});
+</script>
+{% endblock %}

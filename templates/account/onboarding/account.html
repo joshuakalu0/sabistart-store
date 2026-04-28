@@ -1,0 +1,24 @@
+{% extends "account/_auth_base.html" %}
+{% block auth_content %}
+  <div>
+    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-blue-600">Step 1 of 5</p>
+    <h1 class="mt-3 text-3xl font-extrabold text-slate-950">Create your platform account</h1>
+  </div>
+  <form method="post" class="mt-8 space-y-5">
+    {% csrf_token %}
+    <div class="grid gap-5 sm:grid-cols-2">
+      {% include "shared/forms/field.html" with field=form.first_name %}
+      {% include "shared/forms/field.html" with field=form.last_name %}
+    </div>
+    {% include "shared/forms/field.html" with field=form.email %}
+    {% include "shared/forms/field.html" with field=form.business_name %}
+    <div class="grid gap-5 sm:grid-cols-2">
+      {% include "shared/forms/field.html" with field=form.password1 %}
+      {% include "shared/forms/field.html" with field=form.password2 %}
+    </div>
+    {% include "shared/forms/field.html" with field=form.agree_terms %}
+    <div class="flex flex-wrap gap-3">
+      <button type="submit" class="inline-flex w-full items-center justify-center rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">Continue to plan</button>
+    </div>
+  </form>
+{% endblock %}

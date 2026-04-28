@@ -1,0 +1,93 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+  <section class="space-y-6">
+    <div class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-slate-200">
+      <p class="text-xs font-semibold uppercase tracking-[0.28em] text-blue-600">Theme Detail</p>
+      <h1 class="mt-3 text-3xl font-extrabold text-slate-950">{{ theme.name }}</h1>
+      <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-500">{{ theme.description }}</p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        {% if active_theme and theme.id == active_theme.theme_id %}
+          <a href="{% url 'dashboard:themes:installed' prefix=prefix %}" class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white">View installed themes</a>
+        {% elif installed_theme %}
+          <a href="{% url 'dashboard:themes:configure' prefix=prefix theme_id=theme.id %}" class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white">Configure theme</a>
+          <form method="post" action="{% url 'dashboard:themes:activate' prefix=prefix theme_id=theme.id %}">
+            {% csrf_token %}
+            <button type="submit" class="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700">Activate theme</button>
+          </form>
+        {% elif access_record %}
+          <form method="post" action="{% url 'dashboard:themes:install' prefix=prefix theme_id=theme.id %}">
+            {% csrf_token %}
+            <button type="submit" class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white">Install theme</button>
+          </form>
+        {% else %}
+          <form method="post" action="{% url 'dashboard:themes:acquire' prefix=prefix theme_id=theme.id %}">
+            {% csrf_token %}
+            <button type="submit" class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white">Acquire theme</button>
+          </form>
+        {% endif %}
+      </div>
+      {% if theme.feature_bullets %}
+        <div class="mt-6 flex flex-wrap gap-2">
+          {% for bullet in theme.feature_bullets %}
+            <span class="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">{{ bullet }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+    <div class="grid gap-6 lg:grid-cols-3">
+      <div class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Acquisition</p>
+        <p class="mt-3 text-2xl font-bold text-slate-950">{% if access_record %}Owned{% else %}Not acquired{% endif %}</p>
+      </div>
+      <div class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Installation</p>
+        <p class="mt-3 text-2xl font-bold text-slate-950">{% if installed_theme %}Installed{% else %}Not installed{% endif %}</p>
+      </div>
+      <div class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Live status</p>
+        <p class="mt-3 text-2xl font-bold text-slate-950">{% if active_theme and active_theme.theme_id == theme.id %}Active{% else %}Inactive{% endif %}</p>
+      </div>
+    </div>
+    {% if theme.offers.all %}
+      <div class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <h2 class="text-lg font-bold text-slate-950">Pricing Offers</h2>
+        <div class="mt-4 grid gap-3 md:grid-cols-2">
+          {% for offer in theme.offers.all %}
+            <div class="rounded-2xl bg-slate-50 px-4 py-4 text-sm text-slate-700">
+              <p class="font-semibold">{{ offer.name }}</p>
+              <p class="mt-1">{{ offer.currency }} {{ offer.price }}</p>
+              <p class="mt-1 text-xs uppercase tracking-[0.18em] text-slate-400">{{ offer.get_offer_type_display }}{% if offer.billing_interval != 'none' %} • {{ offer.get_billing_interval_display }}{% endif %}</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+    <div class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-200">
+      <h2 class="text-lg font-bold text-slate-950">Included pages</h2>
+      <div class="mt-4 grid gap-3 md:grid-cols-2">
+        {% for page in theme.base_pages.all %}
+          <div class="rounded-2xl bg-slate-50 px-4 py-4 text-sm text-slate-700">
+            <p class="font-semibold">{{ page.page_name }}</p>
+            <p class="mt-1 text-xs text-slate-500">{{ page.file_path }}</p>
+          </div>
+        {% empty %}
+          <p class="text-sm text-slate-500">No page map was synced for this theme yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+    {% if theme.releases.all %}
+      <div class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <h2 class="text-lg font-bold text-slate-950">Release history</h2>
+        <div class="mt-4 space-y-3">
+          {% for release in theme.releases.all|slice:":3" %}
+            <div class="rounded-2xl bg-slate-50 px-4 py-4 text-sm text-slate-700">
+              <p class="font-semibold">{{ release.version }}{% if release.title %} • {{ release.title }}{% endif %}</p>
+              <p class="mt-1 text-xs text-slate-500">{{ release.released_at|date:"M d, Y" }}</p>
+              {% if release.changelog %}<p class="mt-3 whitespace-pre-line text-slate-600">{{ release.changelog|truncatechars:260 }}</p>{% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

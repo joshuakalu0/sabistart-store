@@ -1,0 +1,29 @@
+<div class="flex flex-wrap items-center gap-2">
+  {% if domain.status == 'active' %}
+    <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">Active</span>
+  {% elif domain.status == 'dns_verified' %}
+    <span class="inline-flex items-center rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">DNS Verified</span>
+  {% elif domain.status == 'ssl_pending' %}
+    <span class="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">SSL Pending</span>
+  {% elif domain.status == 'dns_checking' %}
+    <span class="inline-flex items-center rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700">Checking DNS</span>
+  {% elif domain.status == 'failed' %}
+    <span class="inline-flex items-center rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700">Needs Attention</span>
+  {% elif domain.status == 'suspended' %}
+    <span class="inline-flex items-center rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700">Suspended</span>
+  {% else %}
+    <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">Pending</span>
+  {% endif %}
+
+  {% if domain.is_primary %}
+    <span class="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">Primary</span>
+  {% endif %}
+
+  {% if domain.ssl_status == 'active' %}
+    <span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">SSL Active</span>
+  {% elif domain.ssl_status == 'provisioning' %}
+    <span class="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">SSL Provisioning</span>
+  {% elif domain.ssl_status == 'failed' %}
+    <span class="inline-flex items-center rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">SSL Failed</span>
+  {% endif %}
+</div>

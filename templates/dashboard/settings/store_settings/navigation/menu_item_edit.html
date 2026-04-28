@@ -1,0 +1,148 @@
+{% extends "dashboard/_partials/base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      Edit Menu Item
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Update menu item details
+    </p>
+  </div>
+  <div class="flex space-x-4">
+    <a
+      href="{% url 'dashboard:store_settings:navigation_menu_item_list' prefix menu.pk %}"
+      class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+    >
+      <span class="material-icons-outlined text-sm mr-2">arrow_back</span>
+      Back to Items
+    </a>
+    <a
+      href="{% url 'dashboard:store_settings:navigation_menu_edit' prefix menu.pk %}"
+      class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+    >
+      <span class="material-icons-outlined text-sm mr-2">preview</span>
+      Preview Menu
+    </a>
+  </div>
+</div>
+
+<div
+  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+>
+  <div class="p-6 border-b border-slate-200 dark:border-slate-700">
+    <div>
+      <h3 class="text-lg font-semibold text-slate-800 dark:text-white">{{ menu.name }}</h3>
+      <p class="text-sm text-slate-600 dark:text-slate-400">{{ menu.description }}</p>
+    </div>
+  </div>
+
+  <div class="p-6">
+    <form method="post">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Item Details</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Item Label
+                </label>
+                {{ form.label }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Description
+                </label>
+                {{ form.description }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  URL
+                </label>
+                {{ form.url }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Type
+                </label>
+                {{ form.type }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Icon
+                </label>
+                {{ form.icon }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Item Settings</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Status
+                </label>
+                <div class="flex items-center space-x-4">
+                  <label class="flex items-center space-x-2">
+                    <input type="radio" name="{{ form.is_active.name }}" value="true" {% if form.is_active.value %}checked{% endif %}>
+                    <span class="text-sm text-slate-600 dark:text-slate-400">Active</span>
+                  </label>
+                  <label class="flex items-center space-x-2">
+                    <input type="radio" name="{{ form.is_active.name }}" value="false" {% if not form.is_active.value %}checked{% endif %}>
+                    <span class="text-sm text-slate-600 dark:text-slate-400">Inactive</span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.is_external.name }}" {% if form.is_external.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Open in new tab</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_in_mobile.name }}" {% if form.show_in_mobile.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Show in mobile menu</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_in_desktop.name }}" {% if form.show_in_desktop.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Show in desktop menu</span>
+                </label>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Sort Order
+                </label>
+                {{ form.sort_order }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-8 flex justify-end space-x-4">
+        <a
+          href="{% url 'dashboard:store_settings:navigation_menu_item_list' prefix menu.pk %}"
+          class="px-6 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+        >
+          Cancel
+        </a>
+        <button
+          type="submit"
+          class="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+        >
+          <span class="material-icons-outlined text-sm">save</span>
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

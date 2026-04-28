@@ -1,0 +1,59 @@
+{
+  "name": "Developer Pro",
+  "description": "A profile-led builder storefront with sidebar identity, stacked technical proof, repository highlights, certifications, and activity blocks.",
+  "version": "1.0.0",
+  "currency": "NGN",
+  "price": "0.00",
+  "is_free": true,
+  "is_published": true,
+  "is_featured": true,
+  "status": "approved",
+  "preview_image_path": "developer-pro/images/preview.svg",
+  "thumbnail_path": "developer-pro/images/preview.svg",
+  "schema_path": "schema.json",
+  "changelog_path": "CHANGELOG.md",
+  "features": [
+    "Sidebar profile navigation",
+    "Repository and certification modules",
+    "Developer credibility layout"
+  ],
+  "category": {
+    "slug": "developer-showcase",
+    "name": "Developer Showcase",
+    "description": "Themes for technical professionals, builders, educators, and code-first storefront storytelling.",
+    "sort_order": 50,
+    "is_active": true
+  },
+  "metadata": {
+    "tone": "technical",
+    "audience": "developers and technical creators"
+  },
+  "offers": [
+    {
+      "name": "Launch Free",
+      "offer_type": "free",
+      "billing_interval": "none",
+      "currency": "NGN",
+      "price": "0.00",
+      "is_default": true,
+      "is_active": true
+    }
+  ],
+  "releases": [
+    {
+      "version": "1.0.0",
+      "title": "Initial developer package",
+      "changelog": "Introduces a technical creator layout with profile rail, repositories, certifications, and activity sections."
+    }
+  ],
+  "pages": [
+    "home.html",
+    "catalog/listing.html",
+    "catalog/product_detail.html",
+    "cart/cart.html",
+    "checkout/info.html",
+    "auth/login.html",
+    "account/dashboard.html",
+    "shared/info_page.html"
+  ]
+}

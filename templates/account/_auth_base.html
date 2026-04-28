@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>{{ page_title|default:"Account" }} - SABIStart</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style type="text/tailwindcss">
+      body {
+        @apply min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.14),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.12),_transparent_28%),linear-gradient(180deg,#f8fafc_0%,#eef2ff_100%)] font-['Manrope'] text-slate-900;
+      }
+    </style>
+  </head>
+  <body class="px-4 py-10">
+    <div class="mx-auto grid min-h-[calc(100vh-5rem)] max-w-6xl items-center gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+      <section class="hidden rounded-[2rem] border border-white/60 bg-white/70 p-10 shadow-2xl shadow-blue-950/10 backdrop-blur lg:block">
+        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-blue-600">SaaS Commerce Platform</p>
+        <h1 class="mt-4 max-w-lg text-5xl font-extrabold leading-tight text-slate-950">Operate stores, payments, and feature sales from one modern control layer.</h1>
+        <p class="mt-5 max-w-xl text-base leading-7 text-slate-600">The platform workspace is built to manage live storefront infrastructure without jumping between mismatched admin pages.</p>
+        <div class="mt-8 grid gap-4 sm:grid-cols-3">
+          <div class="rounded-3xl border border-slate-200 bg-white p-5">
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Stores</p>
+            <p class="mt-3 text-sm text-slate-600">Spin up and manage tenant storefronts.</p>
+          </div>
+          <div class="rounded-3xl border border-slate-200 bg-white p-5">
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Payments</p>
+            <p class="mt-3 text-sm text-slate-600">Control gateway health and marketplace checkout.</p>
+          </div>
+          <div class="rounded-3xl border border-slate-200 bg-white p-5">
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Features</p>
+            <p class="mt-3 text-sm text-slate-600">Sell capabilities with entitlement-backed access.</p>
+          </div>
+        </div>
+      </section>
+      <section class="mx-auto w-full max-w-xl rounded-[2rem] border border-white/60 bg-white/90 p-8 shadow-2xl shadow-slate-950/10 backdrop-blur sm:p-10">
+        {% if messages %}
+          <div class="mb-6 space-y-3">
+            {% for message in messages %}
+              <div class="rounded-2xl border px-4 py-3 text-sm {% if message.tags == 'error' %}border-rose-200 bg-rose-50 text-rose-700{% elif message.tags == 'success' %}border-emerald-200 bg-emerald-50 text-emerald-700{% else %}border-blue-200 bg-blue-50 text-blue-700{% endif %}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% block auth_content %}{% endblock %}
+      </section>
+    </div>
+    <script>
+      (function () {
+        const startedAt = Date.now();
+        const send = () => {
+          const payload = JSON.stringify({
+            path: window.location.pathname,
+            title: document.title,
+            duration_ms: Date.now() - startedAt,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
+            language: navigator.language || "",
+            visibility_state: document.visibilityState || "",
+            screen: { width: window.innerWidth, height: window.innerHeight },
+          });
+          if (navigator.sendBeacon) {
+            navigator.sendBeacon("{% url 'monitoring:beacon' %}", new Blob([payload], { type: "application/json" }));
+            return;
+          }
+          fetch("{% url 'monitoring:beacon' %}", { method: "POST", headers: { "Content-Type": "application/json" }, body: payload, keepalive: true }).catch(() => {});
+        };
+        window.addEventListener("pagehide", send, { once: true });
+      }());
+    </script>
+  </body>
+</html>

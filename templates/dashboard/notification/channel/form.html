@@ -1,0 +1,144 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+
+    <!-- Page header -->
+    <div class="sm:flex sm:justify-between sm:items-center mb-8">
+        <div class="mb-4 sm:mb-0">
+            <h1 class="text-2xl md:text-3xl text-slate-800 font-bold">{% if is_new %}{% trans "Create Channel" %}{% else %}{% trans "Edit Channel:" %} {{ channel.name }}{% endif %}</h1>
+        </div>
+        <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
+            <a href="{% url 'dashboard:notification_channel_list' prefix=prefix %}" class="btn bg-white border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-600">
+                <span class="hidden xs:block">{% trans "Cancel" %}</span>
+            </a>
+            <button type="submit" form="channel-form" class="btn bg-indigo-500 hover:bg-indigo-600 text-white">
+                <svg class="w-4 h-4 fill-current opacity-50 shrink-0 mr-2" viewBox="0 0 16 16">
+                    <path d="M14.3 2.3L5 11.6 1.7 8.3c-.4-.4-1-.4-1.4 0-.4.4-.4 1 0 1.4l4 4c.2.2.4.3.7.3.3 0 .5-.1.7-.3l10-10c.4-.4.4-1 0-1.4-.4-.4-1-.4-1.4 0z" />
+                </svg>
+                <span class="hidden xs:block">{% trans "Save Changes" %}</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white shadow-lg rounded-sm mb-8">
+        <div class="flex flex-col md:flex-row md:-mr-px">
+            <div class="grow">
+                <form id="channel-form" method="POST" action="">
+                    {% csrf_token %}
+
+                    <div class="p-6 space-y-6">
+                        <!-- Basic Setup -->
+                        <section>
+                            <h2 class="text-xl leading-snug text-slate-800 font-bold mb-1">Channel Identity</h2>
+                            <div class="text-sm text-slate-500 mb-4">Define the basics of this notification channel.</div>
+
+                            <div class="grid gap-5 md:grid-cols-2">
+                                <div>
+                                    <label class="block text-sm font-medium mb-1" for="{{ form.name.id_for_label }}">{{ form.name.label }} <span class="text-rose-500">*</span></label>
+                                    {{ form.name }}
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1" for="{{ form.channel_type.id_for_label }}">{{ form.channel_type.label }} <span class="text-rose-500">*</span></label>
+                                    {{ form.channel_type }}
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1" for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
+                                    {{ form.status }}
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1" for="{{ form.is_default.id_for_label }}">{{ form.is_default.label }}</label>
+                                    {{ form.is_default }}
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium mb-1" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                                    {{ form.description }}
+                                </div>
+                            </div>
+                        </section>
+
+                        <hr class="border-slate-200" />
+
+                        <!-- Rate Limits & Thresholds -->
+                        <section>
+                            <h2 class="text-xl leading-snug text-slate-800 font-bold mb-1">Limits & Thresholds</h2>
+                            <div class="text-sm text-slate-500 mb-4">Set rate limits to avoid provider throttling.</div>
+
+                            <div class="grid gap-5 md:grid-cols-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-1" for="{{ form.priority.id_for_label }}">{{ form.priority.label }}</label>
+                                    {{ form.priority }}
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1" for="{{ form.rate_limit_per_minute.id_for_label }}">{{ form.rate_limit_per_minute.label }}</label>
+                                    {{ form.rate_limit_per_minute }}
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1" for="{{ form.rate_limit_per_hour.id_for_label }}">{{ form.rate_limit_per_hour.label }}</label>
+                                    {{ form.rate_limit_per_hour }}
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1" for="{{ form.failure_threshold.id_for_label }}">{{ form.failure_threshold.label }}</label>
+                                    {{ form.failure_threshold }}
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Provider-Specific Config -->
+                        {% if config_form %}
+                        <hr class="border-slate-200" />
+                        <section>
+                            <h2 class="text-xl leading-snug text-slate-800 font-bold mb-1">Provider Configuration</h2>
+                            <div class="text-sm text-slate-500 mb-4">Fill in the provider-specific API keys and credentials.</div>
+
+                            <div class="grid gap-5 md:grid-cols-2">
+                                {% for field in config_form %}
+                                    <div class="{% if field.name == 'aws_service_account_json' or field.name == 'fcm_service_account_json' or field.name == 'apns_private_key' %}md:col-span-2{% endif %}">
+                                        <label class="block text-sm font-medium mb-1" for="{{ field.id_for_label }}">
+                                            {{ field.label }} {% if field.field.required %}<span class="text-rose-500">*</span>{% endif %}
+                                        </label>
+                                        {{ field }}
+                                        {% if field.help_text %}
+                                            <div class="text-xs text-slate-400 mt-1">{{ field.help_text }}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </section>
+                        {% endif %}
+
+                        {% if not is_new and not config_form %}
+                        <div class="bg-blue-50 border border-blue-200 rounded p-4 text-sm text-blue-600 mb-4">
+                            Save this channel first to unlock provider-specific configuration fields.
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styling form inputs automatically based on django outputs */
+    form input[type="text"], form input[type="email"], form input[type="password"], form input[type="number"], form input[type="url"], form select, form textarea {
+        width: 100%;
+        border-radius: 0.25rem;
+        border-color: #e2e8f0;
+        background-color: #fff;
+        font-size: 0.875rem;
+        padding: 0.5rem 0.75rem;
+    }
+    form input[type="checkbox"] {
+        border-radius: 0.125rem;
+        border-color: #cbd5e1;
+        width: 1rem;
+        height: 1rem;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %}

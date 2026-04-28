@@ -1,0 +1,211 @@
+{% extends "dashboard/_partials/base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      Pricing Settings
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Configure pricing rules, discounts, and markup settings
+    </p>
+  </div>
+  <a
+    href="{% url 'dashboard:store_settings:manage_pricing_settings' prefix %}"
+    class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+  >
+    <span class="material-icons-outlined text-sm mr-2">refresh</span>
+    Refresh
+  </a>
+</div>
+
+<div
+  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+>
+  <div class="p-6">
+    <form method="post">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Pricing Rules</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Default Markup (%)
+                </label>
+                {{ form.default_markup }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Minimum Profit Margin (%)
+                </label>
+                {{ form.minimum_profit_margin }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Maximum Discount (%)
+                </label>
+                {{ form.maximum_discount }}
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_tiered_pricing.name }}" {% if form.enable_tiered_pricing.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Tiered Pricing</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_bulk_pricing.name }}" {% if form.enable_bulk_pricing.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Bulk Pricing</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_dynamic_pricing.name }}" {% if form.enable_dynamic_pricing.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Dynamic Pricing</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Discount Settings</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_percentage_discounts.name }}" {% if form.enable_percentage_discounts.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Percentage Discounts</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_fixed_amount_discounts.name }}" {% if form.enable_fixed_amount_discounts.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Fixed Amount Discounts</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_buy_one_get_one.name }}" {% if form.enable_buy_one_get_one.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Buy One Get One</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_volume_discounts.name }}" {% if form.enable_volume_discounts.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Volume Discounts</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_seasonal_discounts.name }}" {% if form.enable_seasonal_discounts.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Seasonal Discounts</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_promotional_codes.name }}" {% if form.enable_promotional_codes.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Promotional Codes</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Currency Settings</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Currency Symbol
+                </label>
+                {{ form.currency_symbol }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Currency Position
+                </label>
+                {{ form.currency_position }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Thousand Separator
+                </label>
+                {{ form.thousand_separator }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Decimal Separator
+                </label>
+                {{ form.decimal_separator }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Number of Decimals
+                </label>
+                {{ form.number_of_decimals }}
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_multi_currency.name }}" {% if form.enable_multi_currency.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Multi-Currency</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Pricing Display</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_savings_amount.name }}" {% if form.show_savings_amount.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Show Savings Amount</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_savings_percentage.name }}" {% if form.show_savings_percentage.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Show Savings Percentage</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_installment_options.name }}" {% if form.show_installment_options.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Show Installment Options</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_price_range.name }}" {% if form.show_price_range.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Show Price Range</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_price_comparison.name }}" {% if form.enable_price_comparison.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Price Comparison</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_tax_included.name }}" {% if form.show_tax_included.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Show Tax Included</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-8 flex justify-end space-x-4">
+        <button
+          type="submit"
+          class="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+        >
+          <span class="material-icons-outlined text-sm">save</span>
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

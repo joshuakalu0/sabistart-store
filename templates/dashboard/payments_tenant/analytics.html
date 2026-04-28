@@ -1,0 +1,165 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="space-y-6">
+  <section class="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+    <div class="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.32em] text-blue-600">Finance Analytics</p>
+        <h1 class="mt-3 text-3xl font-extrabold text-slate-950">Payments analytics</h1>
+        <p class="mt-3 max-w-3xl text-sm leading-7 text-slate-500">Revenue, funnel drop-off, gateway health, refund pressure, and dispute exposure all rendered from the shared analytics contract.</p>
+      </div>
+      <form method="get" class="grid gap-3 sm:grid-cols-2 xl:flex xl:flex-wrap xl:items-end">
+        <label class="block">
+          <span class="mb-2 block text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Period</span>
+          <select name="period" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+            {% for option in analytics_bundle.filters.period_options %}
+              <option value="{{ option.value }}"{% if analytics_bundle.filters.period == option.value %} selected{% endif %}>{{ option.label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="block">
+          <span class="mb-2 block text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Start</span>
+          <input type="date" name="start" value="{{ analytics_bundle.filters.start }}" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+        </label>
+        <label class="block">
+          <span class="mb-2 block text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">End</span>
+          <input type="date" name="end" value="{{ analytics_bundle.filters.end }}" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+        </label>
+        <label class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+          <input type="checkbox" name="compare" value="1"{% if analytics_bundle.filters.compare %} checked{% endif %} class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+          <span class="text-sm font-medium text-slate-700">Compare period</span>
+        </label>
+        <button type="submit" class="inline-flex items-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700">Refresh</button>
+        <a href="{{ payment_export_urls.csv }}" class="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-950">CSV</a>
+        <a href="{{ payment_export_urls.xlsx }}" class="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-950">Excel</a>
+        <a href="{{ payment_export_urls.pdf }}" class="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-950">PDF</a>
+      </form>
+    </div>
+  </section>
+
+  <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    {% for kpi in analytics_bundle.kpis %}
+      <article class="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
+        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">{{ kpi.label }}</p>
+        <p class="mt-3 text-3xl font-extrabold text-slate-950" data-payment-kpi-format="{{ kpi.format }}" data-payment-kpi-value="{{ kpi.value }}"></p>
+        <p class="mt-2 text-sm text-slate-500">{{ kpi.helper }}</p>
+      </article>
+    {% endfor %}
+  </section>
+
+  <section class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-lg font-bold text-slate-950">Revenue Over Time</h2>
+      <div class="mt-5 h-80"><canvas id="paymentsRevenueChart"></canvas></div>
+    </div>
+    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-lg font-bold text-slate-950">Checkout Funnel</h2>
+      <div class="mt-5 h-80"><canvas id="paymentsFunnelChart"></canvas></div>
+    </div>
+    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-lg font-bold text-slate-950">Gateway Performance</h2>
+      <div class="mt-5 h-80"><canvas id="paymentsGatewayChart"></canvas></div>
+    </div>
+    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-lg font-bold text-slate-950">Payment Method Mix</h2>
+      <div class="mt-5 h-80"><canvas id="paymentsMethodChart"></canvas></div>
+    </div>
+  </section>
+
+  <section class="grid grid-cols-1 gap-6 md:grid-cols-2">
+    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <h3 class="text-lg font-bold text-slate-950">Refund Summary</h3>
+      <dl class="mt-4 space-y-3 text-sm">
+        <div class="flex justify-between"><dt class="text-slate-500">Total Refunds</dt><dd class="font-medium text-slate-900">{{ analytics_bundle.refund_analysis.total_refunds }}</dd></div>
+        <div class="flex justify-between"><dt class="text-slate-500">Refund Volume</dt><dd class="font-medium text-slate-900">{{ analytics_bundle.refund_analysis.total_refunded }}</dd></div>
+        <div class="flex justify-between"><dt class="text-slate-500">Refund Rate</dt><dd class="font-medium text-slate-900">{{ analytics_bundle.refund_analysis.refund_rate_pct }}%</dd></div>
+      </dl>
+    </div>
+    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <h3 class="text-lg font-bold text-slate-950">Dispute Summary</h3>
+      <dl class="mt-4 space-y-3 text-sm">
+        <div class="flex justify-between"><dt class="text-slate-500">Total Disputes</dt><dd class="font-medium text-slate-900">{{ analytics_bundle.dispute_analysis.total_disputes }}</dd></div>
+        <div class="flex justify-between"><dt class="text-slate-500">Dispute Amount</dt><dd class="font-medium text-slate-900">{{ analytics_bundle.dispute_analysis.total_amount }}</dd></div>
+        <div class="flex justify-between"><dt class="text-slate-500">Win Rate</dt><dd class="font-medium text-slate-900">{{ analytics_bundle.dispute_analysis.win_rate_pct }}%</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+    <h3 class="text-lg font-bold text-slate-950">{{ analytics_bundle.table_title }}</h3>
+    <div class="mt-5 overflow-hidden rounded-[1.5rem] border border-slate-200">
+      <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <thead class="bg-slate-50">
+          <tr>
+            {% for column in analytics_bundle.table_columns %}
+              <th class="px-4 py-3 text-left font-semibold text-slate-500">{{ column }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 bg-white">
+          {% for row in analytics_bundle.table_matrix %}
+            <tr>
+              {% for value in row %}
+                <td class="px-4 py-3 text-slate-700">{{ value }}</td>
+              {% endfor %}
+            </tr>
+          {% empty %}
+            <tr><td colspan="{{ analytics_bundle.table_columns|length }}" class="px-4 py-10 text-center text-slate-500">No gateway metrics found for this window.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(() => {
+  const bundle = {{ analytics_bundle_json|safe }};
+
+  function money(value) {
+    return new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(Number(value || 0));
+  }
+
+  document.querySelectorAll("[data-payment-kpi-format]").forEach((node) => {
+    const format = node.dataset.paymentKpiFormat;
+    const value = node.dataset.paymentKpiValue;
+    if (format === "currency") {
+      node.textContent = money(value);
+    } else if (format === "decimal") {
+      node.textContent = Number(value || 0).toFixed(2);
+    } else {
+      node.textContent = new Intl.NumberFormat().format(Number(value || 0));
+    }
+  });
+
+  const revenue = bundle.charts.revenue;
+  const funnel = bundle.charts.funnel;
+  const gateway = bundle.charts.gateway_performance;
+  const methods = bundle.charts.payment_method_mix;
+
+  new Chart(document.getElementById("paymentsRevenueChart"), {
+    type: "line",
+    data: { labels: revenue.labels, datasets: revenue.datasets },
+    options: { responsive: true, maintainAspectRatio: false },
+  });
+  new Chart(document.getElementById("paymentsFunnelChart"), {
+    type: "bar",
+    data: { labels: funnel.labels, datasets: funnel.datasets },
+    options: { responsive: true, maintainAspectRatio: false, indexAxis: "y" },
+  });
+  new Chart(document.getElementById("paymentsGatewayChart"), {
+    type: "bar",
+    data: { labels: gateway.labels, datasets: gateway.datasets },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } },
+  });
+  new Chart(document.getElementById("paymentsMethodChart"), {
+    type: "doughnut",
+    data: { labels: methods.labels, datasets: methods.datasets },
+    options: { responsive: true, maintainAspectRatio: false },
+  });
+})();
+</script>
+{% endblock %}

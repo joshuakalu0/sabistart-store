@@ -1,0 +1,285 @@
+        <!-- Basic Information -->
+        <div
+          class="bg-white rounded-xl shadow-sm border border-gray-200 section-card"
+        >
+          <div class="p-6">
+            <h2
+              class="text-lg font-semibold text-gray-900 mb-4 flex items-center"
+            >
+              <svg
+                class="w-5 h-5 mr-2 text-primary-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+              Basic Information
+            </h2>
+            <div class="space-y-4">
+              <!-- Product Name -->
+              <div>
+                <label
+                  for="{{ form.basic_form.name.id_for_label }}"
+                  class="block text-sm font-medium text-gray-700 required-field"
+                  >Product Name</label
+                >
+                {{ form.basic_form.name }} {% if form.basic_form.name.errors %}
+                <p class="error-message">{{ form.basic_form.name.errors.0 }}</p>
+                {% endif %}
+              </div>
+
+              <!-- URL Slug -->
+              <div>
+                <label
+                  for="{{ form.basic_form.slug.id_for_label }}"
+                  class="block text-sm font-medium text-gray-700"
+                  >URL Slug</label
+                >
+                <div class="mt-1 flex rounded-md shadow-sm">
+                  <span
+                    class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm"
+                    >yourstore.com/products/</span
+                  >
+                  {{ form.basic_form.slug }}
+                  <button
+                    type="button"
+                    onclick="generateSlug()"
+                    class="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:text-sm"
+                    title="Generate Slug"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </button>
+                </div>
+                {% if form.basic_form.slug.errors %}
+                <p class="error-message">{{ form.basic_form.slug.errors.0 }}</p>
+                {% endif %}
+              </div>
+                <!-- Product Type Selection -->
+            {% comment %} <div class="mb-6">
+              <label
+                for="productType"
+                class="block text-sm font-medium text-gray-700 mb-2 required-field"
+                >Product Type</label
+              >
+              <select
+                id="productType"
+                name="product_type"
+                class="block w-full  rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3"
+                onchange="handleProductTypeChange()"
+              >
+                <option
+                  value="simple"
+                  {% if form.basic_form.instance.product_type == "simple"  %}
+                  selected{% endif %}
+                >
+                  Simple Product
+                </option>
+                <option
+                  value="variable"
+                  {% if form.basic_form.instance.product_type == "variable" %}
+                  selected {% endif %}
+                >
+                  Variable Product (has variants)
+                </option>
+              </select>
+              <p class="mt-1 text-xs text-gray-500">
+                Simple products have no variations. Variable products can have multiple
+                variants based on attributes.
+              </p>
+            </div> {% endcomment %}
+
+              <!-- SKU -->
+              <div>
+                <label
+                  for="{{ form.basic_form.sku.id_for_label }}"
+                  class="block text-sm font-medium text-gray-700 required-field"
+                  >SKU</label
+                >
+                {{ form.basic_form.sku }} {% if form.basic_form.sku.errors %}
+                <p class="error-message">{{ form.basic_form.sku.errors.0 }}</p>
+                {% endif %}
+              </div>
+
+              <!-- Short Description -->
+              <div>
+                <label
+                  for="{{ form.basic_form.short_description.id_for_label }}"
+                  class="block text-sm font-medium text-gray-700"
+                  >Short Description</label
+                >
+                {{ form.basic_form.short_description }}
+                <p class="mt-1 text-xs text-gray-500">
+                  <span id="shortDescCount">0</span>/500 characters
+                </p>
+                {% if form.basic_form.short_description.errors %}
+                <p class="error-message">
+                  {{ form.basic_form.short_description.errors.0 }}
+                </p>
+                {% endif %}
+              </div>
+
+              <!-- Description -->
+              <div>
+                <label
+                  for="productDescription"
+                  class="block text-sm font-medium text-gray-700"
+                  >Description</label
+                >
+                <div
+                  class="mt-1 border border-gray-300 rounded-lg overflow-hidden"
+                >
+                  <div
+                    class="bg-gray-50 px-3 py-2 border-b border-gray-300 flex items-center space-x-2"
+                  >
+                    <button
+                      type="button"
+                      class="p-1 hover:bg-gray-200 rounded"
+                      title="Bold"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 12h8a4 4 0 100-8H6v8zm6 0h4a4 4 0 110 8H6v-8h6z"
+                        ></path>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      class="p-1 hover:bg-gray-200 rounded"
+                      title="Italic"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                        ></path>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      class="p-1 hover:bg-gray-200 rounded"
+                      title="Underline"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+                        ></path>
+                      </svg>
+                    </button>
+                    <div class="border-l border-gray-300 h-4 mx-2"></div>
+                    <button
+                      type="button"
+                      class="p-1 hover:bg-gray-200 rounded"
+                      title="Bullet List"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M4 6h16M4 12h16M4 18h16"
+                        ></path>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      class="p-1 hover:bg-gray-200 rounded"
+                      title="Numbered List"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"
+                        ></path>
+                      </svg>
+                    </button>
+                  </div>
+                  {{ form.basic_form.description }}
+                </div>
+                {% if form.basic_form.description.errors %}
+                <p class="error-message">
+                  {{ form.basic_form.description.errors.0 }}
+                </p>
+                {% endif %}
+              </div>
+
+              <!-- Brand -->
+              <div>
+                <label
+                  for="{{ form.basic_form.brand.id_for_label }}"
+                  class="block text-sm font-medium text-gray-700"
+                  >Brand</label
+                >
+                {{ form.basic_form.brand }}
+                {% if form.basic_form.brand.errors %}
+                <p class="error-message">
+                  {{ form.basic_form.brand.errors.0 }}
+                </p>
+                {% endif %}
+              </div>
+
+              <div class="rounded-xl border border-blue-100 bg-blue-50/70 p-4">
+                <div class="flex items-start justify-between gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-900" for="{{ form.basic_form.is_pos_available.id_for_label }}">
+                      Sell this product in POS
+                    </label>
+                    <p class="mt-1 text-sm text-gray-600">
+                      Turn this on when the product should be available for location inventory and in-store checkout.
+                    </p>
+                  </div>
+                  <div class="shrink-0">
+                    {{ form.basic_form.is_pos_available }}
+                  </div>
+                </div>
+                {% if form.basic_form.is_pos_available.errors %}
+                <p class="error-message mt-3">
+                  {{ form.basic_form.is_pos_available.errors.0 }}
+                </p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>

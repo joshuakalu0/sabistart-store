@@ -1,0 +1,128 @@
+<div class="space-y-6">
+  <!-- Preview Image -->
+  {% if preset.preview_image %}
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Preview
+    </h4>
+    <img
+      src="{{ preset.preview_image.url }}"
+      alt="{{ preset.name }}"
+      class="w-full h-48 object-cover rounded-lg border border-slate-200 dark:border-slate-700"
+    />
+  </div>
+  {% endif %}
+
+  <!-- Basic Information -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Basic Information
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Name:</span>
+        <span class="text-sm text-slate-900 dark:text-white flex-1">{{ preset.name }}</span>
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Description:</span>
+        <span class="text-sm text-slate-900 dark:text-white flex-1">{{ preset.description }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Classification -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Classification
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Style:</span>
+        <span class="text-sm text-slate-900 dark:text-white flex-1">
+          <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs rounded-md capitalize">
+            {{ preset.get_style_display }}
+          </span>
+        </span>
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Industry:</span>
+        <span class="text-sm text-slate-900 dark:text-white flex-1">
+          <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs rounded-md capitalize">
+            {{ preset.get_industry_display }}
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Status
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Default:</span>
+        <span class="text-sm text-slate-900 dark:text-white flex-1">
+          {% if preset.is_default %}
+          <span class="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 text-xs rounded-full">Yes</span>
+          {% else %}
+          <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-xs rounded-full">No</span>
+          {% endif %}
+        </span>
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Featured:</span>
+        <span class="text-sm text-slate-900 dark:text-white flex-1">
+          {% if preset.is_featured %}
+          <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 text-xs rounded-full">Yes</span>
+          {% else %}
+          <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-xs rounded-full">No</span>
+          {% endif %}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Usage Stats -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Usage Statistics
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Usage Count:</span>
+        <span class="text-sm text-slate-900 dark:text-white flex-1">{{ preset.usage_count }} stores</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Theme Configuration -->
+  {% if preset.theme_config %}
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Theme Configuration
+    </h4>
+    <div class="bg-slate-50 dark:bg-slate-900 rounded-lg p-4 max-h-64 overflow-auto">
+      <pre class="text-xs font-mono text-slate-700 dark:text-slate-300">{{ preset.theme_config|pprint }}</pre>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Dates -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Dates
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Created:</span>
+        <span class="text-sm text-slate-900 dark:text-white flex-1">{{ preset.created_at|date:"M d, Y H:i" }}</span>
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Updated:</span>
+        <span class="text-sm text-slate-900 dark:text-white flex-1">{{ preset.updated_at|date:"M d, Y H:i" }}</span>
+      </div>
+    </div>
+  </div>
+</div>

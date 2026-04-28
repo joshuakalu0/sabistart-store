@@ -1,0 +1,56 @@
+{% extends "account/features/base.html" %}
+{% block page_intro %}
+  <p class="mt-2 text-sm text-slate-500">Monitor shared catalog coverage, recent purchases, and tenant marketplace activity from the public schema.</p>
+{% endblock %}
+{% block feature_content %}
+  <div class="space-y-6">
+    <div class="grid gap-4 sm:grid-cols-4">
+      <div class="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm"><p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Features</p><p class="mt-4 text-4xl font-extrabold text-slate-950">{{ feature_count }}</p></div>
+      <div class="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm"><p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Bundles</p><p class="mt-4 text-4xl font-extrabold text-slate-950">{{ bundle_count }}</p></div>
+      <div class="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm"><p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Coupons</p><p class="mt-4 text-4xl font-extrabold text-slate-950">{{ coupon_count }}</p></div>
+      <div class="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm"><p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Gateways</p><p class="mt-4 text-4xl font-extrabold text-slate-950">{{ gateway_options|length }}</p></div>
+    </div>
+    <div class="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+      <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <h3 class="text-lg font-bold text-slate-950">Recent marketplace purchases</h3>
+        <div class="mt-6 overflow-x-auto">
+          <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-slate-50">
+              <tr>
+                <th class="px-4 py-3 text-left font-semibold text-slate-400">Reference</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-400">Tenant</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-400">Status</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-400">Gateway</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+              {% for item in recent_purchases %}
+                <tr class="hover:bg-slate-50">
+                  <td class="px-4 py-3"><a class="font-mono text-xs font-semibold text-blue-600 hover:text-blue-700" href="{% url 'platform_features:checkout_session' item.purchase_reference %}">{{ item.purchase_reference }}</a></td>
+                  <td class="px-4 py-3"><a class="font-medium text-slate-700 hover:text-slate-950" href="{% url 'platform_features:tenant_detail' item.schema_name %}">{{ item.schema_name }}</a></td>
+                  <td class="px-4 py-3 text-slate-500">{{ item.get_status_display }}</td>
+                  <td class="px-4 py-3 text-slate-500">{{ item.gateway_provider|default:"-" }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500">No marketplace purchases yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <h3 class="text-lg font-bold text-slate-950">Tenant shortlist</h3>
+        <div class="mt-5 space-y-3">
+          {% for tenant in tenants %}
+            <a href="{% url 'platform_features:tenant_detail' tenant.schema_name %}" class="block rounded-[1.25rem] border border-slate-200 bg-slate-50 px-4 py-4 transition hover:border-slate-300 hover:bg-white">
+              <p class="font-semibold text-slate-950">{{ tenant.name }}</p>
+              <p class="mt-1 text-xs font-mono text-slate-500">{{ tenant.schema_name }}</p>
+            </a>
+          {% empty %}
+            <div class="rounded-[1.25rem] border border-dashed border-slate-300 px-4 py-8 text-sm text-slate-500">No tenants found.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

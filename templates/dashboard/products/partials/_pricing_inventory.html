@@ -1,0 +1,207 @@
+   <!-- Pricing -->
+        <div
+          class="bg-white rounded-xl shadow-sm border border-gray-200 section-card"
+        >
+
+          <div class="p-6">
+            <h2
+              class="text-lg font-semibold text-gray-900 mb-4 flex items-center"
+            >
+              <svg
+                class="w-5 h-5 mr-2 text-primary-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+              Pricing
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label
+                  for="{{ form.pricing_form.price.id_for_label }}"
+                  class="block text-sm font-medium text-gray-700 required-field"
+                  >Price</label
+                >
+                <div class="mt-1 relative rounded-md shadow-sm">
+                  <div
+                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                  >
+                    <span class="text-gray-500 sm:text-sm">$</span>
+                  </div>
+                  {{ form.pricing_form.price }}
+                </div>
+                {% if form.pricing_form.price.errors %}
+                <p class="error-message">
+                  {{ form.pricing_form.price.errors.0 }}
+                </p>
+                {% endif %}
+              </div>
+              <div>
+                <label
+                  for="{{ form.pricing_form.compare_at_price.id_for_label }}"
+                  class="block text-sm font-medium text-gray-700"
+                  >Compare at Price</label
+                >
+                <div class="mt-1 relative rounded-md shadow-sm">
+                  <div
+                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                  >
+                    <span class="text-gray-500 sm:text-sm">$</span>
+                  </div>
+                  {{ form.pricing_form.compare_at_price }}
+                </div>
+                {% if form.pricing_form.compare_at_price.errors %}
+                <p class="error-message">
+                  {{ form.pricing_form.compare_at_price.errors.0 }}
+                </p>
+                {% endif %}
+              </div>
+              <div>
+                <label
+                  for="{{ form.pricing_form.cost_price.id_for_label }}"
+                  class="block text-sm font-medium text-gray-700"
+                  >Cost Price</label
+                >
+                <div class="mt-1 relative rounded-md shadow-sm">
+                  <div
+                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                  >
+                    <span class="text-gray-500 sm:text-sm">$</span>
+                  </div>
+                  {{ form.pricing_form.cost_price }}
+                </div>
+                {% if form.pricing_form.cost_price.errors %}
+                <p class="error-message">
+                  {{ form.pricing_form.cost_price.errors.0 }}
+                </p>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Tax Settings -->
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label
+                  for="{{ form.pricing_form.tax_class.id_for_label }}"
+                  class="block text-sm font-medium text-gray-700"
+                  >Tax Class</label
+                >
+                {{ form.pricing_form.tax_class }}
+                {% if form.pricing_form.tax_class.errors %}
+                <p class="error-message">
+                  {{ form.pricing_form.tax_class.errors.0 }}
+                </p>
+                {% endif %}
+              </div>
+              <div>
+                <label
+                  for="{{ form.pricing_form.tax_status.id_for_label }}"
+                  class="block text-sm font-medium text-gray-700"
+                  >Tax Status</label
+                >
+                {{ form.pricing_form.tax_status }}
+                {% if form.pricing_form.tax_status.errors %}
+                <p class="error-message">
+                  {{ form.pricing_form.tax_status.errors.0 }}
+                </p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inventory -->
+        <div
+          class="bg-white rounded-xl shadow-sm border border-gray-200 section-card"
+        >
+          <div class="p-6">
+            <h2
+              class="text-lg font-semibold text-gray-900 mb-4 flex items-center"
+            >
+              <svg
+                class="w-5 h-5 mr-2 text-primary-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                ></path>
+              </svg>
+              Inventory
+            </h2>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <label class="text-sm font-medium text-gray-700"
+                  >Track Inventory</label
+                >
+                <div
+                  class="relative inline-block w-12 mr-2 align-middle select-none"
+                >
+                  {{ form.inventory_form.manage_stock }}
+
+                </div>
+              </div>
+              <div id="inventoryFields" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label
+                      for="{{ form.inventory_form.stock_quantity.id_for_label }}"
+                      class="block text-sm font-medium text-gray-700"
+                      >Stock Quantity</label
+                    >
+                    {{ form.inventory_form.stock_quantity }}
+                    {% if form.inventory_form.stock_quantity.errors %}
+                    <p class="error-message">
+                      {{ form.inventory_form.stock_quantity.errors.0 }}
+                    </p>
+                    {% endif %}
+                  </div>
+                  <div>
+                    <label
+                      for="{{ form.inventory_form.low_stock_threshold.id_for_label }}"
+                      class="block text-sm font-medium text-gray-700"
+                      >Low Stock Threshold</label
+                    >
+                    {{ form.inventory_form.low_stock_threshold }}
+                     {% if form.inventory_form.low_stock_threshold.errors %}
+                    <p class="error-message">
+                      {{ form.inventory_form.low_stock_threshold.errors.0 }}
+                    </p>
+                    {% endif %}
+                  </div>
+                  <div>
+                    <label
+                      for="{{ form.inventory_form.stock_status.id_for_label }}"
+                      class="block text-sm font-medium text-gray-700"
+                      >Stock Status</label
+                    >
+                    {{ form.inventory_form.stock_status }} {% if form.inventory_form.stock_status.errors %}
+                    <p class="error-message">
+                      {{ form.inventory_form.stock_status.errors.0 }}
+                    </p>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                  <label class="flex items-center">
+                    {{ form.inventory_form.backorders_allowed }}
+                    <span class="ml-2 text-sm text-gray-700"
+                      >Allow Backorders</span
+                    >
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>

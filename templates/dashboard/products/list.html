@@ -1,5 +1,4 @@
-{% extends "dashboard/_partials/base.html" %} {% load static %} {% block title %}{{ title }}
-{% endblock %} {% block content %}
+{% extends "dashboard/_partials/base.html" %} {% load static %}  {% block content %}
 <div class="flex items-center justify-between mb-6">
   <div>
     <h2 class="text-xl font-bold text-slate-900 dark:text-white">
@@ -50,7 +49,7 @@
           {% for value, label in statuses %}
           <option
             value="{{ value }}"
-            {% if status_filter == 'value' %}selected{% endif %}
+            {% if status_filter == "value" %}selected{% endif %}
           >
             {{ label }}
           </option>
@@ -61,10 +60,10 @@
           class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white"
         >
           <option value="">All Types</option>
-          {% for value, label in types   %}
+          {% for value, label in types %}
           <option
             value="{{ value }}"
-           {% if type_filter == value %}selected{% endif %}
+            {% if type_filter == "value" %}selected{% endif %}
           >
             {{ label }}
           </option>
@@ -160,6 +159,11 @@
                 <div class="text-sm text-slate-500 dark:text-slate-400">
                   {% if product.brand %}{{ product.brand.name }}{% endif %}
                 </div>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {% if product.is_pos_available %}bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200{% else %}bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300{% endif %}">
+                    {% if product.is_pos_available %}POS Ready{% else %}POS Locked{% endif %}
+                  </span>
+                </div>
               </div>
             </div>
           </td>
@@ -178,11 +182,14 @@
           <td
             class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400"
           >
-            {% if product.price %} ${{ product.price }} {% if product.compare_at_price %}
+            {% if product.price %} ${{ product.price }}
+            {% if roduct.compare_at_price %}
             <span class="text-slate-500 line-through ml-2"
               >${{ product.compare_at_price }}</span
             >
-            {% endif %} {% else %}
+            {% endif %}
+
+            {% else %}
             <span class="text-slate-500">-</span>
             {% endif %}
           </td>
@@ -223,16 +230,24 @@
             </div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+            <button
+              class="text-blue-600 hover:text-blue-800 cursor-pointer view-details-btn"
+              data-url="{% url 'dashboard:product_settings:product_details' prefix product.pk %}"
+            >
+              View Details
+            </button>
             <a
-              href="{% url 'dashboard:product_settings:product_edit' prefix product.pk %}"
+              href="{% url 'dashboard:product_settings:product_edit'  prefix product.pk %}"
               class="text-primary hover:text-blue-600"
               >Edit</a
             >
-            <a
-              href="{% url 'dashboard:product_settings:product_delete' prefix product.pk %}"
-              class="text-red-600 hover:text-red-800"
-              >Delete</a
+            <button
+              class="text-red-600 hover:text-red-800 cursor-pointer delete-btn"
+              data-name="{{ product.name }}"
+              data-url="{% url 'dashboard:product_settings:product_delete' prefix product.pk %}"
             >
+              Delete
+            </button>
           </td>
         </tr>
         {% endfor %} {% else %}
@@ -267,7 +282,8 @@
         >
           <span class="material-icons-outlined text-sm">chevron_left</span>
         </a>
-        {% endif %} {% for num in page_obj.paginator.page_range %} {% if page_obj.number == num %}
+        {% endif %} {% for num in page_obj.paginator.page_range %}
+         {% if page_obj.number == num %}
         <span
           class="relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 dark:bg-blue-900 text-sm font-medium text-blue-600 dark:text-blue-200"
         >
@@ -293,4 +309,39 @@
   </div>
   {% endif %}
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // View details functionality
+    document.querySelectorAll(".view-details-btn").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const url = this.dataset.url;
+        loadDetails(url);
+      });
+    });
+
+    // Delete functionality
+    document.querySelectorAll(".delete-btn").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const name = this.dataset.name;
+        const url = this.dataset.url;
+
+        openDeleteModal(
+          "Delete Product",
+          `Are you sure you want to delete "${name}"? This action cannot be undone.`,
+          function () {
+            fetch(url, {
+              method: "POST",
+              headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+            }).then(() => location.reload());
+          },
+        );
+      });
+    });
+  });
+</script>
+
 {% endblock %}

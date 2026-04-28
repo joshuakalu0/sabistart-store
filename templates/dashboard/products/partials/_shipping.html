@@ -1,0 +1,108 @@
+ <!-- Shipping -->
+        <div
+          class="bg-white rounded-xl shadow-sm border border-gray-200 section-card"
+        >
+          <div class="p-6">
+            <h2
+              class="text-lg font-semibold text-gray-900 mb-4 flex items-center"
+            >
+              <svg
+                class="w-5 h-5 mr-2 text-primary-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+                ></path>
+              </svg>
+              Shipping
+            </h2>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <label class="text-sm font-medium text-gray-700"
+                  >Requires Shipping</label
+                >
+                <div
+                  class="relative inline-block w-12 mr-2 align-middle select-none"
+                >
+                  {{ form.shipping_form.requires_shipping }}
+
+                </div>
+              </div>
+              <div id="shippingFields" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div>
+                    <label
+                      for="{{ form.shipping_form.weight.id_for_label }}"
+                      class="block text-sm font-medium text-gray-700"
+                      >Weight (kg)</label
+                    >
+                    {{ form.shipping_form.weight }}
+                    {% if form.shipping_form.weight.errors %}
+                    <p class="error-message">
+                      {{ form.shipping_form.weight.errors.0 }}
+                    </p>
+                    {% endif %}
+                  </div>
+                  <div>
+                    <label
+                      for="{{ form.shipping_form.length.id_for_label }}"
+                      class="block text-sm font-medium text-gray-700"
+                      >Length (cm)</label
+                    >
+                    {{ form.shipping_form.length }}
+                    {% if form.shipping_form.length.errors %}
+                    <p class="error-message">
+                      {{ form.shipping_form.length.errors.0 }}
+                    </p>
+                    {% endif %}
+                  </div>
+                  <div>
+                    <label
+                      for="{{ form.shipping_form.width.id_for_label }}"
+                      class="block text-sm font-medium text-gray-700"
+                      >Width (cm)</label
+                    >
+                    {{ form.shipping_form.width }}
+                     {% if  form.shipping_form.width.errors %}
+                    <p class="error-message">
+                      {{ form.shipping_form.width.errors.0 }}
+                    </p>
+                    {% endif %}
+                  </div>
+                  <div>
+                    <label
+                      for="{{ form.shipping_form.height.id_for_label }}"
+                      class="block text-sm font-medium text-gray-700"
+                      >Height (cm)</label
+                    >
+                    {{ form.shipping_form.height }}
+                    {% if form.shipping_form.height.errors %}
+                    <p class="error-message">
+                      {{ form.shipping_form.height.errors.0 }}
+                    </p>
+                    {% endif %}
+                  </div>
+                </div>
+                <div>
+                  <label
+                    for="{{ form.shipping_form.shipping_class.id_for_label }}"
+                    class="block text-sm font-medium text-gray-700"
+                    >Shipping Class</label
+                  >
+                  {{ form.shipping_form.shipping_class }}
+                   {% if form.shipping_form.shipping_class.errors %}
+                  <p class="error-message">
+                    {{ form.shipping_form.shipping_class.errors.0 }}
+                  </p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+

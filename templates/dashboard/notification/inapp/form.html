@@ -1,0 +1,97 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+
+    <!-- Page header -->
+    <div class="sm:flex sm:justify-between sm:items-center mb-8">
+        <div class="mb-4 sm:mb-0">
+            <h1 class="text-2xl md:text-3xl text-slate-800 font-bold">{% if is_new %}{% trans "New In-App Message" %}{% else %}{% trans "Edit Message" %}{% endif %}</h1>
+        </div>
+        <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
+            <a href="{% url 'dashboard:notification_inapp_list' prefix=prefix %}" class="btn bg-white border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-600">
+                Cancel
+            </a>
+            <button type="submit" form="inapp-form" class="btn bg-indigo-500 hover:bg-indigo-600 text-white">
+                Save Message
+            </button>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white shadow-lg rounded-sm mb-8">
+        <form id="inapp-form" method="POST" action="">
+            {% csrf_token %}
+            <div class="p-6 space-y-6">
+
+                <section>
+                    <h2 class="text-xl leading-snug text-slate-800 font-bold mb-1">Content</h2>
+                    <div class="grid gap-5 md:grid-cols-2">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium mb-1" for="{{ form.title.id_for_label }}">{{ form.title.label }} <span class="text-rose-500">*</span></label>
+                            {{ form.title }}
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium mb-1" for="{{ form.body.id_for_label }}">{{ form.body.label }} <span class="text-rose-500">*</span></label>
+                            {{ form.body }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.action_url.id_for_label }}">{{ form.action_url.label }}</label>
+                            {{ form.action_url }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.icon_url.id_for_label }}">{{ form.icon_url.label }}</label>
+                            {{ form.icon_url }}
+                        </div>
+                    </div>
+                </section>
+
+                <hr class="border-slate-200" />
+
+                <section>
+                    <h2 class="text-xl leading-snug text-slate-800 font-bold mb-1">Targeting & State</h2>
+                    <div class="grid gap-5 md:grid-cols-2">
+                        <div class="md:col-span-2 flex flex-col justify-start">
+                            <label class="block text-sm font-medium mb-1 flex items-center" for="{{ form.is_global.id_for_label }}">
+                                {{ form.is_global }}
+                                <span class="ml-2 font-bold">{{ form.is_global.label }}</span>
+                            </label>
+                            <div class="text-xs text-slate-500 ml-6">If checked, this message will be delivered to ALL users crossing the system. Used for system outages or mass announcements.</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
+                            {{ form.status }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.expires_at.id_for_label }}">{{ form.expires_at.label }}</label>
+                            {{ form.expires_at }}
+                            <div class="text-xs text-slate-500 mt-1">Optional. The message will auto-hide after this date.</div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<style>
+    form input[type="text"], form input[type="url"], form input[type="datetime-local"], form select, form textarea {
+        width: 100%;
+        border-radius: 0.25rem;
+        border-color: #cbd5e1;
+        background-color: #fff;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    form input[type="checkbox"] {
+        width: 1rem;
+        height: 1rem;
+        border-color: #cbd5e1;
+        border-radius: 0.125rem;
+    }
+</style>
+{% endblock %}

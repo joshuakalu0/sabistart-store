@@ -1,0 +1,134 @@
+<div class="space-y-6">
+  <!-- Basic Information Section -->
+  <div
+    class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+  >
+    <div
+      class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600"
+    >
+      <h3
+        class="text-lg font-semibold text-slate-900 dark:text-white flex items-center"
+      >
+        <span
+          class="material-icons-outlined text-lg mr-3 text-blue-600 dark:text-blue-400"
+          >check_box</span
+        >
+        Multi-Select Value
+      </h3>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+        Enter the multi-select value for this attribute
+      </p>
+    </div>
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+            >Value <span class="text-red-500">*</span></label
+          >
+          {{ form.value }} {% if form.value.errors %}<span
+            class="text-red-500 text-sm"
+            >{{ form.value.errors.0 }}</span
+          >{% endif %}
+        </div>
+        <div>
+          <label
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+            >Slug <span class="text-red-500">*</span></label
+          >
+          <div class="flex space-x-2">
+            {{ form.slug }}
+            <button
+              type="button"
+              onclick="generateSlug()"
+              class="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center"
+              title="Generate slug from value"
+            >
+              <span class="material-icons-outlined text-sm">refresh</span>
+            </button>
+          </div>
+          {% if form.slug.errors %}<span class="text-red-500 text-sm"
+            >{{ form.slug.errors.0 }}</span
+          >{% endif %}
+        </div>
+        <div class="md:col-span-2">
+          <label
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+            >Description</label
+          >
+          {{ form.description }} {% if form.description.errors %}<span
+            class="text-red-500 text-sm"
+            >{{ form.description.errors.0 }}</span
+          >{% endif %}
+        </div>
+        <div>
+          <label
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+            >Display Order</label
+          >
+          {{ form.display_order }} {% if form.display_order.errors %}<span
+            class="text-red-500 text-sm"
+            >{{ form.display_order.errors.0 }}</span
+          >{% endif %}
+        </div>
+        <div>
+          <label
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+            >Extra Price</label
+          >
+          {{ form.extra_price }} {% if form.extra_price.errors %}<span
+            class="text-red-500 text-sm"
+            >{{ form.extra_price.errors.0 }}</span
+          >{% endif %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Media Section -->
+  <div
+    class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+  >
+    <div
+      class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600"
+    >
+      <h3
+        class="text-lg font-semibold text-slate-900 dark:text-white flex items-center"
+      >
+        <span
+          class="material-icons-outlined text-lg mr-3 text-purple-600 dark:text-purple-400"
+          >image</span
+        >
+        Media & Display
+      </h3>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+        Upload images or swatches for visual representation
+      </p>
+    </div>
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+            >Image</label
+          >
+          {{ form.image }} {% if form.image.errors %}<span
+            class="text-red-500 text-sm"
+            >{{ form.image.errors.0 }}</span
+          >{% endif %}
+        </div>
+        <div>
+          <label
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+            >Swatch</label
+          >
+          {{ form.swatch }} {% if form.swatch.errors %}<span
+            class="text-red-500 text-sm"
+            >{{ form.swatch.errors.0 }}</span
+          >{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

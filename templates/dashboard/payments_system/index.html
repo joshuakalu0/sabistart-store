@@ -1,0 +1,130 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">Payments System Admin</h2>
+      <p class="text-slate-600 dark:text-slate-400">Platform-level payment infrastructure overview</p>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
+      <p class="text-sm text-slate-500 dark:text-slate-400 mb-1">Gateways</p>
+      <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ enabled_gateways }} / {{ total_gateways }}</p>
+      <p class="text-xs text-slate-400 mt-1">enabled / total</p>
+    </div>
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
+      <p class="text-sm text-slate-500 dark:text-slate-400 mb-1">Payout Queue</p>
+      <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ payout_queue.total_queued }}</p>
+      <p class="text-xs text-slate-400 mt-1">pending / approved / processing</p>
+    </div>
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
+      <p class="text-sm text-slate-500 dark:text-slate-400 mb-1">Fraud Flags (24h)</p>
+      <p class="text-2xl font-bold {% if fraud_summary.flagged_last_24h > 0 %}text-amber-600{% else %}text-slate-900 dark:text-white{% endif %}">{{ fraud_summary.flagged_last_24h }}</p>
+      <p class="text-xs text-slate-400 mt-1">{{ fraud_summary.blocked_24h }} blocked</p>
+    </div>
+    <div class="bg-white dark:bg-slate-800 rounded-xl border {% if discrepancy_count > 0 %}border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/10{% else %}border-slate-200 dark:border-slate-700{% endif %} p-5">
+      <p class="text-sm text-slate-500 dark:text-slate-400 mb-1">Recon Discrepancies</p>
+      <p class="text-2xl font-bold {% if discrepancy_count > 0 %}text-red-600{% else %}text-green-600{% endif %}">{{ discrepancy_count }}</p>
+      <p class="text-xs text-slate-400 mt-1">unresolved reports</p>
+    </div>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <a href="{% url 'dashboard:payments_system:gateway_list' prefix %}"
+       class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 flex items-center space-x-4 hover:shadow-md transition-shadow">
+      <span class="material-icons-outlined text-primary text-3xl">hub</span>
+      <div>
+        <p class="font-semibold text-slate-900 dark:text-white">Payment Gateways</p>
+        <p class="text-sm text-slate-500">Manage gateway definitions & credentials</p>
+      </div>
+    </a>
+    <a href="{% url 'dashboard:payments_system:commission_rule_list' prefix %}"
+       class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 flex items-center space-x-4 hover:shadow-md transition-shadow">
+      <span class="material-icons-outlined text-primary text-3xl">percent</span>
+      <div>
+        <p class="font-semibold text-slate-900 dark:text-white">Commission Rules</p>
+        <p class="text-sm text-slate-500">Configure fee rates and caps</p>
+      </div>
+    </a>
+    <a href="{% url 'dashboard:payments_system:payout_batch_list' prefix %}"
+       class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 flex items-center space-x-4 hover:shadow-md transition-shadow">
+      <span class="material-icons-outlined text-primary text-3xl">payments</span>
+      <div>
+        <p class="font-semibold text-slate-900 dark:text-white">Payout Batches</p>
+        <p class="text-sm text-slate-500">Monitor cross-tenant payouts</p>
+      </div>
+    </a>
+    <a href="{% url 'dashboard:payments_system:reconciliation_list' prefix %}"
+       class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 flex items-center space-x-4 hover:shadow-md transition-shadow">
+      <span class="material-icons-outlined text-primary text-3xl">balance</span>
+      <div>
+        <p class="font-semibold text-slate-900 dark:text-white">Reconciliation</p>
+        <p class="text-sm text-slate-500">Settlement matching reports</p>
+      </div>
+    </a>
+    <a href="{% url 'dashboard:payments_system:platform_fraud_rule_list' prefix %}"
+       class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 flex items-center space-x-4 hover:shadow-md transition-shadow">
+      <span class="material-icons-outlined text-primary text-3xl">gpp_bad</span>
+      <div>
+        <p class="font-semibold text-slate-900 dark:text-white">Fraud Rules</p>
+        <p class="text-sm text-slate-500">Platform-wide fraud detection rules</p>
+      </div>
+    </a>
+    <a href="{% url 'dashboard:payments_system:platform_blocklist_list' prefix %}"
+       class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 flex items-center space-x-4 hover:shadow-md transition-shadow">
+      <span class="material-icons-outlined text-primary text-3xl">block</span>
+      <div>
+        <p class="font-semibold text-slate-900 dark:text-white">Blocklist</p>
+        <p class="text-sm text-slate-500">{{ blocklist_count }} platform-wide entries</p>
+      </div>
+    </a>
+  </div>
+
+  <!-- Recent Payout Batches -->
+  {% if recent_batches %}
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+      <h3 class="font-semibold text-slate-900 dark:text-white">Recent Payout Batches</h3>
+      <a href="{% url 'dashboard:payments_system:payout_batch_list' prefix %}" class="text-primary text-sm hover:underline">View all</a>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50 dark:bg-slate-700">
+          <tr>
+            {% for col in "Reference,Status,Items,Total Amount,Created" %}
+            <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ col }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+          {% for batch in recent_batches %}
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-700">
+            <td class="px-4 py-3 font-mono text-slate-900 dark:text-white">
+              <a href="{% url 'dashboard:payments_system:payout_batch_detail' prefix batch.id %}" class="text-primary hover:underline">{{ batch.batch_reference }}</a>
+            </td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-1 rounded-full text-xs font-medium
+                {% if batch.status == 'completed' %}bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300
+                {% elif batch.status == 'processing' %}bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300
+                {% elif batch.status == 'failed' %}bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300
+                {% else %}bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300{% endif %}">
+                {{ batch.status|capfirst }}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-600 dark:text-slate-400">{{ batch.total_items }}</td>
+            <td class="px-4 py-3 font-mono text-slate-900 dark:text-white">{{ batch.total_amount }} {{ batch.currency }}</td>
+            <td class="px-4 py-3 text-slate-500 dark:text-slate-400">{{ batch.created_at|date:"d M Y" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

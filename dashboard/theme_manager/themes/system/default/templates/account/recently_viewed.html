@@ -1,0 +1,21 @@
+{% extends "system/default/templates/base.html" %}
+
+{% block content %}
+<section class="grid gap-8 xl:grid-cols-[320px,1fr]">
+    {% include "system/default/templates/_partials/account_nav.html" %}
+    <div class="space-y-6">
+        <div class="surface-card p-8">
+            <p class="eyebrow">Recently Viewed</p>
+            <h1 class="section-title mt-3">Products you explored most recently.</h1>
+            <p class="section-copy mt-3 text-base">Return to items you opened in this tenant storefront and continue the buying journey from where you left off.</p>
+        </div>
+        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {% for product in products %}
+                {% include "system/default/templates/_partials/product_card.html" with product=product %}
+            {% empty %}
+                <div class="surface-card p-8 text-sm text-slate-500">No recent browsing history is available yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

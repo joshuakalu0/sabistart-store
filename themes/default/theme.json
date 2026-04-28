@@ -1,0 +1,51 @@
+{
+  "name": "System Fallback",
+  "description": "Internal emergency fallback theme used only when no active marketplace theme can be resolved safely.",
+  "version": "1.0.0",
+  "currency": "NGN",
+  "price": "0.00",
+  "is_free": true,
+  "is_published": false,
+  "is_featured": false,
+  "status": "approved",
+  "catalog_visibility": "hidden",
+  "is_internal": true,
+  "preview_image_path": "default/images/preview.svg",
+  "thumbnail_path": "default/images/preview.svg",
+  "schema_path": "schema.json",
+  "changelog_path": "CHANGELOG.md",
+  "features": [
+    "Reliable fallback rendering",
+    "Hidden from the tenant marketplace",
+    "Graceful emergency template coverage"
+  ],
+  "category": {
+    "slug": "general-retail",
+    "name": "General Retail",
+    "description": "Versatile themes for broad multi-category storefronts.",
+    "sort_order": 10,
+    "is_active": true
+  },
+  "metadata": {
+    "tone": "balanced",
+    "audience": "system fallback"
+  },
+  "offers": [],
+  "releases": [
+    {
+      "version": "1.0.0",
+      "title": "Fallback runtime baseline",
+      "changelog": "Initial hidden fallback package for emergency storefront rendering."
+    }
+  ],
+  "pages": [
+    "home.html",
+    "catalog/listing.html",
+    "catalog/product_detail.html",
+    "cart/cart.html",
+    "checkout/info.html",
+    "auth/login.html",
+    "account/dashboard.html",
+    "shared/info_page.html"
+  ]
+}

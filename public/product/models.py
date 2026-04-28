@@ -6,11 +6,11 @@ from django.utils import timezone
 from django.contrib.postgres.fields import ArrayField
 from decimal import Decimal
 import uuid
-from public.userauth.models import User
 from public.category.models import Category, Tag, Brand
-from dashboard.settings.models import AuditModel
+from dashboard.settings.models import AuditModel, TenantUser as User
 
-User = get_user_model()
+# User = get_user_model()
+
 
 class AttributeGroup(AuditModel):
     """Group related attributes together"""
@@ -51,31 +51,39 @@ class Attribute(AuditModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100, db_index=True)
     slug = models.SlugField(max_length=100, unique=True, db_index=True)
-    attribute_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='text')
-    group = models.ForeignKey(AttributeGroup, on_delete=models.SET_NULL, null=True, blank=True, related_name='attributes')
+    attribute_type = models.CharField(
+        max_length=20, choices=TYPE_CHOICES, default='text')
+    group = models.ForeignKey(AttributeGroup, on_delete=models.SET_NULL,
+                              null=True, blank=True, related_name='attributes')
 
     # Configuration
     description = models.TextField(blank=True)
     help_text = models.CharField(max_length=255, blank=True)
-    unit = models.CharField(max_length=50, blank=True, help_text="e.g., cm, kg, etc.")
+    unit = models.CharField(max_length=50, blank=True,
+                            help_text="e.g., cm, kg, etc.")
 
     # Validation
     is_required = models.BooleanField(default=False)
     is_unique = models.BooleanField(default=False)
-    min_value = models.DecimalField(max_digits=20, decimal_places=4, null=True, blank=True)
-    max_value = models.DecimalField(max_digits=20, decimal_places=4, null=True, blank=True)
+    min_value = models.DecimalField(
+        max_digits=20, decimal_places=4, null=True, blank=True)
+    max_value = models.DecimalField(
+        max_digits=20, decimal_places=4, null=True, blank=True)
     regex_pattern = models.CharField(max_length=500, blank=True)
 
     # Usage
-    is_variant_option = models.BooleanField(default=False, help_text="Used to create variants")
-    is_filterable = models.BooleanField(default=True, help_text="Show in filters")
-    is_searchable = models.BooleanField(default=True, help_text="Include in search")
-    is_comparable = models.BooleanField(default=True, help_text="Show in comparison")
+    is_variant_option = models.BooleanField(
+        default=False, help_text="Used to create variants")
+    is_filterable = models.BooleanField(
+        default=True, help_text="Show in filters")
+    is_searchable = models.BooleanField(
+        default=True, help_text="Include in search")
+    is_comparable = models.BooleanField(
+        default=True, help_text="Show in comparison")
 
     # Display
     display_order = models.IntegerField(default=0)
     is_visible_on_front = models.BooleanField(default=False)
-
 
     class Meta:
         ordering = ['display_order', 'name']
@@ -92,23 +100,27 @@ class Attribute(AuditModel):
 class AttributeValue(AuditModel):
     """Predefined values for select-type attributes"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    attribute = models.ForeignKey(Attribute, on_delete=models.CASCADE, related_name='values')
+    attribute = models.ForeignKey(
+        Attribute, on_delete=models.CASCADE, related_name='values')
     value = models.CharField(max_length=255, db_index=True)
     slug = models.SlugField(max_length=255, db_index=True)
 
     # Visual representation
-    color_hex = models.CharField(max_length=7, blank=True, help_text="For color attributes")
-    image = models.ImageField(upload_to='attributes/%Y/%m/', blank=True, null=True)
-    swatch = models.ImageField(upload_to='attributes/swatches/%Y/%m/', blank=True, null=True)
+    color_hex = models.CharField(
+        max_length=7, blank=True, help_text="For color attributes")
+    image = models.ImageField(
+        upload_to='attributes/%Y/%m/', blank=True, null=True)
+    swatch = models.ImageField(
+        upload_to='attributes/swatches/%Y/%m/', blank=True, null=True)
 
     # Additional data
     description = models.TextField(blank=True)
-    extra_price = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Additional cost")
+    extra_price = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0, help_text="Additional cost")
 
     # Display
     display_order = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True, db_index=True)
-
 
     class Meta:
         ordering = ['attribute', 'display_order', 'value']
@@ -149,42 +161,59 @@ class Product(AuditModel):
     # Basic Info
     name = models.CharField(max_length=500, db_index=True)
     slug = models.SlugField(max_length=500, unique=True, db_index=True)
-    sku = models.CharField(max_length=100, unique=True, db_index=True, help_text="Stock Keeping Unit")
+    sku = models.CharField(max_length=100, unique=True,
+                           db_index=True, help_text="Stock Keeping Unit")
 
     # Type & Classification
-    product_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='simple', db_index=True)
-    categories = models.ManyToManyField(Category, related_name='products', blank=True)
+    product_type = models.CharField(
+        max_length=20, choices=TYPE_CHOICES, default='simple', db_index=True)
+    categories = models.ManyToManyField(
+        Category, related_name='products', blank=True)
     tags = models.ManyToManyField(Tag, related_name='products', blank=True)
-    brand = models.ForeignKey(Brand, on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
+    brand = models.ForeignKey(
+        Brand, on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
 
     # Content
     short_description = models.TextField(max_length=500, blank=True)
     description = models.TextField(blank=True)
-    specifications = models.JSONField(default=dict, blank=True, help_text="Technical specs as JSON")
-    features = models.JSONField(default=list, blank=True, help_text="Feature list as JSON array")
+    specifications = models.JSONField(
+        default=dict, blank=True, help_text="Technical specs as JSON")
+    features = models.JSONField(
+        default=list, blank=True, help_text="Feature list as JSON array")
 
     # Pricing (for simple products, variants override these)
-    price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
-    compare_at_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
-    cost_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
+    price = models.DecimalField(max_digits=12, decimal_places=2,
+                                null=True, blank=True, validators=[MinValueValidator(0)])
+    compare_at_price = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
+    cost_price = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
 
     # Tax
     tax_class = models.CharField(max_length=100, blank=True)
-    tax_status = models.CharField(max_length=20, choices=[('taxable', 'Taxable'), ('shipping', 'Shipping Only'), ('none', 'None')], default='taxable')
+    tax_status = models.CharField(max_length=20, choices=[(
+        'taxable', 'Taxable'), ('shipping', 'Shipping Only'), ('none', 'None')], default='taxable')
 
     # Inventory (for simple products)
-    manage_stock = models.BooleanField(default=True) #===
-    stock_quantity = models.IntegerField(default=0, validators=[MinValueValidator(0)])
-    stock_status = models.CharField(max_length=20, choices=[('in_stock', 'In Stock'), ('out_of_stock', 'Out of Stock'), ('on_backorder', 'On Backorder')], default='in_stock', db_index=True)
-    low_stock_threshold = models.IntegerField(default=5, validators=[MinValueValidator(0)])
-    backorders_allowed = models.BooleanField(default=False)#===
+    manage_stock = models.BooleanField(default=True)  # ===
+    stock_quantity = models.IntegerField(
+        default=0, validators=[MinValueValidator(0)])
+    stock_status = models.CharField(max_length=20, choices=[('in_stock', 'In Stock'), (
+        'out_of_stock', 'Out of Stock'), ('on_backorder', 'On Backorder')], default='in_stock', db_index=True)
+    low_stock_threshold = models.IntegerField(
+        default=5, validators=[MinValueValidator(0)])
+    backorders_allowed = models.BooleanField(default=False)  # ===
 
     # Shipping
     requires_shipping = models.BooleanField(default=True)
-    weight = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True, help_text="Weight in kg")
-    length = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Length in cm")
-    width = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Width in cm")
-    height = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Height in cm")
+    weight = models.DecimalField(
+        max_digits=10, decimal_places=3, null=True, blank=True, help_text="Weight in kg")
+    length = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True, help_text="Length in cm")
+    width = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True, help_text="Width in cm")
+    height = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True, help_text="Height in cm")
 
     # Digital Products
     # is_downloadable = models.BooleanField(default=False)
@@ -206,10 +235,10 @@ class Product(AuditModel):
 
     # Reviews & Ratings
     enable_reviews = models.BooleanField(default=True)
-    average_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0, validators=[MinValueValidator(0), MaxValueValidator(5)])
+    average_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0, validators=[
+                                         MinValueValidator(0), MaxValueValidator(5)])
     rating_count = models.PositiveIntegerField(default=0)
     review_count = models.PositiveIntegerField(default=0)
-
 
     # Status & Visibility
     status = models.CharField(max_length=20, choices=[
@@ -236,6 +265,11 @@ class Product(AuditModel):
     # Analytics
     view_count = models.PositiveBigIntegerField(default=0)
     sales_count = models.PositiveBigIntegerField(default=0)
+    is_pos_available = models.BooleanField(
+        default=False,
+        db_index=True,
+        help_text="Allow this catalog product to be bridged into the POS catalog.",
+    )
 
     # Dates
     available_from = models.DateTimeField(null=True, blank=True, db_index=True)
@@ -260,8 +294,24 @@ class Product(AuditModel):
         return self.name
 
     def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
+        if not self.slug and self.name:
+            base_slug = slugify(self.name)
+            if not base_slug:
+                import uuid
+                base_slug = f'product-{str(uuid.uuid4())[:8]}'
+
+            # Check for uniqueness
+            counter = 1
+            unique_slug = base_slug
+            while Product.objects.filter(slug=unique_slug).exclude(pk=self.pk).exists():
+                unique_slug = f"{base_slug}-{counter}"
+                counter += 1
+
+            self.slug = unique_slug
+        elif not self.slug:
+            import uuid
+            self.slug = f'product-{str(uuid.uuid4())[:8]}'
+
         if self.status == 'published' and not self.published_at:
             self.published_at = timezone.now()
         super().save(*args, **kwargs)
@@ -270,7 +320,8 @@ class Product(AuditModel):
 class ProductImage(AuditModel):
     """Product images with advanced features"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name='images')
 
     image = models.ImageField(upload_to='products/%Y/%m/')
     caption = models.TextField(blank=True)  # ❌❌
@@ -296,7 +347,8 @@ class ProductImage(AuditModel):
 class ProductVideo(AuditModel):
     """Product videos"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='videos')
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name='videos')
 
     VIDEO_TYPES = [
         ('youtube', 'YouTube'),
@@ -307,12 +359,15 @@ class ProductVideo(AuditModel):
 
     video_type = models.CharField(max_length=20, choices=VIDEO_TYPES)  # ❌❌
     video_url = models.URLField(blank=True)
-    video_id = models.CharField(max_length=255, blank=True, help_text="YouTube/Vimeo video ID")
-    video_file = models.FileField(upload_to='products/videos/%Y/%m/', blank=True, null=True)
+    video_id = models.CharField(
+        max_length=255, blank=True, help_text="YouTube/Vimeo video ID")
+    video_file = models.FileField(
+        upload_to='products/videos/%Y/%m/', blank=True, null=True)
 
     title = models.CharField(max_length=255, blank=True)  # ❌❌
     description = models.TextField(blank=True)
-    thumbnail = models.ImageField(upload_to='products/video_thumbs/%Y/%m/', blank=True, null=True)
+    thumbnail = models.ImageField(
+        upload_to='products/video_thumbs/%Y/%m/', blank=True, null=True)
 
     display_order = models.IntegerField(default=0)
     is_featured = models.BooleanField(default=False)
@@ -363,16 +418,21 @@ class ProductVideo(AuditModel):
 class ProductAttributeValue(AuditModel):
     """Product-specific attribute values"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='attribute_values')
-    attribute = models.ForeignKey(Attribute, on_delete=models.CASCADE, related_name='product_values')
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name='attribute_values')
+    attribute = models.ForeignKey(
+        Attribute, on_delete=models.CASCADE, related_name='product_values')
 
     # Value storage (only one will be used based on attribute type)
     value_text = models.TextField(blank=True)
-    value_number = models.DecimalField(max_digits=20, decimal_places=4, null=True, blank=True)
+    value_number = models.DecimalField(
+        max_digits=20, decimal_places=4, null=True, blank=True)
     value_boolean = models.BooleanField(null=True, blank=True)
     value_date = models.DateField(null=True, blank=True)
-    value_option = models.ForeignKey(AttributeValue, on_delete=models.SET_NULL, null=True, blank=True, related_name='product_assignments')
-    value_json = models.JSONField(null=True, blank=True, help_text="For complex values")
+    value_option = models.ForeignKey(
+        AttributeValue, on_delete=models.SET_NULL, null=True, blank=True, related_name='product_assignments')
+    value_json = models.JSONField(
+        null=True, blank=True, help_text="For complex values")
 
     display_order = models.IntegerField(default=0)
 
@@ -394,7 +454,8 @@ class ProductVariant(AuditModel):
     For variable products only.
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='variants')
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name='variants')
 
     # Identification
     sku = models.CharField(max_length=100, unique=True, db_index=True)
@@ -408,32 +469,49 @@ class ProductVariant(AuditModel):
     variant_name = models.CharField(max_length=255, blank=True)
 
     # Attributes that define this variant
-    option_values = models.ManyToManyField(AttributeValue, related_name='variants', blank=True)
+    option_values = models.ManyToManyField(
+        AttributeValue, related_name='variants', blank=True)
 
     # Pricing
-    price = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(0)])
-    compare_at_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
-    cost_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
+    price = models.DecimalField(
+        max_digits=12, decimal_places=2, validators=[MinValueValidator(0)])
+    compare_at_price = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
+    cost_price = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
 
     # Inventory
-    stock_quantity = models.IntegerField(default=0, validators=[MinValueValidator(0)])
-    reserved_quantity = models.IntegerField(default=0, validators=[MinValueValidator(0)], help_text="Reserved in pending orders")
+    stock_quantity = models.IntegerField(
+        default=0, validators=[MinValueValidator(0)])
+    reserved_quantity = models.IntegerField(default=0, validators=[
+                                            MinValueValidator(0)], help_text="Reserved in pending orders")
     available_quantity = models.GeneratedField(
         expression=models.F('stock_quantity') - models.F('reserved_quantity'),
         output_field=models.IntegerField(),
         db_persist=True
     )
-    low_stock_threshold = models.IntegerField(default=5, validators=[MinValueValidator(0)])
+    low_stock_threshold = models.IntegerField(
+        default=5, validators=[MinValueValidator(0)])
 
     # Physical properties
-    weight = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True)
-    length = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    width = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    height = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    weight = models.DecimalField(
+        max_digits=10, decimal_places=3, null=True, blank=True)
+    length = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True)
+    width = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True)
+    height = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True)
 
     # Status
     is_active = models.BooleanField(default=True, db_index=True)
-    is_default = models.BooleanField(default=False, help_text="Default variant for product")
+    is_default = models.BooleanField(
+        default=False, help_text="Default variant for product")
+    is_pos_available = models.BooleanField(
+        default=True,
+        db_index=True,
+        help_text="If enabled and the parent product is POS-ready, this variant can be sold in POS.",
+    )
 
     # Analytics
     sales_count = models.PositiveBigIntegerField(default=0)
@@ -459,7 +537,8 @@ class ProductVariant(AuditModel):
 class VariantImage(AuditModel):
     """Images specific to product variants"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, related_name='images')
+    variant = models.ForeignKey(
+        ProductVariant, on_delete=models.CASCADE, related_name='images')
 
     image = models.ImageField(upload_to='variants/%Y/%m/')
     is_primary = models.BooleanField(default=False)
@@ -472,5 +551,3 @@ class VariantImage(AuditModel):
 
     def __str__(self):
         return f"{self.variant} - Image {self.display_order}"
-
-

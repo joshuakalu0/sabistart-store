@@ -1,0 +1,24 @@
+{% extends "system/default/templates/base.html" %}
+
+{% block content %}
+<section class="grid gap-8 xl:grid-cols-[320px,1fr]">
+    {% include "system/default/templates/_partials/account_nav.html" %}
+    <div class="surface-card p-8">
+        <p class="eyebrow">Profile</p>
+        <h1 class="section-title mt-3">Manage your account details.</h1>
+        <form method="post" class="mt-8 grid gap-5 md:grid-cols-2">
+            {% csrf_token %}
+            {% for field in form %}
+                <div>
+                    <label class="mb-2 block text-sm font-semibold text-slate-700">{{ field.label }}</label>
+                    <div class="field-shell">{{ field }}</div>
+                    {% if field.errors %}<p class="mt-2 text-sm text-rose-600">{{ field.errors|join:", " }}</p>{% endif %}
+                </div>
+            {% endfor %}
+            <div class="md:col-span-2">
+                <button type="submit" class="button-primary">Save Profile</button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

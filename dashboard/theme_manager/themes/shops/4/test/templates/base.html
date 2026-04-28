@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ seo.meta_title|default:page_title|default:shop.name }}</title>
+    <meta name="description" content="{{ seo.meta_description|default:page_description }}">
+    <meta property="og:title" content="{{ seo.og_title|default:page_title }}">
+    <meta property="og:description" content="{{ seo.og_description|default:page_description }}">
+    <meta property="og:image" content="{{ seo.og_image }}">
+    <link rel="canonical" href="{{ seo.canonical_url }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700;900&family=Cinzel:wght@400;500;600&display=swap" rel="stylesheet">
+    {% if theme_tokens.google_fonts_url %}<link href="{{ theme_tokens.google_fonts_url }}" rel="stylesheet">{% endif %}
+    {% if theme_tokens.custom_font_url %}<link href="{{ theme_tokens.custom_font_url }}" rel="stylesheet">{% endif %}
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: {{ theme_tokens.primary_color|default:"#1B1B1B" }};
+            --color-secondary: {{ theme_tokens.secondary_color|default:"#7A3B19" }};
+            --color-accent: {{ theme_tokens.accent_color|default:"#B89A60" }};
+            --color-background: {{ theme_tokens.background_color|default:"#F8F5F0" }};
+            --color-surface: {{ theme_tokens.secondary_background_color|default:"#F0EBE3" }};
+            --color-panel: #FFFFFF;
+            --color-text: {{ theme_tokens.text_color|default:"#1B1B1B" }};
+            --color-text-soft: {{ theme_tokens.secondary_text_color|default:"#5C5347" }};
+            --color-border: {{ theme_tokens.border_color|default:"#D6CFC4" }};
+            --color-border-dark: #B8AF9F;
+            --color-success: {{ theme_tokens.success_color|default:"#2D6A4F" }};
+            --color-warning: {{ theme_tokens.warning_color|default:"#9D6B0A" }};
+            --color-error: {{ theme_tokens.error_color|default:"#8B1A1A" }};
+            --radius-display: {{ theme_tokens.border_radius|default:2 }}px;
+            --radius-control: {{ theme_tokens.button_radius|default:2 }}px;
+            --shadow-card: 0 1px 3px rgba(27, 27, 27, 0.06), 0 4px 14px rgba(27, 27, 27, 0.04);
+            --shadow-elevated: 0 2px 8px rgba(27, 27, 27, 0.08), 0 12px 32px rgba(27, 27, 27, 0.08);
+            --container-width: {{ theme_tokens.container_width|default:1440 }}px;
+            --font-heading: {{ theme_tokens.heading_font|default:'"Cormorant Garamond", Georgia, serif' }};
+            --font-display: "Cinzel", serif;
+            --font-body: {{ theme_tokens.body_font|default:'"Lato", sans-serif' }};
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--color-text);
+            background-color: var(--color-background);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4, h5, h6, .brand-font {
+            font-family: var(--font-heading);
+            letter-spacing: 0.01em;
+        }
+
+        .display-font {
+            font-family: var(--font-display);
+        }
+
+        a { color: inherit; text-decoration: none; }
+
+        .container-shell {
+            width: min(calc(100% - 4rem), var(--container-width));
+            margin-inline: auto;
+        }
+
+        /* Classic Cards — solid, no blur */
+        .surface-card {
+            background: var(--color-panel);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-card);
+        }
+
+        .surface-card-soft {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+        }
+
+        .panel {
+            background: var(--color-panel);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-card);
+        }
+
+        /* Classic Rule */
+        .rule {
+            border: none;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .rule-double {
+            border-top: 3px double var(--color-border-dark);
+        }
+
+        /* Eyebrow — classic uppercase serif */
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            font-family: var(--font-body);
+            text-transform: uppercase;
+            letter-spacing: .22em;
+            font-size: .7rem;
+            font-weight: 700;
+            color: var(--color-accent);
+        }
+
+        .section-title {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 3.5vw, 3.5rem);
+            line-height: 1.08;
+            font-weight: 600;
+        }
+
+        .section-copy {
+            color: var(--color-text-soft);
+            line-height: 1.75;
+            font-weight: 300;
+        }
+
+        /* Classic Buttons — square, uppercase */
+        .button-primary,
+        .button-secondary,
+        .button-ghost {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .55rem;
+            padding: .85rem 1.75rem;
+            font-family: var(--font-body);
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            transition: background-color .2s, border-color .2s, color .2s, box-shadow .2s;
+        }
+
+        .button-primary {
+            background: var(--color-primary);
+            color: #fff;
+            border: 1px solid var(--color-primary);
+        }
+
+        .button-primary:hover {
+            background: var(--color-secondary);
+            border-color: var(--color-secondary);
+        }
+
+        .button-secondary {
+            background: transparent;
+            color: var(--color-primary);
+            border: 1px solid var(--color-border-dark);
+        }
+
+        .button-secondary:hover {
+            border-color: var(--color-primary);
+            background: var(--color-surface);
+        }
+
+        .button-ghost {
+            background: transparent;
+            color: var(--color-text-soft);
+            border: 1px solid transparent;
+        }
+
+        .button-ghost:hover {
+            color: var(--color-primary);
+            border-color: var(--color-border);
+        }
+
+        /* Chip — classic pill-free tag */
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            padding: .35rem .75rem;
+            border: 1px solid var(--color-border-dark);
+            background: var(--color-panel);
+            font-family: var(--font-body);
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--color-text-soft);
+        }
+
+        .chip-active {
+            background: var(--color-primary);
+            color: #fff;
+            border-color: var(--color-primary);
+        }
+
+        /* Forms */
+        .field-shell input,
+        .field-shell select,
+        .field-shell textarea,
+        input.form-control,
+        select.form-control,
+        textarea.form-control,
+        form input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+        form select,
+        form textarea {
+            width: 100%;
+            border: 1px solid var(--color-border-dark);
+            background: var(--color-panel);
+            color: var(--color-text);
+            padding: .85rem 1rem;
+            outline: none;
+            font-family: var(--font-body);
+            font-size: .9rem;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .field-shell input:focus,
+        .field-shell select:focus,
+        .field-shell textarea:focus,
+        input.form-control:focus,
+        select.form-control:focus,
+        textarea.form-control:focus,
+        form input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):focus,
+        form select:focus,
+        form textarea:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(27, 27, 27, 0.08);
+        }
+
+        input[type="checkbox"],
+        input[type="radio"] {
+            accent-color: var(--color-primary);
+        }
+
+        /* Material icons */
+        .material-symbols-outlined {
+            font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
+            font-size: 1.2rem;
+        }
+
+        /* Navigation mega panel */
+        .nav-panel {
+            display: none;
+            position: absolute;
+            inset-inline-start: 0;
+            top: calc(100% + 1px);
+            width: min(56rem, calc(100vw - 3rem));
+            padding: 2rem;
+            background: var(--color-panel);
+            border: 1px solid var(--color-border);
+            border-top: 2px solid var(--color-primary);
+            box-shadow: var(--shadow-elevated);
+            z-index: 100;
+        }
+
+        .nav-group:hover .nav-panel,
+        .nav-group:focus-within .nav-panel {
+            display: block;
+        }
+
+        /* Hero grid */
+        .hero-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .hero-grid {
+                grid-template-columns: minmax(0, 1.35fr) minmax(300px, .85fr);
+            }
+        }
+
+        /* Gold accent bar */
+        .accent-bar {
+            width: 3rem;
+            height: 2px;
+            background: var(--color-accent);
+        }
+
+        /* Classic quote ornament */
+        .ornament {
+            font-family: var(--font-heading);
+            font-size: 4rem;
+            line-height: 1;
+            color: var(--color-accent);
+            opacity: .4;
+        }
+
+        /* Announcement */
+        .announcement-bar {
+            background: var(--color-primary);
+            color: rgba(255,255,255,.9);
+        }
+
+        /* Utility bar */
+        .utility-bar {
+            background: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        /* Sticky header */
+        .site-header {
+            background: var(--color-panel);
+            border-bottom: 1px solid var(--color-border);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+
+        /* Category nav bar */
+        .category-nav-bar {
+            background: var(--color-primary);
+        }
+
+        /* Mobile drawer */
+        .mobile-drawer {
+            background: var(--color-panel);
+        }
+
+        /* Active nav link */
+        .nav-link-active {
+            color: var(--color-primary) !important;
+            border-bottom: 1px solid var(--color-primary);
+        }
+
+        /* Category nav active */
+        .cat-link-active {
+            background: rgba(255,255,255,.12) !important;
+        }
+
+        /* Footer */
+        .site-footer {
+            background: var(--color-primary);
+            color: rgba(255,255,255,.75);
+        }
+
+        /* Form label */
+        .form-label {
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            color: var(--color-text-soft);
+            display: block;
+            margin-bottom: .5rem;
+        }
+
+        /* Transition defaults */
+        a, button { transition: color .15s, background-color .15s, border-color .15s, opacity .15s; }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col">
+
+        {% if storefront_announcement %}
+            <div class="announcement-bar px-4 py-2.5 text-center text-xs font-semibold tracking-widest uppercase">
+                {{ storefront_announcement }}
+            </div>
+        {% endif %}
+
+        <div class="utility-bar hidden lg:block">
+            <div class="container-shell flex items-center justify-between gap-4 py-2 text-xs text-stone-500">
+                <div class="flex items-center gap-6">
+                    {% for item in utility_navigation %}
+                        <a href="{{ item.url }}" class="hover:text-stone-900 uppercase tracking-widest font-semibold" style="font-size:.65rem">{{ item.label }}</a>
+                    {% endfor %}
+                </div>
+                <div class="flex items-center gap-5">
+                    {% if shop.support_email %}<span class="tracking-wide">{{ shop.support_email }}</span>{% endif %}
+                    {% if shop.phone %}<span class="tracking-wide">{{ shop.phone }}</span>{% endif %}
+                    {% if active_flash_sale_payload %}
+                        <a href="{{ active_flash_sale_payload.url }}" class="chip chip-active">{{ active_flash_sale_payload.badge_label }}</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <header class="site-header">
+            <div class="container-shell flex items-center gap-6 py-5">
+                <button type="button" class="inline-flex h-10 w-10 items-center justify-center border border-stone-200 text-stone-700 lg:hidden" data-mobile-menu-open>
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+
+                <a href="{% url 'home:index' %}" class="flex items-center gap-4 flex-shrink-0">
+                    {% if shop.logo_url %}
+                        <img src="{{ shop.logo_url }}" alt="{{ shop.name }}" class="h-12 w-12 object-cover" style="border:1px solid var(--color-border)">
+                    {% endif %}
+                    <div>
+                        <div class="display-font text-xl font-semibold tracking-widest uppercase" style="color:var(--color-primary);letter-spacing:.18em">{{ shop.name }}</div>
+                        {% if shop.tagline %}<p class="hidden text-xs tracking-widest uppercase text-stone-400 sm:block" style="font-size:.6rem;letter-spacing:.24em">{{ shop.tagline }}</p>{% endif %}
+                    </div>
+                </a>
+
+                <nav class="hidden items-center gap-1 lg:flex mx-auto">
+                    {% for link in navigation_links %}
+                        <a href="{{ link.url }}" class="px-4 py-2 text-xs font-bold tracking-widest uppercase transition hover:text-stone-900 {% if request.path == link.url %}nav-link-active text-stone-900{% else %}text-stone-500{% endif %}" style="letter-spacing:.16em">
+                            {{ link.label }}
+                        </a>
+                    {% endfor %}
+                </nav>
+
+                <form action="{% url 'search:search_results' %}" method="get" class="hidden flex-1 lg:block max-w-sm ml-auto">
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" style="font-size:1rem">search</span>
+                        <input type="search" name="q" value="{{ active_query|default:search_query|default:'' }}" placeholder="Search the collection…" class="w-full border border-stone-200 bg-stone-50 py-2.5 pl-10 pr-4 text-xs tracking-wide" style="outline:none">
+                    </div>
+                </form>
+
+                <div class="ml-auto lg:ml-0 flex items-center gap-3">
+                    <a href="{% url 'tenant:wishlist' %}" class="hidden items-center gap-2 px-4 py-2.5 border border-stone-200 text-xs font-bold uppercase tracking-widest text-stone-700 hover:border-stone-400 md:inline-flex" style="letter-spacing:.14em">
+                        <span class="material-symbols-outlined" style="font-size:1rem">favorite_border</span>
+                        <span>{{ wishlist_count }}</span>
+                    </a>
+                    <a href="{% url 'cart:cart_page' %}" class="inline-flex items-center gap-2 px-4 py-2.5 border border-stone-200 text-xs font-bold uppercase tracking-widest text-stone-700 hover:border-stone-400" style="letter-spacing:.14em">
+                        <span class="material-symbols-outlined" style="font-size:1rem">shopping_bag</span>
+                        <span>{{ cart_summary.item_count }}</span>
+                    </a>
+                    {% if request.user.is_authenticated %}
+                        <a href="{% url 'tenant:account_overview' %}" class="button-primary hidden sm:inline-flex">Account</a>
+                    {% else %}
+                        <a href="{% url 'tenant:login' %}" class="button-primary hidden sm:inline-flex">Sign In</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if navigation_categories %}
+                <div class="category-nav-bar hidden lg:block">
+                    <div class="container-shell flex items-center gap-0 overflow-x-auto">
+                        {% for category in navigation_categories %}
+                            <div class="nav-group relative shrink-0">
+                                <a href="{{ category.url }}" class="flex items-center gap-1 px-5 py-3 text-xs font-bold tracking-widest uppercase text-white/80 hover:text-white hover:bg-white/10 transition {% if request.path == category.url %}cat-link-active text-white{% endif %}" style="letter-spacing:.14em">
+                                    {{ category.name }}
+                                    {% if category.children %}<span class="material-symbols-outlined" style="font-size:.9rem">expand_more</span>{% endif %}
+                                </a>
+                                {% if category.children %}
+                                    <div class="nav-panel">
+                                        <div class="grid gap-8 md:grid-cols-3">
+                                            {% for child in category.children %}
+                                                <div class="space-y-4">
+                                                    <a href="{{ child.url }}" class="brand-font text-xl font-semibold text-stone-900 hover:text-stone-600 block">{{ child.name }}</a>
+                                                    <div class="accent-bar"></div>
+                                                    {% if child.description %}<p class="text-sm text-stone-500 leading-6">{{ child.description|truncatechars:100 }}</p>{% endif %}
+                                                    {% if child.children %}
+                                                        <div class="space-y-2">
+                                                            {% for grandchild in child.children %}
+                                                                <a href="{{ grandchild.url }}" class="block text-xs uppercase tracking-widest font-semibold text-stone-500 hover:text-stone-900 transition" style="letter-spacing:.14em">{{ grandchild.name }}</a>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </header>
+
+        <!-- Mobile menu -->
+        <div class="fixed inset-0 z-50 hidden" data-mobile-menu>
+            <div class="absolute inset-0 bg-black/60" data-mobile-menu-close></div>
+            <div class="mobile-drawer absolute inset-y-0 left-0 w-[min(90vw,24rem)] overflow-y-auto px-6 py-8 shadow-2xl">
+                <div class="flex items-center justify-between mb-8">
+                    <div class="display-font text-lg font-semibold tracking-widest uppercase" style="color:var(--color-primary);letter-spacing:.18em">{{ shop.name }}</div>
+                    <button type="button" class="inline-flex h-9 w-9 items-center justify-center border border-stone-200" data-mobile-menu-close>
+                        <span class="material-symbols-outlined" style="font-size:1rem">close</span>
+                    </button>
+                </div>
+                <form action="{% url 'search:search_results' %}" method="get" class="mb-6">
+                    <input type="search" name="q" value="{{ active_query|default:search_query|default:'' }}" placeholder="Search the collection…" style="border:1px solid var(--color-border-dark);padding:.75rem 1rem;width:100%;font-size:.85rem;outline:none">
+                </form>
+                <hr class="rule mb-6">
+                <div class="space-y-1">
+                    {% for link in navigation_links %}
+                        <a href="{{ link.url }}" class="block px-3 py-3 text-xs font-bold uppercase tracking-widest text-stone-700 hover:text-stone-900 hover:bg-stone-50" style="letter-spacing:.16em">{{ link.label }}</a>
+                    {% endfor %}
+                </div>
+                {% if navigation_categories %}
+                    <hr class="rule my-6">
+                    <p class="eyebrow mb-4">Browse Categories</p>
+                    <div class="space-y-2">
+                        {% for category in navigation_categories %}
+                            <details class="border border-stone-200">
+                                <summary class="cursor-pointer list-none px-4 py-3 text-xs font-bold uppercase tracking-widest text-stone-800" style="letter-spacing:.14em">{{ category.name }}</summary>
+                                <div class="border-t border-stone-100 px-4 py-3 space-y-2">
+                                    <a href="{{ category.url }}" class="block text-xs font-bold uppercase tracking-widest text-stone-900 mb-2" style="letter-spacing:.14em">Shop All {{ category.name }}</a>
+                                    {% for child in category.children %}
+                                        <a href="{{ child.url }}" class="block text-xs text-stone-500 uppercase tracking-widest hover:text-stone-900" style="letter-spacing:.12em">{{ child.name }}</a>
+                                    {% endfor %}
+                                </div>
+                            </details>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <hr class="rule my-6">
+                <div class="grid gap-3">
+                    <a href="{% url 'cart:cart_page' %}" class="button-secondary text-center">Cart ({{ cart_summary.item_count }})</a>
+                    {% if request.user.is_authenticated %}
+                        <a href="{% url 'tenant:account_overview' %}" class="button-primary text-center">My Account</a>
+                    {% else %}
+                        <a href="{% url 'tenant:login' %}" class="button-primary text-center">Sign In</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if messages %}
+            <div class="container-shell pt-5">
+                <div class="space-y-3">
+                    {% for message in messages %}
+                        <div class="surface-card px-5 py-4 text-sm {% if message.tags == 'error' %}border-red-300 text-red-800 bg-red-50{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% block hero %}{% endblock %}
+
+        <main class="container-shell flex-1 py-8 lg:py-12">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="site-footer mt-12">
+            <div class="container-shell pt-14 pb-10">
+                <!-- Top footer rule -->
+                <div class="flex items-center gap-6 mb-12">
+                    <div class="flex-1 border-t border-white/15"></div>
+                    <div class="display-font text-white/90 text-lg tracking-widest uppercase" style="letter-spacing:.24em">{{ shop.name }}</div>
+                    <div class="flex-1 border-t border-white/15"></div>
+                </div>
+
+                <div class="grid gap-12 lg:grid-cols-[1.4fr,2.2fr]">
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-4">
+                            {% if shop.logo_url %}
+                                <img src="{{ shop.logo_url }}" alt="{{ shop.name }}" class="h-12 w-12 object-cover" style="border:1px solid rgba(255,255,255,.15)">
+                            {% endif %}
+                            <div>
+                                <p class="display-font text-xl text-white font-semibold tracking-widest" style="letter-spacing:.18em">{{ shop.name }}</p>
+                                {% if shop.tagline %}<p class="text-xs text-white/50 uppercase tracking-widest mt-1" style="letter-spacing:.22em">{{ shop.tagline }}</p>{% endif %}
+                            </div>
+                        </div>
+                        <p class="text-sm leading-7 text-white/55 font-light max-w-sm">{{ shop.description|default:"A curated storefront built for discerning shoppers who value quality, craft, and considered commerce." }}</p>
+                        <div class="flex flex-wrap gap-2">
+                            {% for platform in social_platforms %}
+                                <a href="{{ platform.url }}" class="px-4 py-2 text-xs font-bold uppercase tracking-widest text-white/60 border border-white/15 hover:text-white hover:border-white/40 transition" style="letter-spacing:.14em">{{ platform.label }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+                        {% for group in footer_link_groups %}
+                            <div>
+                                <p class="text-xs font-bold uppercase tracking-widest text-white/40 mb-4" style="letter-spacing:.22em">{{ group.title }}</p>
+                                <div class="space-y-3">
+                                    {% for link in group.links %}
+                                        <a href="{{ link.url }}" class="block text-sm text-white/55 hover:text-white transition font-light">{{ link.label }}</a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mt-12 pt-6 border-t border-white/10 flex flex-col gap-3 md:flex-row md:items-center md:justify-between text-xs text-white/35">
+                    <p>&copy; 2026 {{ shop.name }}. All rights reserved.</p>
+                    <div class="flex flex-wrap gap-5">
+                        {% if shop.support_email %}<span>{{ shop.support_email }}</span>{% endif %}
+                        {% if shop.phone %}<span>{{ shop.phone }}</span>{% endif %}
+                        {% if shop.address %}<span>{{ shop.address }}</span>{% endif %}
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        (function () {
+            const menu = document.querySelector("[data-mobile-menu]");
+            if (!menu) return;
+            const openers = document.querySelectorAll("[data-mobile-menu-open]");
+            const closers = document.querySelectorAll("[data-mobile-menu-close]");
+            const openMenu = () => menu.classList.remove("hidden");
+            const closeMenu = () => menu.classList.add("hidden");
+            openers.forEach(b => b.addEventListener("click", openMenu));
+            closers.forEach(b => b.addEventListener("click", closeMenu));
+        }());
+    </script>
+    <script>
+        (function () {
+            const startedAt = Date.now();
+            const send = () => {
+                const payload = JSON.stringify({
+                    path: window.location.pathname,
+                    title: document.title,
+                    duration_ms: Date.now() - startedAt,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
+                    language: navigator.language || "",
+                    visibility_state: document.visibilityState || "",
+                    screen: { width: window.innerWidth, height: window.innerHeight },
+                });
+                if (navigator.sendBeacon) {
+                    navigator.sendBeacon("{% url 'monitoring:beacon' %}", new Blob([payload], { type: "application/json" }));
+                    return;
+                }
+                fetch("{% url 'monitoring:beacon' %}", { method: "POST", headers: { "Content-Type": "application/json" }, body: payload, keepalive: true }).catch(() => {});
+            };
+            window.addEventListener("pagehide", send, { once: true });
+        }());
+    </script>
+    {% block page_scripts %}{% endblock %}
+</body>
+</html>

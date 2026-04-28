@@ -1,0 +1,29 @@
+{% load static %}
+
+
+
+
+
+
+<label  for="{{ widget.attrs.id|default:widget.name }}" class="relative inline-flex items-center cursor-pointer">
+  <input
+    type="checkbox"
+    name="{{ widget.name }}"
+    id="{{ widget.attrs.id|default:widget.name }}"
+   class="sr-only peer"
+    {% if widget.value %}checked{% endif %}
+    {% for name, value in widget.attrs.items %}
+    {% if name != "id" and name != "class" %}{{ name }} = "{{ value }}"
+    {% endif %}
+    {% endfor %}
+  />
+  <div
+  class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"
+  >
+</div>
+</label>
+{% if widget.help_text %}
+<p class="mt-1 text-xs text-gray-500">{{ widget.help_text }}</p>
+{% endif %} {% if widget.errors %}
+<p class="mt-1 text-xs text-red-600">{{ widget.errors.0 }}</p>
+{% endif %}

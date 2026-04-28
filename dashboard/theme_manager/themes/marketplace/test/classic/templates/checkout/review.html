@@ -1,0 +1,59 @@
+{% extends "system/classic/templates/base.html" %}
+
+{% block content %}
+<section class="mx-auto max-w-6xl space-y-8">
+    <div class="surface-card p-8 lg:p-10">
+        <div class="flex flex-wrap gap-3"><span class="chip">1. Information</span><span class="chip">2. Shipping</span><span class="chip">3. Payment</span><span class="chip chip-active">4. Review</span></div>
+        <div class="accent-bar mt-5 mb-5"></div>
+        <h1 class="section-title">Confirm Order Details</h1>
+        <p class="section-copy mt-3 text-base font-light">Review shipping, payment, and line items before placing the order in the store system.</p>
+    </div>
+
+    <div class="grid gap-8 xl:grid-cols-[1.05fr,0.95fr]">
+        <div class="surface-card">
+            <div class="grid gap-px bg-stone-100 md:grid-cols-2">
+                <div class="bg-white px-8 py-6">
+                    <p class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-3" style="letter-spacing:.2em">Customer</p>
+                    <p class="text-sm text-stone-800 leading-7 font-light">{{ checkout_state.first_name }} {{ checkout_state.last_name }}<br>{{ checkout_state.email }}<br>{{ checkout_state.phone }}</p>
+                </div>
+                <div class="bg-white px-8 py-6">
+                    <p class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-3" style="letter-spacing:.2em">Delivery</p>
+                    <p class="text-sm text-stone-800 leading-7 font-light">{{ checkout_state.address1 }}{% if checkout_state.address2 %}, {{ checkout_state.address2 }}{% endif %}<br>{{ checkout_state.city }}, {{ checkout_state.state }} {{ checkout_state.postal_code }}<br>{{ checkout_state.country_code }}</p>
+                </div>
+                <div class="bg-white px-8 py-6">
+                    <p class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-3" style="letter-spacing:.2em">Shipping</p>
+                    <p class="text-sm text-stone-800 leading-6 font-light">{{ checkout_state.shipping_method }}</p>
+                </div>
+                <div class="bg-white px-8 py-6">
+                    <p class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-3" style="letter-spacing:.2em">Payment</p>
+                    <p class="text-sm text-stone-800 leading-6 font-light">{{ checkout_state.payment_method }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="surface-card">
+            <div class="px-6 py-5 border-b border-stone-100">
+                <p class="eyebrow">Bag Summary</p>
+            </div>
+            <div class="divide-y divide-stone-100">
+                {% for item in cart.items %}
+                    <div class="flex justify-between gap-3 px-6 py-3 text-sm text-stone-600">
+                        <span class="font-light">{{ item.product_name }} ×{{ item.quantity }}</span>
+                        <span class="font-semibold text-stone-900 flex-shrink-0">{{ item.line_total_display }}</span>
+                    </div>
+                {% endfor %}
+                <div class="flex justify-between gap-3 px-6 py-4 font-bold text-stone-900 text-base">
+                    <span>Total</span>
+                    <span>{{ cart.grand_total_display }}</span>
+                </div>
+            </div>
+            <div class="px-6 pb-6">
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="button-primary w-full">Place Order</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

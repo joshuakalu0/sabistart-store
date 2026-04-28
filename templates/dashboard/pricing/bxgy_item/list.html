@@ -1,0 +1,132 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load string_utils %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div class="flex items-center space-x-4">
+    <a href="{{ detail_url }}" class="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+      <span class="material-icons-outlined">arrow_back</span>
+    </a>
+    <div>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">Bundle Items</h2>
+      <p class="text-slate-600 dark:text-slate-400 text-sm">Assigning products for: <span class="font-semibold">{{ bxgy.name }}</span></p>
+    </div>
+  </div>
+  <a href="{{ create_url }}" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2 text-sm font-medium">
+    <span class="material-icons-outlined text-[18px]">add</span><span>Add Products</span>
+  </a>
+</div>
+
+<div class="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 p-4 rounded-xl text-sm mb-6 flex shadow-sm border border-blue-100 dark:border-blue-900/50">
+  <span class="material-icons-outlined text-[20px] mr-3 mt-0.5">info</span>
+  <div>
+    <strong>Bundle Item Roles:</strong>
+    <ul class="list-disc ml-5 mt-1 space-y-1">
+      <li><strong>Buy Items (Triggers):</strong> The products the customer must purchase to qualify (e.g. they buy {{ bxgy.buy_quantity }} of these).</li>
+      <li><strong>Get Items (Rewards):</strong> The products they receive the discount on (e.g. they get {{ bxgy.get_quantity }} of these at {{ bxgy.discount_percent|floatformat:0 }}% off).</li>
+      <li><strong>Both:</strong> Standard BOGO logic where the same product acts as both requirement and reward.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden flex flex-col">
+  <div class="p-4 border-b border-slate-200 dark:border-slate-700">
+    <form method="get" class="flex gap-4">
+      <div class="relative flex-1">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+          <span class="material-icons-outlined text-slate-400 text-sm">search</span>
+        </span>
+        <input type="text" name="q" value="{{ q }}" placeholder="Search products..."
+               class="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-primary dark:bg-slate-700 dark:text-white"/>
+      </div>
+      <div class="w-full sm:w-48">
+        <select name="role" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary">
+          <option value="">All Roles</option>
+          <option value="buy" {% if request.GET.role == 'buy' %}selected{% endif %}>Buy Items (Triggers)</option>
+          <option value="get" {% if request.GET.role == 'get' %}selected{% endif %}>Get Items (Rewards)</option>
+        </select>
+      </div>
+      <button type="submit" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+        Filter
+      </button>
+    </form>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          {% for col in "Product,Role Assignment,Actions"|split:"," %}
+          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+        {% for item in items %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-white font-medium">
+            <div class="flex items-center">
+              {% if item.product.image %}
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="h-8 w-8 rounded-md object-cover mr-3 border border-slate-200">
+              {% else %}
+                <div class="h-8 w-8 rounded-md bg-slate-100 dark:bg-slate-700 flex items-center justify-center mr-3 border border-slate-200 dark:border-slate-600">
+                  <span class="material-icons-outlined text-slate-400 text-sm">inventory_2</span>
+                </div>
+              {% endif %}
+              <span class="font-medium">{{ item.product.name }}</span>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            {% if item.is_buy_item and item.is_get_item %}
+              <span class="text-purple-700 bg-purple-100 dark:bg-purple-900/30 dark:text-purple-300 px-3 py-1 rounded-full text-xs">Buy & Get (Combined)</span>
+            {% elif item.is_buy_item %}
+              <span class="text-blue-700 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 px-3 py-1 rounded-full text-xs">Buy Trigger Only</span>
+            {% elif item.is_get_item %}
+              <span class="text-green-700 bg-green-100 dark:bg-green-900/30 dark:text-green-300 px-3 py-1 rounded-full text-xs">Get Reward Only</span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+            <a href="{% url 'dashboard:pricing:bxgy_item_edit' prefix bxgy.id item.id %}" class="text-primary hover:text-blue-700">Edit</a>
+            <button class="text-red-600 hover:text-red-800 delete-btn"
+                    data-url="{% url 'dashboard:pricing:bxgy_item_delete' prefix bxgy.id item.id %}">Remove</button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="px-6 py-10 text-center text-slate-400 dark:text-slate-500">No specific products assigned to this campaign yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if items.has_other_pages %}
+  <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800">
+    <div class="text-sm text-slate-500">
+      Showing {{ items.start_index }} to {{ items.end_index }} of {{ items.paginator.count }} items
+    </div>
+    <div class="flex space-x-2">
+      {% if items.has_previous %}
+      <a href="?q={{ q|default:'' }}&role={{ request.GET.role|default:'' }}&page={{ items.previous_page_number }}" class="px-3 py-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-md hover:bg-slate-50 dark:hover:bg-slate-600">Prev</a>
+      {% endif %}
+      {% if items.has_next %}
+      <a href="?q={{ q|default:'' }}&role={{ request.GET.role|default:'' }}&page={{ items.next_page_number }}" class="px-3 py-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-md hover:bg-slate-50 dark:hover:bg-slate-600">Next</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+      openDeleteModal("Remove Product",
+        `Are you sure you want to remove this product from the bundle?`,
+        () => {
+          fetch(this.dataset.url, {method:"POST", headers:{"X-CSRFToken":"{{ csrf_token }}","Content-Type":"application/x-www-form-urlencoded"}})
+            .then(() => location.reload());
+        });
+    });
+  });
+});
+</script>
+{% endblock %}

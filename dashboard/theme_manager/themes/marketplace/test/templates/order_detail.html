@@ -1,0 +1,71 @@
+{% extends "system/classic/templates/base.html" %}
+
+{% block content %}
+<section class="grid gap-8 xl:grid-cols-[300px,1fr]">
+    {% include "system/classic/templates/_partials/account_nav.html" %}
+    <div class="space-y-8">
+        <div class="surface-card">
+            <div class="px-8 py-8 border-b border-stone-100">
+                <p class="eyebrow">{% if tracking_mode %}Order Tracking{% else %}Order Detail{% endif %}</p>
+                <div class="accent-bar mt-3 mb-4"></div>
+                <h1 class="section-title">{{ order.order_number }}</h1>
+            </div>
+            <div class="grid gap-px bg-stone-100 md:grid-cols-3">
+                <div class="bg-white px-8 py-6">
+                    <p class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-3" style="letter-spacing:.2em">Order Status</p>
+                    <p class="brand-font text-xl font-semibold text-stone-900">{{ order.get_status_display }}</p>
+                </div>
+                <div class="bg-white px-8 py-6">
+                    <p class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-3" style="letter-spacing:.2em">Financial</p>
+                    <p class="brand-font text-xl font-semibold text-stone-900">{{ order.get_financial_status_display }}</p>
+                </div>
+                <div class="bg-white px-8 py-6">
+                    <p class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-3" style="letter-spacing:.2em">Fulfilment</p>
+                    <p class="brand-font text-xl font-semibold text-stone-900">{{ order.get_fulfillment_status_display }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="surface-card">
+            <div class="px-8 py-6 border-b border-stone-100">
+                <p class="eyebrow">Line Items</p>
+            </div>
+            <div class="divide-y divide-stone-100">
+                {% for item in order.items.all %}
+                    <div class="flex flex-wrap items-center justify-between gap-4 px-8 py-5">
+                        <div>
+                            <p class="brand-font text-xl font-semibold text-stone-900">{{ item.product_title }}</p>
+                            {% if item.variant_title %}<p class="mt-1 text-xs text-stone-400 uppercase tracking-widest" style="letter-spacing:.12em">{{ item.variant_title }}</p>{% endif %}
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-1" style="letter-spacing:.14em">Qty {{ item.quantity }}</p>
+                            <p class="brand-font text-xl font-semibold text-stone-900">{{ item.total }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="surface-card">
+            <div class="px-8 py-6 border-b border-stone-100">
+                <p class="eyebrow">{% if tracking_mode %}Tracking Timeline{% else %}Status History{% endif %}</p>
+            </div>
+            <div class="divide-y divide-stone-100">
+                {% for event in order.status_history.all %}
+                    <div class="px-8 py-4 text-sm text-stone-600 font-light">
+                        <span class="font-bold text-stone-800">{{ event.created_at }}</span>
+                        <span class="mx-3 text-stone-300">|</span>
+                        <span>{{ event.to_status }}</span>
+                        {% if event.note %}
+                            <span class="mx-3 text-stone-300">|</span>
+                            <span class="text-stone-500">{{ event.note }}</span>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <div class="px-8 py-6 text-sm text-stone-400 font-light">No status events recorded yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

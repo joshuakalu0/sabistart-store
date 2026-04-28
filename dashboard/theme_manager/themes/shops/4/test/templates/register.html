@@ -1,0 +1,45 @@
+{% extends "system/classic/templates/_partials/_mini_base.html" %}
+
+{% block content %}
+<div class="grid w-full gap-8 lg:grid-cols-[0.95fr,1.05fr]">
+    <div class="mini-card p-10 lg:p-12">
+        <p class="eyebrow">Create Account</p>
+        <div class="accent-bar mt-3 mb-6"></div>
+        <h1 class="brand-font text-4xl font-semibold text-stone-900 leading-tight">Join this storefront.</h1>
+        <p class="mt-4 text-sm leading-7 text-stone-500 font-light">Set up a customer account to track orders, manage saved details, and move faster through future checkouts.</p>
+
+        <form method="post" class="mt-8 grid gap-5 md:grid-cols-2">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="{% if field.name == 'agree_terms' %}md:col-span-2{% endif %}">
+                    <label class="block mb-2" style="font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#5c5347">{{ field.label }}</label>
+                    <div>{{ field }}</div>
+                    {% if field.errors %}<p class="mt-2 text-xs text-red-700">{{ field.errors|join:", " }}</p>{% endif %}
+                </div>
+            {% endfor %}
+            <div class="md:col-span-2">
+                <button type="submit" class="button-primary w-full">Create Account</button>
+            </div>
+        </form>
+        <p class="mt-6 text-xs text-stone-400">Already registered? <a href="{% url 'tenant:login' %}" class="font-bold uppercase tracking-widest hover:text-stone-700 transition" style="letter-spacing:.14em;color:var(--color-secondary)">Sign in here</a></p>
+    </div>
+
+    <div class="mini-card flex flex-col justify-between p-10 lg:p-12" style="background:var(--color-primary)">
+        <div>
+            <p class="eyebrow !text-amber-400">Account Benefits</p>
+            <div class="accent-bar mt-3 mb-6"></div>
+            <h2 class="brand-font text-4xl font-semibold text-white leading-tight">Built for repeat shoppers and post-purchase clarity.</h2>
+        </div>
+        <div class="mt-8 space-y-4">
+            <div class="p-6" style="border:1px solid rgba(255,255,255,.1)">
+                <p class="brand-font text-2xl font-semibold text-white">Saved Addresses</p>
+                <p class="mt-2 text-sm leading-6 font-light" style="color:rgba(255,255,255,.5)">Use an address book tailored to this store and keep delivery details organised.</p>
+            </div>
+            <div class="p-6" style="border:1px solid rgba(255,255,255,.1)">
+                <p class="brand-font text-2xl font-semibold text-white">Order Support</p>
+                <p class="mt-2 text-sm leading-6 font-light" style="color:rgba(255,255,255,.5)">View tracking, returns, and support-linked account tools from one place.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,3 @@
+deployment:
+  tasks:
+    - /bin/bash deployment/cpanel/post_deploy.sh

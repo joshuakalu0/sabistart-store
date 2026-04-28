@@ -1,0 +1,207 @@
+<div class="space-y-6">
+  <!-- Basic Information -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Basic Information
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Name:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ product.name }}</span
+        >
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Slug:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ product.slug }}</span
+        >
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >SKU:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ product.sku }}</span
+        >
+      </div>
+      {% if product.description %}
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Description:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ product.description|truncatewords:20 }}</span
+        >
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Product Type & Status -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Product Type & Status
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Type:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ product.get_product_type_display }}</span
+        >
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Status:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1">
+          <span
+            class="px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 text-xs rounded-full"
+            >{{ product.get_status_display }}</span
+          >
+        </span>
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Active:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1">
+          {% if product.is_active %}
+          <span
+            class="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 text-xs rounded-full"
+            >Yes</span
+          >
+          {% else %}
+          <span
+            class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 text-xs rounded-full"
+            >No</span
+          >
+          {% endif %}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pricing -->
+  {% if product.price %}
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Pricing
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Price:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >${{ product.price }}</span
+        >
+      </div>
+      {% if product.compare_at_price %}
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Compare At:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >${{ product.compare_at_price }}</span
+        >
+      </div>
+      {% endif %} {% if product.cost_price %}
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Cost Price:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >${{ product.cost_price }}</span
+        >
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Inventory -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Inventory
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Stock:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ product.stock_quantity }}</span
+        >
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Status:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ product.get_stock_status_display }}</span
+        >
+      </div>
+    </div>
+  </div>
+
+  <!-- Media -->
+  {% if product.images.exists %}
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Main Image
+    </h4>
+    <div class="flex items-start">
+      <span class="text-sm text-slate-500 dark:text-slate-400 w-24"></span>
+      {% with product.images.first as main_image %}
+      <img
+        src="{{ main_image.image.url }}"
+        alt="{{ product.name }}"
+        class="w-32 h-24 object-cover rounded-lg border border-slate-200 dark:border-slate-700"
+      />
+      {% endwith %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Dates -->
+  <div>
+    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">
+      Dates
+    </h4>
+    <div class="space-y-3">
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Created:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ product.created_at|date:"M d, Y H:i" }}</span
+        >
+      </div>
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Updated:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ product.updated_at|date:"M d, Y H:i" }}</span
+        >
+      </div>
+      {% if product.published_at %}
+      <div class="flex items-start">
+        <span class="text-sm text-slate-500 dark:text-slate-400 w-24"
+          >Published:</span
+        >
+        <span class="text-sm text-slate-900 dark:text-white flex-1"
+          >{{ product.published_at|date:"M d, Y H:i" }}</span
+        >
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>

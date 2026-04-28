@@ -20,6 +20,7 @@
 <div class="space-y-6">
   <form method="post" class='space-y-6 gap-9' enctype="multipart/form-data">
     {% csrf_token %}
+    {% include "dashboard/_partials/_error_message.html" %}
 
     <!-- Basic Information Section -->
     <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">

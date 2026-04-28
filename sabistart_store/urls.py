@@ -16,10 +16,44 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from django.views.static import serve
+from django.urls import re_path
+from dashboard.domain import views as domain_views
+from sabistart_store import health
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('dashboard/', include('dashboard.urls'),),
-    path('', include('public.home.urls')),
-    path('products/', include('public.product.urls'))
+    path("healthz/", health.healthz, name="healthz"),
+    path("readyz/", health.readyz, name="readyz"),
+
+    # Platform-level URLs (public schema)
+    # Use 'platform' namespace for platform URLs
+    path('platform/', include(('system.account.urls',
+         'system.account'), namespace='platform')),
+    path('platform/payments/', include(('system.system_pay.urls', 'system.system_pay'), namespace='platform_payments')),
+    path('platform/features/', include(('system.feature_marketplace.urls', 'system.feature_marketplace'), namespace='platform_features')),
+    path('platform/themes/', include(('system.theme_marketplace.urls', 'system.theme_marketplace'), namespace='platform_themes')),
+    path('.well-known/acme-challenge/<str:token>/', domain_views.acme_challenge, name='acme_challenge'),
+
+    # Tenant storefront URLs
+    path('', include('public.storefront.urls')),
+
+    # Dashboard URLs
+    path('dashboard/', include('dashboard.urls')),
 ]
+
+# Serve media files during development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)
+    # Add explicit media serving for tenant-aware storage
+    urlpatterns += [
+        re_path(r'^media/(?P<path>.*)$', serve, {
+            'document_root': settings.MEDIA_ROOT,
+        }),
+    ]
+
+handler404 = 'public.home.views.custom_404_view'
+handler500 = 'public.home.views.custom_500_view'

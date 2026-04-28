@@ -1,0 +1,127 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load static %}
+{% block content %}
+  <form method="post" id="attributeValueForm" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" id="saveStatus" name="save_status" value="active" />
+    <input type="hidden" name='attribute' value='{{ attribute.pk }}' />
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <div class="flex items-center space-x-4">
+            <a href="{% url 'dashboard:product_settings:attribute_value_list' prefix attribute.id %}"
+               class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+              <svg class="w-5 h-5 text-gray-600"
+                   fill="none"
+                   stroke="currentColor"
+                   viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+            </a>
+            <div>
+              <h1 class="text-xl font-bold text-gray-900">Create Value for {{ attribute.name }}</h1>
+              <p class="text-xs text-gray-500 hidden sm:block">Add a new value for this attribute</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div class="space-y-6">
+        <!-- Dynamic form based on attribute type - Spanning full width -->
+        {% if attribute.attribute_type == 'text' %}
+          {% include "dashboard/products/attribute_values/partials/text.html" %}
+        {% elif attribute.attribute_type == 'number' %}
+          {% include "dashboard/products/attribute_values/partials/number.html" %}
+        {% elif attribute.attribute_type == 'decimal' %}
+          {% include "dashboard/products/attribute_values/partials/decimal.html" %}
+        {% elif attribute.attribute_type == 'boolean' %}
+          {% include "dashboard/products/attribute_values/partials/boolean.html" %}
+        {% elif attribute.attribute_type == 'color' %}
+          {% include "dashboard/products/attribute_values/partials/color.html" %}
+        {% elif attribute.attribute_type == 'date' %}
+          {% include "dashboard/products/attribute_values/partials/date.html" %}
+        {% elif attribute.attribute_type == 'url' %}
+          {% include "dashboard/products/attribute_values/partials/url.html" %}
+        {% elif attribute.attribute_type == 'email' %}
+          {% include "dashboard/products/attribute_values/partials/email.html" %}
+        {% elif attribute.attribute_type == 'file' %}
+          {% include "dashboard/products/attribute_values/partials/file.html" %}
+        {% elif attribute.attribute_type == 'image' %}
+          {% include "dashboard/products/attribute_values/partials/image.html" %}
+        {% elif attribute.attribute_type == 'select' %}
+          {% include "dashboard/products/attribute_values/partials/select.html" %}
+        {% elif attribute.attribute_type == 'multiselect' %}
+          {% include "dashboard/products/attribute_values/partials/multiselect.html" %}
+        {% elif attribute.attribute_type == 'range' %}
+          {% include "dashboard/products/attribute_values/partials/range.html" %}
+        {% else %}
+          {% include "dashboard/products/attribute_values/partials/text.html" %}
+        {% endif %}
+
+        <!-- Sticky bottom save bar - matches settings page design -->
+        <div id="bottom_submit"
+             class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 flex justify-end items-center space-x-4 shadow-sm mb-12 sticky bottom-0 z-20 mt-8">
+            <button id="cancel_button" type="button"
+                    onclick="window.location.href='{% url 'dashboard:product_settings:attribute_value_list' prefix attribute.id %}'"
+                    class="px-8 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">Cancel</button>
+            <button id="draft_button" type="submit"
+                    onclick="document.getElementById('saveStatus').value = 'draft'"
+                    class="px-8 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">Save as Draft</button>
+            <button id="publish_button" type="submit"
+                    onclick="document.getElementById('saveStatus').value = 'active'"
+                    class="px-8 py-2.5 rounded-lg bg-primary text-white font-medium shadow-lg shadow-primary/20 hover:bg-blue-600 transition-all flex items-center">
+                <span class="material-icons-outlined mr-2 text-[18px]">save</span>
+                Publish Value
+            </button>
+        </div>
+      </div>
+    </main>
+  </form>
+
+{% block js %}
+  <script>
+    function slugify(text) {
+      return text
+        .toString()
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "-")
+        .replace(/[^\w\-]+/g, "")
+        .replace(/\-\-+/g, "-")
+        .replace(/^-+/, "")
+        .replace(/-+$/, "");
+    }
+
+    function generateSlug() {
+      const valueField = document.getElementById("id_value");
+      const slugField = document.getElementById("id_slug");
+
+      if (valueField && slugField && valueField.value) {
+        slugField.value = slugify(valueField.value);
+      }
+    }
+
+    // Auto-generate slug as user types
+    document.addEventListener("DOMContentLoaded", function () {
+      const valueField = document.getElementById("id_value");
+      const slugField = document.getElementById("id_slug");
+
+      if (valueField && slugField) {
+        valueField.addEventListener("input", function () {
+          if (!slugField.value || slugField.dataset.autoGenerated !== "false") {
+            slugField.value = slugify(this.value);
+            slugField.dataset.autoGenerated = "true";
+          }
+        });
+
+        // Mark as manually edited if user types in slug field
+        slugField.addEventListener("input", function () {
+          this.dataset.autoGenerated = "false";
+        });
+      }
+    });
+  </script>
+{% endblock js %}
+{% endblock content %}

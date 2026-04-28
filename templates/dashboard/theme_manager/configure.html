@@ -1,0 +1,25 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load static %}
+{% block content %}
+  <section class="space-y-6">
+    <div class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-slate-200">
+      <p class="text-xs font-semibold uppercase tracking-[0.28em] text-blue-600">Theme Configuration</p>
+      <h1 class="mt-3 text-3xl font-extrabold text-slate-950">{{ theme.name }}</h1>
+      <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-500">Configure the shared universal store profile plus the theme-specific fields defined by this package schema.</p>
+    </div>
+    <form method="post" class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-slate-200">
+      {% csrf_token %}
+      <div class="grid gap-6 xl:grid-cols-2">
+        {% for field in form %}
+          <div class="{% if field.name in 'bio social_links' %}xl:col-span-2{% endif %}">
+            {% include "shared/forms/field.html" with field=field %}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <button type="submit" class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white">Save configuration</button>
+        <a href="{% url 'dashboard:themes:theme_detail' prefix=prefix theme_id=theme.id %}" class="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700">Back to theme</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}

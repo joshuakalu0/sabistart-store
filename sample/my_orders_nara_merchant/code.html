@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nara Merchant - My Orders</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3, .brand-font {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "surface-bright": "#f9f9f9",
+                "inverse-on-surface": "#f0f1f1",
+                "tertiary-container": "#271901",
+                "inverse-primary": "#bec6e0",
+                "surface-variant": "#e2e2e2",
+                "secondary-fixed-dim": "#ffb690",
+                "outline": "#76777d",
+                "on-tertiary": "#ffffff",
+                "on-primary-container": "#7c839b",
+                "inverse-surface": "#2f3131",
+                "on-tertiary-fixed-variant": "#574425",
+                "on-error": "#ffffff",
+                "surface-container-high": "#e8e8e8",
+                "on-background": "#1a1c1c",
+                "primary-fixed-dim": "#bec6e0",
+                "on-surface": "#1a1c1c",
+                "on-secondary-fixed": "#341100",
+                "on-tertiary-fixed": "#271901",
+                "tertiary-fixed": "#fcdeb5",
+                "surface-container-low": "#f3f3f3",
+                "primary-fixed": "#dae2fd",
+                "outline-variant": "#c6c6cd",
+                "error": "#ba1a1a",
+                "secondary": "#9d4300",
+                "secondary-fixed": "#ffdbca",
+                "on-secondary-fixed-variant": "#783200",
+                "surface-container-highest": "#e2e2e2",
+                "primary": "#000000",
+                "on-surface-variant": "#45464d",
+                "on-secondary-container": "#5c2400",
+                "surface": "#f9f9f9",
+                "on-secondary": "#ffffff",
+                "secondary-container": "#fd761a",
+                "error-container": "#ffdad6",
+                "primary-container": "#131b2e",
+                "surface-dim": "#dadada",
+                "on-tertiary-container": "#98805d",
+                "on-error-container": "#93000a",
+                "background": "#f9f9f9",
+                "surface-tint": "#565e74",
+                "surface-container": "#eeeeee",
+                "tertiary": "#000000",
+                "on-primary-fixed-variant": "#3f465c",
+                "on-primary-fixed": "#131b2e",
+                "on-primary": "#ffffff",
+                "tertiary-fixed-dim": "#dec29a",
+                "surface-container-lowest": "#ffffff"
+              },
+              fontFamily: {
+                "headline": ["Plus Jakarta Sans"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- Top Navigation Bar (Merchant Context) -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-[0px_20px_40px_rgba(15,23,42,0.06)] flex justify-between items-center px-8 py-4 w-full font-['Plus_Jakarta_Sans'] tracking-tight">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold text-slate-900 dark:text-white">Nara Merchant</span>
+<div class="hidden md:flex gap-6">
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-slate-900 dark:hover:text-white transition-colors" href="#">Marketplace</a>
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-slate-900 dark:hover:text-white transition-colors" href="#">Help</a>
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:text-slate-900 dark:hover:text-white transition-colors" href="#">Support</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-900 dark:text-slate-50 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-slate-900 dark:text-slate-50 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden ml-2">
+<img alt="Merchant User Profile" data-alt="Close up portrait of a professional merchant user" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRtuoucpOMOkBbIKLU5XCkqeJ35wsNT1sYfr6RlC9oSVYViwLIMQpxE51AdSz8gUlIV9MJ0rJoKUq2zC_fM8eH3p-Ne_cNOS7w7yW7yh7GCFihSLwXh2VRuWCa1L-3qqhb1cCx2cJKcKUyZ4FmrJDbDHkY4R08cVGiLjvyvG7kbpa3xryPDwjSv3iBLGtuDZmWevCMDeCKZscNI0O0s81g7KF3NalQX7EwvzkKJ0DUBqfCjqrdHwz_P5C9oVb2dFlmszbvdp9Xs_o"/>
+</div>
+</div>
+</nav>
+<div class="flex min-h-screen pt-20">
+<!-- Side Navigation Bar -->
+<aside class="h-screen w-64 fixed left-0 top-0 pt-20 bg-slate-50 dark:bg-slate-950 flex flex-col h-full p-4 gap-2 font-['Inter'] text-sm">
+<div class="px-2 py-4 mb-4 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-white font-bold">N</div>
+<div>
+<p class="text-lg font-black text-slate-900 dark:text-white leading-none">Nara Merchant</p>
+<p class="text-xs text-slate-500">Premium Tier</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                    Dashboard
+                </a>
+<!-- Active Navigation: Orders -->
+<a class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold rounded-lg shadow-sm" href="#">
+<span class="material-symbols-outlined" data-icon="package">package</span>
+                    Orders
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+                    Inventory
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+                    Wishlist
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                    Settings
+                </a>
+</nav>
+<div class="mt-auto pb-8 flex flex-col gap-2">
+<button class="bg-primary text-on-primary py-3 rounded-xl font-semibold active:scale-95 transition-all">Upgrade Account</button>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+                    Logout
+                </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 flex-1 bg-surface min-h-screen px-12 py-10">
+<header class="mb-12">
+<h1 class="text-4xl font-extrabold tracking-tight text-primary mb-2">My Orders</h1>
+<p class="text-on-surface-variant font-medium">Manage and track your merchant sales across the platform.</p>
+</header>
+<!-- Search and Filter Section -->
+<section class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="relative flex-1 max-w-lg">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-4 pl-12 pr-4 focus:ring-1 focus:ring-primary transition-all placeholder:text-outline" placeholder="Search order ID, customer or product..." type="text"/>
+</div>
+<div class="flex items-center gap-2 p-1.5 bg-surface-container-low rounded-xl">
+<button class="px-6 py-2.5 bg-surface-container-lowest shadow-sm rounded-lg text-sm font-bold text-primary">All</button>
+<button class="px-6 py-2.5 text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">Pending</button>
+<button class="px-6 py-2.5 text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">Completed</button>
+<button class="px-6 py-2.5 text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">Cancelled</button>
+</div>
+</section>
+<!-- Orders Table/List -->
+<section class="bg-surface-container-lowest rounded-2xl overflow-hidden">
+<table class="w-full text-left border-separate border-spacing-0">
+<thead class="bg-surface-container-low">
+<tr>
+<th class="px-8 py-5 text-xs font-bold uppercase tracking-widest text-outline">Order Details</th>
+<th class="px-6 py-5 text-xs font-bold uppercase tracking-widest text-outline">Items</th>
+<th class="px-6 py-5 text-xs font-bold uppercase tracking-widest text-outline">Total Price</th>
+<th class="px-6 py-5 text-xs font-bold uppercase tracking-widest text-outline">Status</th>
+<th class="px-8 py-5 text-right text-xs font-bold uppercase tracking-widest text-outline">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container">
+<!-- Order Row 1 -->
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="px-8 py-6">
+<div class="flex flex-col">
+<span class="font-headline font-bold text-primary text-base">#ORD-2024-001</span>
+<span class="text-sm text-outline font-medium">Oct 12, 2023 · 02:45 PM</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<div class="flex -space-x-3">
+<div class="w-10 h-10 rounded-lg border-2 border-surface-container-lowest overflow-hidden bg-surface-variant">
+<img alt="Smart Watch" data-alt="High quality wrist watch on product background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAaJr5WqDjFVjz1EjqJU07G4czt2ugeohxeE8CoC3wLS1I2p9qzH_Dw2fy1GrM_HVJCIpv96i5RB8hBwti4sciSy4MHfueIuPwSP3CIiGqtVSsMU7GmorHvMMIRuQIlLpd-9qi2PcAjGTiKfc270o-1mDn_bLBVNr9uzdWaMEJ1O63sYRTD-IVviO0_87rnHCvhJHAGCg8L23fiCwI43vzMKlDWOahCI4sMGrl5YvWw8TcxZCE86BZUeDgXuiURPuv_epxWi27nmY"/>
+</div>
+<div class="w-10 h-10 rounded-lg border-2 border-surface-container-lowest overflow-hidden bg-surface-variant">
+<img alt="Sneakers" data-alt="Red athletic running shoe" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAW8WpZA-a16opW1nTwpJSQ3wbgDYsDywzianM7i0UnfoJl16Yk0MgNuOhMwWRzk0ArUKLEg7IcsON5YSZ2ADq1Is9JO0fKYzAXP0PBKE0DFq5lxqvXlqdqypWOCz2G3EJvqaCh3IDPZIQMAF0vYtt_G9XpqE6WCdltEVFTo6EbIxAAB_AvLegOmxX6anibrcs6sMtN8eKLWVP2AezoofcEh5Z5zwuRD2flnvpm-usylGgFazBkSlvXB6o-caWYXKLwVNWz4ml-dEU"/>
+</div>
+<div class="w-10 h-10 rounded-lg border-2 border-surface-container-lowest bg-surface-container-high flex items-center justify-center text-[10px] font-bold text-on-surface-variant">+1</div>
+</div>
+</td>
+<td class="px-6 py-6">
+<span class="font-headline font-bold text-lg text-primary">₦ 125,400.00</span>
+</td>
+<td class="px-6 py-6">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span>
+                                    Delivered
+                                </span>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="px-5 py-2 text-sm font-bold text-primary hover:bg-surface-container-low rounded-lg transition-colors border border-outline-variant/30">View Details</button>
+</td>
+</tr>
+<!-- Order Row 2 -->
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="px-8 py-6">
+<div class="flex flex-col">
+<span class="font-headline font-bold text-primary text-base">#ORD-2024-002</span>
+<span class="text-sm text-outline font-medium">Oct 11, 2023 · 10:20 AM</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<div class="flex -space-x-3">
+<div class="w-10 h-10 rounded-lg border-2 border-surface-container-lowest overflow-hidden bg-surface-variant">
+<img alt="Headphones" data-alt="Black wireless headphones sitting on a table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9iJK0sO6XBR61RIY_8OGBgH9zVketKfL7rwxg69U4pqyTpocGO2qg5Yh6_9pXlZSXR7jXvF1lFa_4z1CP-L934wc6ABSA4HgTe48wtc8eVwJoiMdXCwMputXSn_r8y2-22WB-XUbWU55bWmHT56UlZ1jcxzX_jkzZ7ObGhAcZJNMhiyMQ1fIYTha12Ta6Kua47XEwYvAmjCxZLgDhCmOpEWl888Hwg46KQUQMuBJAFydm5xsX9NSDRiknxiaO4JsV7coTH-00Yns"/>
+</div>
+</div>
+</td>
+<td class="px-6 py-6">
+<span class="font-headline font-bold text-lg text-primary">₦ 45,000.00</span>
+</td>
+<td class="px-6 py-6">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-2"></span>
+                                    Processing
+                                </span>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="px-5 py-2 text-sm font-bold text-primary hover:bg-surface-container-low rounded-lg transition-colors border border-outline-variant/30">View Details</button>
+</td>
+</tr>
+<!-- Order Row 3 -->
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="px-8 py-6">
+<div class="flex flex-col">
+<span class="font-headline font-bold text-primary text-base">#ORD-2024-003</span>
+<span class="text-sm text-outline font-medium">Oct 10, 2023 · 04:15 PM</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<div class="flex -space-x-3">
+<div class="w-10 h-10 rounded-lg border-2 border-surface-container-lowest overflow-hidden bg-surface-variant">
+<img alt="Camera" data-alt="Classic vintage camera on desk" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDce2hwtf3UckUvK1T52Y7tOgxOzZ1e3gfwUsGpmIuQXvMehicpHStk3cQbDzpe3zUtQX8RZXHAMk5w0fdeQhNq_QU8byn9Ic-qI8Is4uzCN0tIG51xnZgRIJYV0BhzAfKMAvkLxOXiaDo8DayeLcASVgZEyJMRTB-ttBmk5LBEO2WVc2l9_PhBptNhxzmWLZzjgIyKlnbW0zYjTrWOKqZLJHtJppRc7sTo6CrCO7zl1guvWinQKJWpnKXPGpkMm2fPecs1ng13g5w"/>
+</div>
+<div class="w-10 h-10 rounded-lg border-2 border-surface-container-lowest overflow-hidden bg-surface-variant">
+<img alt="Smartphone" data-alt="Smartphone showing modern minimalist interface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdhYLuxDyhjc_WcYjW2xrf6S1KZwrTPMyRelwMZxofZu3qeZnv4TqedV8ghNbnAJwDU3M8nXCsxCRsJ-hK26Fc-skyb0FZy5x2yaYNxhfeFPskicfq2pTfWYMStBaTaQhdcasYZn79AIyqKgnNwBJwn34jd2_hw13PpUV0KHvHPur7Y4ZJPXDb8_eoJQRnj7KhNe28Lb4YJVd-8QDP62pxGIcmvci9LoTB75reH2Pul8bcGxIK6__ATmrCNkeTLGrjBYeSmuQ9LDs"/>
+</div>
+</div>
+</td>
+<td class="px-6 py-6">
+<span class="font-headline font-bold text-lg text-primary">₦ 620,000.00</span>
+</td>
+<td class="px-6 py-6">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span>
+                                    Delivered
+                                </span>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="px-5 py-2 text-sm font-bold text-primary hover:bg-surface-container-low rounded-lg transition-colors border border-outline-variant/30">View Details</button>
+</td>
+</tr>
+<!-- Order Row 4 -->
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="px-8 py-6">
+<div class="flex flex-col">
+<span class="font-headline font-bold text-primary text-base">#ORD-2024-004</span>
+<span class="text-sm text-outline font-medium">Oct 09, 2023 · 09:00 AM</span>
+</div>
+</td>
+<td class="px-6 py-6">
+<div class="flex -space-x-3">
+<div class="w-10 h-10 rounded-lg border-2 border-surface-container-lowest overflow-hidden bg-surface-variant">
+<img alt="Bag" data-alt="Leather premium travel bag" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDynDw4w5bIqR44jbZqXb6RtjNU1MotJZ-fc1RxuhBDOi_6Vkc32hWPVdCLVD_EElyIvt4zsJyVof8z_Qr91QIiB6dJhRmxLwpKaxZN4H_zKKWt7_D95GEgumtxd1n07nbUz2ruLgDTU6zFdRkBx5b572npS7SwcORa4Ej8NwM-ueh92kiwmq56ZkWqjW_5ultrFLqh7nrFUUmKEMrCR1LMrSU2v_buboTL1IN966FCq3m8jTvP2KoYFambPrducyKit7yhrXVuTV0"/>
+</div>
+</div>
+</td>
+<td class="px-6 py-6">
+<span class="font-headline font-bold text-lg text-primary">₦ 85,000.00</span>
+</td>
+<td class="px-6 py-6">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-rose-500 mr-2"></span>
+                                    Cancelled
+                                </span>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="px-5 py-2 text-sm font-bold text-primary hover:bg-surface-container-low rounded-lg transition-colors border border-outline-variant/30">View Details</button>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+<!-- Pagination -->
+<footer class="mt-8 flex items-center justify-between">
+<p class="text-sm text-outline font-medium">Showing 1 to 4 of 24 orders</p>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-low text-outline-variant transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-white font-bold">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-low text-primary font-semibold transition-colors">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-low text-primary font-semibold transition-colors">3</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-low text-outline-variant transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</footer>
+</main>
+</div>
+</body></html>

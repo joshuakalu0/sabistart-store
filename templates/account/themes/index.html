@@ -1,0 +1,58 @@
+{% extends "account/_platform_base.html" %}
+{% block content %}
+  <section class="space-y-8">
+    <div class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-slate-200">
+      <p class="text-xs font-semibold uppercase tracking-[0.28em] text-blue-600">Theme Control Plane</p>
+      <h1 class="mt-3 text-3xl font-extrabold text-slate-950">Theme marketplace</h1>
+      <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-500">Manage the shared storefront theme catalog, sync manifest-backed built-in themes, and keep tenant activation running off one central source of truth.</p>
+    </div>
+
+    {% include "account/themes/_subnav.html" %}
+
+    <div class="flex flex-wrap items-center gap-3">
+      <form method="post" action="{% url 'platform_themes:sync' %}">
+        {% csrf_token %}
+        <button type="submit" class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white">Sync Built-In Themes</button>
+      </form>
+      <p class="text-sm text-slate-500">Reads every <code>themes/&lt;slug&gt;/theme.json</code> manifest and updates the platform catalog without copying theme files.</p>
+    </div>
+
+    <form method="get" class="grid gap-4 rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-200 md:grid-cols-[1fr_220px_auto]">
+      <input type="search" name="q" value="{{ q }}" placeholder="Search themes" class="rounded-2xl border-slate-200 px-4 py-3">
+      <select name="status" class="rounded-2xl border-slate-200 px-4 py-3">
+        <option value="">All statuses</option>
+        <option value="draft" {% if status == "draft" %}selected{% endif %}>Draft</option>
+        <option value="pending" {% if status == "pending" %}selected{% endif %}>Pending</option>
+        <option value="approved" {% if status == "approved" %}selected{% endif %}>Approved</option>
+        <option value="suspended" {% if status == "suspended" %}selected{% endif %}>Suspended</option>
+      </select>
+      <button type="submit" class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white">Filter</button>
+    </form>
+
+    <div class="grid gap-6 xl:grid-cols-2">
+      {% for theme in themes %}
+        <article class="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h2 class="text-xl font-bold text-slate-950">{{ theme.name }}</h2>
+                <span class="rounded-full px-3 py-1 text-xs font-semibold {% if theme.is_published %}bg-emerald-50 text-emerald-700{% else %}bg-amber-50 text-amber-700{% endif %}">
+                  {{ theme.status|title }}
+                </span>
+              </div>
+              <p class="mt-2 text-sm text-slate-500">{{ theme.description|truncatechars:180 }}</p>
+            </div>
+            <a href="{% url 'platform_themes:detail' theme.id %}" class="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200">Open</a>
+          </div>
+          <dl class="mt-5 grid gap-4 sm:grid-cols-3">
+            <div><dt class="text-xs uppercase tracking-[0.22em] text-slate-400">Category</dt><dd class="mt-1 text-sm font-semibold text-slate-700">{{ theme.category.name|default:"Uncategorised" }}</dd></div>
+            <div><dt class="text-xs uppercase tracking-[0.22em] text-slate-400">Price</dt><dd class="mt-1 text-sm font-semibold text-slate-700">{% if theme.is_free %}Free{% else %}{{ theme.price }}{% endif %}</dd></div>
+            <div><dt class="text-xs uppercase tracking-[0.22em] text-slate-400">Downloads</dt><dd class="mt-1 text-sm font-semibold text-slate-700">{{ theme.downloads }}</dd></div>
+          </dl>
+        </article>
+      {% empty %}
+        <div class="rounded-[2rem] bg-white p-10 text-center text-slate-500 shadow-sm ring-1 ring-slate-200 xl:col-span-2">No themes matched the current filters.</div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

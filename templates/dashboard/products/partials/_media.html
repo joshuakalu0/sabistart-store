@@ -1,0 +1,375 @@
+ <!-- Media -->
+        <div
+          class="bg-white rounded-xl shadow-sm border border-gray-200 section-card"
+        >
+          <div class="p-6">
+            <h2
+              class="text-lg font-semibold text-gray-900 mb-4 flex items-center"
+            >
+              <svg
+                class="w-5 h-5 mr-2 text-primary-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                ></path>
+              </svg>
+              Media
+            </h2>
+
+            <!-- Image Upload -->
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Product Images</label
+              >
+              <div
+                id="imageUploadArea"
+                class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary-500 transition-colors cursor-pointer"
+                ondragover="handleDragOver(event)"
+                ondragleave="handleDragLeave(event)"
+                ondrop="handleDrop(event)"
+                onclick="document.getElementById('imageInput').click()"
+              >
+                <input
+                  type="file"
+                  id="imageInput"
+                  name="images"
+                  multiple
+                  accept="image/*"
+                  class="hidden"
+                  onchange="handleImageUpload(event)"
+                />
+                <svg
+                  class="mx-auto h-12 w-12 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  ></path>
+                </svg>
+                <p class="mt-2 text-sm text-gray-600">
+                  Drag and drop images here, or click to browse
+                </p>
+                <p class="mt-1 text-xs text-gray-500">
+                  PNG, JPG, GIF up to 10MB each
+                </p>
+              </div>
+              <div
+                id="imagePreviewContainer"
+                class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"
+              >
+                {% if is_edit and product.images.all %}
+                 {% for image in product.images.all %}
+                <div
+                  class="image-preview relative group rounded-lg overflow-hidden border border-gray-200"
+                >
+                  <img
+                    src="{{ image.image.url }}"
+                    alt="{{ image.alt_text }}"
+                    class="w-full h-32 object-cover"
+                  />
+                  {% if image.is_primary %}
+                  <span
+                    class="absolute top-2 left-2 px-2 py-1 bg-blue-600 text-white text-xs rounded"
+                    >Primary</span
+                  >
+                  {% endif %}
+                  <div
+                    class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center space-x-2 opacity-0 group-hover:opacity-100"
+                  >
+                    <button
+                      type="button"
+                      onclick="setPrimaryImage('{{ image.id }}')"
+                      class="p-2 bg-white rounded-full hover:bg-gray-100"
+                      title="Set as Primary"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M5 13l4 4L19 7"
+                        ></path>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      onclick="removeImage('{{ image.id }}')"
+                      class="p-2 bg-white rounded-full hover:bg-gray-100"
+                      title="Remove"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        ></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                {% endfor %} {% endif %}
+              </div>
+              
+              <!-- Hidden Django Formset -->
+              <div id="image-formset" style="display: none;">
+                {{ form.image_formset.management_form }}
+                {% for image_form in form.image_formset %}
+                <div class="image-form-row" data-form-index="{{ forloop.counter0 }}">
+                  {{ image_form.image }}
+                  {{ image_form.alt_text }}
+                  {{ image_form.title }}
+                  {{ image_form.is_primary }}
+                  {{ image_form.display_order }}
+                  {{ image_form.id }}
+                  {% if image_form.instance.pk %}{{ image_form.DELETE }}{% endif %}
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Video Section -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Product Videos</label
+              >
+              <div class="space-y-3">
+                <div class="flex items-center space-x-3">
+                  <select
+                    id="videoType"
+                    class="block w-40 rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-2"
+                  >
+                    <option value="youtube">YouTube</option>
+                    <option value="vimeo">Vimeo</option>
+                    <option value="upload">Upload</option>
+                    <option value="external">External URL</option>
+                  </select>
+                  <input
+                    type="text"
+                    id="videoUrl"
+                    class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-2"
+                    placeholder="Enter video URL or ID"
+                  />
+                  <button
+                    type="button"
+                    onclick="addVideo()"
+                    class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    Add
+                  </button>
+                </div>
+                <div id="videoList" class="space-y-2">
+                  {% if is_edit and product.videos.all %}
+                   {% for video in product.videos.all %}
+                  <div
+                    class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
+                    <div class="flex items-center space-x-3">
+                      <span
+                        class="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded"
+                        >{{ video.get_video_type_display }}</span
+                      >
+                      <span class="text-sm text-gray-700 truncate max-w-xs"
+                        >{{ video.video_url }}</span
+                      >
+                    </div>
+                    <button
+                      type="button"
+                      onclick="removeVideo('{{ video.id }}')"
+                      class="text-red-600 hover:text-red-700"
+                    >
+                      <svg
+                        class="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        ></path>
+                      </svg>
+                    </button>
+                  </div>
+                  {% endfor %} {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+        <script>
+
+
+            let images = [];
+            let videos = [];
+
+  // Image Upload Handling
+  function handleDragOver(event) {
+      event.preventDefault();
+      document.getElementById('imageUploadArea').classList.add('drag-over');
+  }
+
+  function handleDragLeave(event) {
+      event.preventDefault();
+      document.getElementById('imageUploadArea').classList.remove('drag-over');
+  }
+
+  function handleDrop(event) {
+      event.preventDefault();
+      document.getElementById('imageUploadArea').classList.remove('drag-over');
+      const files = event.dataTransfer.files;
+      processImages(files);
+  }
+
+  function handleImageUpload(event) {
+      const files = event.target.files;
+      processImages(files);
+  }
+
+  function processImages(files) {
+      Array.from(files).forEach((file, index) => {
+          if (file.type.startsWith('image/')) {
+              const reader = new FileReader();
+              reader.onload = function(e) {
+                  const imageData = {
+                      id: generateUUID(),
+                      url: e.target.result,
+                      name: file.name,
+                      file: file,
+                      isPrimary: images.length === 0
+                  };
+                  images.push(imageData);
+                  
+                  // Update Django formset
+                  updateImageFormset();
+                  
+                  renderImages();
+                  if (images.length === 1) {
+                      const previewImg = document.getElementById('previewImage');
+                      if (previewImg) previewImg.src = e.target.result;
+                  }
+              };
+              reader.readAsDataURL(file);
+          }
+      });
+  }
+
+  function updateImageFormset() {
+      const formset = document.getElementById('image-formset');
+      const managementForm = formset.querySelector('[name$="-TOTAL_FORMS"]');
+      const totalForms = parseInt(managementForm.value);
+      
+      // Find the first empty form
+      const emptyForm = formset.querySelector(`[data-form-index="${totalForms - 1}"]`);
+      if (emptyForm && images.length > 0) {
+          const lastImage = images[images.length - 1];
+          const imageInput = emptyForm.querySelector('input[type="file"]');
+          
+          // Create a new FileList with our file
+          const dt = new DataTransfer();
+          dt.items.add(lastImage.file);
+          imageInput.files = dt.files;
+          
+          // Set other fields
+          const altInput = emptyForm.querySelector('input[name$="-alt_text"]');
+          if (altInput) altInput.value = lastImage.name;
+          
+          const primaryInput = emptyForm.querySelector('input[name$="-is_primary"]');
+          if (primaryInput) primaryInput.checked = lastImage.isPrimary;
+          
+          const orderInput = emptyForm.querySelector('input[name$="-display_order"]');
+          if (orderInput) orderInput.value = images.length - 1;
+      }
+  }
+
+  function renderImages() {
+      const container = document.getElementById('imagePreviewContainer');
+      container.innerHTML = images.map((img, index) => `
+          <div class="image-preview relative group rounded-lg overflow-hidden border border-gray-200">
+              <img src="${img.url}" alt="${img.name}" class="w-full h-32 object-cover">
+              ${img.isPrimary ? '<span class="absolute top-2 left-2 px-2 py-1 bg-blue-600 text-white text-xs rounded">Primary</span>' : ''}
+              <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center space-x-2 opacity-0 group-hover:opacity-100">
+                  <button type="button" onclick="setPrimaryImage('${img.id}')" class="p-2 bg-white rounded-full hover:bg-gray-100" title="Set as Primary">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                  </button>
+                  <button type="button" onclick="removeImage('${img.id}')" class="p-2 bg-white rounded-full hover:bg-gray-100" title="Remove">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+              </div>
+          </div>
+      `).join('');
+  }
+
+  function setPrimaryImage(id) {
+      images.forEach(img => img.isPrimary = img.id === id);
+      renderImages();
+  }
+
+  function removeImage(id) {
+      images = images.filter(img => img.id !== id);
+      renderImages();
+      if (images.length > 0) {
+          document.getElementById('previewImage').src = images[0].url;
+      }
+  }
+
+  // Video Management
+  function addVideo() {
+      const type = document.getElementById('videoType').value;
+      const url = document.getElementById('videoUrl').value;
+      if (url) {
+          videos.push({ id: generateUUID(), type, url });
+          renderVideos();
+          document.getElementById('videoUrl').value = '';
+      }
+  }
+
+  function renderVideos() {
+      const container = document.getElementById('videoList');
+      container.innerHTML = videos.map(video => `
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div class="flex items-center space-x-3">
+                  <span class="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded">${video.type}</span>
+                  <span class="text-sm text-gray-700 truncate max-w-xs">${video.url}</span>
+              </div>
+              <button type="button" onclick="removeVideo('${video.id}')" class="text-red-600 hover:text-red-700">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </button>
+          </div>
+      `).join('');
+  }
+
+  function removeVideo(id) {
+      videos = videos.filter(v => v.id !== id);
+      renderVideos();
+  }
+
+
+        </script>

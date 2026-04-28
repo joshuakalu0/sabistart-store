@@ -1,0 +1,214 @@
+{% extends "dashboard/_partials/base.html" %} {% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      Permissions
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      View and manage all system permissions
+    </p>
+  </div>
+</div>
+
+<div
+  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+>
+  <div class="p-6 border-b border-slate-200 dark:border-slate-700">
+    <div class="flex flex-col sm:flex-row gap-4">
+      <div class="flex-1">
+        <div class="relative">
+          <span
+            class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
+          >
+            <span class="material-icons-outlined text-slate-400 text-sm"
+              >search</span
+            >
+          </span>
+          <input
+            type="text"
+            name="search"
+            value="{{ search_query }}"
+            placeholder="Search permissions by name, code name, or description..."
+            class="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-700 dark:text-white"
+          />
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <select
+          name="category"
+          class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white"
+        >
+          <option value="">All Categories</option>
+          {% for value, label in categories %}
+          <option
+            value="{{ value }}"
+            {%
+            if
+            category_filter=""
+            ="value"
+            %}selected{%
+            endif
+            %}
+          >
+            {{ label }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="flex items-center space-x-4 mt-4">
+      <button
+        type="submit"
+        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+      >
+        <span class="material-icons-outlined text-sm mr-2">filter_list</span>
+        Apply Filters
+      </button>
+      <a
+        href="{% url 'dashboard:user_settings:permission_list' prefix %}"
+        class="inline-flex items-center px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+      >
+        <span class="material-icons-outlined text-sm mr-2">clear</span>
+        Clear
+      </a>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full">
+      <thead class="bg-slate-50 dark:bg-slate-700">
+        <tr>
+          <th
+            class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+          >
+            Permission
+          </th>
+          <th
+            class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+          >
+            Code Name
+          </th>
+          <th
+            class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+          >
+            Category
+          </th>
+          <th
+            class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+          >
+            Description
+          </th>
+          <th
+            class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+          >
+            Status
+          </th>
+        </tr>
+      </thead>
+      <tbody
+        class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700"
+      >
+        {% if page_obj %} {% for permission in page_obj %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <div
+                class="w-10 h-10 bg-slate-200 dark:bg-slate-600 rounded-lg flex items-center justify-center mr-3"
+              >
+                <span class="material-icons-outlined text-slate-400"
+                  >verified_user</span
+                >
+              </div>
+              <div>
+                <div class="text-sm font-medium text-slate-900 dark:text-white">
+                  {{ permission.name }}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="text-sm font-mono text-slate-600 dark:text-slate-400">
+              {{ permission.codename }}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if permission.category == 'product' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 {% elif permission.category == 'order' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 {% elif permission.category == 'customer' %}bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 {% elif permission.category == 'inventory' %}bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 {% elif permission.category == 'analytics' %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 {% elif permission.category == 'settings' %}bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 {% elif permission.category == 'financial' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 {% elif permission.category == 'marketing' %}bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200{% endif %}"
+            >
+              {{ permission.get_category_display }}
+            </span>
+          </td>
+          <td class="px-6 py-4">
+            <span class="text-sm text-slate-600 dark:text-slate-400">
+              {{ permission.description|truncatewords:20 }}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if permission.is_active %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 {% else %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% endif %}"
+            >
+              {{ permission.is_active|yesno:"Active,Inactive" }}
+            </span>
+          </td>
+        </tr>
+        {% endfor %} {% else %}
+        <tr>
+          <td
+            colspan="5"
+            class="px-6 py-4 text-center text-slate-600 dark:text-slate-400"
+          >
+            No permissions found
+          </td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page_obj.has_other_pages %}
+  <div
+    class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between"
+  >
+    <div class="text-sm text-slate-600 dark:text-slate-400">
+      Showing <span class="font-medium">{{ page_obj.start_index }}</span> to
+      <span class="font-medium">{{ page_obj.end_index }}</span> of
+      <span class="font-medium">{{ page_obj.paginator.count }}</span>
+      permissions
+    </div>
+    <div>
+      <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+        {% if page_obj.has_previous %}
+        <a
+          href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}"
+          class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
+        >
+          <span class="material-icons-outlined text-sm">chevron_left</span>
+        </a>
+        {% endif %} {% for num in page_obj.paginator.page_range %}
+        {% if  page_obj.number == num %}
+        <span
+          class="relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 dark:bg-blue-900 text-sm font-medium text-blue-600 dark:text-blue-200"
+        >
+          {{ num }}
+        </span>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3'   %}
+        <a
+          href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}"
+          class="relative inline-flex items-center px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+        >
+          {{ num }}
+        </a>
+        {% endif %} {% endfor %} {% if page_obj.has_next %}
+        <a
+          href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}"
+          class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
+        >
+          <span class="material-icons-outlined text-sm">chevron_right</span>
+        </a>
+        {% endif %}
+      </nav>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

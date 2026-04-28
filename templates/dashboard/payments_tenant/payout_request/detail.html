@@ -1,0 +1,47 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="space-y-6 max-w-2xl mx-auto">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-4">
+      <a href="{% url 'dashboard:payments_tenant:payout_request_list' prefix %}"
+         class="p-2 text-slate-500 hover:text-primary rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <span class="material-icons-outlined">arrow_back</span>
+      </a>
+      <div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white font-mono">{{ payout.payout_reference }}</h2>
+        <span class="px-2 py-0.5 rounded-full text-xs font-medium
+          {% if payout.status == 'completed' %}bg-green-100 text-green-700
+          {% elif payout.status == 'failed' %}bg-red-100 text-red-700
+          {% elif payout.status == 'processing' %}bg-blue-100 text-blue-700
+          {% elif payout.status == 'pending' %}bg-amber-100 text-amber-700
+          {% else %}bg-slate-100 text-slate-600{% endif %}">
+          {{ payout.status|capfirst }}
+        </span>
+      </div>
+    </div>
+    {% if payout.status == 'pending' %}
+    <form method="post" action="{% url 'dashboard:payments_tenant:payout_request_cancel' prefix payout.id %}">
+      {% csrf_token %}
+      <button type="submit" class="px-4 py-2 text-sm border border-red-300 text-red-600 rounded-lg hover:bg-red-50">Cancel Request</button>
+    </form>
+    {% endif %}
+  </div>
+
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+    <div class="grid grid-cols-2 gap-5 text-sm">
+      <div><p class="text-slate-500">Amount</p><p class="text-3xl font-bold dark:text-white">{{ payout.amount }}</p><p class="text-xs text-slate-400 mt-0.5">{{ payout.currency }}</p></div>
+      <div><p class="text-slate-500">Bank Account</p>
+        <p class="font-medium dark:text-white">{{ payout.bank_account.account_name }}</p>
+        <p class="text-xs text-slate-400">{{ payout.bank_account.bank_name }} ···{{ payout.bank_account.account_number_masked }}</p>
+      </div>
+      <div><p class="text-slate-500">Requested</p><p class="dark:text-white">{{ payout.created_at|date:"d M Y H:i" }}</p></div>
+      {% if payout.approved_at %}<div><p class="text-slate-500">Approved</p><p class="dark:text-white">{{ payout.approved_at|date:"d M Y H:i" }}</p></div>{% endif %}
+      {% if payout.completed_at %}<div><p class="text-slate-500">Completed</p><p class="dark:text-white">{{ payout.completed_at|date:"d M Y H:i" }}</p></div>{% endif %}
+      {% if payout.gateway_transfer_reference %}<div class="col-span-2"><p class="text-slate-500">Gateway Reference</p><p class="font-mono text-xs dark:text-white">{{ payout.gateway_transfer_reference }}</p></div>{% endif %}
+      {% if payout.narration %}<div class="col-span-2"><p class="text-slate-500">Bank Narration</p><p class="dark:text-white">{{ payout.narration }}</p></div>{% endif %}
+      {% if payout.tenant_note %}<div class="col-span-2"><p class="text-slate-500">Internal Note</p><p class="dark:text-slate-300">{{ payout.tenant_note }}</p></div>{% endif %}
+      {% if payout.failure_reason %}<div class="col-span-2"><p class="text-red-600 font-medium">Failure Reason</p><p class="text-red-600 dark:text-red-400">{{ payout.failure_reason }}</p></div>{% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

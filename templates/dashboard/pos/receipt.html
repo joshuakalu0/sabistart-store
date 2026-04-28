@@ -1,0 +1,185 @@
+{% extends 'dashboard/_partials/base.html' %}
+
+{% block extra_head %}
+<style>
+  @media print {
+    nav, aside, .no-print, header, footer { display: none !important; }
+    body { background: #fff !important; }
+    .receipt-card {
+      box-shadow: none !important;
+      border: none !important;
+      max-width: 100% !important;
+    }
+    a { text-decoration: none !important; color: inherit !important; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="flex justify-center py-6">
+  <div class="receipt-card w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+    <div class="text-center">
+      <p class="text-xl font-bold tracking-tight text-slate-900">
+        {{ store.name|default:"Store" }}
+      </p>
+      {% if store.address %}
+        <p class="mt-1 text-xs text-slate-500">{{ store.address }}</p>
+      {% endif %}
+      {% if store.contact_phone %}
+        <p class="text-xs text-slate-500">{{ store.contact_phone }}</p>
+      {% endif %}
+      {% if store.contact_email %}
+        <p class="text-xs text-slate-500">{{ store.contact_email }}</p>
+      {% endif %}
+    </div>
+
+    <hr class="my-5 border-dashed border-slate-200">
+
+    <div class="space-y-1.5 text-sm">
+      <div class="flex items-center justify-between">
+        <span class="font-semibold text-slate-500 uppercase tracking-[0.15em] text-xs">Receipt No.</span>
+        <span class="font-bold text-slate-900">{{ transaction.transaction_number }}</span>
+      </div>
+      <div class="flex items-center justify-between">
+        <span class="font-semibold text-slate-500 uppercase tracking-[0.15em] text-xs">Date</span>
+        <span class="text-slate-700">{{ transaction.created_at|date:"N j, Y" }}</span>
+      </div>
+      <div class="flex items-center justify-between">
+        <span class="font-semibold text-slate-500 uppercase tracking-[0.15em] text-xs">Time</span>
+        <span class="text-slate-700">{{ transaction.created_at|date:"P" }}</span>
+      </div>
+      <div class="flex items-center justify-between">
+        <span class="font-semibold text-slate-500 uppercase tracking-[0.15em] text-xs">Cashier</span>
+        <span class="text-slate-700">{{ transaction.cashier.get_full_name|default:transaction.cashier.email }}</span>
+      </div>
+      <div class="flex items-center justify-between">
+        <span class="font-semibold text-slate-500 uppercase tracking-[0.15em] text-xs">Place</span>
+        <span class="text-slate-700">{{ transaction.store.name }}</span>
+      </div>
+      {% if transaction.customer_name %}
+      <div class="flex items-center justify-between">
+        <span class="font-semibold text-slate-500 uppercase tracking-[0.15em] text-xs">Customer</span>
+        <span class="text-slate-700">{{ transaction.customer_name }}</span>
+      </div>
+      {% endif %}
+      {% if transaction.customer_phone %}
+      <div class="flex items-center justify-between">
+        <span class="font-semibold text-slate-500 uppercase tracking-[0.15em] text-xs">Phone</span>
+        <span class="text-slate-700">{{ transaction.customer_phone }}</span>
+      </div>
+      {% endif %}
+    </div>
+
+    <hr class="my-5 border-dashed border-slate-200">
+
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-[0.15em] text-slate-400">
+          <th class="pb-2 pr-2">Item</th>
+          <th class="w-10 pb-2 text-center">Qty</th>
+          <th class="pb-2 text-right">Price</th>
+          <th class="pb-2 pl-4 text-right">Total</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for item in items %}
+        <tr class="text-slate-800">
+          <td class="py-2 pr-2 font-medium leading-snug">
+            {{ item.product_name|default:"—" }}
+            {% if item.product_sku %}
+              <span class="block text-xs text-slate-400">{{ item.product_sku }}</span>
+            {% endif %}
+          </td>
+          <td class="py-2 text-center text-slate-600">{{ item.quantity }}</td>
+          <td class="py-2 text-right text-slate-600">{{ item.unit_price|floatformat:2 }}</td>
+          <td class="py-2 pl-4 text-right font-semibold">{{ item.line_total|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="py-4 text-center text-xs text-slate-400">No items recorded.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <hr class="my-5 border-dashed border-slate-200">
+
+    <div class="space-y-1.5">
+      <div class="flex justify-between text-sm text-slate-600">
+        <span>Subtotal</span>
+        <span>NGN {{ transaction.subtotal|floatformat:2 }}</span>
+      </div>
+      {% if transaction.tax_amount and transaction.tax_amount > 0 %}
+      <div class="flex justify-between text-sm text-slate-600">
+        <span>Tax</span>
+        <span>NGN {{ transaction.tax_amount|floatformat:2 }}</span>
+      </div>
+      {% endif %}
+      {% if transaction.discount_amount and transaction.discount_amount > 0 %}
+      <div class="flex justify-between text-sm text-emerald-600">
+        <span>Discount</span>
+        <span>- NGN {{ transaction.discount_amount|floatformat:2 }}</span>
+      </div>
+      {% endif %}
+      <div class="flex justify-between border-t border-slate-200 pt-3 text-base font-bold text-slate-900">
+        <span>Total</span>
+        <span>NGN {{ transaction.total_amount|floatformat:2 }}</span>
+      </div>
+    </div>
+
+    {% for payment in payments %}
+    <div class="mt-4 rounded-2xl bg-slate-50 px-4 py-3">
+      <div class="flex justify-between text-sm">
+        <span class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Payment Method</span>
+        <span class="font-semibold text-slate-800">{{ payment.get_payment_method_display }}</span>
+      </div>
+      {% if payment.amount_received and payment.amount_received > 0 %}
+      <div class="mt-1 flex justify-between text-sm text-slate-600">
+        <span>Tendered</span>
+        <span>NGN {{ payment.amount_received|floatformat:2 }}</span>
+      </div>
+      {% endif %}
+      {% if payment.balance_returned and payment.balance_returned > 0 %}
+      <div class="flex justify-between text-sm text-slate-600">
+        <span>Change</span>
+        <span>NGN {{ payment.balance_returned|floatformat:2 }}</span>
+      </div>
+      {% endif %}
+      {% if payment.reference_number %}
+      <div class="flex justify-between text-sm text-slate-600">
+        <span>Reference</span>
+        <span>{{ payment.reference_number }}</span>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+
+    {% if transaction.notes %}
+    <div class="mt-4 rounded-2xl border border-dashed border-slate-200 p-3 text-xs text-slate-500">
+      {{ transaction.notes }}
+    </div>
+    {% endif %}
+
+    <hr class="my-5 border-dashed border-slate-200">
+
+    <p class="text-center text-xs text-slate-400">Thank you for your purchase.</p>
+
+    <div class="no-print mt-6 flex flex-col gap-3 sm:flex-row">
+      <button onclick="window.print()"
+              class="flex-1 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300">
+        Print Receipt
+      </button>
+      <a href="{% url 'dashboard:pos:sale_detail' prefix=prefix transaction_id=transaction.id %}"
+         class="flex-1 rounded-2xl border border-slate-200 px-5 py-3 text-center text-sm font-semibold text-slate-700 transition hover:border-blue-200 hover:text-blue-600">
+        View Sale Details
+      </a>
+      {% if prefix %}
+      <a href="{% url 'dashboard:pos:register' prefix=prefix %}"
+         class="flex-1 rounded-2xl border border-slate-200 px-5 py-3 text-center text-sm font-semibold text-slate-700 transition hover:border-emerald-200 hover:text-emerald-600">
+        New Sale
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

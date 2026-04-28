@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <section class="space-y-8">
+    <div class="surface-card overflow-hidden p-8 lg:p-10">
+      {% if breadcrumbs %}
+        <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+          {% for crumb in breadcrumbs %}
+            {% if crumb.url %}<a href="{{ crumb.url }}" class="transition hover:text-slate-900">{{ crumb.label }}</a>{% else %}<span>{{ crumb.label }}</span>{% endif %}
+            {% if not forloop.last %}<span>/</span>{% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="mt-6 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
+        <div class="space-y-5">
+          {% if page.show_title %}
+            <p class="eyebrow">Storefront Information</p>
+            <h1 class="section-title">{{ headline|default:page.title }}</h1>
+          {% endif %}
+          {% if page.excerpt %}<p class="section-copy text-base">{{ page.excerpt }}</p>{% endif %}
+          {% if page.featured_image %}
+            <img src="{{ page.featured_image.url }}" alt="{{ page.title }}" class="w-full rounded-[2rem] object-cover">
+          {% endif %}
+          <div class="prose prose-slate max-w-none text-slate-700">{{ page.content|safe }}</div>
+        </div>
+
+        <div class="surface-card-soft p-6">
+          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Need more help?</p>
+          <h2 class="brand-font mt-3 text-2xl font-bold text-slate-950">Contact the store team.</h2>
+          <div class="mt-4 space-y-2 text-sm text-slate-600">
+            {% if shop.support_email %}<p>{{ shop.support_email }}</p>{% endif %}
+            {% if shop.phone %}<p>{{ shop.phone }}</p>{% endif %}
+            {% if shop.address %}<p>{{ shop.address }}</p>{% endif %}
+          </div>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <a href="{% url 'support:contact_us' %}" class="button-primary">Contact Us</a>
+            <a href="{% url 'support:help_center' %}" class="button-secondary">Help Center</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

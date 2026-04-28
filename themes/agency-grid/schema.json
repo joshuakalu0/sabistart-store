@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "fields": [
+    {"key": "team_members", "label": "Team members", "type": "list", "required": false},
+    {"key": "services", "label": "Services", "type": "list", "required": false},
+    {"key": "case_studies", "label": "Case studies", "type": "list", "required": false},
+    {"key": "clients", "label": "Clients", "type": "list", "required": false}
+  ]
+}

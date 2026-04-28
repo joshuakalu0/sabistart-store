@@ -1,0 +1,153 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">{{ page_title }}</h2>
+    {% if is_edit %}<p class="text-slate-500 dark:text-slate-400 text-sm">Update account profile and settings</p>
+    {% else %}<p class="text-slate-500 dark:text-slate-400 text-sm">Create a new tenant user — share credentials securely with the person</p>{% endif %}
+  </div>
+  <a href="{% url 'dashboard:user_settings:user_list' prefix %}" class="text-sm text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 flex items-center space-x-1">
+    <span class="material-icons-outlined text-sm">arrow_back</span><span>Back to users</span>
+  </a>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Main fields -->
+    <div class="lg:col-span-2 space-y-6">
+      <!-- Identity -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <h3 class="font-semibold text-slate-900 dark:text-white mb-4">Identity</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="sm:col-span-2">
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email Address *</label>
+            {{ form.email }}
+            {% if form.email.errors %}<p class="text-red-500 text-xs mt-1">{{ form.email.errors|join:", " }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">First Name</label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}<p class="text-red-500 text-xs mt-1">{{ form.first_name.errors|join:", " }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Last Name</label>
+            {{ form.last_name }}
+            {% if form.last_name.errors %}<p class="text-red-500 text-xs mt-1">{{ form.last_name.errors|join:", " }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Phone</label>
+            {{ form.phone }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Date of Birth</label>
+            {{ form.date_of_birth }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Gender</label>
+            {{ form.gender }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Password (create only) -->
+      {% if not is_edit %}
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <h3 class="font-semibold text-slate-900 dark:text-white mb-1">Initial Password</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Share these credentials securely. The user should change their password on first login.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Password *</label>
+            {{ form.password }}
+            {% if form.password.errors %}<p class="text-red-500 text-xs mt-1">{{ form.password.errors|join:", " }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Confirm Password *</label>
+            {{ form.confirm_password }}
+            {% if form.confirm_password.errors %}<p class="text-red-500 text-xs mt-1">{{ form.confirm_password.errors|join:", " }}</p>{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Preferences -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <h3 class="font-semibold text-slate-900 dark:text-white mb-4">Preferences</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Locale</label>
+            {{ form.locale }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Timezone</label>
+            {{ form.timezone }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Currency</label>
+            {{ form.preferred_currency }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar fields -->
+    <div class="space-y-6">
+      <!-- Account settings -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
+        <h3 class="font-semibold text-slate-900 dark:text-white mb-4">Account</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">User Type</label>
+            {{ form.user_type }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Account Status</label>
+            {{ form.account_status }}
+          </div>
+          <div class="flex items-center space-x-3 pt-2">
+            {{ form.is_verified }}
+            <label class="text-sm text-slate-700 dark:text-slate-300">Email verified</label>
+          </div>
+          <div class="flex items-center space-x-3">
+            {{ form.email_marketing_consent }}
+            <label class="text-sm text-slate-700 dark:text-slate-300">Marketing consent</label>
+          </div>
+          {% if is_edit %}
+          <div class="flex items-center space-x-3 border-t border-slate-200 dark:border-slate-700 pt-3 mt-2">
+            {{ form.force_password_reset }}
+            <label class="text-sm text-slate-700 dark:text-slate-300">Force password reset on next login</label>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if form.non_field_errors %}
+      <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">
+        {% for error in form.non_field_errors %}
+        <p class="text-red-600 dark:text-red-400 text-sm">{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <button type="submit"
+              class="w-full bg-primary text-white py-2.5 rounded-lg font-medium hover:bg-blue-600 transition-colors">
+        {% if is_edit %}Save Changes{% else %}Create User{% endif %}
+      </button>
+      {% if is_edit %}
+      <a href="{% url 'dashboard:user_settings:user_detail' prefix user_obj.pk %}"
+         class="block w-full text-center py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+        Cancel
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</form>
+<script>
+  /* Apply consistent input styling */
+  document.querySelectorAll("input:not([type=checkbox]):not([type=radio]):not([type=color]), select, textarea").forEach(el => {
+    el.classList.add("w-full","px-3","py-2","border","border-slate-300","dark:border-slate-600","rounded-lg","text-sm",
+                     "dark:bg-slate-700","dark:text-white","focus:ring-2","focus:ring-primary","focus:outline-none");
+  });
+</script>
+{% endblock %}

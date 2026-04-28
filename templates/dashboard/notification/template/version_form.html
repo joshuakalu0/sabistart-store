@@ -1,0 +1,128 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+
+    <!-- Page header -->
+    <div class="sm:flex sm:justify-between sm:items-center mb-8">
+        <div class="mb-4 sm:mb-0">
+            <h1 class="text-2xl md:text-3xl text-slate-800 font-bold">New Draft: {{ template.name }}</h1>
+        </div>
+        <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
+            <a href="{% url 'dashboard:notification_template_version_history' prefix=prefix template_pk=template.pk %}" class="btn bg-white border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-600">
+                Cancel
+            </a>
+            <button type="submit" form="version-form" class="btn bg-indigo-500 hover:bg-indigo-600 text-white">
+                Save Draft
+            </button>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white shadow-lg rounded-sm mb-8">
+        <form id="version-form" method="POST" action="">
+            {% csrf_token %}
+            <div class="p-6 space-y-6">
+
+                <section>
+                    <h2 class="text-xl leading-snug text-slate-800 font-bold mb-1">Metadata</h2>
+                    <div class="grid gap-5 md:grid-cols-2">
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.version_label.id_for_label }}">{{ form.version_label.label }}</label>
+                            {{ form.version_label }}
+                            <div class="text-xs text-slate-400 mt-1">Optional internal label (e.g., 'Holiday 2026 update')</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.change_notes.id_for_label }}">{{ form.change_notes.label }}</label>
+                            {{ form.change_notes }}
+                        </div>
+                    </div>
+                </section>
+
+                <hr class="border-slate-200" />
+
+                {% if template.channel_type == 'email' %}
+                <!-- Email Editor -->
+                <section>
+                    <h2 class="text-xl leading-snug text-slate-800 font-bold mb-1">Email Content</h2>
+                    <div class="grid gap-5">
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.subject.id_for_label }}">{{ form.subject.label }} <span class="text-rose-500">*</span></label>
+                            {{ form.subject }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.preheader.id_for_label }}">{{ form.preheader.label }}</label>
+                            {{ form.preheader }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.html_body.id_for_label }}">{{ form.html_body.label }}</label>
+                            <div class="font-mono text-sm leading-relaxed">
+                                {{ form.html_body }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.text_body.id_for_label }}">{{ form.text_body.label }}</label>
+                            <div class="font-mono text-sm leading-relaxed">
+                                {{ form.text_body }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.email_template_id.id_for_label }}">{{ form.email_template_id.label }}</label>
+                            {{ form.email_template_id }}
+                            <div class="text-xs text-slate-400 mt-1">If using an external template stored in SendGrid/Mailgun.</div>
+                        </div>
+                    </div>
+                </section>
+                {% else %}
+                <!-- Push/SMS/InApp Editor -->
+                <section>
+                    <h2 class="text-xl leading-snug text-slate-800 font-bold mb-1">Message Content</h2>
+                    <div class="grid gap-5 md:grid-cols-2">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium mb-1" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                            {{ form.title }}
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium mb-1" for="{{ form.body.id_for_label }}">{{ form.body.label }} <span class="text-rose-500">*</span></label>
+                            {{ form.body }}
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.action_label.id_for_label }}">{{ form.action_label.label }}</label>
+                            {{ form.action_label }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.action_url.id_for_label }}">{{ form.action_url.label }}</label>
+                            {{ form.action_url }}
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.image_url.id_for_label }}">{{ form.image_url.label }}</label>
+                            {{ form.image_url }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1" for="{{ form.icon_url.id_for_label }}">{{ form.icon_url.label }}</label>
+                            {{ form.icon_url }}
+                        </div>
+                    </div>
+                </section>
+                {% endif %}
+
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    form input[type="text"], form input[type="url"], form textarea {
+        width: 100%;
+        border-radius: 0.25rem;
+        border-color: #cbd5e1;
+        background-color: #fff;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}

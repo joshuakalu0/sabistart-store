@@ -1,0 +1,196 @@
+{% extends "dashboard/_partials/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+
+    <!-- Page header -->
+    <div class="sm:flex sm:justify-between sm:items-center mb-8">
+        <!-- Left: Title -->
+        <div class="mb-4 sm:mb-0">
+            <h1 class="text-2xl md:text-3xl text-slate-800 font-bold">{% trans "Notifications Dashboard" %} ✨</h1>
+        </div>
+
+        <!-- Right: Actions -->
+        <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
+            <!-- Filter button -->
+            <button class="btn bg-white border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-600">
+                <svg class="w-4 h-4 fill-current text-slate-500 shrink-0 mr-2" viewBox="0 0 16 16">
+                    <path d="M9 15H7a1 1 0 010-2h2a1 1 0 010 2zM11 11H5a1 1 0 010-2h6a1 1 0 010 2zM13 7H3a1 1 0 010-2h10a1 1 0 010 2z" />
+                </svg>
+                <span class="hidden xs:block ml-2">{% trans "Filter" %}</span>
+            </button>
+            <!-- Add Template Button -->
+            <a href="{% url 'dashboard:notification_template_create' prefix=prefix %}" class="btn bg-indigo-500 hover:bg-indigo-600 text-white">
+                <svg class="w-4 h-4 fill-current opacity-50 shrink-0" viewBox="0 0 16 16">
+                    <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
+                </svg>
+                <span class="hidden xs:block ml-2">{% trans "New Template" %}</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Health Alerts -->
+    {% if health_checks %}
+    <div class="mb-8">
+        {% for alert in health_checks %}
+        <div class="bg-amber-50 rounded border border-amber-200 p-4 mb-2 flex items-start">
+            <svg class="w-5 h-5 shrink-0 fill-current text-amber-500 mt-1 mr-3" viewBox="0 0 20 20">
+                <path d="M10 0C4.5 0 0 4.5 0 10s4.5 10 10 10 10-4.5 10-10S15.5 0 10 0zM11 15H9v-2h2v2zM11 11H9V5h2v6z" />
+            </svg>
+            <div>
+                <h3 class="text-sm font-semibold text-amber-800">{{ alert.title }}</h3>
+                <div class="text-sm text-amber-700 mt-1">{{ alert.message }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Metric Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+        <!-- Sent Notifications -->
+        <div class="flex flex-col col-span-1 bg-white shadow-xl shadow-slate-200/40 rounded-sm border border-slate-200 p-5">
+            <header class="flex justify-between items-start mb-2">
+                <h2 class="text-lg font-semibold text-slate-800 mb-2">Total Sent</h2>
+                <div class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                    +{{ kpis.sent_growth|default:"0" }}%
+                </div>
+            </header>
+            <div class="text-3xl font-bold text-slate-800 mr-2">{{ kpis.total_sent|default:"0" }}</div>
+            <div class="text-sm text-slate-500 mt-1">last 30 days</div>
+        </div>
+
+        <!-- Open Rate -->
+        <div class="flex flex-col col-span-1 bg-white shadow-xl shadow-slate-200/40 rounded-sm border border-slate-200 p-5">
+            <header class="flex justify-between items-start mb-2">
+                <h2 class="text-lg font-semibold text-slate-800 mb-2">Open Rate</h2>
+                {% if kpis.open_rate >= 20 %}
+                <div class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Healthy</div>
+                {% else %}
+                <div class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">Needs Work</div>
+                {% endif %}
+            </header>
+            <div class="text-3xl font-bold text-slate-800 mr-2">{{ kpis.open_rate|default:"0.0" }}%</div>
+            <div class="text-sm text-slate-500 mt-1">across all email templates</div>
+        </div>
+
+        <!-- Deliverability / Bounce Rate -->
+        <div class="flex flex-col col-span-1 bg-white shadow-xl shadow-slate-200/40 rounded-sm border border-slate-200 p-5">
+            <header class="flex justify-between items-start mb-2">
+                <h2 class="text-lg font-semibold text-slate-800 mb-2">Bounce Rate</h2>
+                <div class="text-xs font-semibold px-2 py-0.5 rounded-full {% if kpis.bounce_rate < 2 %}bg-emerald-100 text-emerald-700{% else %}bg-rose-100 text-rose-700{% endif %}">
+                    {% if kpis.bounce_rate < 2 %}Excellent{% else %}High{% endif %}
+                </div>
+            </header>
+            <div class="text-3xl font-bold text-slate-800 mr-2">{{ kpis.bounce_rate|default:"0.0" }}%</div>
+            <div class="text-sm text-slate-500 mt-1">bounced messages</div>
+        </div>
+
+        <!-- Failed Jobs Queue -->
+        <div class="flex flex-col col-span-1 bg-white shadow-xl shadow-slate-200/40 rounded-sm border border-slate-200 p-5">
+            <header class="flex justify-between items-start mb-2">
+                <h2 class="text-lg font-semibold text-slate-800 mb-2">Delivery Failures</h2>
+            </header>
+            <div class="text-3xl font-bold {% if kpis.failed_jobs > 0 %}text-rose-600{% else %}text-slate-800{% endif %} mr-2">{{ kpis.failed_jobs|default:"0" }}</div>
+            <div class="text-sm text-slate-500 mt-1">failed to dispatch via providers</div>
+        </div>
+
+    </div>
+
+    <div class="grid grid-cols-12 gap-6">
+
+        <!-- Channel Status Widget -->
+        <div class="col-span-12 xl:col-span-6 bg-white shadow-sm rounded-sm border border-slate-200">
+            <header class="px-5 py-4 border-b border-slate-100">
+                <h2 class="font-semibold text-slate-800">Channel Activity (30 Days)</h2>
+            </header>
+            <div class="p-3">
+                <div class="overflow-x-auto">
+                    <table class="table-auto w-full">
+                        <thead class="text-xs uppercase text-slate-400 bg-slate-50 rounded-sm">
+                            <tr>
+                                <th class="p-2 whitespace-nowrap"><div class="font-semibold text-left">Channel</div></th>
+                                <th class="p-2 whitespace-nowrap"><div class="font-semibold text-center">Status</div></th>
+                                <th class="p-2 whitespace-nowrap"><div class="font-semibold text-right">Volume</div></th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm divide-y divide-slate-100">
+                            {% for c in channel_status %}
+                            <tr>
+                                <td class="p-2 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="font-medium text-slate-800">{{ c.name }}</div>
+                                    </div>
+                                </td>
+                                <td class="p-2 whitespace-nowrap text-center">
+                                    {% if c.status == 'active' %}
+                                        <div class="text-xs inline-flex font-medium bg-emerald-100 text-emerald-600 rounded-full text-center px-2.5 py-0.5">Active</div>
+                                    {% elif c.status == 'degraded' %}
+                                        <div class="text-xs inline-flex font-medium bg-amber-100 text-amber-600 rounded-full text-center px-2.5 py-0.5">Degraded</div>
+                                    {% else %}
+                                        <div class="text-xs inline-flex font-medium bg-rose-100 text-rose-600 rounded-full text-center px-2.5 py-0.5">Failing</div>
+                                    {% endif %}
+                                </td>
+                                <td class="p-2 whitespace-nowrap text-right">
+                                    <div class="font-medium text-slate-800">{{ c.volume }}</div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="3" class="p-4 text-center text-slate-500">No channels configured.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="p-3 border-t border-slate-100">
+                <a href="{% url 'dashboard:notification_channel_list' prefix=prefix %}" class="text-sm font-medium text-indigo-500 hover:text-indigo-600">View all channels &rarr;</a>
+            </div>
+        </div>
+
+        <!-- Recent Delivery Issues Widget -->
+        <div class="col-span-12 xl:col-span-6 bg-white shadow-sm rounded-sm border border-slate-200">
+            <header class="px-5 py-4 border-b border-slate-100">
+                <h2 class="font-semibold text-slate-800">Recent Delivery Log</h2>
+            </header>
+            <div class="p-3">
+                <ul class="my-1">
+                    {% for activity in recent_activity %}
+                    <li class="flex px-2 py-3 border-b border-slate-100 last:border-0">
+                        <div class="w-9 h-9 rounded-full shrink-0 flex items-center justify-center mr-3 {% if activity.status == 'failed' or activity.status == 'bounced' %}bg-rose-100 text-rose-500{% elif activity.status == 'delivered' %}bg-emerald-100 text-emerald-500{% else %}bg-slate-100 text-slate-500{% endif %}">
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 16 16">
+                                {% if activity.status == 'delivered' %}
+                                <path d="M12.95 3L6 9.8 3.05 6.9 2 8l4 4 8-8-1.05-1z" />
+                                {% else %}
+                                <path d="M8 0C3.6 0 0 3.6 0 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zM8 12c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zM9 8H7V4h2v4z" />
+                                {% endif %}
+                            </svg>
+                        </div>
+                        <div class="grow flex items-center border-b border-slate-100 text-sm py-2">
+                            <div class="grow flex justify-between">
+                                <div class="self-center">
+                                    <a class="font-medium text-slate-800 hover:text-slate-900" href="#">{{ activity.recipient_address }}</a>
+                                    <span class="text-slate-500">via</span> {{ activity.channel_name }}
+                                </div>
+                                <div class="shrink-0 self-start ml-2">
+                                    <span class="{{ activity.status_color }}">{{ activity.status|title }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="p-4 text-center text-slate-500">No recent activity.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="p-3 border-t border-slate-100">
+                <a href="{% url 'dashboard:notification_log_list' prefix=prefix %}" class="text-sm font-medium text-indigo-500 hover:text-indigo-600">View full delivery log &rarr;</a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

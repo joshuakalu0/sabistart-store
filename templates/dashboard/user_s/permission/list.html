@@ -1,0 +1,51 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Permissions</h2>
+    <p class="text-slate-500 dark:text-slate-400 text-sm">Platform permission catalogue — read-only reference. Assign via Roles.</p>
+  </div>
+  <a href="{% url 'dashboard:user_settings:role_list' prefix %}" class="text-sm text-primary hover:underline flex items-center space-x-1">
+    <span class="material-icons-outlined text-sm">security</span><span>Manage Roles</span>
+  </a>
+</div>
+
+<!-- Filter -->
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mb-6">
+  <div class="p-4 border-b border-slate-200 dark:border-slate-700">
+    <form method="get" class="flex flex-wrap gap-3">
+      <input type="text" name="q" value="{{ q }}" placeholder="Search permissions…"
+             class="flex-1 min-w-[200px] px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary"/>
+      <select name="category" class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white">
+        <option value="">All Categories</option>
+        {% for val, label in categories %}
+        <option value="{{ val }}" {% if cat == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg text-sm">Filter</button>
+    </form>
+  </div>
+
+  <!-- Grouped by category -->
+  <div class="p-6 space-y-8">
+    {% for category, perms in perms_by_category.items %}
+    <div>
+      <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-3 flex items-center space-x-2">
+        <span>{{ category }}</span>
+        <span class="px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400 font-normal normal-case">{{ perms|length }}</span>
+      </h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {% for perm in perms %}
+        <div class="border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3">
+          <div class="font-medium text-slate-900 dark:text-white text-sm">{{ perm.name }}</div>
+          <div class="text-xs font-mono text-slate-500 dark:text-slate-400 mt-0.5">{{ perm.codename }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-center text-slate-400">No permissions matched.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

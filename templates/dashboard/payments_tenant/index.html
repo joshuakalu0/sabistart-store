@@ -1,0 +1,159 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">Payments Dashboard</h2>
+      {% if profile %}<p class="text-slate-600 dark:text-slate-400">{{ profile.business_name }}</p>{% endif %}
+    </div>
+    <a href="{% url 'dashboard:payments_tenant:profile_edit' prefix %}"
+       class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center space-x-2">
+      <span class="material-icons-outlined text-sm">settings</span><span>Settings</span>
+    </a>
+  </div>
+
+  <!-- Alert banners -->
+  {% if health %}
+    {% for check in health %}{% if not check.ok %}
+    <div class="p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-700 rounded-lg flex items-start space-x-3">
+      <span class="material-icons-outlined text-red-500">warning</span>
+      <div>
+        <p class="font-medium text-red-800 dark:text-red-200">{{ check.label }}</p>
+        <p class="text-sm text-red-700 dark:text-red-300">{{ check.message }}</p>
+        {% if check.action_url %}<a href="{{ check.action_url }}" class="text-sm text-red-600 underline">Fix now</a>{% endif %}
+      </div>
+    </div>
+    {% endif %}{% endfor %}
+  {% endif %}
+
+  <!-- Attention Queue -->
+  {% if attention %}
+  <div class="p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-700 rounded-xl">
+    <h3 class="font-semibold text-amber-800 dark:text-amber-200 mb-2 flex items-center space-x-2">
+      <span class="material-icons-outlined text-sm">notification_important</span><span>Needs Attention ({{ attention|length }})</span>
+    </h3>
+    <ul class="space-y-1 text-sm text-amber-700 dark:text-amber-300">
+      {% for item in attention %}<li>• {{ item.message }} <a href="{{ item.url }}" class="underline ml-1">View</a></li>{% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <!-- KPI Cards -->
+  {% if kpis %}
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
+      <p class="text-sm text-slate-500">Transactions ({{ period_days }}d)</p>
+      <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ kpis.transaction_count }}</p>
+    </div>
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
+      <p class="text-sm text-slate-500">Volume ({{ period_days }}d)</p>
+      <p class="text-2xl font-bold text-slate-900 dark:text-white">{{ kpis.total_volume }}</p>
+    </div>
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
+      <p class="text-sm text-slate-500">Success Rate</p>
+      <p class="text-2xl font-bold {% if kpis.success_rate >= 95 %}text-green-600{% elif kpis.success_rate >= 80 %}text-amber-500{% else %}text-red-600{% endif %}">{{ kpis.success_rate }}%</p>
+    </div>
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
+      <p class="text-sm text-slate-500">Open Disputes</p>
+      <p class="text-2xl font-bold {% if kpis.open_disputes > 0 %}text-red-600{% else %}text-slate-900 dark:text-white{% endif %}">{{ kpis.open_disputes }}</p>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Balance & Gateway Status -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Balances -->
+    {% if balances %}
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-semibold text-slate-900 dark:text-white">Account Balance</h3>
+        <a href="{% url 'dashboard:payments_tenant:balance_list' prefix %}" class="text-sm text-primary hover:underline">View ledger</a>
+      </div>
+      {% for bal in balances %}
+      <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700 last:border-0">
+        <div class="flex items-center space-x-2">
+          <span class="font-mono text-sm font-semibold text-slate-700 dark:text-slate-300">{{ bal.currency }}</span>
+          {% if bal.is_primary %}<span class="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">Primary</span>{% endif %}
+        </div>
+        <div class="text-right">
+          <p class="font-semibold text-slate-900 dark:text-white">{{ bal.available_balance }}</p>
+          <p class="text-xs text-slate-400">{{ bal.pending_balance }} pending</p>
+        </div>
+      </div>
+      {% endfor %}
+      <div class="mt-4">
+        <a href="{% url 'dashboard:payments_tenant:payout_request_create' prefix %}"
+           class="w-full flex items-center justify-center space-x-2 py-2 bg-primary text-white rounded-lg text-sm hover:bg-blue-600">
+          <span class="material-icons-outlined text-sm">payments</span><span>Request Payout</span>
+        </a>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Gateway Status -->
+    {% if gw_status %}
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-semibold text-slate-900 dark:text-white">Payment Gateways</h3>
+        <a href="{% url 'dashboard:payments_tenant:gateway_mode_list' prefix %}" class="text-sm text-primary hover:underline">Configure</a>
+      </div>
+      {% for gw in gw_status %}
+      <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700 last:border-0">
+        <div class="flex items-center space-x-2">
+          <span class="h-2 w-2 rounded-full {% if gw.is_healthy %}bg-green-500{% else %}bg-red-500{% endif %}"></span>
+          <span class="text-sm text-slate-700 dark:text-slate-300">{{ gw.gateway_name }}</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-xs text-slate-400">{{ gw.mode }}</span>
+          {% if gw.is_default %}<span class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-500 text-xs rounded">Default</span>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Recent Transactions -->
+  {% if recent_txns %}
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+      <h3 class="font-semibold text-slate-900 dark:text-white">Recent Transactions</h3>
+      <a href="{% url 'dashboard:payments_tenant:transaction_list' prefix %}" class="text-sm text-primary hover:underline">View all</a>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50 dark:bg-slate-700">
+          <tr>
+            {% for col in "Reference,Customer,Amount,Status,Date" %}
+            <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">{{ col }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+          {% for txn in recent_txns %}
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-700">
+            <td class="px-4 py-3">
+              <a href="{% url 'dashboard:payments_tenant:transaction_detail' prefix txn.id %}" class="font-mono text-xs text-primary hover:underline">{{ txn.internal_reference }}</a>
+            </td>
+            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ txn.customer_email|truncatechars:25 }}</td>
+            <td class="px-4 py-3 font-mono text-slate-900 dark:text-white">{{ txn.amount }} {{ txn.currency }}</td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-1 rounded-full text-xs
+                {% if txn.status == 'success' %}bg-green-100 text-green-700
+                {% elif txn.status == 'failed' %}bg-red-100 text-red-700
+                {% elif txn.status == 'pending' %}bg-amber-100 text-amber-700
+                {% else %}bg-slate-100 text-slate-600{% endif %}">
+                {{ txn.status|capfirst }}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-400 text-xs">{{ txn.created_at|timesince }} ago</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

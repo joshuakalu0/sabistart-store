@@ -1,0 +1,66 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-xl font-bold text-slate-900 dark:text-white">Account Balance</h2>
+      <p class="text-slate-600 dark:text-slate-400">Available and pending balances by currency</p>
+    </div>
+    <div class="flex space-x-2">
+      <a href="{% url 'dashboard:payments_tenant:balance_transaction_list' prefix %}"
+         class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm hover:bg-slate-50 dark:hover:bg-slate-700">Ledger</a>
+      {% if profile.payout_enabled %}
+      <a href="{% url 'dashboard:payments_tenant:payout_request_create' prefix %}"
+         class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-blue-600 flex items-center space-x-2">
+        <span class="material-icons-outlined text-sm">payments</span><span>Request Payout</span>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Balance Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for bal in balances %}
+    <div class="bg-white dark:bg-slate-800 rounded-xl border {% if bal.is_primary %}border-primary dark:border-primary{% else %}border-slate-200 dark:border-slate-700{% endif %} shadow-sm p-6">
+      <div class="flex justify-between items-start mb-3">
+        <div class="flex items-center space-x-2">
+          <span class="text-lg font-bold text-slate-700 dark:text-slate-300 font-mono">{{ bal.currency }}</span>
+          {% if bal.is_primary %}<span class="px-1.5 py-0.5 bg-primary/10 text-primary text-xs rounded font-medium">Primary</span>{% endif %}
+        </div>
+        <span class="text-slate-400 text-xs">{{ bal.updated_at|date:"d M Y" }}</span>
+      </div>
+      <p class="text-3xl font-bold text-slate-900 dark:text-white mb-1">{{ bal.available_balance }}</p>
+      <div class="space-y-1 text-sm">
+        <div class="flex justify-between text-slate-500"><span>Pending</span><span class="font-mono">{{ bal.pending_balance }}</span></div>
+        <div class="flex justify-between text-slate-500"><span>Reserved</span><span class="font-mono">{{ bal.reserved_balance }}</span></div>
+        <div class="flex justify-between text-slate-500"><span>Lifetime Volume</span><span class="font-mono">{{ bal.total_volume }}</span></div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-span-3 text-center py-16 text-slate-400">
+      <span class="material-icons-outlined text-4xl mb-2">account_balance_wallet</span>
+      <p>No balance records found. Balances are created automatically when your first payment is received.</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Quick links -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <a href="{% url 'dashboard:payments_tenant:balance_transaction_list' prefix %}"
+       class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 flex items-center space-x-3 hover:shadow-md transition-shadow">
+      <span class="material-icons-outlined text-primary text-2xl">receipt_long</span>
+      <div><p class="font-medium dark:text-white">Ledger</p><p class="text-sm text-slate-500">Balance movement history</p></div>
+    </a>
+    <a href="{% url 'dashboard:payments_tenant:commission_entry_list' prefix %}"
+       class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 flex items-center space-x-3 hover:shadow-md transition-shadow">
+      <span class="material-icons-outlined text-primary text-2xl">percent</span>
+      <div><p class="font-medium dark:text-white">Commission Entries</p><p class="text-sm text-slate-500">Platform fee history</p></div>
+    </a>
+    <a href="{% url 'dashboard:payments_tenant:payout_request_list' prefix %}"
+       class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 flex items-center space-x-3 hover:shadow-md transition-shadow">
+      <span class="material-icons-outlined text-primary text-2xl">payments</span>
+      <div><p class="font-medium dark:text-white">Payout History</p><p class="text-sm text-slate-500">All payout requests</p></div>
+    </a>
+  </div>
+</div>
+{% endblock %}

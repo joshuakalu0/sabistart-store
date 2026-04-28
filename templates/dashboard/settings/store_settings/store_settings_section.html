@@ -1,0 +1,558 @@
+{% extends "dashboard/_partials/base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      {{ section_title }}
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Configure {{ section_title }} settings for your store
+    </p>
+  </div>
+  <a
+    href="{% url 'dashboard:store_settings:manage_store_settings' prefix %}"
+    class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+  >
+    <span class="material-icons-outlined text-sm mr-2">arrow_back</span>
+    Back to Settings
+  </a>
+</div>
+
+<div
+  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+>
+  <div class="p-6">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="space-y-6">
+          {% if section == 'general' %}
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Store Name <span class="text-red-500">*</span>
+            </label>
+            {{ form.store_name }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Contact Email <span class="text-red-500">*</span>
+            </label>
+            {{ form.contact_email }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Phone <span class="text-red-500">*</span>
+            </label>
+            {{ form.phone }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Country <span class="text-red-500">*</span>
+            </label>
+            {{ form.country }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Time Zone <span class="text-red-500">*</span>
+            </label>
+            {{ form.time_zone }}
+          </div>
+          {% elif section == 'branding' %}
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Logo
+            </label>
+            {{ form.logo }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Logo Dark
+            </label>
+            {{ form.logo_dark }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Favicon
+            </label>
+            {{ form.favicon }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Primary Color
+            </label>
+            {{ form.primary_color }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Secondary Color
+            </label>
+            {{ form.secondary_color }}
+          </div>
+          {% elif section == 'seo' %}
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Meta Title
+            </label>
+            {{ form.meta_title }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Meta Description
+            </label>
+            {{ form.meta_description }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Google Analytics ID
+            </label>
+            {{ form.google_analytics_id }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Facebook Pixel ID
+            </label>
+            {{ form.facebook_pixel_id }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Site Verification Meta Tags
+            </label>
+            {{ form.site_verification_meta_tags }}
+          </div>
+          {% elif section == 'shipping' %}
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Default Shipping Zone
+            </label>
+            {{ form.default_shipping_zone }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Free Shipping Threshold
+            </label>
+            {{ form.free_shipping_threshold }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Shipping Calculation Method
+            </label>
+            {{ form.shipping_calculation_method }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Shipping Rates
+            </label>
+            {{ form.shipping_rates }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Shipping Zones
+            </label>
+            {{ form.shipping_zones }}
+          </div>
+          {% elif section == 'tax' %}
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Tax Calculation Method
+            </label>
+            {{ form.tax_calculation_method }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Default Tax Rate
+            </label>
+            {{ form.default_tax_rate }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Tax Classes
+            </label>
+            {{ form.tax_classes }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Tax Exemptions
+            </label>
+            {{ form.tax_exemptions }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              VAT Number Required
+            </label>
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" name="{{ form.vat_number_required.name }}" {% if form.vat_number_required.value %}checked{% endif %}>
+              <span class="text-sm text-slate-600 dark:text-slate-400">Require VAT number for business customers</span>
+            </div>
+          </div>
+          {% elif section == 'checkout' %}
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Checkout Style
+            </label>
+            {{ form.checkout_style }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Guest Checkout Enabled
+            </label>
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" name="{{ form.guest_checkout_enabled.name }}" {% if form.guest_checkout_enabled.value %}checked{% endif %}>
+              <span class="text-sm text-slate-600 dark:text-slate-400">Allow guest checkout</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Order Summary Collapsible
+            </label>
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" name="{{ form.order_summary_collapsible.name }}" {% if form.order_summary_collapsible.value %}checked{% endif %}>
+              <span class="text-sm text-slate-600 dark:text-slate-400">Make order summary collapsible</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Require Account Creation
+            </label>
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" name="{{ form.require_account_creation.name }}" {% if form.require_account_creation.value %}checked{% endif %}>
+              <span class="text-sm text-slate-600 dark:text-slate-400">Require account creation</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Show Newsletter Signup
+            </label>
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" name="{{ form.show_newsletter_signup.name }}" {% if form.show_newsletter_signup.value %}checked{% endif %}>
+              <span class="text-sm text-slate-600 dark:text-slate-400">Show newsletter signup</span>
+            </div>
+          </div>
+          {% elif section == 'features' %}
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Enable Reviews
+            </label>
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" name="{{ form.enable_reviews.name }}" {% if form.enable_reviews.value %}checked{% endif %}>
+              <span class="text-sm text-slate-600 dark:text-slate-400">Enable product reviews</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Enable Wishlist
+            </label>
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" name="{{ form.enable_wishlist.name }}" {% if form.enable_wishlist.value %}checked{% endif %}>
+              <span class="text-sm text-slate-600 dark:text-slate-400">Enable wishlist functionality</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Enable Compare
+            </label>
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" name="{{ form.enable_compare.name }}" {% if form.enable_compare.value %}checked{% endif %}>
+              <span class="text-sm text-slate-600 dark:text-slate-400">Enable product comparison</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Enable Quick View
+            </label>
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" name="{{ form.enable_quick_view.name }}" {% if form.enable_quick_view.value %}checked{% endif %}>
+              <span class="text-sm text-slate-600 dark:text-slate-400">Enable quick view modal</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Enable Social Sharing
+            </label>
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" name="{{ form.enable_social_sharing.name }}" {% if form.enable_social_sharing.value %}checked{% endif %}>
+              <span class="text-sm text-slate-600 dark:text-slate-400">Enable social sharing buttons</span>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+        <div class="space-y-6">
+          {% if section == 'general' %}
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Store Tagline
+            </label>
+            {{ form.store_tagline }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Store Description
+            </label>
+            {{ form.store_description }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Address Line 1
+            </label>
+            {{ form.address_line1 }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Address Line 2
+            </label>
+            {{ form.address_line2 }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              City
+            </label>
+            {{ form.city }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              State/Province
+            </label>
+            {{ form.state }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Postal Code
+            </label>
+            {{ form.postal_code }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Latitude
+            </label>
+            {{ form.latitude }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Longitude
+            </label>
+            {{ form.longitude }}
+          </div>
+          {% elif section == 'branding' %}
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Logo Max Width
+            </label>
+            {{ form.logo_max_width }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Logo Position
+            </label>
+            {{ form.logo_position }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Favicon Size
+            </label>
+            {{ form.favicon_size }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Custom CSS
+            </label>
+            {{ form.custom_css }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Custom JS
+            </label>
+            {{ form.custom_js }}
+          </div>
+          {% elif section == 'seo' %}
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Open Graph Title
+            </label>
+            {{ form.og_title }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Open Graph Description
+            </label>
+            {{ form.og_description }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Open Graph Image
+            </label>
+            {{ form.og_image }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Twitter Card Type
+            </label>
+            {{ form.twitter_card_type }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Twitter Site
+            </label>
+            {{ form.twitter_site }}
+          </div>
+          {% elif section == 'shipping' %}
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Shipping Calculation Method
+            </label>
+            {{ form.shipping_calculation_method }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Shipping Calculation Method
+            </label>
+            {{ form.shipping_calculation_method }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Shipping Calculation Method
+            </label>
+            {{ form.shipping_calculation_method }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Shipping Calculation Method
+            </label>
+            {{ form.shipping_calculation_method }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Shipping Calculation Method
+            </label>
+            {{ form.shipping_calculation_method }}
+          </div>
+          {% elif section == 'tax' %}
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Tax Calculation Method
+            </label>
+            {{ form.tax_calculation_method }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Tax Calculation Method
+            </label>
+            {{ form.tax_calculation_method }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Tax Calculation Method
+            </label>
+            {{ form.tax_calculation_method }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Tax Calculation Method
+            </label>
+            {{ form.tax_calculation_method }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Tax Calculation Method
+            </label>
+            {{ form.tax_calculation_method }}
+          </div>
+          {% elif section == 'checkout' %}
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Checkout Style
+            </label>
+            {{ form.checkout_style }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Checkout Style
+            </label>
+            {{ form.checkout_style }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Checkout Style
+            </label>
+            {{ form.checkout_style }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Checkout Style
+            </label>
+            {{ form.checkout_style }}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Checkout Style
+            </label>
+            {{ form.checkout_style }}
+          </div>
+          {% elif section == 'features' %}
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Enable Reviews
+            </label>
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" name="{{ form.enable_reviews.name }}" {% if form.enable_reviews.value %}checked{% endif %}>
+              <span class="text-sm text-slate-600 dark:text-slate-400">Enable product reviews</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Enable Reviews
+            </label>
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" name="{{ form.enable_reviews.name }}" {% if form.enable_reviews.value %}checked{% endif %}>
+              <span class="text-sm text-slate-600 dark:text-slate-400">Enable product reviews</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Enable Reviews
+            </label>
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" name="{{ form.enable_reviews.name }}" {% if form.enable_reviews.value %}checked{% endif %}>
+              <span class="text-sm text-slate-600 dark:text-slate-400">Enable product reviews</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Enable Reviews
+            </label>
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" name="{{ form.enable_reviews.name }}" {% if form.enable_reviews.value %}checked{% endif %}>
+              <span class="text-sm text-slate-600 dark:text-slate-400">Enable product reviews</span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Enable Reviews
+            </label>
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" name="{{ form.enable_reviews.name }}" {% if form.enable_reviews.value %}checked{% endif %}>
+              <span class="text-sm text-slate-600 dark:text-slate-400">Enable product reviews</span>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="mt-8 flex justify-end space-x-4">
+        <a
+          href="{% url 'dashboard:store_settings:manage_store_settings' prefix %}"
+          class="px-6 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+        >
+          Cancel
+        </a>
+        <button
+          type="submit"
+          class="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+        >
+          <span class="material-icons-outlined text-sm">save</span>
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

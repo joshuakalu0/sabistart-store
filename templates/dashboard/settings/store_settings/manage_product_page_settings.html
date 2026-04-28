@@ -1,0 +1,175 @@
+{% extends "dashboard/_partials/base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+      Product Page Settings
+    </h2>
+    <p class="text-slate-600 dark:text-slate-400">
+      Configure product page layout, tabs, and display options
+    </p>
+  </div>
+  <a
+    href="{ url 'dashboard:store_settings:manage_product_page_settings' prefix %}"
+    class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+  >
+    <span class="material-icons-outlined text-sm mr-2">refresh</span>
+    Refresh
+  </a>
+</div>
+
+<div
+  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+>
+  <div class="p-6">
+    <form method="post">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Page Layout</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Layout Style
+                </label>
+                {{ form.layout }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Image Gallery Style
+                </label>
+                {{ form.image_gallery_style }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Image Zoom Enabled
+                </label>
+                <div class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.enable_image_zoom.name }}" {% if form.enable_image_zoom.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable image zoom on hover</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Sticky Add to Cart
+                </label>
+                <div class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.sticky_add_to_cart.name }}" {% if form.sticky_add_to_cart.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Keep add to cart sticky on scroll</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Product Information</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  SKU Display
+                </label>
+                {{ form.sku_display }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Brand Display
+                </label>
+                {{ form.brand_display }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Category Display
+                </label>
+                {{ form.category_display }}
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  Availability Display
+                </label>
+                {{ form.availability_display }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Product Tabs</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_description_tab.name }}" {% if form.show_description_tab.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Description Tab</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_specifications_tab.name }}" {% if form.show_specifications_tab.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Specifications Tab</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_shipping_tab.name }}" {% if form.show_shipping_tab.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Shipping Tab</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_reviews_tab.name }}" {% if form.show_reviews_tab.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Reviews Tab</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_questions_tab.name }}" {% if form.show_questions_tab.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Questions Tab</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Trust Badges</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_secure_checkout_badge.name }}" {% if form.show_secure_checkout_badge.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Secure Checkout Badge</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_money_back_guarantee.name }}" {% if form.show_money_back_guarantee.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Money Back Guarantee</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_free_shipping_badge.name }}" {% if form.show_free_shipping_badge.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Free Shipping Badge</span>
+                </label>
+              </div>
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox" name="{{ form.show_warranty_info.name }}" {% if form.show_warranty_info.value %}checked{% endif %}>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">Warranty Information</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-8 flex justify-end space-x-4">
+        <button
+          type="submit"
+          class="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+        >
+          <span class="material-icons-outlined text-sm">save</span>
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "fields": [
+    {"key": "featured_works", "label": "Featured works", "type": "list", "required": false, "help_text": "One featured project per line."},
+    {"key": "gallery_images", "label": "Gallery image URLs", "type": "list", "required": false, "help_text": "One image URL per line."},
+    {"key": "client_testimonials", "label": "Client testimonials", "type": "list", "required": false, "help_text": "One testimonial per line."},
+    {"key": "awards", "label": "Awards", "type": "list", "required": false, "help_text": "One award per line."}
+  ]
+}

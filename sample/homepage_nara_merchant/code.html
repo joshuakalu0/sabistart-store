@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Digital Atelier | Premium Nigerian E-Commerce</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-surface-variant": "#45464d",
+                        "secondary-container": "#fd761a",
+                        "tertiary-fixed-dim": "#dec29a",
+                        "secondary-fixed": "#ffdbca",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#9d4300",
+                        "primary-fixed": "#dae2fd",
+                        "on-surface": "#1a1c1c",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#000000",
+                        "on-tertiary-fixed": "#271901",
+                        "error-container": "#ffdad6",
+                        "outline": "#76777d",
+                        "on-secondary-container": "#5c2400",
+                        "on-secondary-fixed-variant": "#783200",
+                        "primary": "#0F172A",
+                        "on-primary": "#ffffff",
+                        "surface": "#f9f9f9",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#f0f1f1",
+                        "background": "#f9f9f9",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#2f3131",
+                        "surface-container-highest": "#e2e2e2",
+                        "tertiary-container": "#271901",
+                        "surface-container": "#eeeeee",
+                        "outline-variant": "#c6c6cd",
+                        "surface-dim": "#dadada",
+                        "secondary-fixed-dim": "#ffb690",
+                        "surface-container-high": "#e8e8e8",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-background": "#1a1c1c",
+                        "on-tertiary-container": "#98805d",
+                        "on-primary-container": "#7c839b",
+                        "primary-container": "#131b2e",
+                        "on-secondary-fixed": "#341100",
+                        "surface-container-low": "#f3f3f3",
+                        "tertiary-fixed": "#fcdeb5",
+                        "surface-variant": "#e2e2e2",
+                        "surface-bright": "#f9f9f9",
+                        "inverse-primary": "#bec6e0",
+                        "surface-tint": "#565e74",
+                        "on-primary-fixed": "#131b2e",
+                        "on-tertiary-fixed-variant": "#574425",
+                        "primary-fixed-dim": "#bec6e0"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- Announcement Bar -->
+<div class="bg-primary text-white py-2 text-center text-xs font-medium tracking-wide">
+        FREE DELIVERY ON ALL ORDERS OVER ₦15,000 ACROSS NIGERIA
+    </div>
+<!-- Header / TopNavBar -->
+<nav class="fixed top-8 w-full z-50 px-4 md:px-6">
+<div class="max-w-7xl mx-auto h-20 glass-nav rounded-xl shadow-[0px_20px_40px_rgba(15,23,42,0.06)] flex items-center justify-between px-6 md:px-10 border border-white/20">
+<div class="text-2xl font-black text-primary font-headline tracking-tighter">
+                Digital Atelier
+            </div>
+<div class="hidden md:flex items-center gap-8 font-headline font-semibold text-sm">
+<a class="text-primary border-b-2 border-primary pb-1" href="#">Home</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Shop</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Categories</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Deals</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">About</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Contact</a>
+</div>
+<div class="flex items-center gap-5">
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-all">
+<span class="material-symbols-outlined text-primary">search</span>
+</button>
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-all relative">
+<span class="material-symbols-outlined text-primary">shopping_cart</span>
+<span class="absolute top-1 right-1 bg-secondary text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">2</span>
+</button>
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-all">
+<span class="material-symbols-outlined text-primary">person</span>
+</button>
+<button class="md:hidden p-2">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</div>
+</nav>
+<main>
+<!-- Section 1: Hero Banner -->
+<section class="relative h-screen flex items-center overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover" data-alt="High-end fashion editorial background with elegant models" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8zLCPPeqBIf925BxLzIuf4VELoSM7qhyxB1kjB-WMXmcnGhAThzbZv-oGN2LvlthWtj3NTXP7mgF370Vto6Y9aHWjk85JJE4ryDitthGok_HDWaf332SSPHg0dP7kGsRhOUu80tRmosrBe6OYZjBM4PKphfE-5Y2vdsiHAGiYOcVHh7_jBzwDWKR_ITcr1eQH8qpyndtY-oEu4KO2UHZGRCtzWUqH7giGCtaG6lYyS6G46ntZyTd_Y3Hmwy2SP15VJKvZ0Jy2w4o"/>
+<div class="absolute inset-0 bg-gradient-to-r from-primary/60 to-transparent"></div>
+</div>
+<div class="relative z-10 max-w-7xl mx-auto px-6 w-full pt-20">
+<div class="max-w-2xl">
+<div class="inline-flex items-center gap-3 bg-secondary/10 text-secondary border border-secondary/20 px-4 py-2 rounded-full mb-8 backdrop-blur-md">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">timer</span>
+<span class="text-sm font-bold tracking-widest uppercase">Sale ends in 02:14:33</span>
+</div>
+<h1 class="font-headline text-5xl md:text-8xl font-extrabold text-white leading-[1.05] tracking-tight mb-6">
+                        Discover Your <br/>Next <span class="text-secondary-container">Favourite</span> Look
+                    </h1>
+<p class="text-xl text-white/80 font-light mb-10 max-w-md leading-relaxed">
+                        Premium quality products curated for the modern entrepreneur, delivered directly to your doorstep.
+                    </p>
+<div class="flex flex-wrap gap-4">
+<button class="bg-white text-primary px-10 py-5 rounded-lg font-bold hover:bg-secondary-container hover:text-white transition-all transform hover:-translate-y-1 shadow-xl">
+                            Shop Now
+                        </button>
+<button class="border-2 border-white/40 text-white backdrop-blur-sm px-10 py-5 rounded-lg font-bold hover:bg-white/10 transition-all">
+                            View Collections
+                        </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 2: Category Grid -->
+<section class="py-24 bg-surface px-6">
+<div class="max-w-7xl mx-auto">
+<div class="flex items-end justify-between mb-16">
+<div>
+<h2 class="font-headline text-4xl font-extrabold tracking-tight mb-2">Shop by Category</h2>
+<div class="h-1 w-20 bg-secondary rounded-full"></div>
+</div>
+<a class="text-primary font-bold border-b-2 border-primary/20 hover:border-primary transition-all pb-1" href="#">Browse All</a>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+<!-- Category Card 1 -->
+<a class="group block" href="#">
+<div class="aspect-[4/5] rounded-xl overflow-hidden mb-4 relative bg-surface-container-low">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Modern menswear casual collection" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDigSTmTmbTTcTmKdRh9okvrmIiKPbNv15B5PknkNMreNkYX9Vx0heW6gWcwLssH6z4xkSkmv540xZt9L3TdhqEKJ0xpzwGM6LqqBhpur0v1Ks7WwV8-1vqUiNM-821t3nCFypY4DGcRnmDr13X-wW7ikT7NsYx-nCkIqSBvdchWcDqS0slF_AL-dcqGEelwUeUrpcbZtXA81qOOEzmfXeH_IDOtYA-OseRgyNrfz9KlCca7H6v582ylT6BPKKRR01Isey2_Gd4oMY"/>
+</div>
+<h3 class="font-headline font-bold text-center group-hover:text-secondary transition-colors">Men's Fashion</h3>
+</a>
+<!-- Category Card 2 -->
+<a class="group block mt-8 md:mt-0" href="#">
+<div class="aspect-[4/5] rounded-xl overflow-hidden mb-4 relative bg-surface-container-low shadow-sm">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Premium womenswear fashion showcase" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0NVbpEnObRq2_P0vAf6VDHWjs0WtZt5uXijOIbEjd88bVKQFFd6iWi_m64Ov2nx7c7zqgQpEnNd_cQWtcQ49WOdv9VRtZO0nYIcsVoRoOYz00FShkCjbmbqIdZZ6oylyu0RFPvMuQrrXR1IClv_BQOfVp6A0KLwEDw1b94U-vBzCqUIcFb-5DTChyeWWo60zrzhygPf8dLy2JOfAyNB8BD8_UVoaqwyPIcwXYRBZMZ-VS1gKCgDUY-ie44PpneohiHDXQUS1Nc4U"/>
+</div>
+<h3 class="font-headline font-bold text-center group-hover:text-secondary transition-colors">Women's Fashion</h3>
+</a>
+<!-- Category Card 3 -->
+<a class="group block" href="#">
+<div class="aspect-[4/5] rounded-xl overflow-hidden mb-4 relative bg-surface-container-low shadow-sm">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="High tech modern gadgets and electronics" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUmjxowTSB81K_u2dcHRTJbuIY48Z7mJqFnPVIwFenUUBFKx7O0p74rJOqkiweqPAjU8jcHyMxLE-uYPu4Bx5zuuw2Jn24ZlSiVkB97Z28P9SJosgRdEW_RNJYVDbrPXJuCTRBG1j_2fsKYqBoZySAcEHsPbKE08w_Da4aMWx_PUkKNeeEKpFOpmYcwJWTwfp2ESeivPPi5oFUPA7Hz4D3mKKQ-rkW5KLeRBS-3JB7CvzcnPw-JlN73Xr8oJxD0TLnrdDLCtYD8z0"/>
+</div>
+<h3 class="font-headline font-bold text-center group-hover:text-secondary transition-colors">Electronics</h3>
+</a>
+<!-- Category Card 4 -->
+<a class="group block mt-8 md:mt-0" href="#">
+<div class="aspect-[4/5] rounded-xl overflow-hidden mb-4 relative bg-surface-container-low shadow-sm">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Minimalist home decor and living space" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvHNg4Tnh7x9un63MmASccD3IFBOPyJTDZHT0LMaOC2pdpbbpqKgdg95Mzr0KwaM0p7eDwQ_UXVw6nf7gLESpbaqyIdUhCHTiqtSYdEngQVM2OxNCKrQM0e65nWeN0MKLy2PUogncmCRnSOGFePjvLmgfN_D-1ctzPO8zpzfPSYWHPdWJf5u-QctiSoRFIZPYPnAIH1_K96iYprX2N8Kb8dmmejXaUt8iqQEl67-1x498Z5U8MCaehhLL4GwyBOsZW6VT6ox-qgDI"/>
+</div>
+<h3 class="font-headline font-bold text-center group-hover:text-secondary transition-colors">Home &amp; Living</h3>
+</a>
+<!-- Category Card 5 -->
+<a class="group block" href="#">
+<div class="aspect-[4/5] rounded-xl overflow-hidden mb-4 relative bg-surface-container-low shadow-sm">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Luxury beauty and skincare products" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAma4G0gACKcJnXBT7kXwxt3A0kheRSb9M_JLJGPIKtT6iWbg7c3FsLTRohkpBv0eRI35WrNScQ4bcr0_BW9yd7g8oef5wXrh7H130rv4Cg_J5cwNYVhO640bJUPTJKsT3uK1Fg3m4vSjqS0x7jdEBwPZRnrLzKsG2-58fGf_fwuqbTJumpuxqak7HpBKTqdpRPTw2yFvb5dRPq7cJzulqw9kCDPas7rcA0OpIee-Kt3sQvZqWcYMWJ_GWblDLG6wXbVJi1tAf5W_Y"/>
+</div>
+<h3 class="font-headline font-bold text-center group-hover:text-secondary transition-colors">Beauty</h3>
+</a>
+<!-- Category Card 6 -->
+<a class="group block mt-8 md:mt-0" href="#">
+<div class="aspect-[4/5] rounded-xl overflow-hidden mb-4 relative bg-surface-container-low shadow-sm">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Active lifestyle and sports gear" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4hqWMM7wyuRtxExWsUJIqrSm6txrImsHRJ9C8wGc99kTjE10YMJqzcndEBvhGEovuh78u8cTX--M1L12UcBdo5t-TJJaryRPT87_q5G-1gozZiL9bNMe4ufYw_8m4vsERAmMrF1MPZY-a0aHcUtOTik8fih2H9X4KNCV6yvGGolsUCCDDIxyTpGjX-yoEeP-Y1ptxNE-WUYW7GAB-PBfetZ5fM0Y5uia2ms04k_M410grK6mJ60eTw2-QS0YqO6nynJ2LOw2OJPc"/>
+</div>
+<h3 class="font-headline font-bold text-center group-hover:text-secondary transition-colors">Sports</h3>
+</a>
+</div>
+</div>
+</section>
+<!-- Section 3: Featured Products -->
+<section class="py-24 bg-surface-container-low px-6">
+<div class="max-w-7xl mx-auto">
+<div class="text-center mb-16">
+<h2 class="font-headline text-4xl font-extrabold mb-4 tracking-tight">Featured Products</h2>
+<p class="text-on-surface-variant max-w-xl mx-auto">Our handpicked selection of premium items designed to elevate your everyday lifestyle.</p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- Product Card 1 -->
+<div class="group bg-surface-container-lowest rounded-xl p-4 transition-all duration-300 hover:shadow-2xl">
+<div class="aspect-square rounded-lg overflow-hidden relative mb-6">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Premium minimal wristwatch silver and white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfu9Q6UhYxeJpQj1PFaCcUAw8xdXi46mlZmELHQCn2lg086xsRhBsgT4ahGvtuKatM4QDHCyXNZ86mYNZp9MLei0Wzun6WUz8PFMWS98Vq5tSnfOgroPCI1Xyg0Lljr2dMSmk4-x-M0lkpo0ULNnXfyoD2wvsBgYwzP2Gh6HIZpHD3Y-fhXoHjdgQ3zVqyaQmX0vEAPNkyZyhvIVL2A1RrCByzIejwfRVxX1u-9P-cGE7ySnUdznd-0vA_niwrgXfnR5XEDBGpUvQ"/>
+<div class="absolute top-3 left-3 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">New</div>
+<button class="absolute top-3 right-3 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-primary opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
+<span class="material-symbols-outlined text-xl">favorite</span>
+</button>
+<div class="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+<button class="w-full bg-primary text-white py-3 rounded-lg font-bold shadow-xl flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">shopping_bag</span>
+                                    Add to Cart
+                                </button>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-1 text-secondary-container mb-2">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs">star</span>
+<span class="text-[10px] text-on-surface-variant font-medium ml-1">(42)</span>
+</div>
+<h3 class="font-headline font-bold text-lg leading-tight">Elite Minimalist Timepiece</h3>
+<div class="flex items-baseline gap-2 pt-2">
+<span class="text-xl font-extrabold text-primary">₦ 45,000</span>
+<span class="text-sm text-on-surface-variant line-through opacity-60">₦ 60,000</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group bg-surface-container-lowest rounded-xl p-4 transition-all duration-300 hover:shadow-2xl">
+<div class="aspect-square rounded-lg overflow-hidden relative mb-6">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Red sports running shoes ergonomic design" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbCdPbN0hp30AMlFt0d59Hwr1SPyIDmOI3iSxcMUXT2d9nGp3QT_jTycJIuxJO_VGyok17F1kHPhHKeqjApmjHIEoguQqsc7hFOjoj8oDG0bAO0je6aryJMuV8WDTQgAX7uhE3-KYkitwjRtr6gHLQO4H_DlhiJ2_cIJI0_uzw6RnR5TxgJalcV0wkXJDTkvQLKGPb08oCcv0s4SYY9qnAfZwOJ94AK5ujrs3T6GjQdSxgN2XDxnYiuV9HqdHPLJA3gKuBkMRWE2Q"/>
+<div class="absolute top-3 left-3 bg-secondary text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">25% OFF</div>
+<button class="absolute top-3 right-3 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-primary opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
+<span class="material-symbols-outlined text-xl">favorite</span>
+</button>
+<div class="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+<button class="w-full bg-primary text-white py-3 rounded-lg font-bold shadow-xl flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">shopping_bag</span>
+                                    Add to Cart
+                                </button>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-1 text-secondary-container mb-2">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-[10px] text-on-surface-variant font-medium ml-1">(128)</span>
+</div>
+<h3 class="font-headline font-bold text-lg leading-tight">Pro Velocity Trainers</h3>
+<div class="flex items-baseline gap-2 pt-2">
+<span class="text-xl font-extrabold text-primary">₦ 22,500</span>
+<span class="text-sm text-on-surface-variant line-through opacity-60">₦ 30,000</span>
+</div>
+</div>
+</div>
+<!-- Card 3 & 4 (Repeat pattern) -->
+<div class="group bg-surface-container-lowest rounded-xl p-4 transition-all duration-300 hover:shadow-2xl">
+<div class="aspect-square rounded-lg overflow-hidden relative mb-6">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Premium wireless noise cancelling headphones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkxOpEUn66CeDvQlLumdHfJuO0pDaqIF5UFvD8cGVgannIY_6Dfil1oq9c3fAmjePpzgnXvOKU14O-Q5rC56B_s4YDCuLTCMoR6w618GRQY07vLE1OyGsEZkhFdoo_51jsAVmqO8CZ6nwXwDhcXzs164aJYNgiScxOzRDkPFpgL-cjDCOD0_NeGMKWREsdww44MM4XDkArk4bN1gdHX0-6gX9A5rxQ0bnh6C1yp4OqpGQF0LASah9ZPDlcTu3d0V84dRxiQUpoApQ"/>
+<button class="absolute top-3 right-3 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-primary opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
+<span class="material-symbols-outlined text-xl">favorite</span>
+</button>
+<div class="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+<button class="w-full bg-primary text-white py-3 rounded-lg font-bold shadow-xl flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">shopping_bag</span>
+                                    Add to Cart
+                                </button>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-1 text-secondary-container mb-2">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-[10px] text-on-surface-variant font-medium ml-1">(54)</span>
+</div>
+<h3 class="font-headline font-bold text-lg leading-tight">Studio Sound Headphones</h3>
+<div class="flex items-baseline gap-2 pt-2">
+<span class="text-xl font-extrabold text-primary">₦ 115,000</span>
+</div>
+</div>
+</div>
+<div class="group bg-surface-container-lowest rounded-xl p-4 transition-all duration-300 hover:shadow-2xl">
+<div class="aspect-square rounded-lg overflow-hidden relative mb-6">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Modern sleek black and white wireless earphones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBF0yz7__XTJFqG4LzyPZl0XCOs6W_g2rVy6s_fs_uQhsXmFHavPeAzrml2FtYyEE2Vn1-Itd1gw-zPXFvQagYTXLrigJXPvvO5bpYiVmzQjr00kKyexBBWSUDsli2oC4EojlY5zvfh0Hof7bwWPEsjCptdRp6VNQRMW2YDaEXfU0KVTCrj92oKgQAtwTPYcbZm8Jn0RWL7Dp9fz_jBEo0jTSLRm6fpMC0Pby3NGNAcmc-Cwas40QO7r9Jc-7j0iaMXOIbXN0SgjIo"/>
+<button class="absolute top-3 right-3 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-primary opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
+<span class="material-symbols-outlined text-xl">favorite</span>
+</button>
+<div class="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+<button class="w-full bg-primary text-white py-3 rounded-lg font-bold shadow-xl flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">shopping_bag</span>
+                                    Add to Cart
+                                </button>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-1 text-secondary-container mb-2">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs">star</span>
+<span class="text-[10px] text-on-surface-variant font-medium ml-1">(89)</span>
+</div>
+<h3 class="font-headline font-bold text-lg leading-tight">Core Airbuds Pro</h3>
+<div class="flex items-baseline gap-2 pt-2">
+<span class="text-xl font-extrabold text-primary">₦ 38,000</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 4: Flash Sale Banner -->
+<section class="py-16 bg-secondary-container overflow-hidden">
+<div class="max-w-7xl mx-auto px-6">
+<div class="flex flex-col lg:flex-row items-center gap-12">
+<div class="flex-shrink-0 text-white lg:w-1/3">
+<h2 class="font-headline text-5xl font-black mb-4 flex items-center gap-3">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                            Flash Sale
+                        </h2>
+<p class="text-2xl font-bold mb-8 text-white/90 leading-tight">Up to 60% Off — <br/>Don't Miss Out!</p>
+<div class="flex gap-4 mb-10">
+<div class="bg-white/20 backdrop-blur-md rounded-lg p-3 w-16 text-center">
+<div class="text-xl font-black">02</div>
+<div class="text-[10px] uppercase font-bold tracking-widest opacity-70">Hrs</div>
+</div>
+<div class="bg-white/20 backdrop-blur-md rounded-lg p-3 w-16 text-center">
+<div class="text-xl font-black">14</div>
+<div class="text-[10px] uppercase font-bold tracking-widest opacity-70">Min</div>
+</div>
+<div class="bg-white/20 backdrop-blur-md rounded-lg p-3 w-16 text-center">
+<div class="text-xl font-black">33</div>
+<div class="text-[10px] uppercase font-bold tracking-widest opacity-70">Sec</div>
+</div>
+</div>
+<button class="bg-white text-secondary font-bold px-8 py-4 rounded-lg hover:bg-primary hover:text-white transition-all">
+                            Shop All Deals
+                        </button>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
+<!-- Quick Sale Card 1 -->
+<div class="bg-white rounded-lg p-3">
+<div class="aspect-square rounded-md overflow-hidden bg-surface-container mb-3 relative">
+<img class="w-full h-full object-cover" data-alt="Classic black sunglasses high quality" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9fRTvqOC27-liPaqUJe_PWUvlQUSBEbicQZEqW-sHHAc74csvjl6ih1Vsf6KQBfgHtTWZ00itqiarCTikdrIIWvBJdzQOk0FOkCgPDWbz5KlKV1tIOjwlB0ZcAQ3iE6R7TyrY8g1IeNRCZoKLO6sia_GYgtuSFDeM-AGgqauLFII44voqqL37NjIx9FtWPmLngfLGDOAeuVomNSOy6hX_fyIfYeqDRWt77I-HOba07oxLvZh2SSkB7UShYGpegw8GI3T4usWq8D4"/>
+<div class="absolute bottom-2 right-2 bg-secondary text-white text-[9px] font-bold px-2 py-0.5 rounded">-40%</div>
+</div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-1">Accessories</p>
+<p class="font-headline font-bold text-sm mb-1 truncate">Modern Aviators</p>
+<p class="text-primary font-black text-sm">₦ 8,400</p>
+</div>
+<!-- Sale Card 2 -->
+<div class="bg-white rounded-lg p-3">
+<div class="aspect-square rounded-md overflow-hidden bg-surface-container mb-3 relative">
+<img class="w-full h-full object-cover" data-alt="Luxury blue high heel shoes elegant design" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZTaOdI6749whwKhzWKQj4FVSmg03e7mMghioRrCAsvVY2rk0BTSVtD-rZ1bBNL8PqfL0M8apuA2UvKIcOMlh5VRkKQGV1WVBy6KqH6rbq_b3Ao0BNP-ORxsjtI1g4t3WynbQRL-djhKG1G1ZvohkD2T8egSmopx_tkPZ6snW6j6aEmaGb7TkVk6euKX9B68a_xnXsT_kUsreWya9kDDUJ7DHrTj0X4XNuYsxIFxqCxttI7P1RbLhk9B5JggxEk4qvh_YCvk2cQnw"/>
+<div class="absolute bottom-2 right-2 bg-secondary text-white text-[9px] font-bold px-2 py-0.5 rounded">-60%</div>
+</div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-1">Women's Shoes</p>
+<p class="font-headline font-bold text-sm mb-1 truncate">Azure Stilettos</p>
+<p class="text-primary font-black text-sm">₦ 15,200</p>
+</div>
+<!-- Sale Card 3 -->
+<div class="bg-white rounded-lg p-3">
+<div class="aspect-square rounded-md overflow-hidden bg-surface-container mb-3 relative">
+<img class="w-full h-full object-cover" data-alt="Modern aesthetic white trainers" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_OY2D36iDCM8RLYNUe872_INCpeFr6GXJWLU97mgarAdn3A4b7y2M_vSF8bKFsfwwmyugJbnzJ6aphtbR6I2zd9d0m9Fp8ASXQAoJGNHzVCEJQJzroU-yGI5pN93HIpExJJrmbUHDpj5IGLEd9KXKZJPS7ausIipwMUYXmPovchMJKumtlMLAKuDju3B8yVh6uwmR11E5nXrwV-QlhPPpXYLvIln7kEPEmwhogZchp5MUqbhRRO33mUhDQ3HdMblO5CQpst0Ya-s"/>
+<div class="absolute bottom-2 right-2 bg-secondary text-white text-[9px] font-bold px-2 py-0.5 rounded">-35%</div>
+</div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-1">Footwear</p>
+<p class="font-headline font-bold text-sm mb-1 truncate">Urban Walkers</p>
+<p class="text-primary font-black text-sm">₦ 19,500</p>
+</div>
+<!-- Sale Card 4 -->
+<div class="bg-white rounded-lg p-3">
+<div class="aspect-square rounded-md overflow-hidden bg-surface-container mb-3 relative">
+<img class="w-full h-full object-cover" data-alt="Compact portable bluetooth speaker black" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASNqeF5rGlZI_hQQg5PBEL4QPhiVZ4XClxcqxwPS1mv6eGMee_SeGNvxSN1_ccdB02SJPEzUjxVowTIR6BbeZsQC5dRAuoSHw2y0ViFreTVohURWioycEISAMpQiLm-1EEu8wqita-s0Ls3pULodUsYAFvnZnor1Ucn-WsBqQrUcKHfNR9lAK5xEs5UiQUSKXS3R-jE7ED4OXY064yzLG_e9kr8UDrFJ9Hau6mPTadLgUq8J17cGunjNQAo12jk48iz_PGmevCNxM"/>
+<div class="absolute bottom-2 right-2 bg-secondary text-white text-[9px] font-bold px-2 py-0.5 rounded">-50%</div>
+</div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-1">Tech</p>
+<p class="font-headline font-bold text-sm mb-1 truncate">Nano Speaker</p>
+<p class="text-primary font-black text-sm">₦ 12,000</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 5: Promotional Banners -->
+<section class="py-24 px-6 bg-surface">
+<div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="relative rounded-2xl overflow-hidden h-80 group">
+<img class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Stack of fresh new luxury clothing arrivals" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVvQz9ZYPVS53yXy_VvWXQaq8KPwqYiGYFgB1aHyHnAAOM1BQU-no-JTS5TsIGeNrtvQ-MekruLT6V_1i4WG1wOTUTHLd9DsJNOq_o4NS8e9lxvTdhEyPseicvAcbUX05vY6QX0WpijcLHndDjo9asZGY0wyqdtazZn-ObWjYicHUy9xln9hfS3wwpaX0u5_6mIdU-9WA_n8fTSXemMJOxinJ1h4ZjpiopjZkmewki7i01Yx66Hml5R-Cp1uP1uSrmcYjSExW8QUY"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent flex flex-col justify-end p-10">
+<h3 class="text-white text-3xl font-black mb-2">New Arrivals This Week</h3>
+<p class="text-white/80 mb-6">Explore the latest drops in our collection.</p>
+<a class="text-white font-bold inline-flex items-center gap-2 group/link" href="#">
+                            Shop Collection 
+                            <span class="material-symbols-outlined group-hover/link:translate-x-1 transition-transform">arrow_right_alt</span>
+</a>
+</div>
+</div>
+<div class="relative rounded-2xl overflow-hidden h-80 group">
+<div class="absolute inset-0 bg-primary-container"></div>
+<div class="absolute top-0 right-0 w-1/2 h-full opacity-40 mix-blend-overlay">
+<img class="w-full h-full object-cover" data-alt="Logistics van delivering premium goods" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8zi2YS7_MLGxFTI1Vnvaf6sXlPxWZ_gQfz0g-DGXrFSvSfVwfVvF5eF5buzOuoK8zhQH6wRww7vkOExPu5iwt25EHWqY2iXmcOVU2bpvze_d9eyy3CBxKzZoxsaizy5tVpvp8mqcJI_BjFCQCbCkDVpTQ1_QklGjxHlp9KNtXZJ5i7id4KKfgQ6jJ1RNIwC1FGZMtwIY6NJYcqRRhx6R4VxywFBn0OQ9VhVWgfTs1NMSRF6wzBORx-PCqjrnCP8h66d0Bl_nW2GA"/>
+</div>
+<div class="absolute inset-0 flex flex-col justify-center p-10">
+<span class="material-symbols-outlined text-secondary-container text-5xl mb-4">local_shipping</span>
+<h3 class="text-white text-3xl font-black mb-2">Free Shipping Over ₦15,000</h3>
+<p class="text-white/60 mb-8 max-w-xs">Nationwide priority delivery at zero cost for high-value orders.</p>
+<a class="text-white font-bold inline-flex items-center gap-2 group/link" href="#">
+                            Learn More 
+                            <span class="material-symbols-outlined group-hover/link:translate-x-1 transition-transform">arrow_right_alt</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 6: Best Sellers (Tabs) -->
+<section class="py-24 bg-surface px-6">
+<div class="max-w-7xl mx-auto">
+<div class="flex flex-col md:flex-row items-center justify-between gap-8 mb-16">
+<h2 class="font-headline text-4xl font-extrabold tracking-tight">Best Sellers</h2>
+<div class="flex flex-wrap justify-center gap-2 bg-surface-container p-1 rounded-xl">
+<button class="px-6 py-2 rounded-lg bg-white text-primary font-bold shadow-sm transition-all">All</button>
+<button class="px-6 py-2 rounded-lg text-on-surface-variant font-semibold hover:text-primary transition-all">Men</button>
+<button class="px-6 py-2 rounded-lg text-on-surface-variant font-semibold hover:text-primary transition-all">Women</button>
+<button class="px-6 py-2 rounded-lg text-on-surface-variant font-semibold hover:text-primary transition-all">Electronics</button>
+<button class="px-6 py-2 rounded-lg text-on-surface-variant font-semibold hover:text-primary transition-all">Home</button>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12">
+<!-- 8 cards represented as a simple loop output -->
+<div class="group">
+<div class="aspect-[3/4] rounded-xl overflow-hidden bg-surface-container-low mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Premium brown leather jacket close-up" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2eRZqjZSi3NUejZv7IasLt6dYftC1TD10_L5L0ZdMKFonDlQm2T_8ohJGS_H65WPKTfz4ep2hDfc-lxzobaFQF2jOxEZhK02QcYcD6DS4gSJZZzKifG7n-TO2uMYfhPv1VySGG3Od5vSkfmqKChh1WotKUnUBf0ILPzTK66btGaDt0u5Nr-rGixtvy0fjQ14jtFtMdq-mnB9oEGYZx7tsNEfII71roFwU2RWRSIgWtm46v55myOIoVfPN2KVtTPBAYivdi8w0T_Y"/>
+</div>
+<h4 class="font-bold text-sm mb-1">Leather Biker Jacket</h4>
+<p class="text-primary font-black">₦ 85,000</p>
+</div>
+<div class="group">
+<div class="aspect-[3/4] rounded-xl overflow-hidden bg-surface-container-low mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Modern interior design living room furniture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHCzOVjsk0Z1bB61kGgpXSDEneI8wmGPSyY7H_Tk6nf0h3koTquDDKy1uIYZVG89Q-Ey9ZXr9Y7c15j8yDIBjUMO5FTAkPjiOgCaIq10l4NA8hOfSasfNj787yWEeTfBiCUTn7axjNhNS9LixWtF1IjGcbfr8MHnpJwCznKWsx7dj6lOBB0n-JhEn4aUuQHFC-nzKPJjwRy1_o7YOkoxk2ES4eDonTQitywkiYt8riAlFAI6dpuaWN562gmrNrJtFCTizjss1N8Po"/>
+</div>
+<h4 class="font-bold text-sm mb-1">Velvet Accent Chair</h4>
+<p class="text-primary font-black">₦ 120,000</p>
+</div>
+<div class="group">
+<div class="aspect-[3/4] rounded-xl overflow-hidden bg-surface-container-low mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Silver laptop on wooden desk professional setup" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmA2UYf4beAUTlTw6CA6FoVUXtWv7RQuC857UhyQx-FYGV-_GnYfd1VRcMwQxC70KB0cBRoqWFdrzrnDLA6gsrPNy1MbUZXLmqsK0onxJYE44RTbqSx_xE1Ds2yDhKZ9Wm6aDbx9OV-p_OEFzg3_HMCCPd-VR7GpknYcSMstDEbkAIea6Uc1s8voR_U2thfr6nmnEAn5eDEiTMs6FN8fS6uqd8FLbiHXzNIKYG9ZFU4_9BZtKMSv1s2fk2xddU4wqd58QLjWZIXr8"/>
+</div>
+<h4 class="font-bold text-sm mb-1">UltraBook Pro 14</h4>
+<p class="text-primary font-black">₦ 685,000</p>
+</div>
+<div class="group">
+<div class="aspect-[3/4] rounded-xl overflow-hidden bg-surface-container-low mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Black smartwatch on white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfCbLkYnFW3uw5BIkHzHgH72Yp239GnMZe5KG84JQrul_ijsyAgI2gMGsodYa6iqE5HaKOb9GBsUs72-rk9u4WLiKoYvVkex-jaaXmfd6xn2xa67vx_eqHzACbRXeAEqmGLFHJxDMgrLQzv7EFOUB1uZJNrv5WAuVN7lCaA2KHUjcLQ57Bt6LYHqjWIh1aO0IB7xPJfMRGPDylsBGUhaY4AD3WRL8rQDQGYY8ZwYNCNhUHAzCYK3u3MZsH7D9lWWJwYPBvl4E8Uyc"/>
+</div>
+<h4 class="font-bold text-sm mb-1">Gen 6 Smartwatch</h4>
+<p class="text-primary font-black">₦ 52,000</p>
+</div>
+<!-- Row 2 -->
+<div class="group">
+<div class="aspect-[3/4] rounded-xl overflow-hidden bg-surface-container-low mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="White sneakers minimalist photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBF_kdmgoHDxpJ4_qsksAvYNmHCefZMh1JkhVBd-pK-c4p7jIy7Y-g90OkAJ19RzTD70xc9Mht1rDa1Zbe1aJ_CPiSyVBBpmwNpedrSAoZOL0siN2iDtR43sPEZPr7FgUhQ0awcXasKOBAGu8WTD1n0deoUqaOcUoKPCqYGlxnWzSK1F40oNAec18R3FJZe2N3A9WIz4GtN_X_lDSlbTNe6ddxusWEeOciLomnMm-iYioU4qmaNGDkkh1XWW9EqjTfVMuqSXnQ3snE"/>
+</div>
+<h4 class="font-bold text-sm mb-1">Minimal Sneakers</h4>
+<p class="text-primary font-black">₦ 32,500</p>
+</div>
+<div class="group">
+<div class="aspect-[3/4] rounded-xl overflow-hidden bg-surface-container-low mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Luxury gold jewelry set on display" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJHtIVMZRN2PB8o8RaFjCpq3Rgp11B6ptpSIs9Ya2fnG10IKNqKYP6R3mMn2G4KIXwIPtJ_4jGEf5piQv0RAdj6z2ETBvpN3rVmYi5ee8BJUGdJ9zrSQN_3cr8bKrVAm8p_o5ZyAGgCjq-DjjSx-0T--1qKqH8RgO2cKH3XYFzT1U6aGmPWM77Q5ukrmtmNGwXFNb9s6yLEqkSKVj8bGkjh9PPjOUDjNN1Dx7HloOatqj_Io_WaAeqSckJPJ-ZcOBHusgwQOLRUWQ"/>
+</div>
+<h4 class="font-bold text-sm mb-1">Gold Pendant Set</h4>
+<p class="text-primary font-black">₦ 18,000</p>
+</div>
+<div class="group">
+<div class="aspect-[3/4] rounded-xl overflow-hidden bg-surface-container-low mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Modern graphic tee shirt white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuABMNnoCzX6wJri_HkxlJ8UpnaEPW-rOg6873D9iYIQA0t5aDlTTbIxi5AKZ9brthaqHm1h-ry9GgtnHdkP89q_MHBEbHf21r3vGBtVZEybLOlqEBDJCGfnrt4aJSwIdTE4nK4xbUXduofJcJl7-ewLyyieEXMSUsGiPMk5Vo3_NAs9Vc_fqgtxEmhte4CnlNueGcM5I0wKFtXwQynDfTXLoABcgEno_55zqmVbnXgcXyawWKMCa11CbRTI_-ZhL-SFaiNJj7kBHvA"/>
+</div>
+<h4 class="font-bold text-sm mb-1">Atelier Graphic Tee</h4>
+<p class="text-primary font-black">₦ 12,000</p>
+</div>
+<div class="group">
+<div class="aspect-[3/4] rounded-xl overflow-hidden bg-surface-container-low mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Sleek silver laptop high end tech" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkpAHvny29smyw4ybgIcTJy_vzfrEeMz7lvEvfFw9LHiuKDSdLKaBK3TyeB3G8MRK0F_9Xnd2qtQmwTjPignP7SFltZp1DYbVI9TCdMtfGjbaz2WfEA7pbUBQ0_g90bFfeCmIVKOIGigyaYYLBK9sN8AWaBJeLYcVoS3soibHoMh8pt5RZOBcyL2gP-dxMZlhAglnY1Fy1GzuBTrD3z4QISFB8GCFdzKBwU1cPn88RJU3157-j9gnZUu-98NGJKWrJMAwCm0n-Jws"/>
+</div>
+<h4 class="font-bold text-sm mb-1">Notebook Slim</h4>
+<p class="text-primary font-black">₦ 415,000</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 7: Trust Badges -->
+<section class="py-16 border-y border-outline-variant/20 bg-white px-6">
+<div class="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-12">
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-full bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">local_shipping</span>
+</div>
+<div>
+<h4 class="font-headline font-bold">Free Shipping</h4>
+<p class="text-xs text-on-surface-variant">Orders over ₦15,000</p>
+</div>
+</div>
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-full bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">verified_user</span>
+</div>
+<div>
+<h4 class="font-headline font-bold">Secure Payment</h4>
+<p class="text-xs text-on-surface-variant">100% Encrypted transactions</p>
+</div>
+</div>
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-full bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">replay</span>
+</div>
+<div>
+<h4 class="font-headline font-bold">Easy Returns</h4>
+<p class="text-xs text-on-surface-variant">7-day free return policy</p>
+</div>
+</div>
+<div class="flex items-center gap-5">
+<div class="w-14 h-14 rounded-full bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">headset_mic</span>
+</div>
+<div>
+<h4 class="font-headline font-bold">24/7 Support</h4>
+<p class="text-xs text-on-surface-variant">Dedicated concierge team</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 8: Testimonials -->
+<section class="py-24 bg-surface px-6">
+<div class="max-w-7xl mx-auto">
+<div class="text-center mb-16">
+<h2 class="font-headline text-4xl font-extrabold mb-4 tracking-tight">What Our Customers Say</h2>
+<p class="text-on-surface-variant">Real experiences from our community of trendsetters.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Review 1 -->
+<div class="bg-white p-10 rounded-2xl shadow-sm border border-outline-variant/10 relative">
+<div class="flex gap-1 text-secondary-container mb-6">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-lg leading-relaxed mb-8 italic">"The quality of the fabrics is beyond anything I've bought locally. Fast delivery to Abuja and the packaging was so premium!"</p>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Portrait of a stylish woman smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAorGzugs7BHmoAAIOqA4G3WOx-vyMgnpHT_5CSwmTqNqMBdMLS3PySr49hg7dH9HMx9_5BGVMVEpYEWZi0c1oIHMOYs0EfoeUFW0rYlm2DDuCKxtnXo-Jl164HAiePb9GkqS-84uV8SWPfJRRnM4v-o1_INyZVgjn-V2iiWwxaj22ooSo4GHug3IDpTdVq87qk8lgyEooarYRvaSoovlDZxgxHpYGXNf90YjtDriNqm_zU3oArMVwt113vGAT9vgQGGsEiTXaKe3Y"/>
+</div>
+<div>
+<h4 class="font-bold text-sm">Chidiogo Okafor</h4>
+<p class="text-[10px] text-secondary font-bold uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+                                    Verified Buyer
+                                </p>
+</div>
+</div>
+</div>
+<!-- Review 2 -->
+<div class="bg-white p-10 rounded-2xl shadow-sm border border-outline-variant/10 relative">
+<div class="flex gap-1 text-secondary-container mb-6">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-lg leading-relaxed mb-8 italic">"Finally, a Nigerian tech store that actually delivers what they show in the pictures. My laptop arrived in Lagos within 24 hours."</p>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Portrait of a young Nigerian man in glasses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-SNDN6BMJuCTExNLzvrgFHEfL8DjDGA0XlkOscilHmK8NZ4WDIP9j3zwEQfjWFazJp9tH2AYyONNAfBdFBUCFgsz6lXvv5P4PIYYWqr6BFkcCanpPr4rXavzvoD5YIh1-hjxqEarLoswZi0psPeSvtVG8khXDiMG4dHHZvU2zu1CuqucgOehGPTzX42C_j3JM5AIP2IXtm3f9vAgeaEfEV1Rcx9eW-NlHXJ7VPwNWGsVLvRixuU7UjiYLoKhADpVVr_mniM1yXzM"/>
+</div>
+<div>
+<h4 class="font-bold text-sm">Tunde Williams</h4>
+<p class="text-[10px] text-secondary font-bold uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+                                    Verified Buyer
+                                </p>
+</div>
+</div>
+</div>
+<!-- Review 3 -->
+<div class="bg-white p-10 rounded-2xl shadow-sm border border-outline-variant/10 relative">
+<div class="flex gap-1 text-secondary-container mb-6">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-lg leading-relaxed mb-8 italic">"Their customer support is amazing. I had an issue with sizing and they swapped it for me the next day no questions asked."</p>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Portrait of a fashionable lady with braids" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyVebd8z8Az_6O6j9gXvHf13wtSEG56MTGc154s7cf2kCyJCW1zIrxR0n-ly6qUyDZPKlAgmn30UFsAaij-F6Icw34CnfdFPBvJS99J9_A6Q48kvsX-tEv4SU6AuRROag9sI1CJSrpI2vfEP1k21x1-tW2Di3_2DEVoIHZ5uv76XGizk9F4Tnr4aVN4V4q0UhJQHl3N8I_ijtRXvx-JITt6UTcnUd_s2OyflPReuZ7HeRBaNhT-ohbOconuTgVFQopCX8QbwyHyQU"/>
+</div>
+<div>
+<h4 class="font-bold text-sm">Amina Ibrahim</h4>
+<p class="text-[10px] text-secondary font-bold uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+                                    Verified Buyer
+                                </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 9: Recently Viewed -->
+<section class="py-16 bg-surface-container-low border-y border-outline-variant/10 px-6">
+<div class="max-w-7xl mx-auto">
+<h3 class="font-headline font-bold text-xl mb-8 flex items-center gap-3">
+<span class="material-symbols-outlined">history</span>
+                    Recently Viewed
+                </h3>
+<div class="flex gap-6 overflow-x-auto no-scrollbar pb-4">
+<!-- Recently Viewed Item 1 -->
+<div class="flex-none w-48 group">
+<div class="aspect-square rounded-lg overflow-hidden mb-3 bg-white">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Blue denim jeans displayed on white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrpMmvm1traTugbN5Gxvl7fAf7ujcRtcMevgzUdhz2DPYpG6wLizJFOhglWYmdCfF38Gl_eLrdQTn3cwCUN7e-pIQseP2T7gnYwo9ynKoGHqaThuyebGzgdLNduBj2rAsaAw8tw4gSfdNwvcXkG6bJhUJBmcJkBdr_LRJDaDjSddDMwdWiLX84EcEYfM_RHZe9nwDLfphBz79iYxAFS2YaVpU4294ZX4dQKgsNnI2ViFVCXwzav_fHLTzjfCrKg07HHISREdk9txw"/>
+</div>
+<p class="text-xs font-bold text-on-surface-variant truncate">Raw Indigo Slim Fit Denim</p>
+<p class="font-black text-sm">₦ 18,500</p>
+</div>
+<!-- Item 2 -->
+<div class="flex-none w-48 group">
+<div class="aspect-square rounded-lg overflow-hidden mb-3 bg-white">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Classic white cotton t-shirt" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAdpscav4qZDIUsmNN6Y6J7rPqKJ2k9O-ULZK4MJpPgnZAMchSqRsPWWOGC0AOah-uQuC22iR2DdkG4zuN0NIHACVRSepK3ruXnKzafWCUm4UyOBZ1zFb2l0eXfCAWmkURb-xxp9XjcqeBl4PsPPO2Bapix1km9MoYa3ASsXVmjUFPhWFNVlzR7t9VzMj4yWTcxKbDN9xCTwZAZE64toTxV4wcAuCZ23jYqJeolRQxny8NePN9RJlkvMKZryS7TwTrlJsj4kUYW8o"/>
+</div>
+<p class="text-xs font-bold text-on-surface-variant truncate">Premium Cotton Crew</p>
+<p class="font-black text-sm">₦ 8,000</p>
+</div>
+<!-- Item 3 -->
+<div class="flex-none w-48 group">
+<div class="aspect-square rounded-lg overflow-hidden mb-3 bg-white">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Brown leather designer wallet" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCv83VoU5Il14FSEvN2aVJe2oiEh48jcj3N-WS2hU-4kb9IwHCfCcn-ShYdQq2cEPM0Xde4DpA-UZkIylpb2_UTRAZQVmz9-N-cH_P872aoiyILxAe5w0nZFuj8N-gVwFDTJ49Uo9YVCw2OFw5HOPyktJryOtqLx4SVrneUtzb2K7JKayL_HdzyQAtNMDWe15iufga--MY9mexojHI-FP1Seb8vdFWWtY74USL8xDpZdSFwg3F3Et9G47M_BcWKwP2tHN1cIeNeZcY"/>
+</div>
+<p class="text-xs font-bold text-on-surface-variant truncate">Bifold Leather Wallet</p>
+<p class="font-black text-sm">₦ 12,500</p>
+</div>
+<!-- Item 4 -->
+<div class="flex-none w-48 group">
+<div class="aspect-square rounded-lg overflow-hidden mb-3 bg-white">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Modern high performance running shoes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrVwopZ2Q1C6aXvkWI0wF2o6ZhzvfE2iEq4PVPbavTzg3PO5RT5nP_ABGlOnV9ZhNklv_OPFF9GCMKlPg-WLyLpXINe2Cy49PjW2RJZ-AMZoQHUchBUMSTK_KqGf2p9sPoge6K2dmF4rT3TSbdEgsJ1RjdWw5wK7Yq7kADmy_5YrgEVhu-iva3p8jh7yoAgk2ppOTtsoIrqUxISHV7MtLlvH-WEzcgeWog0kl8NONyAnYD5YC_jwBj0DcBgoxm015kYMdM8wpj3lU"/>
+</div>
+<p class="text-xs font-bold text-on-surface-variant truncate">Air Max Ultra Sneakers</p>
+<p class="font-black text-sm">₦ 65,000</p>
+</div>
+<!-- Item 5 -->
+<div class="flex-none w-48 group">
+<div class="aspect-square rounded-lg overflow-hidden mb-3 bg-white">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Professional camera lens detail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWhTBzPJj6T4bOHzim0SG_20kSsHp84ZvtFhLFIEL2Byi3JbpRU52esExY3YHXhU5zdx7vQtSuyD5ciNPtmdv9XsUmzjFRvk2_GRTUgIO4_7v33YhktFM4jVbQ7h0vkZqYflqH-u0rHnvq1AaOBhgTT5B4f1AUa4MP4fEBkrvqZiQrTQ2ELI76tzzi_bpSR3PyXz8ryq4Jc9Wo_GY_Ca82Pul3Jx8eIUt7V9WPtLyoLs9xup1Ek54eB4OV2tv-BDR8vvcVQXsIqv4"/>
+</div>
+<p class="text-xs font-bold text-on-surface-variant truncate">Prime Focus 50mm Lens</p>
+<p class="font-black text-sm">₦ 145,000</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 10: Blog / Tips Section -->
+<section class="py-24 bg-white px-6">
+<div class="max-w-7xl mx-auto">
+<div class="flex items-center justify-between mb-16">
+<div>
+<h2 class="font-headline text-4xl font-extrabold tracking-tight mb-2">Style Tips &amp; Guides</h2>
+<div class="h-1 w-20 bg-primary rounded-full"></div>
+</div>
+<a class="font-bold text-primary group flex items-center gap-2" href="#">
+                        View All Stories
+                        <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">trending_flat</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+<!-- Blog Card 1 -->
+<article class="group">
+<div class="aspect-video rounded-2xl overflow-hidden mb-6 relative">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Business casual professional styling photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgK8Ai3LrMpw50cZQPljSI20mya5pjzrv5xnP87c8fAGD25PHMyJm6OuUDP1X6zsKdhA9SMUv7fxWatzQ8dptsFwk-6YPy-OMR6EPb9KACZFRb1cwruTaWbAnupXSzuMP1sA_c3g3XJ06Ozv1pr2DZPy-aeJ1V9Hh2G-a-OzGPb-tUDTFJo-c2AKgPVF3f83tybJGJig60OcCYYou3nLBaHKjJ09ATL7D38oGRpCqPSwptsq6UhCnbCfVzqhwKuAujvn-IpGgCXkM"/>
+<div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-primary">Fashion</div>
+</div>
+<p class="text-xs text-on-surface-variant font-bold mb-3 uppercase tracking-widest">Oct 24, 2024 • 5 Min Read</p>
+<h3 class="font-headline text-2xl font-bold mb-4 group-hover:text-secondary transition-colors leading-tight">Mastering Business Casual in Lagos</h3>
+<p class="text-on-surface-variant mb-6 line-clamp-2">Learn how to stay professional and stylish while navigating the heat and humidity of Nigeria's commercial hub.</p>
+<a class="font-bold text-sm border-b-2 border-primary/10 group-hover:border-primary transition-all pb-1 inline-block" href="#">Read Article</a>
+</article>
+<!-- Blog Card 2 -->
+<article class="group">
+<div class="aspect-video rounded-2xl overflow-hidden mb-6 relative">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Apple products flatlay modern tech style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6kl4oaD_-g00HpUvW5LOOnAPt9HKJFy8fig7Aex-_03XwTQ38o5ImlH_4JhM7lS-VibUHRnAxxxfrg6vybwgeaEqwqGzsA5v3_1UCnvmNnyTKNu1R7H2vHMOsnGzJsrYTah3q-fDOXtI1ZIB_w17DLHlPt9vOxcO1kPeBmvHSIOhjnBoChzh587AsH15XqiSV3EZWBxbqdTXDNjcHuO-QeZsHdPex5dqtD3t5-XtnlwpQYRsazkImOBAHXOXR1oPTyTC9q73-5Fs"/>
+<div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-primary">Tech</div>
+</div>
+<p class="text-xs text-on-surface-variant font-bold mb-3 uppercase tracking-widest">Oct 22, 2024 • 8 Min Read</p>
+<h3 class="font-headline text-2xl font-bold mb-4 group-hover:text-secondary transition-colors leading-tight">Upgrade Your Remote Work Setup</h3>
+<p class="text-on-surface-variant mb-6 line-clamp-2">The essential gadgets every Nigerian entrepreneur needs for a world-class home office experience.</p>
+<a class="font-bold text-sm border-b-2 border-primary/10 group-hover:border-primary transition-all pb-1 inline-block" href="#">Read Article</a>
+</article>
+<!-- Blog Card 3 -->
+<article class="group">
+<div class="aspect-video rounded-2xl overflow-hidden mb-6 relative">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Minimalist elegant living room interior" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgBN90rWOOrYK64YgSPXDs1yvSc9Ot2RBPR6jler61cPnIIT7_PqFV55wCmUyXebJ23E2R28NUqo7o463QF952t1g0fIBNih__TS_8uqcK0pvyrWQ6-4KIjBH3oUHLCBjjTQcE8f5LGJNpl62It2Rm38ZkAgSacKqgr15euqkBRU14TooDlyRSP7o0V54OTTLU17UFURI3y4UGDv_q_nueq0KKoKu4dSx2l2A9gckoMTvdGPu-sEVtB8F_CRlF8b2IPJ6HStr3iLw"/>
+<div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-primary">Lifestyle</div>
+</div>
+<p class="text-xs text-on-surface-variant font-bold mb-3 uppercase tracking-widest">Oct 19, 2024 • 4 Min Read</p>
+<h3 class="font-headline text-2xl font-bold mb-4 group-hover:text-secondary transition-colors leading-tight">Minimalism: Living More with Less</h3>
+<p class="text-on-surface-variant mb-6 line-clamp-2">How to curate your space for maximum productivity and peace of mind in a busy world.</p>
+<a class="font-bold text-sm border-b-2 border-primary/10 group-hover:border-primary transition-all pb-1 inline-block" href="#">Read Article</a>
+</article>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-primary pt-24 pb-12 text-white px-6">
+<div class="max-w-7xl mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-16 mb-20">
+<div class="col-span-1 md:col-span-1">
+<span class="text-2xl font-black mb-6 block font-headline tracking-tighter">Digital Atelier</span>
+<p class="text-white/60 text-sm leading-relaxed mb-8 max-w-xs">
+                        Empowering Nigerian Entrepreneurs with high-end, curated essentials for work, life, and style.
+                    </p>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-primary transition-all" href="#"><span class="material-symbols-outlined text-lg">public</span></a>
+<a class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-primary transition-all" href="#"><span class="material-symbols-outlined text-lg">share</span></a>
+<a class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-primary transition-all" href="#"><span class="material-symbols-outlined text-lg">mail</span></a>
+</div>
+</div>
+<div>
+<h4 class="font-headline font-bold mb-8 text-lg">Quick Links</h4>
+<ul class="space-y-4 text-white/60 text-sm">
+<li><a class="hover:text-secondary transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-secondary transition-colors" href="#">Terms of Service</a></li>
+<li><a class="hover:text-secondary transition-colors" href="#">Shipping Info</a></li>
+<li><a class="hover:text-secondary transition-colors" href="#">Returns</a></li>
+<li><a class="hover:text-secondary transition-colors" href="#">Track Order</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-headline font-bold mb-8 text-lg">Shop Categories</h4>
+<ul class="space-y-4 text-white/60 text-sm">
+<li><a class="hover:text-secondary transition-colors" href="#">Men's Fashion</a></li>
+<li><a class="hover:text-secondary transition-colors" href="#">Women's Fashion</a></li>
+<li><a class="hover:text-secondary transition-colors" href="#">Electronics &amp; Gadgets</a></li>
+<li><a class="hover:text-secondary transition-colors" href="#">Home &amp; Office</a></li>
+<li><a class="hover:text-secondary transition-colors" href="#">Health &amp; Beauty</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-headline font-bold mb-8 text-lg">Newsletter</h4>
+<p class="text-white/60 text-xs mb-6 leading-relaxed">Join 10,000+ fashion-forward entrepreneurs and get exclusive early access to our weekly drops.</p>
+<div class="flex">
+<input class="bg-white/10 border-none rounded-l-lg text-white text-sm focus:ring-secondary w-full px-4" placeholder="Email Address" type="email"/>
+<button class="bg-secondary text-white px-4 py-3 rounded-r-lg font-bold hover:bg-secondary-container transition-all">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+</div>
+<div class="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
+<p class="text-white/40 text-xs text-center md:text-left">© 2024 Digital Atelier. Empowering Nigerian Entrepreneurs. Built for the modern visionary.</p>
+<div class="flex items-center gap-6 grayscale opacity-40">
+<span class="material-symbols-outlined text-3xl">payments</span>
+<span class="material-symbols-outlined text-3xl">credit_card</span>
+<span class="material-symbols-outlined text-3xl">account_balance</span>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

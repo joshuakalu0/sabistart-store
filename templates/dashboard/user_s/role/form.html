@@ -1,0 +1,108 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">{{ page_title }}</h2>
+    <p class="text-sm text-slate-500 dark:text-slate-400">
+      {% if is_edit %}Update role details and permission coverage.{% else %}Create a custom role with a focused permission set.{% endif %}
+    </p>
+  </div>
+  <a href="{% url 'dashboard:user_settings:role_list' prefix %}" class="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">
+    <span class="material-icons-outlined text-sm">arrow_back</span>
+    <span>Back to roles</span>
+  </a>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="lg:col-span-2">
+      <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-slate-700">
+          <h3 class="font-semibold text-slate-900 dark:text-white">Permissions</h3>
+          <div class="flex items-center gap-2">
+            <button type="button" id="select-all" class="text-xs text-primary hover:underline">Select All</button>
+            <span class="text-slate-400">&middot;</span>
+            <button type="button" id="deselect-all" class="text-xs text-slate-500 hover:underline">Deselect All</button>
+          </div>
+        </div>
+        <div class="space-y-6 p-5">
+          {% for category, perms in perms_by_category.items %}
+          <div>
+            <h4 class="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ category }}</h4>
+            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {% for perm in perms %}
+              <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-200 p-3 transition hover:border-primary hover:bg-primary/5 has-[:checked]:border-primary has-[:checked]:bg-primary/10 dark:border-slate-700">
+                <input
+                  type="checkbox"
+                  name="permissions"
+                  value="{{ perm.codename }}"
+                  class="mt-0.5 h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary"
+                  {% if perm.codename in selected_perms %}checked{% endif %}
+                >
+                <div>
+                  <div class="text-sm font-medium text-slate-800 dark:text-slate-200">{{ perm.name }}</div>
+                  <div class="font-mono text-xs text-slate-500 dark:text-slate-400">{{ perm.codename }}</div>
+                </div>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <div class="space-y-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <h3 class="font-semibold text-slate-900 dark:text-white">Role Details</h3>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Name *</label>
+          {{ form.name }}
+          {% if form.name.errors %}<p class="mt-1 text-xs text-red-500">{{ form.name.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Description</label>
+          {{ form.description }}
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Color</label>
+            {{ form.color }}
+          </div>
+          <div>
+            <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Sort Order</label>
+            {{ form.sort_order }}
+          </div>
+        </div>
+      </div>
+
+      {% if form.non_field_errors %}
+      <div class="rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-700 dark:bg-red-900/20">
+        {% for error in form.non_field_errors %}<p class="text-sm text-red-600">{{ error }}</p>{% endfor %}
+      </div>
+      {% endif %}
+
+      <button type="submit" class="w-full rounded-2xl bg-primary py-3 text-sm font-semibold text-white transition hover:bg-blue-600">
+        {% if is_edit %}Save Role{% else %}Create Role{% endif %}
+      </button>
+      <a href="{% url 'dashboard:user_settings:role_list' prefix %}" class="block w-full rounded-2xl border border-slate-300 py-3 text-center text-sm text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700">
+        Cancel
+      </a>
+
+      {% if is_edit and role.is_system %}
+      <p class="text-center text-xs text-slate-500 dark:text-slate-400">System roles cannot be deleted, but their permission view stays visible for review.</p>
+      {% endif %}
+    </div>
+  </div>
+</form>
+
+<script>
+  document.getElementById("select-all").addEventListener("click", () =>
+    document.querySelectorAll("input[type=checkbox][name=permissions]").forEach((cb) => (cb.checked = true))
+  );
+  document.getElementById("deselect-all").addEventListener("click", () =>
+    document.querySelectorAll("input[type=checkbox][name=permissions]").forEach((cb) => (cb.checked = false))
+  );
+</script>
+{% endblock %}
