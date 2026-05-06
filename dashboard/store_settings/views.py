@@ -771,7 +771,7 @@ def manage_product_page_settings(request, prefix):
         action_ur=request.path,
         is_creat=is_create,
         is_edi=is_edit,
-        prefix=prefix,
+        prefix                  =prefix,
     )
 
     # 5. Add helper data for UI

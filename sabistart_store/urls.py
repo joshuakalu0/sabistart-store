@@ -22,6 +22,7 @@ from django.views.static import serve
 from django.urls import re_path
 from dashboard.domain import views as domain_views
 from sabistart_store import health
+from sabistart_store.media_proxy import media_proxy
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -44,8 +45,17 @@ urlpatterns = [
     path('dashboard/', include('dashboard.urls')),
 ]
 
-# Serve media files during development
-if settings.DEBUG:
+using_vercel_blob_media = (
+    settings.STORAGES.get("default", {}).get("BACKEND")
+    == "sabistart_store.storage_backends.VercelBlobStorage"
+)
+
+if using_vercel_blob_media:
+    urlpatterns += [
+        re_path(r"^media/(?P<path>.*)$", media_proxy, name="media_proxy"),
+    ]
+elif settings.DEBUG:
+    # Serve media files during development
     urlpatterns += static(settings.MEDIA_URL,
                           document_root=settings.MEDIA_ROOT)
     # Add explicit media serving for tenant-aware storage

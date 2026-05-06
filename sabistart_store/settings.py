@@ -9,9 +9,15 @@ from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
 
+try:
+    import dj_database_url
+except Exception:  # pragma: no cover - optional dependency until installed
+    dj_database_url = None
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 THEMES_ROOT = BASE_DIR / "themes"
+IS_VERCEL = bool(os.getenv("VERCEL")) or bool(os.getenv("VERCEL_URL"))
 
 
 def env(name: str, default=None):
@@ -70,10 +76,21 @@ elif DEBUG:
 else:
     ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]"]
 
+for host in (env("VERCEL_URL", "").strip(), env("PUBLIC_VERCEL_URL", "").strip()):
+    if host and host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(host)
+if IS_VERCEL and ".vercel.app" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(".vercel.app")
+
 if not DEBUG and SECRET_KEY == DEFAULT_SECRET_KEY:
     raise ImproperlyConfigured("Set DJANGO_SECRET_KEY before running in production.")
 
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
+for host in (env("VERCEL_URL", "").strip(), env("PUBLIC_VERCEL_URL", "").strip()):
+    if host:
+        origin = f"https://{host}"
+        if origin not in CSRF_TRUSTED_ORIGINS:
+            CSRF_TRUSTED_ORIGINS.append(origin)
 
 
 SHARED_APPS = (
@@ -190,18 +207,31 @@ DATABASE_ROUTERS = (
     "django_tenants.routers.TenantSyncRouter",
 )
 
-DATABASES = {
-    "default": {
-        "ENGINE": env("DB_ENGINE", "django_tenants.postgresql_backend"),
-        "NAME": env("DB_NAME", "sabistore"),
-        "USER": env("DB_USER", "sabistore"),
-        "PASSWORD": env("DB_PASSWORD", "sabistore"),
-        "HOST": env("DB_HOST", "localhost"),
-        "PORT": env("DB_PORT", "5432"),
-        "CONN_MAX_AGE": env_int("DB_CONN_MAX_AGE", 60 if not DEBUG else 0),
-        "OPTIONS": {},
+database_url = env("DATABASE_URL") or env("POSTGRES_URL") or env("POSTGRES_PRISMA_URL")
+if database_url:
+    if dj_database_url is None:
+        raise ImproperlyConfigured("Install dj-database-url to use DATABASE_URL or POSTGRES_URL based configuration.")
+    DATABASES = {
+        "default": dj_database_url.parse(
+            database_url,
+            conn_max_age=env_int("DB_CONN_MAX_AGE", 60 if not DEBUG else 0),
+        )
     }
-}
+    DATABASES["default"]["ENGINE"] = "django_tenants.postgresql_backend"
+    DATABASES["default"].setdefault("OPTIONS", {})
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": env("DB_ENGINE", "django_tenants.postgresql_backend"),
+            "NAME": env("DB_NAME", "sabistore"),
+            "USER": env("DB_USER", "sabistore"),
+            "PASSWORD": env("DB_PASSWORD", "sabistore"),
+            "HOST": env("DB_HOST", "localhost"),
+            "PORT": env("DB_PORT", "5432"),
+            "CONN_MAX_AGE": env_int("DB_CONN_MAX_AGE", 60 if not DEBUG else 0),
+            "OPTIONS": {},
+        }
+    }
 
 db_ssl_mode = env("DB_SSLMODE", "")
 if db_ssl_mode:
@@ -239,12 +269,26 @@ MULTITENANT_RELATIVE_STATIC_ROOT = ""
 WHITENOISE_AUTOREFRESH = DEBUG
 WHITENOISE_USE_FINDERS = DEBUG
 
-MEDIA_ROOT = env_path("DJANGO_MEDIA_ROOT", BASE_DIR / "media")
+MEDIA_ROOT = env_path("DJANGO_MEDIA_ROOT", Path("/tmp/sabistart-media") if IS_VERCEL else BASE_DIR / "media")
 MEDIA_URL = env("DJANGO_MEDIA_URL", "/media/")
+
+default_storage_backend = env("DJANGO_DEFAULT_FILE_STORAGE", "")
+if not default_storage_backend:
+    if IS_VERCEL:
+        default_storage_backend = "sabistart_store.storage_backends.VercelBlobStorage"
+    else:
+        default_storage_backend = "django_tenants.files.storage.TenantFileSystemStorage"
+
+if (
+    IS_VERCEL
+    and default_storage_backend == "sabistart_store.storage_backends.VercelBlobStorage"
+    and not env("BLOB_READ_WRITE_TOKEN")
+):
+    raise ImproperlyConfigured("BLOB_READ_WRITE_TOKEN is required when using Vercel Blob storage on Vercel.")
 
 STORAGES = {
     "default": {
-        "BACKEND": "django_tenants.files.storage.TenantFileSystemStorage",
+        "BACKEND": default_storage_backend,
     },
     "staticfiles": {
         "BACKEND": "django_tenants.staticfiles.storage.TenantStaticFilesStorage",
@@ -260,7 +304,7 @@ SERVER_IP = env("SERVER_IP", "127.0.0.1")
 PLATFORM_CNAME = env("PLATFORM_CNAME", "localhost")
 SUBDOMAIN_SUFFIX = env("SUBDOMAIN_SUFFIX", "")
 DOMAIN_RESOLUTION_CACHE_TTL = env_int("DOMAIN_RESOLUTION_CACHE_TTL", 300)
-DOMAIN_SIMULATE_INFRA = DEBUG
+DOMAIN_SIMULATE_INFRA = env_bool("DOMAIN_SIMULATE_INFRA", default=DEBUG and not IS_VERCEL)
 
 USE_X_FORWARDED_HOST = env_bool("DJANGO_USE_X_FORWARDED_HOST", default=not DEBUG)
 USE_X_FORWARDED_PORT = env_bool("DJANGO_USE_X_FORWARDED_PORT", default=not DEBUG)
@@ -280,8 +324,26 @@ X_FRAME_OPTIONS = env("DJANGO_X_FRAME_OPTIONS", "SAMEORIGIN")
 DEFAULT_FROM_EMAIL = env("DJANGO_DEFAULT_FROM_EMAIL", "no-reply@localhost")
 SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", DEFAULT_FROM_EMAIL)
 
-LOG_DIR = env_path("DJANGO_LOG_DIR", BASE_DIR / "logs")
-LOG_DIR.mkdir(parents=True, exist_ok=True)
+log_to_file = env_bool("DJANGO_LOG_TO_FILE", default=not IS_VERCEL)
+LOG_DIR = env_path("DJANGO_LOG_DIR", Path("/tmp/logs") if IS_VERCEL else BASE_DIR / "logs")
+if log_to_file:
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+log_handlers = ["console"]
+handlers = {
+    "console": {
+        "class": "logging.StreamHandler",
+        "formatter": "standard",
+    },
+}
+if log_to_file:
+    handlers["file"] = {
+        "class": "logging.FileHandler",
+        "filename": str(LOG_DIR / "django.log"),
+        "formatter": "standard",
+    }
+    log_handlers.append("file")
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -290,19 +352,9 @@ LOGGING = {
             "format": "%(levelname)s %(asctime)s %(name)s %(message)s",
         },
     },
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "formatter": "standard",
-        },
-        "file": {
-            "class": "logging.FileHandler",
-            "filename": str(LOG_DIR / "django.log"),
-            "formatter": "standard",
-        },
-    },
+    "handlers": handlers,
     "root": {
-        "handlers": ["console", "file"],
+        "handlers": log_handlers,
         "level": env("DJANGO_LOG_LEVEL", "INFO"),
     },
 }
