@@ -2,6 +2,8 @@ import os
 import sys
 from pathlib import Path
 
+from sabistart_store.env import load_environment
+
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -23,6 +25,7 @@ for candidate in _candidate_python_paths(BASE_DIR):
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
+load_environment()
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "sabistart_store.settings")
 
 from sabistart_store.wsgi import application  # noqa: E402
