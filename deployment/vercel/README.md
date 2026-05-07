@@ -37,6 +37,18 @@ Use [`deployment/vercel/.env.vercel.example`](C:/Users/user/Desktop/build/backen
 - Uploaded media is stored in Vercel Blob and streamed back through Django's `/media/...` URLs.
 - [`vercel.json`](C:/Users/user/Desktop/build/backend/sabistart-store/vercel.json) keeps the framework override as `django` plus the custom build command.
 
+## PDF dependency note
+
+This repo uses `xhtml2pdf` for PDF exports in analytics and POS. On Vercel, `svglib 1.6.x` pulls in `rlpycairo -> pycairo`, which requires native Cairo build libraries that are not available in the standard Vercel Python build image.
+
+To keep Vercel deployments stable, [`requirements.txt`](C:/Users/user/Desktop/build/backend/sabistart-store/requirements.txt) pins:
+
+```txt
+svglib==1.5.1
+```
+
+That avoids the Cairo-native dependency chain while keeping `xhtml2pdf` available.
+
 ## Build command
 
 The root [`vercel.json`](C:/Users/user/Desktop/build/backend/sabistart-store/vercel.json) runs:
