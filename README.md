@@ -79,6 +79,12 @@ The app now auto-loads `.env` and `.env.local` through [env.py](C:/Users/user/De
 
 If you already have a Neon connection string, this is the field that should be active.
 
+`DATABASE_URL_UNPOOLED`
+- What it does: optional direct, non-pooled database URL used automatically for migration commands.
+- Effect on system: when you run `migrate`, `migrate_schemas`, `showmigrations`, or `sqlmigrate`, the app will prefer this URL over the pooled one.
+- Where to get it: from your database provider's direct connection string. On Neon, this is the endpoint without `-pooler` in the hostname.
+- Why it matters here: this project uses `django-tenants`, and Neon pooled connections can fail during schema-changing migration flows with errors like `cursor already closed`.
+
 `POSTGRES_URL`
 - What it does: alternative full database URL name.
 - Effect on system: used if `DATABASE_URL` is absent.

@@ -22,6 +22,8 @@ Before deploying, make sure Vercel has:
 - `DJANGO_ALLOWED_HOSTS`
 - `DJANGO_CSRF_TRUSTED_ORIGINS`
 
+Vercel's Python runtime is inferred automatically from [`api/index.py`](C:/Users/user/Desktop/build/backend/sabistart-store/api/index.py), so [`vercel.json`](C:/Users/user/Desktop/build/backend/sabistart-store/vercel.json) should not set a `runtime` string like `python3.12` inside the `functions` block. Keep only supported function settings there, such as `maxDuration`.
+
 Readiness check:
 
 ```bash
