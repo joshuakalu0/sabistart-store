@@ -31,11 +31,11 @@ Use [`deployment/vercel/.env.vercel.example`](C:/Users/user/Desktop/build/backen
 
 ## Runtime shape
 
-- Requests are routed into [`api/index.py`](C:/Users/user/Desktop/build/backend/sabistart-store/api/index.py).
-- Django serves dynamic pages from the Python function.
+- Vercel detects the repo as a Django project from `manage.py`.
+- Django is deployed through Vercel's zero-config Django support instead of a manually routed `/api` function.
 - Static files are collected at build time and served from the deployment filesystem.
 - Uploaded media is stored in Vercel Blob and streamed back through Django's `/media/...` URLs.
-- [`vercel.json`](C:/Users/user/Desktop/build/backend/sabistart-store/vercel.json) keeps per-function settings like `maxDuration`, but does not set a `runtime` field for Python. Vercel infers the official Python runtime from the `.py` entrypoint automatically.
+- [`vercel.json`](C:/Users/user/Desktop/build/backend/sabistart-store/vercel.json) keeps the framework override as `django` plus the custom build command.
 
 ## Build command
 

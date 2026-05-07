@@ -9,7 +9,6 @@ Start with the full guide here:
 Key files:
 
 - [`vercel.json`](C:/Users/user/Desktop/build/backend/sabistart-store/vercel.json)
-- [`api/index.py`](C:/Users/user/Desktop/build/backend/sabistart-store/api/index.py)
 - [`deployment/vercel/build.sh`](C:/Users/user/Desktop/build/backend/sabistart-store/deployment/vercel/build.sh)
 - [`deployment/vercel/.env.vercel.example`](C:/Users/user/Desktop/build/backend/sabistart-store/deployment/vercel/.env.vercel.example)
 - [`sabistart_store/storage_backends.py`](C:/Users/user/Desktop/build/backend/sabistart-store/sabistart_store/storage_backends.py)
@@ -22,7 +21,7 @@ Before deploying, make sure Vercel has:
 - `DJANGO_ALLOWED_HOSTS`
 - `DJANGO_CSRF_TRUSTED_ORIGINS`
 
-Vercel's Python runtime is inferred automatically from [`api/index.py`](C:/Users/user/Desktop/build/backend/sabistart-store/api/index.py), so [`vercel.json`](C:/Users/user/Desktop/build/backend/sabistart-store/vercel.json) should not set a `runtime` string like `python3.12` inside the `functions` block. Keep only supported function settings there, such as `maxDuration`.
+Vercel now supports Django with zero configuration, so this project should deploy as a Django app directly. [`vercel.json`](C:/Users/user/Desktop/build/backend/sabistart-store/vercel.json) only sets the framework to `django` and keeps the custom build command for checks, migrations, and `collectstatic`.
 
 Readiness check:
 

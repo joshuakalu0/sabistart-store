@@ -1,18 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "bash deployment/vercel/build.sh",
-  "functions": {
-    "api/index.py": {
-      "maxDuration": 60
-    }
-  },
-  "routes": [
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/api/index.py"
-    }
-  ]
+  "framework": "django",
+  "buildCommand": "bash deployment/vercel/build.sh"
 }
