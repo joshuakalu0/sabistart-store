@@ -23,9 +23,13 @@ Optional but useful:
 
 - `PUBLIC_VERCEL_URL`
 - `DJANGO_DEFAULT_FROM_EMAIL`
+- `DOMAIN_SIMULATE_INFRA=False`
 - `VERCEL_BLOB_ACCESS=private`
 - `VERCEL_BLOB_CACHE_MAX_AGE=31536000`
 - `VERCEL_RUN_MIGRATIONS=1`
+- `VERCEL_BOOTSTRAP_PUBLIC_DOMAIN=1`
+- `PUBLIC_TENANT_OWNER_EMAIL=admin@yourdomain.com`
+- `PUBLIC_TENANT_NAME=Public Platform`
 
 Use [`deployment/vercel/.env.vercel.example`](C:/Users/user/Desktop/build/backend/sabistart-store/deployment/vercel/.env.vercel.example) as the starting point.
 
@@ -61,7 +65,31 @@ That script:
 
 1. Runs `manage.py check_vercel_deployment --strict`
 2. Optionally runs schema migrations when `VERCEL_RUN_MIGRATIONS=1`
-3. Runs `collectstatic`
+3. Optionally creates/updates the public-schema domain for the Vercel hostname when `VERCEL_BOOTSTRAP_PUBLIC_DOMAIN=1`
+4. Runs `collectstatic`
+
+## Public domain bootstrap
+
+If you want Vercel deployments to register the deployed hostname against the public schema automatically, set:
+
+```bash
+VERCEL_BOOTSTRAP_PUBLIC_DOMAIN=1
+```
+
+The build script will run:
+
+```bash
+python manage.py sync_public_vercel_domain --create-public-tenant --make-primary
+```
+
+That command:
+
+- reads `PUBLIC_VERCEL_URL` first, then falls back to `VERCEL_URL`
+- creates the public `Shop` row if it does not exist yet
+- attaches the Vercel hostname to the public schema through the shared `Domain` table
+- can use `PUBLIC_TENANT_OWNER_EMAIL` and `PUBLIC_TENANT_NAME` when it has to create the public tenant row
+
+If the hostname is already attached to another tenant, the command will fail loudly instead of stealing it silently.
 
 ## Important note about migrations
 

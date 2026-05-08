@@ -92,7 +92,7 @@ def _discover_theme_static_dirs():
 
 DEFAULT_SECRET_KEY = "django-insecure-(g49vd#cf5e$0r748s)nd8trwnm7mu9rh@2mw-&a2&+)0d#t6^"
 SECRET_KEY = env("DJANGO_SECRET_KEY", DEFAULT_SECRET_KEY)
-DEBUG = env_bool("DJANGO_DEBUG", default=True)
+DEBUG = env_bool("DJANGO_DEBUG", default=not IS_VERCEL)
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS")
 if ALLOWED_HOSTS:
     ALLOWED_HOSTS = ALLOWED_HOSTS

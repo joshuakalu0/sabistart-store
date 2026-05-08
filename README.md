@@ -202,7 +202,6 @@ If you already have a Neon connection string, this is the field that should be a
 - Examples:
   - `sabistart.com`
   - `stores.example.com`
-
 `SUBDOMAIN_SUFFIX`
 - What it does: suffix used when generating tenant subdomains.
 - Effect on system: affects how account onboarding and subdomain URLs are formed.
@@ -340,6 +339,23 @@ If you already have a Neon connection string, this is the field that should be a
 - Typical values:
   - `0` for preview deployments
   - `1` only when you intentionally want Vercel builds to run DB migrations
+
+`VERCEL_BOOTSTRAP_PUBLIC_DOMAIN`
+- What it does: tells the Vercel build script to create or update the public-schema domain mapping for the deployed Vercel hostname.
+- Effect on system: useful when the platform/public side of the app should answer on the Vercel deployment domain automatically.
+- Typical values:
+  - `0` by default
+  - `1` when you want deployment-time public-domain bootstrap
+
+`PUBLIC_TENANT_OWNER_EMAIL`
+- What it does: email of the PlatformUser who should own the public `Shop` row if it has to be created.
+- Effect on system: only used when the public tenant row does not already exist.
+- Where to get it: one of your platform admin user email addresses.
+
+`PUBLIC_TENANT_NAME`
+- What it does: display name used if the public `Shop` row must be created automatically.
+- Effect on system: cosmetic/admin-facing label for the public tenant record.
+- Typical value: `Public Platform`
 
 ## What Is Not In Env Right Now
 
