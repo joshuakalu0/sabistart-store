@@ -7,6 +7,16 @@ This project can run on Vercel's Python runtime with PostgreSQL and Vercel Blob.
 1. A PostgreSQL database reachable from Vercel.
 2. A Vercel Blob store connected to the project.
 
+## PostgreSQL driver note
+
+This project uses [`psycopg[binary]`](C:/Users/user/Desktop/build/backend/sabistart-store/requirements.txt) on Vercel instead of `psycopg2-binary`.
+
+Why:
+
+- Django 5.2 supports psycopg 3 directly.
+- `django-tenants` detects psycopg 3 automatically and uses it when available.
+- Vercel's Python runtime was failing to import `psycopg2._psycopg`, so psycopg 3 is the safer deployment target here.
+
 ## Required environment variables
 
 At minimum, set these in Vercel Project Settings:

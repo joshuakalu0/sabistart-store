@@ -1,7 +1,11 @@
 from system.account.models import PlatformUser
-import psycopg2
 
-conn = psycopg2.connect(
+try:
+    import psycopg
+except ImportError:  # pragma: no cover - compatibility helper
+    import psycopg2 as psycopg
+
+conn = psycopg.connect(
     dbname='sabistore',
     user='sabistore',
     password='sabistore',
@@ -21,4 +25,3 @@ cursor.execute("GRANT ALL ON SCHEMA public TO public;")
 print("Database reset complete!")
 cursor.close()
 conn.close()
-
