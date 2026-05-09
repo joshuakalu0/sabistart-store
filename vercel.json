@@ -1,5 +1,20 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "django",
-  "buildCommand": "bash deployment/vercel/build.sh"
+  "framework": null,
+  "buildCommand": "bash deployment/vercel/build.sh",
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 60,
+      "includeFiles": "{public/**,dashboard/**,system/**,templates/**,themes/**,sabistart_store/**}"
+    }
+  },
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.py"
+    }
+  ]
 }

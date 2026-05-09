@@ -21,7 +21,7 @@ Before deploying, make sure Vercel has:
 - `DJANGO_ALLOWED_HOSTS`
 - `DJANGO_CSRF_TRUSTED_ORIGINS`
 
-Vercel now supports Django with zero configuration, so this project should deploy as a Django app directly. [`vercel.json`](C:/Users/user/Desktop/build/backend/sabistart-store/vercel.json) only sets the framework to `django` and keeps the custom build command for checks, migrations, and `collectstatic`.
+This project now uses an explicit Python function entrypoint at [`api/index.py`](C:/Users/user/Desktop/build/backend/sabistart-store/api/index.py) instead of relying on Vercel's Django auto-detection. That is intentional for this codebase because Django loads many apps from string names in `INSTALLED_APPS`, and the explicit function config in [`vercel.json`](C:/Users/user/Desktop/build/backend/sabistart-store/vercel.json) lets us force-include [`public`](C:/Users/user/Desktop/build/backend/sabistart-store/public), [`dashboard`](C:/Users/user/Desktop/build/backend/sabistart-store/dashboard), [`system`](C:/Users/user/Desktop/build/backend/sabistart-store/system), [`templates`](C:/Users/user/Desktop/build/backend/sabistart-store/templates), and [`themes`](C:/Users/user/Desktop/build/backend/sabistart-store/themes) in the deployment bundle.
 
 Readiness check:
 

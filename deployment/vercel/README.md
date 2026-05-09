@@ -35,11 +35,12 @@ Use [`deployment/vercel/.env.vercel.example`](C:/Users/user/Desktop/build/backen
 
 ## Runtime shape
 
-- Vercel detects the repo as a Django project from `manage.py`.
-- Django is deployed through Vercel's zero-config Django support instead of a manually routed `/api` function.
+- Vercel runs the app through the explicit Python function entrypoint at [`api/index.py`](C:/Users/user/Desktop/build/backend/sabistart-store/api/index.py).
+- [`vercel.json`](C:/Users/user/Desktop/build/backend/sabistart-store/vercel.json) rewrites incoming requests to that function after checking the filesystem first.
+- The function config force-includes the `public`, `dashboard`, `system`, `templates`, `themes`, and `sabistart_store` directories so Django's string-based `INSTALLED_APPS` loading works reliably in the deployment bundle.
 - Static files are collected at build time and served from the deployment filesystem.
 - Uploaded media is stored in Vercel Blob and streamed back through Django's `/media/...` URLs.
-- [`vercel.json`](C:/Users/user/Desktop/build/backend/sabistart-store/vercel.json) keeps the framework override as `django` plus the custom build command.
+- [`vercel.json`](C:/Users/user/Desktop/build/backend/sabistart-store/vercel.json) sets the framework to `null` so Vercel treats this as an explicitly configured Python app instead of zero-config Django.
 
 ## PDF dependency note
 
