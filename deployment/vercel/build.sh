@@ -5,14 +5,15 @@ export DJANGO_DEBUG="${DJANGO_DEBUG:-False}"
 export DOMAIN_SIMULATE_INFRA="${DOMAIN_SIMULATE_INFRA:-False}"
 export UV_LINK_MODE="${UV_LINK_MODE:-copy}"
 
-RUNTIME_PACKAGES_DIR="${RUNTIME_PACKAGES_DIR:-runtime_packages}"
+RUNTIME_PACKAGES_DIR="${RUNTIME_PACKAGES_DIR:-/tmp/sabistart_runtime_packages}"
+export SABISTART_RUNTIME_PACKAGES_DIR="$RUNTIME_PACKAGES_DIR"
 
 python --version
 python -c "import sys; print('python_executable=', sys.executable)"
 
 rm -rf "$RUNTIME_PACKAGES_DIR"
 python -m pip install --disable-pip-version-check --no-cache-dir --target "$RUNTIME_PACKAGES_DIR" -r requirements.txt
-export PYTHONPATH="$PWD/$RUNTIME_PACKAGES_DIR${PYTHONPATH:+:$PYTHONPATH}"
+export PYTHONPATH="$RUNTIME_PACKAGES_DIR${PYTHONPATH:+:$PYTHONPATH}"
 
 python -c "import psycopg; print('psycopg_version=', psycopg.__version__)"
 

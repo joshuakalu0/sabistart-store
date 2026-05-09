@@ -28,7 +28,7 @@ Vercel is also pinned to Python `3.12` through [`.python-version`](C:/Users/user
 
 This project now uses an explicit Python function entrypoint at [`api/index.py`](C:/Users/user/Desktop/build/backend/sabistart-store/api/index.py) instead of relying on Vercel's Django auto-detection. That is intentional for this codebase because Django loads many apps from string names in `INSTALLED_APPS`, and the explicit function config in [`vercel.json`](C:/Users/user/Desktop/build/backend/sabistart-store/vercel.json) lets us force-include [`public`](C:/Users/user/Desktop/build/backend/sabistart-store/public), [`dashboard`](C:/Users/user/Desktop/build/backend/sabistart-store/dashboard), [`system`](C:/Users/user/Desktop/build/backend/sabistart-store/system), [`templates`](C:/Users/user/Desktop/build/backend/sabistart-store/templates), and [`themes`](C:/Users/user/Desktop/build/backend/sabistart-store/themes) in the deployment bundle.
 
-The Vercel build script also vendors a runtime-compatible dependency set into [`runtime_packages`](C:/Users/user/Desktop/build/backend/sabistart-store/runtime_packages) using the actual Python interpreter running the build command. That is a deliberate workaround for the build/runtime Python mismatch visible in the Vercel logs.
+The Vercel build script also vendors a temporary, runtime-compatible dependency set into `/tmp/sabistart_runtime_packages` using the actual Python interpreter running the build command. That is a deliberate workaround for the build/runtime Python mismatch visible in the Vercel logs, and keeping it outside the repository tree avoids bloating the deployed function bundle.
 
 Readiness check:
 

@@ -59,14 +59,14 @@ Use [`deployment/vercel/.env.vercel.example`](C:/Users/user/Desktop/build/backen
 
 - Vercel runs the app through the explicit Python function entrypoint at [`api/index.py`](C:/Users/user/Desktop/build/backend/sabistart-store/api/index.py).
 - [`vercel.json`](C:/Users/user/Desktop/build/backend/sabistart-store/vercel.json) rewrites incoming requests to that function after checking the filesystem first.
-- The function config force-includes the `public`, `dashboard`, `system`, `templates`, `themes`, `sabistart_store`, and `runtime_packages` directories so Django's string-based `INSTALLED_APPS` loading and the vendored runtime dependency set work reliably in the deployment bundle.
+- The function config force-includes the `public`, `dashboard`, `system`, `templates`, `themes`, and `sabistart_store` directories so Django's string-based `INSTALLED_APPS` loading works reliably in the deployment bundle.
 - Static files are collected at build time and served from the deployment filesystem.
 - Uploaded media is stored in Vercel Blob and streamed back through Django's `/media/...` URLs.
 - [`vercel.json`](C:/Users/user/Desktop/build/backend/sabistart-store/vercel.json) sets the framework to `null` so Vercel treats this as an explicitly configured Python app instead of zero-config Django.
 
 ## Runtime package vendoring
 
-The build script installs dependencies a second time into [`runtime_packages`](C:/Users/user/Desktop/build/backend/sabistart-store/runtime_packages) using the actual `python` executable that runs the build command.
+The build script installs dependencies a second time into `/tmp/sabistart_runtime_packages` using the actual `python` executable that runs the build command.
 
 Why:
 
@@ -74,7 +74,7 @@ Why:
 - the build command itself was then running under Python `3.12`
 - binary PostgreSQL drivers were failing because of that mismatch
 
-The entrypoints prepend `runtime_packages` to `sys.path`, so the app imports the runtime-compatible package set first.
+The entrypoints prepend the temporary vendored path from `SABISTART_RUNTIME_PACKAGES_DIR` to `sys.path`, so build-time Django commands import the runtime-compatible package set first without bloating the deployed function bundle.
 
 ## PDF dependency note
 
