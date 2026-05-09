@@ -1,0 +1,3 @@
+"""
+Shared system apps package.
+"""

@@ -3,11 +3,16 @@
 import os
 import sys
 
-from sabistart_store.env import load_environment
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
+from sabistart_store.env import ensure_project_root_on_path, load_environment
 
 
 def main():
     """Run administrative tasks."""
+    ensure_project_root_on_path()
     load_environment()
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sabistart_store.settings')
     try:
