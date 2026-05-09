@@ -32,6 +32,7 @@ class Command(BaseCommand):
         checks.append(("vercel_config", Path(settings.BASE_DIR / "vercel.json").exists(), "vercel.json must exist at the app root."))
         checks.append(("api_entrypoint", Path(settings.BASE_DIR / "api" / "index.py").exists(), "api/index.py must exist for the Vercel Python runtime."))
         checks.append(("blob_storage", storage_backend == "sabistart_store.storage_backends.VercelBlobStorage", "Use sabistart_store.storage_backends.VercelBlobStorage for persistent media on Vercel."))
+        checks.append(("python_version_pin", Path(settings.BASE_DIR / ".python-version").exists(), ".python-version must be committed so Vercel uses the intended Python runtime."))
 
         for check_key, is_ok, message in checks:
             if is_ok:

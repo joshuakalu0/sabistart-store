@@ -16,7 +16,6 @@ env/
 ENV/
 virtualenv/
 virtual-env
-.python-version
 pip-wheel-metadata/
 
 # -----------------------------------------------------------------------------

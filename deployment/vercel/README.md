@@ -19,7 +19,7 @@ Why:
 
 ## Python version pin
 
-The repository includes [`.python-version`](C:/Users/user/Desktop/build/backend/sabistart-store/.python-version) pinned to `3.12`.
+The repository includes [`.python-version`](C:/Users/user/Desktop/build/backend/sabistart-store/.python-version) pinned to `3.12`, and that file must remain committed.
 
 Why:
 
