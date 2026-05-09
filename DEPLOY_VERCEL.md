@@ -30,6 +30,8 @@ This project now uses an explicit Python function entrypoint at [`api/index.py`]
 
 The Vercel build script also vendors a temporary, runtime-compatible dependency set into `/tmp/sabistart_runtime_packages` using the actual Python interpreter running the build command. That is a deliberate workaround for the build/runtime Python mismatch visible in the Vercel logs, and keeping it outside the repository tree avoids bloating the deployed function bundle.
 
+To make Django app imports stable on Vercel, the build script also copies the `public`, `dashboard`, and `system` packages into [`sabistart_store/_runtime_apps`](C:/Users/user/Desktop/build/backend/sabistart-store/sabistart_store/_runtime_apps) before bundling. The runtime prepends that directory to `sys.path`, which avoids the repeated Vercel-side `No module named 'public'` failure.
+
 Readiness check:
 
 ```bash

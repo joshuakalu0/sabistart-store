@@ -58,6 +58,7 @@ logs/
 tmp/
 celerybeat-schedule
 runtime_packages/
+sabistart_store/_runtime_apps/
 
 # -----------------------------------------------------------------------------
 # Environment files / secrets

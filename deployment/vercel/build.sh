@@ -7,9 +7,16 @@ export UV_LINK_MODE="${UV_LINK_MODE:-copy}"
 
 RUNTIME_PACKAGES_DIR="${RUNTIME_PACKAGES_DIR:-/tmp/sabistart_runtime_packages}"
 export SABISTART_RUNTIME_PACKAGES_DIR="$RUNTIME_PACKAGES_DIR"
+BUNDLED_APPS_DIR="${BUNDLED_APPS_DIR:-sabistart_store/_runtime_apps}"
 
 python --version
 python -c "import sys; print('python_executable=', sys.executable)"
+
+rm -rf "$BUNDLED_APPS_DIR"
+mkdir -p "$BUNDLED_APPS_DIR"
+cp -R public "$BUNDLED_APPS_DIR/public"
+cp -R dashboard "$BUNDLED_APPS_DIR/dashboard"
+cp -R system "$BUNDLED_APPS_DIR/system"
 
 rm -rf "$RUNTIME_PACKAGES_DIR"
 python -m pip install --disable-pip-version-check --no-cache-dir --target "$RUNTIME_PACKAGES_DIR" -r requirements.txt
