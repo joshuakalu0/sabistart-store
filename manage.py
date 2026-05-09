@@ -3,15 +3,13 @@
 import os
 import sys
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-if BASE_DIR not in sys.path:
-    sys.path.insert(0, BASE_DIR)
-
+from sabistart_store.bootstrap import bootstrap_paths
 from sabistart_store.env import ensure_project_root_on_path, load_environment
 
 
 def main():
     """Run administrative tasks."""
+    bootstrap_paths(os.path.dirname(os.path.abspath(__file__)))
     ensure_project_root_on_path()
     load_environment()
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sabistart_store.settings')

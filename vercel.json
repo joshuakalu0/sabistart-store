@@ -5,7 +5,7 @@
   "functions": {
     "api/index.py": {
       "maxDuration": 60,
-      "includeFiles": "{public/**,dashboard/**,system/**,templates/**,themes/**,sabistart_store/**}"
+      "includeFiles": "{public/**,dashboard/**,system/**,templates/**,themes/**,sabistart_store/**,runtime_packages/**}"
     }
   },
   "routes": [

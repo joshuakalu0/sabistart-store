@@ -3,9 +3,8 @@ import sys
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
-if str(BASE_DIR) not in sys.path:
-    sys.path.insert(0, str(BASE_DIR))
 
+from sabistart_store.bootstrap import bootstrap_paths
 from sabistart_store.env import ensure_project_root_on_path, load_environment
 
 
@@ -23,6 +22,7 @@ for candidate in _candidate_python_paths(BASE_DIR):
         os.environ.setdefault("PYTHONHOME", str(candidate.parent.parent))
         break
 
+bootstrap_paths(BASE_DIR)
 ensure_project_root_on_path()
 load_environment()
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "sabistart_store.settings")

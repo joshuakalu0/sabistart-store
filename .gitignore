@@ -57,6 +57,7 @@ media/
 logs/
 tmp/
 celerybeat-schedule
+runtime_packages/
 
 # -----------------------------------------------------------------------------
 # Environment files / secrets
