@@ -17,6 +17,18 @@ Why:
 - `django-tenants` detects psycopg 3 automatically and uses it when available.
 - Vercel's Python runtime was failing to import `psycopg2._psycopg`, so psycopg 3 is the safer deployment target here.
 
+## Python version pin
+
+The repository includes [`.python-version`](C:/Users/user/Desktop/build/backend/sabistart-store/.python-version) pinned to `3.12`.
+
+Why:
+
+- your Vercel logs showed dependency installation under Python `3.14.3`
+- but the runtime stack paths were executing under Python `3.12`
+- compiled PostgreSQL drivers are sensitive to that mismatch
+
+Keeping build and runtime on the same Python version avoids those binary import failures.
+
 ## Required environment variables
 
 At minimum, set these in Vercel Project Settings:
