@@ -27,6 +27,13 @@ class Command(BaseCommand):
         checks.append(("static_root", bool(settings.STATIC_ROOT), "STATIC_ROOT must be configured."))
         checks.append(("media_root", bool(settings.MEDIA_ROOT), "MEDIA_ROOT must be configured."))
         checks.append(("passenger_wsgi", Path(settings.BASE_DIR / "passenger_wsgi.py").exists(), "passenger_wsgi.py must exist at the app root."))
+        checks.append(("cpanel_manifest", Path(settings.BASE_DIR / ".cpanel.yml").exists(), ".cpanel.yml must exist at the app root."))
+        checks.append(("cpanel_env_template", Path(settings.BASE_DIR / "deployment" / "cpanel" / ".env.cpanel.example").exists(), "deployment/cpanel/.env.cpanel.example must exist."))
+        checks.append(("filesystem_storage", settings.STORAGES["default"]["BACKEND"] != "sabistart_store.storage_backends.VercelBlobStorage", "Do not use Vercel Blob storage on cPanel."))
+        checks.append(("ssl_redirect", settings.SECURE_SSL_REDIRECT, "DJANGO_SECURE_SSL_REDIRECT should be True in production."))
+        checks.append(("secure_session_cookie", settings.SESSION_COOKIE_SECURE, "DJANGO_SESSION_COOKIE_SECURE should be True in production."))
+        checks.append(("secure_csrf_cookie", settings.CSRF_COOKIE_SECURE, "DJANGO_CSRF_COOKIE_SECURE should be True in production."))
+        checks.append(("log_to_file", getattr(settings, "LOG_TO_FILE", False), "DJANGO_LOG_TO_FILE should be True on cPanel so logs survive process restarts."))
 
         for check_key, is_ok, message in checks:
             if is_ok:
@@ -35,6 +42,18 @@ class Command(BaseCommand):
                 formatted = f"[warn] {check_key}: {message}"
                 warnings.append(formatted)
                 self.stdout.write(self.style.WARNING(formatted))
+
+        tmp_roots = {"/tmp", "/private/tmp"}
+        static_root = str(settings.STATIC_ROOT)
+        media_root = str(settings.MEDIA_ROOT)
+        if any(static_root.startswith(root) for root in tmp_roots):
+            warning = "[warn] static_root_persistence: STATIC_ROOT points to a temporary directory. Use a persistent cPanel path."
+            warnings.append(warning)
+            self.stdout.write(self.style.WARNING(warning))
+        if any(media_root.startswith(root) for root in tmp_roots):
+            warning = "[warn] media_root_persistence: MEDIA_ROOT points to a temporary directory. Use a persistent cPanel path."
+            warnings.append(warning)
+            self.stdout.write(self.style.WARNING(warning))
 
         if getattr(settings, "DOMAIN_SIMULATE_INFRA", False):
             warnings.append("[warn] domain_simulation: DOMAIN_SIMULATE_INFRA is enabled. Disable it in production.")

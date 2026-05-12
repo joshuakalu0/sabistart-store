@@ -364,6 +364,7 @@ DEFAULT_FROM_EMAIL = env("DJANGO_DEFAULT_FROM_EMAIL", "no-reply@localhost")
 SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", DEFAULT_FROM_EMAIL)
 
 log_to_file = env_bool("DJANGO_LOG_TO_FILE", default=not IS_VERCEL)
+LOG_TO_FILE = log_to_file
 LOG_DIR = env_path("DJANGO_LOG_DIR", Path("/tmp/logs") if IS_VERCEL else BASE_DIR / "logs")
 if log_to_file:
     LOG_DIR.mkdir(parents=True, exist_ok=True)

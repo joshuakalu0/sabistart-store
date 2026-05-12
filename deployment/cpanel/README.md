@@ -1,93 +1,164 @@
-# cPanel Deployment Guide
+# cPanel Production Deployment Guide
 
-This project is now wired for **cPanel Python App + Passenger + PostgreSQL** deployment.
+This repository is prepared for **cPanel Python App + Passenger + PostgreSQL** deployment.
 
-## Important hosting requirement
+## Hosting requirements
 
-This codebase uses:
+Your cPanel plan must support:
 
-- `django-tenants`
-- PostgreSQL schemas
-
-So the hosting account must support:
-
-- Python applications in cPanel
+- Python applications
 - PostgreSQL
-- a database user that can create and use schemas in the target database
+- a database user allowed to create and use schemas
 
-It is **not** compatible with a MySQL-only shared hosting plan.
+This app will not work correctly on:
 
-## Files added for cPanel
+- MySQL-only hosting
+- shared plans without Python App support
+- PostgreSQL setups that block schema creation
 
-- [`passenger_wsgi.py`](/c:/Users/user/Desktop/build/backend/sabistart-store/passenger_wsgi.py)
-- [`.cpanel.yml`](/c:/Users/user/Desktop/build/backend/sabistart-store/.cpanel.yml)
-- [`deployment/cpanel/post_deploy.sh`](/c:/Users/user/Desktop/build/backend/sabistart-store/deployment/cpanel/post_deploy.sh)
-- [`deployment/cpanel/.env.cpanel.example`](/c:/Users/user/Desktop/build/backend/sabistart-store/deployment/cpanel/.env.cpanel.example)
+## Files you will use
 
-## cPanel setup flow
+- [passenger_wsgi.py](C:/Users/user/Desktop/build/backend/sabistart-store/passenger_wsgi.py)
+- [.cpanel.yml](C:/Users/user/Desktop/build/backend/sabistart-store/.cpanel.yml)
+- [deployment/cpanel/post_deploy.sh](C:/Users/user/Desktop/build/backend/sabistart-store/deployment/cpanel/post_deploy.sh)
+- [deployment/cpanel/.env.cpanel.example](C:/Users/user/Desktop/build/backend/sabistart-store/deployment/cpanel/.env.cpanel.example)
+- [deployment/cpanel/.htaccess.example](C:/Users/user/Desktop/build/backend/sabistart-store/deployment/cpanel/.htaccess.example)
 
-1. Create a PostgreSQL database and user in cPanel.
-2. Create a Python application in cPanel.
-3. Point the application root to this project directory.
-4. Set the startup file to `passenger_wsgi.py`.
-5. Use the Python version supported by your cPanel host.
-6. Add the environment variables from `.env.cpanel.example` in the cPanel Python App environment editor.
-7. Make sure `DJANGO_DEBUG=False`.
-8. Make sure `DJANGO_ALLOWED_HOSTS` and `DJANGO_CSRF_TRUSTED_ORIGINS` contain your real domains.
+## Recommended server layout
 
-## First deploy commands
+Keep the application code outside the public web root when possible.
 
-If you deploy manually over SSH:
+Example:
+
+- app root: `/home/username/sabistart-store`
+- static root: `/home/username/sabistart-store/staticfiles`
+- media root: `/home/username/sabistart-store/media`
+- log dir: `/home/username/sabistart-store/logs`
+
+## cPanel setup steps
+
+1. Create a PostgreSQL database in cPanel.
+2. Create a PostgreSQL user and assign it to that database.
+3. Make sure the user has enough privileges for schema-based migration work.
+4. Open **Application Manager** or **Setup Python App** in cPanel.
+5. Create the Python app and point the application root to this repository.
+6. Set the startup file to `passenger_wsgi.py`.
+7. Use the Python version supported by your host. Python `3.12` or newer is preferred.
+8. Add environment variables from [deployment/cpanel/.env.cpanel.example](C:/Users/user/Desktop/build/backend/sabistart-store/deployment/cpanel/.env.cpanel.example).
+9. Make sure `DJANGO_DEBUG=False`.
+10. Make sure `DOMAIN_SIMULATE_INFRA=False`.
+
+## Required environment values
+
+At minimum, set:
+
+- `DJANGO_SECRET_KEY`
+- `DJANGO_DEBUG=False`
+- `DJANGO_ALLOWED_HOSTS`
+- `DJANGO_CSRF_TRUSTED_ORIGINS`
+- `DB_ENGINE=django_tenants.postgresql_backend`
+- `DB_NAME`
+- `DB_USER`
+- `DB_PASSWORD`
+- `DB_HOST`
+- `DB_PORT`
+- `DJANGO_STATIC_ROOT`
+- `DJANGO_MEDIA_ROOT`
+- `DJANGO_LOG_DIR`
+- `PLATFORM_CNAME`
+
+## First deploy
+
+After the app is created and the env values are in place:
 
 ```bash
 cd ~/sabistart-store
 bash deployment/cpanel/post_deploy.sh
 ```
 
-If you deploy through cPanel Git Version Control, `.cpanel.yml` will call the same script automatically.
-
 ## What the deploy script does
 
-The deploy script will:
+The deploy script:
 
-1. install `requirements.txt`
-2. run `manage.py check`
-3. run `manage.py check_cpanel_deployment --strict`
-4. run shared migrations
-5. run tenant migrations
-6. run `sync_theme_catalog`
-7. run `collectstatic`
-8. touch `tmp/restart.txt`
+1. finds the correct Python executable for the cPanel app
+2. installs `requirements.txt`
+3. runs `manage.py check`
+4. runs `manage.py check_cpanel_deployment --strict`
+5. ensures static, media, log, and `tmp` directories exist
+6. runs shared migrations
+7. runs tenant migrations
+8. runs `sync_theme_catalog`
+9. runs `collectstatic`
+10. touches `tmp/restart.txt`
+
+## Validation commands
+
+Run these before go-live:
+
+```bash
+python manage.py check
+python manage.py check_cpanel_deployment --strict
+```
+
+## Static files
+
+Use persistent filesystem paths.
+
+Example:
+
+```env
+DJANGO_STATIC_ROOT=/home/username/sabistart-store/staticfiles
+DJANGO_MEDIA_ROOT=/home/username/sabistart-store/media
+DJANGO_LOG_DIR=/home/username/sabistart-store/logs
+```
+
+Do not use:
+
+- `/tmp`
+- short-lived cache folders
+- directories your Passenger user cannot write to
+
+## Optional Apache rules
+
+If your hosting layout needs Apache-side hardening or caching, start from:
+
+- [deployment/cpanel/.htaccess.example](C:/Users/user/Desktop/build/backend/sabistart-store/deployment/cpanel/.htaccess.example)
+
+That file includes:
+
+- HTTPS redirect
+- basic security headers
+- protection for sensitive files
+- static cache examples
+
+## Domain and tenant routing
+
+This project keeps tenant routing inside Django.
+
+That means:
+
+- the domain must point to the Python app correctly
+- subdomain routing must reach Passenger
+- `PLATFORM_CNAME` and `SUBDOMAIN_SUFFIX` must match your real domain strategy
+
+Example:
+
+```env
+PLATFORM_CNAME=example.com
+SUBDOMAIN_SUFFIX=.example.com
+```
 
 ## Health checks
 
-Two routes are available after deploy:
+After deploy, test:
 
 - `/healthz/`
 - `/readyz/`
 
-`/readyz/` checks the database connection and returns `503` if the app is not ready.
+`/readyz/` returns `503` if the database is not ready.
 
-## Production checklist
+## Important notes
 
-- `DJANGO_SECRET_KEY` is set to a real secret
-- `DJANGO_DEBUG=False`
-- `DJANGO_ALLOWED_HOSTS` is not `*`
-- `DJANGO_CSRF_TRUSTED_ORIGINS` uses `https://...`
-- PostgreSQL credentials are correct
-- the database user can create/use schemas
-- static root and media root point to writable folders
-- SSL is enabled for the domain
-
-## Validation command
-
-Run this before go-live:
-
-```bash
-python manage.py check_cpanel_deployment --strict
-```
-
-## Notes
-
-- Static files can be served through Apache/cPanel, but WhiteNoise middleware is also enabled so the app still has a safe fallback.
-- This project keeps tenant/public routing in Django, so domain mapping must point to the Python app correctly.
+- WhiteNoise is enabled, so the app still has a safe static fallback.
+- The default cPanel path uses filesystem media storage, not Vercel Blob storage.
+- If you still see schema-related migration errors, verify that the PostgreSQL user can create and use schemas.

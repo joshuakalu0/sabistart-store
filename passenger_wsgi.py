@@ -3,6 +3,8 @@ import sys
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
 
 from sabistart_store.bootstrap import bootstrap_paths
 from sabistart_store.env import ensure_project_root_on_path, load_environment
@@ -10,8 +12,13 @@ from sabistart_store.env import ensure_project_root_on_path, load_environment
 
 def _candidate_python_paths(base_dir: Path):
     return [
+        base_dir / "venv" / "Scripts" / "python.exe",
+        base_dir / ".venv" / "Scripts" / "python.exe",
         base_dir / "venv" / "bin" / "python",
         base_dir / ".venv" / "bin" / "python",
+        Path.home() / "virtualenv" / base_dir.name / "3.14" / "bin" / "python",
+        Path.home() / "virtualenv" / base_dir.name / "3.13" / "bin" / "python",
+        Path.home() / "virtualenv" / base_dir.name / "3.12" / "bin" / "python",
         Path.home() / "virtualenv" / base_dir.name / "3.11" / "bin" / "python",
         Path.home() / "virtualenv" / base_dir.name / "3.10" / "bin" / "python",
     ]
