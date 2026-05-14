@@ -9,6 +9,7 @@ urlpatterns = [
     path('channels/', channels.channel_list, name='notification_channel_list'),
     path('channels/create/', channels.channel_create, name='notification_channel_create'),
     path('channels/<uuid:pk>/', channels.channel_detail, name='notification_channel_detail'),
+    path('channels/<uuid:pk>/test-email/', channels.channel_test_email, name='notification_channel_test_email'),
     path('channels/<uuid:pk>/edit/', channels.channel_update, name='notification_channel_update'),
     path('channels/<uuid:pk>/delete/', channels.channel_delete, name='notification_channel_delete'),
     

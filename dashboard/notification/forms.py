@@ -92,6 +92,26 @@ class SlackChannelConfigForm(forms.ModelForm):
         }
 
 
+class EmailChannelSmokeTestForm(forms.Form):
+    recipient_email = forms.EmailField(
+        label=_("Recipient Email"),
+        help_text=_("A real inbox to receive the SMTP test message."),
+    )
+    subject = forms.CharField(
+        label=_("Subject"),
+        max_length=255,
+        initial=_("SMTP connection test"),
+    )
+    message = forms.CharField(
+        label=_("Message"),
+        widget=forms.Textarea(attrs={"rows": 6}),
+        initial=_(
+            "This is a live SMTP test sent from your Sabistart notification channel. "
+            "If you received this email, the current SMTP settings are working."
+        ),
+    )
+
+
 class NotificationCategoryForm(forms.ModelForm):
     class Meta:
         model = NotificationCategory

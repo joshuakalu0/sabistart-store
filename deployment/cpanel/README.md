@@ -15,6 +15,7 @@ This app will not work correctly on:
 - MySQL-only hosting
 - shared plans without Python App support
 - PostgreSQL setups that block schema creation
+- hosts that block outbound connections to your external PostgreSQL provider
 
 ## Files you will use
 
@@ -76,20 +77,30 @@ cd ~/sabistart-store
 bash deployment/cpanel/post_deploy.sh
 ```
 
+If a deployment tool insists on executing deployment through Python instead of Bash, use:
+
+```bash
+python deployment/cpanel/post_deploy.py
+```
+
 ## What the deploy script does
 
 The deploy script:
 
 1. finds the correct Python executable for the cPanel app
-2. installs `requirements.txt`
-3. runs `manage.py check`
-4. runs `manage.py check_cpanel_deployment --strict`
-5. ensures static, media, log, and `tmp` directories exist
-6. runs shared migrations
-7. runs tenant migrations
-8. runs `sync_theme_catalog`
-9. runs `collectstatic`
-10. touches `tmp/restart.txt`
+2. calls `deployment/cpanel/post_deploy.py`
+
+The Python deploy script then:
+
+1. installs `requirements.txt`
+2. runs `manage.py check`
+3. runs `manage.py check_cpanel_deployment --strict`
+4. ensures static, media, log, and `tmp` directories exist
+5. runs shared migrations
+6. runs tenant migrations
+7. runs `sync_theme_catalog`
+8. runs `collectstatic`
+9. touches `tmp/restart.txt`
 
 ## Validation commands
 
@@ -162,3 +173,4 @@ After deploy, test:
 - WhiteNoise is enabled, so the app still has a safe static fallback.
 - The default cPanel path uses filesystem media storage, not Vercel Blob storage.
 - If you still see schema-related migration errors, verify that the PostgreSQL user can create and use schemas.
+- If you use an external PostgreSQL provider such as Neon instead of local cPanel PostgreSQL, the cPanel host must allow outbound access to that provider on the required port. If the host cannot reach the external database, deployment and runtime will both fail.

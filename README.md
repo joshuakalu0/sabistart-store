@@ -58,6 +58,12 @@ bash deployment/cpanel/post_deploy.sh
 
 7. Restart the Passenger app if cPanel does not do it automatically.
 
+If a host-side tool or script runner executes deployment with Python instead of Bash, use:
+
+```bash
+python deployment/cpanel/post_deploy.py
+```
+
 Full instructions:
 
 - [deployment/cpanel/README.md](C:/Users/user/Desktop/build/backend/sabistart-store/deployment/cpanel/README.md)

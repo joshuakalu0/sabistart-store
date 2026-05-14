@@ -11,8 +11,9 @@ from ..models import (
 )
 from ..forms import (
     NotificationChannelForm, EmailChannelConfigForm, SMSChannelConfigForm,
-    PushChannelConfigForm, SlackChannelConfigForm
+    PushChannelConfigForm, SlackChannelConfigForm, EmailChannelSmokeTestForm
 )
+from ..utiles.email_testing import send_smtp_smoke_test
 
 @login_required
 @dashboard_prefix_required
@@ -171,3 +172,58 @@ def channel_delete(request, prefix, pk):
         'prefix': prefix,
     }
     return render(request, 'dashboard/notification/channel/delete.html', context)
+
+
+@login_required
+@dashboard_prefix_required
+def channel_test_email(request, prefix, pk):
+    """Run a real SMTP smoke test against the saved email channel configuration."""
+    channel = get_object_or_404(NotificationChannel, pk=pk)
+
+    if channel.channel_type != ChannelType.EMAIL:
+        messages.error(request, "SMTP testing is only available for email channels.")
+        return redirect('notification_channel_detail', prefix=prefix, pk=channel.pk)
+
+    config = getattr(channel, 'email_config', None)
+    if not config:
+        messages.error(request, "This email channel has no provider configuration yet. Configure it first.")
+        return redirect('notification_channel_update', prefix=prefix, pk=channel.pk)
+
+    initial = {
+        "recipient_email": config.test_email or getattr(request.user, "email", ""),
+        "subject": f"SMTP test for {channel.name}",
+        "message": (
+            f"This is a live SMTP test for the '{channel.name}' notification channel.\n\n"
+            "If this message lands in your inbox, the current SMTP settings are working."
+        ),
+    }
+
+    test_result = None
+    if request.method == 'POST':
+        form = EmailChannelSmokeTestForm(request.POST)
+        if form.is_valid():
+            test_result = send_smtp_smoke_test(
+                config=config,
+                recipient_email=form.cleaned_data["recipient_email"],
+                subject=form.cleaned_data["subject"],
+                message=form.cleaned_data["message"],
+            )
+            if test_result.success:
+                messages.success(
+                    request,
+                    f"Test email accepted for delivery to {test_result.recipient} in {test_result.latency_ms}ms.",
+                )
+            else:
+                messages.error(request, test_result.diagnostic or "The SMTP test failed.")
+    else:
+        form = EmailChannelSmokeTestForm(initial=initial)
+
+    context = {
+        'channel': channel,
+        'config': config,
+        'form': form,
+        'test_result': test_result,
+        'page_title': f'SMTP Test: {channel.name}',
+        'prefix': prefix,
+    }
+    return render(request, 'dashboard/notification/channel/test_email.html', context)
