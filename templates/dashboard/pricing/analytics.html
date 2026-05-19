@@ -1,0 +1,300 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+  <div class="space-y-6">
+    <section class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+      <div class="bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.18),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(249,115,22,0.16),_transparent_30%)] p-8">
+        <div class="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.32em] text-sky-700">Pricing Intelligence</p>
+            <h1 class="mt-3 text-3xl font-extrabold text-slate-950">Discount performance, flash pressure, and revenue tradeoffs</h1>
+            <p class="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
+              This view is wired to live discount usage, order discounts, and flash-sale consumption so the numbers here follow the same lifecycle as checkout.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <a href="{{ analytics_json_url }}" class="inline-flex items-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-950">
+              JSON
+            </a>
+            <a href="{{ analytics_csv_url }}?start={{ analytics_bundle.filters.start }}&end={{ analytics_bundle.filters.end }}" class="inline-flex items-center rounded-full bg-slate-950 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-slate-950/10 hover:bg-slate-800">
+              Export CSV
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm">
+      <form method="get" class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <label class="block">
+            <span class="mb-2 block text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Start</span>
+            <input type="date" name="start" value="{{ analytics_bundle.filters.start }}" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100">
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">End</span>
+            <input type="date" name="end" value="{{ analytics_bundle.filters.end }}" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100">
+          </label>
+          <div class="flex items-end">
+            <button type="submit" class="inline-flex w-full items-center justify-center rounded-2xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-600/20 hover:bg-sky-700">
+              Refresh pricing analytics
+            </button>
+          </div>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+          Window: <span class="font-semibold text-slate-900">{{ analytics_bundle.filters.label }}</span>
+        </div>
+      </form>
+    </section>
+
+    <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {% for kpi in analytics_bundle.kpis %}
+        <article class="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
+          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">{{ kpi.label }}</p>
+          <p class="mt-3 text-3xl font-extrabold text-slate-950" data-kpi-format="{{ kpi.format }}" data-kpi-value="{{ kpi.value }}"></p>
+          <p class="mt-3 text-sm leading-6 text-slate-500">{{ kpi.helper }}</p>
+        </article>
+      {% endfor %}
+    </section>
+
+    <section class="grid gap-6 xl:grid-cols-2">
+      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-bold text-slate-950">{{ analytics_bundle.charts.usage_trend.title }}</h2>
+            <p class="mt-1 text-sm text-slate-500">Redemptions and value over the selected range.</p>
+          </div>
+        </div>
+        <div class="mt-5 h-80">
+          <canvas id="usageTrendChart"></canvas>
+        </div>
+      </article>
+
+      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <div>
+          <h2 class="text-lg font-bold text-slate-950">{{ analytics_bundle.charts.top_codes.title }}</h2>
+          <p class="mt-1 text-sm text-slate-500">Highest-value codes by unreversed discount amount.</p>
+        </div>
+        <div class="mt-5 h-80">
+          <canvas id="topCodesChart"></canvas>
+        </div>
+      </article>
+    </section>
+
+    <section class="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
+      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-bold text-slate-950">{{ analytics_bundle.charts.top_products.title }}</h2>
+            <p class="mt-1 text-sm text-slate-500">Products absorbing the largest share of discount value.</p>
+          </div>
+        </div>
+        <div class="mt-5 h-80">
+          <canvas id="topProductsChart"></canvas>
+        </div>
+      </article>
+
+      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 class="text-lg font-bold text-slate-950">Fraud Signals</h2>
+        <p class="mt-1 text-sm text-slate-500">Live heuristics based on repeated IP and alias patterns.</p>
+
+        <div class="mt-5 space-y-4">
+          <div>
+            <h3 class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">IP Velocity</h3>
+            <div class="mt-3 space-y-3">
+              {% for row in analytics_bundle.fraud_signals.ip_velocity %}
+                <div class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
+                  <div class="flex items-center justify-between gap-3">
+                    <span class="font-semibold text-slate-900">{{ row.discount_code__code }}</span>
+                    <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">{{ row.uses }} uses</span>
+                  </div>
+                  <p class="mt-2 text-sm text-slate-600">{{ row.ip_address }}</p>
+                </div>
+              {% empty %}
+                <p class="text-sm text-slate-500">No IP spikes crossed the current threshold.</p>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Email Alias Clusters</h3>
+            <div class="mt-3 space-y-3">
+              {% for row in analytics_bundle.fraud_signals.plus_aliases %}
+                <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3">
+                  <div class="flex items-center justify-between gap-3">
+                    <span class="font-semibold text-slate-900">{{ row.discount_code__code }}</span>
+                    <span class="rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700">{{ row.uses }} aliases</span>
+                  </div>
+                  <p class="mt-2 text-sm text-slate-600">{{ row.normalized_email }}</p>
+                </div>
+              {% empty %}
+                <p class="text-sm text-slate-500">No repeated plus-alias clusters crossed the current threshold.</p>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="grid gap-6 xl:grid-cols-2">
+      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-bold text-slate-950">Top Codes</h2>
+            <p class="mt-1 text-sm text-slate-500">Best-performing codes in the current window.</p>
+          </div>
+        </div>
+        <div class="mt-5 overflow-hidden rounded-[1.25rem] border border-slate-200">
+          <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-slate-50">
+              <tr>
+                <th class="px-4 py-3 text-left font-semibold text-slate-500">Code</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-500">Uses</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-500">Discount</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-500">AOV</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 bg-white">
+              {% for row in analytics_bundle.tables.codes %}
+                <tr>
+                  <td class="px-4 py-3 font-semibold text-slate-900">{{ row.code }}</td>
+                  <td class="px-4 py-3 text-slate-600">{{ row.uses }}</td>
+                  <td class="px-4 py-3 text-slate-600" data-money="{{ row.total_discount }}"></td>
+                  <td class="px-4 py-3 text-slate-600" data-money="{{ row.avg_order_value }}"></td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="4" class="px-4 py-8 text-center text-slate-500">No code redemptions yet for this range.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-bold text-slate-950">Automatic Discounts</h2>
+            <p class="mt-1 text-sm text-slate-500">Current-model automatic discount impact.</p>
+          </div>
+        </div>
+        <div class="mt-5 overflow-hidden rounded-[1.25rem] border border-slate-200">
+          <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-slate-50">
+              <tr>
+                <th class="px-4 py-3 text-left font-semibold text-slate-500">Title</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-500">Orders</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-500">Discount</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 bg-white">
+              {% for row in analytics_bundle.tables.automatic %}
+                <tr>
+                  <td class="px-4 py-3 font-semibold text-slate-900">{{ row.title }}</td>
+                  <td class="px-4 py-3 text-slate-600">{{ row.orders_in_period }}</td>
+                  <td class="px-4 py-3 text-slate-600" data-money="{{ row.total_discount_in_period }}"></td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="3" class="px-4 py-8 text-center text-slate-500">No automatic discount activity yet for this range.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <section class="grid gap-6 xl:grid-cols-2">
+      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 class="text-lg font-bold text-slate-950">Flash Sale Pressure</h2>
+        <p class="mt-1 text-sm text-slate-500">Sell-through and revenue estimates from flash-sale items.</p>
+        <div class="mt-5 space-y-3">
+          {% for row in analytics_bundle.tables.flash_sales %}
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <p class="font-semibold text-slate-900">{{ row.name }}</p>
+                  <p class="mt-1 text-sm text-slate-500">{{ row.units_sold_at_flash_price }} units at flash price</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm font-semibold text-slate-700" data-money="{{ row.total_revenue_est }}"></p>
+                  <p class="mt-1 text-xs text-slate-500">{{ row.sell_through_pct|default:"—" }}% sell-through</p>
+                </div>
+              </div>
+            </div>
+          {% empty %}
+            <p class="text-sm text-slate-500">No flash-sale activity in this range yet.</p>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 class="text-lg font-bold text-slate-950">Pricing Health</h2>
+        <p class="mt-1 text-sm text-slate-500">Configuration issues that can break pricing behavior or make analytics noisy.</p>
+        <div class="mt-5 space-y-3">
+          {% for check in analytics_bundle.health_checks %}
+            <div class="rounded-2xl border px-4 py-4 {% if check.status == 'ok' %}border-emerald-200 bg-emerald-50{% elif check.status == 'warning' %}border-amber-200 bg-amber-50{% else %}border-rose-200 bg-rose-50{% endif %}">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <p class="font-semibold text-slate-900">{{ check.check|title }}</p>
+                  <p class="mt-1 text-sm text-slate-600">{{ check.message }}</p>
+                </div>
+                <span class="rounded-full px-3 py-1 text-xs font-semibold {% if check.status == 'ok' %}bg-emerald-100 text-emerald-800{% elif check.status == 'warning' %}bg-amber-100 text-amber-800{% else %}bg-rose-100 text-rose-700{% endif %}">
+                  {{ check.status|upper }}
+                </span>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </article>
+    </section>
+  </div>
+
+  {{ analytics_bundle|json_script:"pricing-analytics-bundle" }}
+{% endblock %}
+
+{% block js %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    (() => {
+      const payload = JSON.parse(document.getElementById("pricing-analytics-bundle").textContent);
+      const money = (value) => new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(Number(value || 0));
+
+      document.querySelectorAll("[data-kpi-format]").forEach((node) => {
+        const value = node.dataset.kpiValue;
+        const format = node.dataset.kpiFormat;
+        if (format === "currency") {
+          node.textContent = money(value);
+        } else {
+          node.textContent = new Intl.NumberFormat().format(Number(value || 0));
+        }
+      });
+
+      document.querySelectorAll("[data-money]").forEach((node) => {
+        node.textContent = money(node.dataset.money);
+      });
+
+      const charts = [
+        { id: "usageTrendChart", config: payload.charts.usage_trend, type: "line" },
+        { id: "topCodesChart", config: payload.charts.top_codes, type: "bar" },
+        { id: "topProductsChart", config: payload.charts.top_products, type: "bar" },
+      ];
+
+      charts.forEach((item) => {
+        const canvas = document.getElementById(item.id);
+        if (!canvas) return;
+        new Chart(canvas, {
+          type: item.type,
+          data: {
+            labels: item.config.labels,
+            datasets: item.config.datasets,
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: "bottom" },
+            },
+          },
+        });
+      });
+    })();
+  </script>
+{% endblock %}

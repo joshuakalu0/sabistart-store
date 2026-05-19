@@ -1,10 +1,13 @@
 """dashboard/pricing/views/promotions.py — BuyXGetY, VolumePricingTier, FlashSale views."""
 import logging
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
 from django.db import transaction
+from django.db.models import Q
+from django.core.paginator import Paginator
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 
@@ -31,6 +34,74 @@ def _ctx(prefix, page_title, active_menu="pricing_promotions", **extra):
     return base
 
 
+def _paginate(request, items, per_page=20):
+    paginator = Paginator(items, per_page)
+    return paginator.get_page(request.GET.get("page"))
+
+
+def _decorate_bxgy(promotion):
+    promotion.bxgy = promotion
+    promotion.name = promotion.title
+    promotion.discount_percent = promotion.get_discount_percentage
+    promotion.item_count = promotion.items.count()
+    return promotion
+
+
+def _decorate_bxgy_item(item):
+    item.is_buy_item = item.side == item.Side.BUY
+    item.is_get_item = item.side == item.Side.GET
+    item.display_product = item.product or getattr(item.variant, "product", None)
+    if item.display_product and item.product is None:
+        item.product = item.display_product
+    item.display_variant = item.variant
+    item.bxgy = item.promotion
+    return item
+
+
+def _decorate_volume_tier(tier):
+    tier.product = tier.variant.product
+    tier.name = f"{tier.variant.product.name} • {tier.variant.variant_name or tier.variant.sku or 'Volume Tier'}"
+    tier.quantity = tier.min_quantity
+    if tier.price_type == "percentage":
+        tier.discount_type = "percentage"
+        tier.discount_value = tier.discount_percentage
+    elif tier.price_type == "fixed_discount":
+        tier.discount_type = "fixed_discount"
+        tier.discount_value = tier.fixed_discount
+    else:
+        tier.discount_type = "fixed"
+        tier.discount_value = tier.price
+    return tier
+
+
+def _decorate_flash_sale(sale):
+    now = timezone.now()
+    sale.item_count = sale.items.count()
+    if sale.ends_at and sale.ends_at <= now:
+        sale.dashboard_status = "ended"
+    elif sale.starts_at and sale.starts_at > now:
+        sale.dashboard_status = "upcoming"
+    elif sale.is_active:
+        sale.dashboard_status = "live"
+    else:
+        sale.dashboard_status = "inactive"
+    return sale
+
+
+def _decorate_flash_sale_item(item):
+    item.display_product = item.product or getattr(item.variant, "product", None)
+    if item.display_product and item.product is None:
+        item.product = item.display_product
+    item.quantity_limit = item.stock_limit
+    if item.sale_price is not None:
+        item.flash_price = item.sale_price
+    elif item.discount_percentage is not None:
+        item.flash_price = f"{item.discount_percentage:.0f}% off"
+    else:
+        item.flash_price = "Uses sale default"
+    return item
+
+
 # ─────────────────────────────────────────────────────────────
 # BUY X GET Y PROMOTION
 # ─────────────────────────────────────────────────────────────
@@ -47,7 +118,9 @@ def bxgy_list(request, prefix):
         qs = qs.filter(is_active=True)
     elif status == "inactive":
         qs = qs.filter(is_active=False)
-    ctx = _ctx(prefix, "Buy X Get Y Promotions", promotions=qs, q=q, status=status,
+    campaigns = [_decorate_bxgy(obj) for obj in qs.order_by("-starts_at", "-created_at")]
+    page_obj = _paginate(request, campaigns, per_page=20)
+    ctx = _ctx(prefix, "Buy X Get Y Promotions", promotions=page_obj, campaigns=page_obj, q=q, status=status,
                create_url=reverse("dashboard:pricing:bxgy_create", kwargs={"prefix": prefix}))
     return render(request, "dashboard/pricing/bxgy/list.html", ctx)
 
@@ -56,8 +129,9 @@ def bxgy_list(request, prefix):
 @dashboard_prefix_required
 def bxgy_detail(request, prefix, pk):
     obj = get_object_or_404(BuyXGetYPromotion, pk=pk)
-    items = obj.eligible_items.select_related("product", "variant", "category").all()
-    ctx = _ctx(prefix, f"BXGY — {obj.title}", promotion=obj, items=items,
+    items = [_decorate_bxgy_item(item) for item in obj.items.select_related("product", "variant__product", "category").all()]
+    promotion = _decorate_bxgy(obj)
+    ctx = _ctx(prefix, f"BXGY — {obj.title}", promotion=promotion, bxgy=promotion, items=items,
                edit_url=reverse("dashboard:pricing:bxgy_edit", kwargs={"prefix": prefix, "pk": pk}),
                items_url=reverse("dashboard:pricing:bxgy_item_list", kwargs={"prefix": prefix, "promotion_pk": pk}))
     return render(request, "dashboard/pricing/bxgy/detail.html", ctx)
@@ -130,8 +204,22 @@ def bxgy_delete(request, prefix, pk):
 @dashboard_prefix_required
 def bxgy_item_list(request, prefix, promotion_pk):
     promo = get_object_or_404(BuyXGetYPromotion, pk=promotion_pk)
-    items = promo.eligible_items.select_related("product", "variant", "category").all()
-    ctx = _ctx(prefix, f"Items — {promo.title}", promotion=promo, items=items,
+    q = request.GET.get("q", "").strip()
+    role = request.GET.get("role", "").strip()
+    qs = promo.items.select_related("product", "variant__product", "category").all()
+    if q:
+        qs = qs.filter(
+            Q(product__name__icontains=q)
+            | Q(variant__variant_name__icontains=q)
+            | Q(variant__sku__icontains=q)
+            | Q(category__name__icontains=q)
+        )
+    if role in {BuyXGetYItem.Side.BUY, BuyXGetYItem.Side.GET}:
+        qs = qs.filter(side=role)
+    items = [_decorate_bxgy_item(item) for item in qs.order_by("side", "created_at")]
+    page_obj = _paginate(request, items, per_page=20)
+    promotion = _decorate_bxgy(promo)
+    ctx = _ctx(prefix, f"Items — {promo.title}", promotion=promotion, bxgy=promotion, items=page_obj, q=q, role=role,
                create_url=reverse("dashboard:pricing:bxgy_item_create", kwargs={"prefix": prefix, "promotion_pk": promotion_pk}),
                detail_url=reverse("dashboard:pricing:bxgy_detail", kwargs={"prefix": prefix, "pk": promotion_pk}))
     return render(request, "dashboard/pricing/bxgy_item/list.html", ctx)
@@ -203,9 +291,24 @@ def bxgy_item_delete(request, prefix, promotion_pk, pk):
 @login_required
 @dashboard_prefix_required
 def volume_tier_list(request, prefix):
-    qs = VolumePricingTier.objects.select_related("variant", "customer_group").filter(is_active=True)
+    q = request.GET.get("q", "").strip()
+    status = request.GET.get("status", "")
+    qs = VolumePricingTier.objects.select_related("variant__product", "customer_group").all()
+    if q:
+        qs = qs.filter(
+            Q(variant__product__name__icontains=q)
+            | Q(variant__variant_name__icontains=q)
+            | Q(variant__sku__icontains=q)
+            | Q(customer_group__name__icontains=q)
+        )
+    if status == "active":
+        qs = qs.filter(is_active=True)
+    elif status == "inactive":
+        qs = qs.filter(is_active=False)
+    tiers = [_decorate_volume_tier(tier) for tier in qs.order_by("variant__product__name", "min_quantity", "created_at")]
+    page_obj = _paginate(request, tiers, per_page=20)
     ctx = _ctx(prefix, "Volume Pricing Tiers", active_menu="pricing_volume",
-               tiers=qs,
+               tiers=page_obj, q=q, status=status,
                create_url=reverse("dashboard:pricing:volume_tier_create", kwargs={"prefix": prefix}))
     return render(request, "dashboard/pricing/volume_tier/list.html", ctx)
 
@@ -277,10 +380,10 @@ def flash_sale_list(request, prefix):
     now = timezone.now()
     q = request.GET.get("q", "").strip()
     status = request.GET.get("status", "")
-    qs = FlashSale.objects.all()
+    qs = FlashSale.objects.prefetch_related("items").all()
     if q:
         qs = qs.filter(name__icontains=q)
-    if status == "live":
+    if status in {"active", "live"}:
         qs = qs.filter(is_active=True, starts_at__lte=now, ends_at__gt=now)
     elif status == "upcoming":
         qs = qs.filter(is_active=True, starts_at__gt=now)
@@ -289,8 +392,10 @@ def flash_sale_list(request, prefix):
     elif status == "inactive":
         qs = qs.filter(is_active=False)
     now_ts = now.isoformat()
+    sales = [_decorate_flash_sale(sale) for sale in qs.order_by("-starts_at", "-created_at")]
+    page_obj = _paginate(request, sales, per_page=20)
     ctx = _ctx(prefix, "Flash Sales", active_menu="pricing_flash",
-               sales=qs, q=q, status=status, now_ts=now_ts,
+               sales=page_obj, q=q, status=status, now_ts=now_ts,
                create_url=reverse("dashboard:pricing:flash_sale_create", kwargs={"prefix": prefix}))
     return render(request, "dashboard/pricing/flash_sale/list.html", ctx)
 
@@ -299,8 +404,9 @@ def flash_sale_list(request, prefix):
 @dashboard_prefix_required
 def flash_sale_detail(request, prefix, pk):
     obj = get_object_or_404(FlashSale, pk=pk)
-    items = obj.items.select_related("product", "variant").all()
-    ctx = _ctx(prefix, f"Flash Sale — {obj.name}", active_menu="pricing_flash", sale=obj, items=items,
+    items = [_decorate_flash_sale_item(item) for item in obj.items.select_related("product", "variant__product").all()]
+    sale = _decorate_flash_sale(obj)
+    ctx = _ctx(prefix, f"Flash Sale — {obj.name}", active_menu="pricing_flash", sale=sale, items=items,
                now_ts=timezone.now().isoformat(),
                edit_url=reverse("dashboard:pricing:flash_sale_edit", kwargs={"prefix": prefix, "pk": pk}),
                items_url=reverse("dashboard:pricing:flash_sale_item_list", kwargs={"prefix": prefix, "sale_pk": pk}))
@@ -376,8 +482,18 @@ def flash_sale_delete(request, prefix, pk):
 @dashboard_prefix_required
 def flash_sale_item_list(request, prefix, sale_pk):
     sale = get_object_or_404(FlashSale, pk=sale_pk)
-    items = sale.items.select_related("product", "variant").all()
-    ctx = _ctx(prefix, f"Items — {sale.name}", active_menu="pricing_flash", sale=sale, items=items,
+    q = request.GET.get("q", "").strip()
+    qs = sale.items.select_related("product", "variant__product").all()
+    if q:
+        qs = qs.filter(
+            Q(product__name__icontains=q)
+            | Q(variant__variant_name__icontains=q)
+            | Q(variant__sku__icontains=q)
+        )
+    items = [_decorate_flash_sale_item(item) for item in qs.order_by("created_at")]
+    page_obj = _paginate(request, items, per_page=20)
+    sale = _decorate_flash_sale(sale)
+    ctx = _ctx(prefix, f"Items — {sale.name}", active_menu="pricing_flash", sale=sale, items=page_obj, q=q,
                create_url=reverse("dashboard:pricing:flash_sale_item_create", kwargs={"prefix": prefix, "sale_pk": sale_pk}),
                detail_url=reverse("dashboard:pricing:flash_sale_detail", kwargs={"prefix": prefix, "pk": sale_pk}))
     return render(request, "dashboard/pricing/flash_sale_item/list.html", ctx)

@@ -864,9 +864,11 @@ def _revalidate_discount_code(code: str, cart) -> bool:
     """Quick re-check if a discount code is still usable at checkout."""
     try:
         from pricing.models import DiscountCode
-        discount = DiscountCode.objects.get(code=code, is_active=True)
+        discount = DiscountCode.objects.get(code__iexact=code.strip(), is_active=True)
         now = timezone.now()
-        if discount.expires_at and discount.expires_at < now:
+        if discount.starts_at and discount.starts_at > now:
+            return False
+        if discount.ends_at and discount.ends_at < now:
             return False
         if discount.usage_limit and discount.usage_count >= discount.usage_limit:
             return False

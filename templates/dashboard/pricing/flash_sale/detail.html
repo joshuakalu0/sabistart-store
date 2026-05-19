@@ -7,8 +7,12 @@
   <div>
     <div class="flex items-center space-x-3">
       <h2 class="text-2xl font-bold text-slate-900 dark:text-white">{{ sale.name }}</h2>
-      {% if sale.is_active %}
+      {% if sale.dashboard_status == 'live' %}
         <span class="px-2.5 py-1 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300 text-xs font-bold tracking-wide uppercase rounded-full border border-red-200 dark:border-red-800 animate-pulse">Live</span>
+      {% elif sale.dashboard_status == 'upcoming' %}
+        <span class="px-2.5 py-1 bg-amber-100 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 text-xs font-bold tracking-wide uppercase rounded-full border border-amber-200 dark:border-amber-800">Upcoming</span>
+      {% elif sale.dashboard_status == 'ended' %}
+        <span class="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-xs font-semibold uppercase tracking-wide rounded-full">Ended</span>
       {% else %}
         <span class="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-xs font-semibold uppercase tracking-wide rounded-full">Inactive</span>
       {% endif %}

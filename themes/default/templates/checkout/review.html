@@ -44,6 +44,20 @@
                         <span>{{ item.line_total_display }}</span>
                     </div>
                 {% endfor %}
+                <div class="flex justify-between border-t border-slate-200 pt-3">
+                    <span>Subtotal</span>
+                    <span>{{ cart.subtotal_display }}</span>
+                </div>
+                {% if cart.discount_lines %}
+                    {% for line in cart.discount_lines %}
+                        <div class="flex justify-between gap-3 text-emerald-700">
+                            <span>{{ line.label }}{% if line.code %} <span class="font-mono text-xs">{{ line.code }}</span>{% endif %}</span>
+                            <span>-{{ line.amount_display }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <div class="flex justify-between"><span>Shipping</span><span>{{ cart.shipping_total_display }}</span></div>
+                <div class="flex justify-between"><span>Tax</span><span>{{ cart.tax_total_display }}</span></div>
                 <div class="flex justify-between border-t border-slate-200 pt-3 text-base font-semibold text-slate-950">
                     <span>Total</span>
                     <span>{{ cart.grand_total_display }}</span>

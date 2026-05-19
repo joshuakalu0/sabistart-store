@@ -20,6 +20,9 @@ from dashboard.pricing import views
 app_name = "pricing"
 
 urlpatterns = [
+    path("analytics/", views.pricing_analytics, name="pricing_analytics"),
+    path("analytics/data/", views.pricing_analytics_data, name="pricing_analytics_data"),
+    path("analytics/export.csv", views.pricing_analytics_export_csv, name="pricing_analytics_export_csv"),
 
     # ── CURRENCY ─────────────────────────────────────────────
     path("currencies/", views.currency_list, name="currency_list"),

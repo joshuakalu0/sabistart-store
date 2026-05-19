@@ -45,6 +45,7 @@ def get_discount_performance(
     from pricing.models import DiscountUsage
 
     qs = DiscountUsage.objects.filter(
+        is_reversed=False,
         used_at__gte=start, used_at__lte=end
     ).select_related("discount_code")
 
@@ -123,7 +124,7 @@ def get_top_discount_codes(
 
     rows = (
         DiscountUsage.objects
-        .filter(used_at__gte=start, used_at__lte=end)
+        .filter(is_reversed=False, used_at__gte=start, used_at__lte=end)
         .values("discount_code__code", "discount_code__title", "discount_code__value_type")
         .annotate(
             uses=Count("id"),
@@ -166,7 +167,11 @@ def get_discount_usage_over_time(
     trunc_map = {"day": TruncDate, "week": TruncWeek, "month": TruncMonth}
     trunc_fn = trunc_map.get(granularity, TruncDate)
 
-    qs = DiscountUsage.objects.filter(used_at__gte=start, used_at__lte=end)
+    qs = DiscountUsage.objects.filter(
+        is_reversed=False,
+        used_at__gte=start,
+        used_at__lte=end,
+    )
     if code:
         qs = qs.filter(discount_code__code=code.upper())
 

@@ -51,10 +51,12 @@ def get_pricing_dashboard_kpis(period_days: int = 30) -> dict:
 
     # ── Discount given in period ──
     period_discount = DiscountUsage.objects.filter(
+        is_reversed=False,
         used_at__gte=period_start
     ).aggregate(total=Sum("discount_amount"), count=Count("id"))
 
     prev_discount = DiscountUsage.objects.filter(
+        is_reversed=False,
         used_at__gte=prev_start,
         used_at__lt=period_start,
     ).aggregate(total=Sum("discount_amount"))
@@ -475,7 +477,7 @@ def get_top_performing_promotions(period_days: int = 30, limit: int = 5) -> list
     # Coupon codes
     code_rows = list(
         DiscountUsage.objects
-        .filter(used_at__gte=period_start)
+        .filter(is_reversed=False, used_at__gte=period_start)
         .values("discount_code__code", "discount_code__title")
         .annotate(
             total=Sum("discount_amount"),

@@ -76,6 +76,9 @@
                         {% if product.savings_display %}
                             <p class="mt-2 text-sm font-semibold uppercase tracking-[0.18em] text-[color:var(--color-secondary)]">Save {{ product.savings_display }}</p>
                         {% endif %}
+                        {% if product.countdown_ends_at_iso %}
+                            <p class="mt-2 text-xs font-semibold uppercase tracking-[0.22em] text-rose-600" data-countdown="{{ product.countdown_ends_at_iso }}">Offer ends soon</p>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -99,8 +102,41 @@
                                                     {% endfor %}
                                                 </span>
                                             {% endif %}
+                                            {% if variant.volume_pricing %}
+                                                <div class="mt-4 rounded-[1.25rem] border border-slate-200 bg-white/70 p-4">
+                                                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Volume Pricing</p>
+                                                    <div class="mt-3 space-y-2">
+                                                        {% for tier in variant.volume_pricing %}
+                                                            <div class="flex items-center justify-between gap-4 text-sm">
+                                                                <span class="font-medium text-slate-700">{{ tier.label }} units</span>
+                                                                <span class="text-right">
+                                                                    <span class="font-semibold text-slate-950">{{ tier.price_display }}</span>
+                                                                    {% if tier.savings_label %}<span class="ml-2 text-xs uppercase tracking-[0.18em] text-[color:var(--color-secondary)]">{{ tier.savings_label }}</span>{% endif %}
+                                                                </span>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            {% endif %}
                                         </span>
                                     </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if product.volume_pricing %}
+                        <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50/80 p-5">
+                            <p class="eyebrow">Quantity Breaks</p>
+                            <div class="mt-4 space-y-3">
+                                {% for tier in product.volume_pricing %}
+                                    <div class="flex items-center justify-between gap-4 rounded-[1rem] bg-white px-4 py-3">
+                                        <div>
+                                            <p class="text-sm font-semibold text-slate-950">{{ tier.label }} units</p>
+                                            {% if tier.savings_label %}<p class="text-xs uppercase tracking-[0.18em] text-[color:var(--color-secondary)]">{{ tier.savings_label }}</p>{% endif %}
+                                        </div>
+                                        <p class="text-sm font-semibold text-slate-700">{{ tier.price_display }}</p>
+                                    </div>
                                 {% endfor %}
                             </div>
                         </div>
@@ -235,5 +271,37 @@
         </section>
     {% endif %}
 </section>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("[data-countdown]").forEach(function (node) {
+        const endsAt = node.getAttribute("data-countdown");
+        if (!endsAt) return;
+        const endTime = new Date(endsAt);
+        if (Number.isNaN(endTime.getTime())) return;
+
+        const tick = function () {
+            const diff = endTime.getTime() - Date.now();
+            if (diff <= 0) {
+                node.textContent = "Offer ended";
+                return;
+            }
+            const totalMinutes = Math.floor(diff / 60000);
+            const days = Math.floor(totalMinutes / 1440);
+            const hours = Math.floor((totalMinutes % 1440) / 60);
+            const minutes = totalMinutes % 60;
+            if (days > 0) {
+                node.textContent = days + "d " + hours + "h remaining";
+            } else if (hours > 0) {
+                node.textContent = hours + "h " + minutes + "m remaining";
+            } else {
+                node.textContent = minutes + "m remaining";
+            }
+        };
+
+        tick();
+        window.setInterval(tick, 60000);
+    });
+});
+</script>
 {% endblock %}
 

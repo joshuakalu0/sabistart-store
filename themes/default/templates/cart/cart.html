@@ -20,6 +20,9 @@
                 <div class="mt-4 space-y-3 text-sm text-slate-600">
                     <div class="flex justify-between"><span>Items</span><span>{{ cart.item_count }}</span></div>
                     <div class="flex justify-between"><span>Subtotal</span><span>{{ cart.subtotal_display }}</span></div>
+                    {% if cart.discount_total > 0 %}
+                        <div class="flex justify-between text-[color:var(--color-secondary)]"><span>You save</span><span>{{ cart.discount_total_display }}</span></div>
+                    {% endif %}
                     <div class="flex justify-between font-semibold text-slate-950"><span>Total</span><span>{{ cart.grand_total_display }}</span></div>
                 </div>
             </div>
@@ -69,6 +72,22 @@
                     <div class="mt-6 space-y-3 text-sm text-slate-600">
                         <div class="flex justify-between"><span>Subtotal</span><span>{{ cart.subtotal_display }}</span></div>
                         <div class="flex justify-between"><span>Discounts</span><span>{{ cart.discount_total_display }}</span></div>
+                        {% if cart.discount_lines %}
+                            <div class="rounded-[1.25rem] border border-emerald-100 bg-emerald-50/70 p-4">
+                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Applied Savings</p>
+                                <div class="mt-3 space-y-2">
+                                    {% for line in cart.discount_lines %}
+                                        <div class="flex justify-between gap-3">
+                                            <span>
+                                                {{ line.label }}
+                                                {% if line.code %}<span class="ml-1 font-mono text-xs text-emerald-700">{{ line.code }}</span>{% endif %}
+                                            </span>
+                                            <span class="font-semibold text-emerald-700">-{{ line.amount_display }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
                         <div class="flex justify-between"><span>Shipping</span><span>{{ cart.shipping_total_display }}</span></div>
                         <div class="flex justify-between"><span>Tax</span><span>{{ cart.tax_total_display }}</span></div>
                         <div class="flex justify-between border-t border-slate-200 pt-3 text-base font-semibold text-slate-950"><span>Total</span><span>{{ cart.grand_total_display }}</span></div>
@@ -86,6 +105,9 @@
                         </div>
                         <button type="submit" class="button-secondary">Apply Code</button>
                     </form>
+                    {% if cart.discount_code %}
+                        <p class="mt-3 text-sm text-slate-500">Active code: <span class="font-mono font-semibold text-slate-900">{{ cart.discount_code }}</span></p>
+                    {% endif %}
                     {% if active_discount_campaigns %}
                         <div class="mt-5 space-y-3">
                             {% for campaign in active_discount_campaigns %}
@@ -93,6 +115,7 @@
                                     <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">{{ campaign.code }}</p>
                                     <p class="mt-2 brand-font text-xl font-bold text-slate-950">{{ campaign.title }}</p>
                                     <p class="mt-2 text-sm text-slate-500">{{ campaign.detail|default:campaign.description }}</p>
+                                    <a href="{{ campaign.url }}" class="mt-4 inline-flex text-sm font-semibold text-[color:var(--color-secondary)]">Apply offer</a>
                                 </div>
                             {% endfor %}
                         </div>

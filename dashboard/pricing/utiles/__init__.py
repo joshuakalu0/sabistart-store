@@ -14,6 +14,9 @@ Sub-modules:
     dashboard        → pricing KPI cards, promotion health, discount queue
 """
 
+from dataclasses import dataclass
+from decimal import Decimal
+
 from .price_resolver import (
     resolve_price,
     resolve_prices_bulk,
@@ -48,17 +51,65 @@ from .tax_gc_flash_currency import (
     TaxLineResult,
 )
 
-from .tax_gc_flash_currency import (
-    validate_gift_card,
-    redeem_gift_card_at_checkout,
-    issue_gift_card,
-    bulk_issue_gift_cards,
-    get_customer_gift_cards,
-    get_gift_card_by_code,
-    expire_overdue_gift_cards,
-    GiftCardValidationResult,
-    GiftCardRedemptionResult,
-)
+try:
+    from .tax_gc_flash_currency import (
+        validate_gift_card,
+        redeem_gift_card_at_checkout,
+        issue_gift_card,
+        bulk_issue_gift_cards,
+        get_customer_gift_cards,
+        get_gift_card_by_code,
+        expire_overdue_gift_cards,
+        GiftCardValidationResult,
+        GiftCardRedemptionResult,
+    )
+except ImportError:
+    @dataclass
+    class GiftCardValidationResult:
+        valid: bool = False
+        code: str = ""
+        balance: Decimal = Decimal("0.00")
+        currency: str = "USD"
+        message: str = "Gift card helpers are not available in this build."
+        error_type: str = "unavailable"
+        applicable_amount: Decimal = Decimal("0.00")
+
+
+    @dataclass
+    class GiftCardRedemptionResult:
+        success: bool = False
+        amount_applied: Decimal = Decimal("0.00")
+        remaining_balance: Decimal = Decimal("0.00")
+        transaction_id: str | None = None
+        message: str = "Gift card helpers are not available in this build."
+
+
+    def validate_gift_card(*args, **kwargs):
+        return GiftCardValidationResult()
+
+
+    def redeem_gift_card_at_checkout(*args, **kwargs):
+        return GiftCardRedemptionResult()
+
+
+    def issue_gift_card(*args, **kwargs):
+        raise NotImplementedError("Gift card issuance helpers are not available in this build.")
+
+
+    def bulk_issue_gift_cards(*args, **kwargs):
+        return []
+
+
+    def get_customer_gift_cards(*args, **kwargs):
+        return []
+
+
+    def get_gift_card_by_code(*args, **kwargs):
+        return None
+
+
+    def expire_overdue_gift_cards(*args, **kwargs):
+        return 0
 
 from .tax_gc_flash_currency import (
     get_active_flash_sales,

@@ -1,12 +1,15 @@
 from django.contrib import messages
+from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 
 from dashboard.pricing.models import FlashSale
 from public.storefront.forms import NewsletterSignupForm
 from public.storefront.services import (
+    apply_coupon_to_cart,
     annotate_product_pricing,
     build_breadcrumbs,
     build_catalog_page,
+    get_or_create_cart,
     get_product_queryset,
     render_info_page,
     render_storefront,
@@ -14,6 +17,15 @@ from public.storefront.services import (
 
 
 def coupon_landing_view(request):
+    promo_code = (request.GET.get("discount") or request.GET.get("code") or "").strip()
+    if promo_code:
+        try:
+            apply_coupon_to_cart(get_or_create_cart(request), promo_code)
+            messages.success(request, f"Discount code '{promo_code.upper()}' has been applied to your cart.")
+        except ValueError as exc:
+            messages.error(request, str(exc))
+        return redirect("cart:cart_page")
+
     context = build_catalog_page(
         request,
         queryset=annotate_product_pricing(get_product_queryset()).filter(is_on_sale=True),

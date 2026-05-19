@@ -973,6 +973,12 @@ class Order(MixIdAndTimeModel, MoneyMixin):
             note=note,
             source="cancel_action",
         )
+        try:
+            from public.storefront.services import reverse_order_pricing_effects
+
+            reverse_order_pricing_effects(self, reason=reason or "cancelled")
+        except Exception:
+            pass
 
 
 # ─────────────────────────────────────────────────────────────

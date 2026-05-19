@@ -72,6 +72,7 @@ _SELECT = (
     "bg-white dark:bg-slate-700 "
     "focus:ring-2 focus:ring-primary focus:border-transparent"
 )
+_SEARCHABLE_SELECT = f"{_SELECT} js-searchable-select"
 _TEXTAREA = (
     "block w-full px-3 py-2 border border-slate-300 dark:border-slate-600 "
     "rounded-lg text-sm text-slate-900 dark:text-white "
@@ -375,8 +376,8 @@ class DiscountCodeForm(forms.ModelForm):
             "percentage_value": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0.01", "max": "100"}),
             "fixed_amount": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0.01"}),
             "currency": forms.TextInput(attrs={"class": _INPUT, "maxlength": 3, "placeholder": "USD"}),
-            "free_item_variant": forms.Select(attrs={"class": _SELECT}),
-            "buy_x_get_y_promotion": forms.Select(attrs={"class": _SELECT}),
+            "free_item_variant": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "buy_x_get_y_promotion": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
             "scope": forms.Select(attrs={"class": _SELECT}),
             "allocation_method": forms.Select(attrs={"class": _SELECT}),
             "usage_limit": forms.NumberInput(attrs={"class": _INPUT, "min": "1", "placeholder": "Leave blank for unlimited"}),
@@ -427,11 +428,11 @@ class DiscountRuleForm(forms.ModelForm):
         widgets = {
             "rule_type": forms.Select(attrs={"class": _SELECT, "id": "id_rule_type"}),
             "match_condition": forms.Select(attrs={"class": _SELECT}),
-            "product": forms.Select(attrs={"class": _SELECT}),
-            "variant": forms.Select(attrs={"class": _SELECT}),
-            "category": forms.Select(attrs={"class": _SELECT}),
-            "customer_group": forms.Select(attrs={"class": _SELECT}),
-            "customer": forms.Select(attrs={"class": _SELECT}),
+            "product": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "variant": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "category": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "customer_group": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "customer": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
             "amount_threshold": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0"}),
             "quantity_threshold": forms.NumberInput(attrs={"class": _INPUT, "min": "1"}),
         }
@@ -479,8 +480,8 @@ class AutomaticDiscountForm(forms.ModelForm):
             "percentage_value": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0.01", "max": "100"}),
             "fixed_amount": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0.01"}),
             "max_discount_amount": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0.01"}),
-            "buy_x_get_y_promotion": forms.Select(attrs={"class": _SELECT}),
-            "free_item_variant": forms.Select(attrs={"class": _SELECT}),
+            "buy_x_get_y_promotion": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "free_item_variant": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
             "free_item_quantity": forms.NumberInput(attrs={"class": _INPUT, "min": "1"}),
             "allow_stacking": forms.CheckboxInput(attrs={"class": _CHECKBOX}),
             "is_combinable_with_codes": forms.CheckboxInput(attrs={"class": _CHECKBOX}),
@@ -521,8 +522,8 @@ class AutomaticDiscountConditionForm(forms.ModelForm):
             "amount_threshold": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0"}),
             "quantity_threshold": forms.NumberInput(attrs={"class": _INPUT, "min": "1"}),
             "integer_threshold": forms.NumberInput(attrs={"class": _INPUT, "min": "0"}),
-            "customer_group": forms.Select(attrs={"class": _SELECT}),
-            "product": forms.Select(attrs={"class": _SELECT}),
+            "customer_group": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "product": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
             "string_value": forms.TextInput(attrs={"class": _INPUT, "placeholder": "e.g. tag name"}),
         }
 
@@ -553,7 +554,7 @@ class AutomaticDiscountBenefitForm(forms.ModelForm):
             "fixed_amount": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0.01"}),
             "tier_min_subtotal": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0"}),
             "tier_order": forms.NumberInput(attrs={"class": _INPUT, "min": "0"}),
-            "product": forms.Select(attrs={"class": _SELECT}),
+            "product": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
         }
 
 
@@ -597,7 +598,7 @@ class BuyXGetYPromotionForm(forms.ModelForm):
             "get_type": forms.Select(attrs={"class": _SELECT, "id": "id_get_type"}),
             "get_quantity": forms.NumberInput(attrs={"class": _INPUT, "min": "1"}),
             "get_discount_percentage": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0", "max": "100"}),
-            "get_specific_variant": forms.Select(attrs={"class": _SELECT}),
+            "get_specific_variant": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
             "apply_to": forms.Select(attrs={"class": _SELECT}),
             "max_applications_per_order": forms.NumberInput(attrs={"class": _INPUT, "min": "1"}),
             "one_per_customer": forms.CheckboxInput(attrs={"class": _CHECKBOX}),
@@ -631,9 +632,9 @@ class BuyXGetYItemForm(forms.ModelForm):
         ]
         widgets = {
             "side": forms.Select(attrs={"class": _SELECT}),
-            "product": forms.Select(attrs={"class": _SELECT}),
-            "variant": forms.Select(attrs={"class": _SELECT}),
-            "category": forms.Select(attrs={"class": _SELECT}),
+            "product": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "variant": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "category": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
             "minimum_quantity": forms.NumberInput(attrs={"class": _INPUT, "min": "1"}),
         }
 
@@ -673,8 +674,8 @@ class VolumePricingTierForm(forms.ModelForm):
             "show_savings_label",
         ]
         widgets = {
-            "variant": forms.Select(attrs={"class": _SELECT}),
-            "customer_group": forms.Select(attrs={"class": _SELECT}),
+            "variant": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "customer_group": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
             "min_quantity": forms.NumberInput(attrs={"class": _INPUT, "min": "1"}),
             "max_quantity": forms.NumberInput(attrs={"class": _INPUT, "min": "1", "placeholder": "Leave blank for no upper limit"}),
             "price_type": forms.Select(attrs={"class": _SELECT, "id": "id_price_type"}),
@@ -768,8 +769,8 @@ class FlashSaleItemForm(forms.ModelForm):
             "is_active",
         ]
         widgets = {
-            "product": forms.Select(attrs={"class": _SELECT}),
-            "variant": forms.Select(attrs={"class": _SELECT}),
+            "product": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "variant": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
             "discount_percentage": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0.01", "max": "100"}),
             "sale_price": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0"}),
             "original_price_override": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01"}),

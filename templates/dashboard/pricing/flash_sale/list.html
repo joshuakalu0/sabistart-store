@@ -24,7 +24,9 @@
       <div class="w-full sm:w-48">
         <select name="status" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary">
           <option value="">All Statuses</option>
-          <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+          <option value="active" {% if status == 'active' or status == 'live' %}selected{% endif %}>Live</option>
+          <option value="upcoming" {% if status == 'upcoming' %}selected{% endif %}>Upcoming</option>
+          <option value="ended" {% if status == 'ended' %}selected{% endif %}>Ended</option>
           <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
         </select>
       </div>
@@ -52,8 +54,12 @@
             <div class="font-bold text-slate-900 dark:text-white text-base">{{ sale.name }}</div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
-            {% if sale.is_active %}
+            {% if sale.dashboard_status == 'live' %}
             <span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300 text-xs font-bold rounded-full border border-red-200 dark:border-red-800 animate-pulse">Live</span>
+            {% elif sale.dashboard_status == 'upcoming' %}
+            <span class="px-2 py-1 bg-amber-100 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 text-xs font-bold rounded-full border border-amber-200 dark:border-amber-800">Upcoming</span>
+            {% elif sale.dashboard_status == 'ended' %}
+            <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-xs rounded-full">Ended</span>
             {% else %}
             <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-xs rounded-full">Inactive</span>
             {% endif %}

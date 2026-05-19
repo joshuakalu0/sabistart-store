@@ -28,7 +28,23 @@ from dashboard.store_settings.models import (
     ThemeSettings,
 )
 from dashboard.theme_manager.utils import render_theme_template
-from public.cart.models import Cart, CartItem, Order, OrderAddress, OrderItem
+from pricing.utils.discount import (
+    DiscountValidationError,
+    evaluate_cart_discounts,
+    record_discount_usage,
+    reverse_discount_usage_for_order,
+    validate_discount_code,
+)
+from pricing.utils.price_resolver import PricingContext, resolve_price
+from public.cart.models import (
+    Cart,
+    CartItem,
+    Order,
+    OrderAddress,
+    OrderDiscount,
+    OrderItem,
+    OrderTax,
+)
 from public.category.models import Brand, Category, Tag
 from public.product.models import (
     Attribute,
@@ -42,10 +58,19 @@ from public.product.models import (
 from public.userauth.models import Customer
 
 try:
-    from dashboard.pricing.models import DiscountCode, FlashSale
+    from dashboard.pricing.models import (
+        AutomaticDiscount,
+        DiscountCode,
+        FlashSale,
+        FlashSaleItem,
+        VolumePricingTier,
+    )
 except Exception:  # pragma: no cover - defensive import
     DiscountCode = None
     FlashSale = None
+    FlashSaleItem = None
+    VolumePricingTier = None
+    AutomaticDiscount = None
 
 
 logger = logging.getLogger(__name__)
@@ -633,7 +658,7 @@ def get_active_discount_campaigns(request, limit: int = 3) -> list[dict[str, Any
                     "title": code.title,
                     "description": code.description,
                     "detail": detail,
-                    "url": f"{safe_reverse('promotions:coupon_landing')}?code={code.code}",
+                    "url": f"{safe_reverse('promotions:coupon_landing')}?discount={code.code}",
                 }
             )
             if len(campaigns) >= limit:
@@ -766,6 +791,7 @@ def _get_display_price_data(
     currency_code: str,
     *,
     flash_sale_lookup: dict[str, Any] | None = None,
+    customer=None,
 ) -> dict[str, Any]:
     price = quantize_money(
         getattr(product, "effective_price", None)
@@ -780,27 +806,39 @@ def _get_display_price_data(
     promo_badge = ""
     promo_source = ""
     countdown_ends_at_iso = ""
-    flash_sale_item = _get_product_flash_sale_item(
-        product, default_variant, flash_sale_lookup)
-    if flash_sale_item is not None:
-        sale_price = quantize_money(flash_sale_item.compute_sale_price(price))
-        if sale_price < price:
-            compare_price = compare_price if compare_price and compare_price > price else price
-            price = sale_price
-            promo_source = "flash_sale"
-            promo_badge = getattr(flash_sale_item.flash_sale,
-                                  "badge_label", "") or "Flash Sale"
-            countdown_ends_at_iso = flash_sale_item.flash_sale.ends_at.isoformat(
-            ) if getattr(flash_sale_item.flash_sale, "ends_at", None) else ""
+    if default_variant:
+        resolved = resolve_price(
+            default_variant,
+            PricingContext(
+                customer=customer,
+                quantity=1,
+                currency_code=currency_code or "USD",
+            ),
+        )
+        price = quantize_money(resolved.final_price)
+        compare_price = quantize_money(resolved.compare_at_price) if resolved.compare_at_price else compare_price
+        if compare_price and compare_price <= price:
+            compare_price = None
+        promo_badge = resolved.sale_badge
+        promo_source = resolved.applied_layer if resolved.applied_layer != "base" else ""
+        savings = quantize_money(resolved.savings)
+        savings_percentage = quantize_money(resolved.savings_percentage)
+        if resolved.flash_sale_applied:
+            flash_sale_item = _get_product_flash_sale_item(product, default_variant, flash_sale_lookup)
+            promo_badge = promo_badge or (
+                getattr(flash_sale_item.flash_sale, "badge_label", "") if flash_sale_item else "Flash Sale"
+            )
+            countdown_ends_at_iso = (
+                flash_sale_item.flash_sale.ends_at.isoformat()
+                if flash_sale_item and getattr(flash_sale_item.flash_sale, "ends_at", None)
+                else ""
+            )
+        is_on_sale = resolved.is_on_sale or bool(compare_price and compare_price > price)
+    else:
+        is_on_sale = bool(compare_price and compare_price > price) or bool(product.is_on_sale)
+        savings = quantize_money(compare_price - price) if compare_price and compare_price > price else Decimal("0.00")
+        savings_percentage = ((savings / compare_price) * Decimal("100")).quantize(Decimal("0.1")) if savings > 0 and compare_price else Decimal("0.0")
 
-    is_on_sale = bool(compare_price and compare_price > price) or bool(
-        product.is_on_sale) or promo_source == "flash_sale"
-    savings = quantize_money(
-        compare_price - price) if compare_price and compare_price > price else Decimal("0.00")
-    savings_percentage = Decimal("0.0")
-    if savings > 0 and compare_price:
-        savings_percentage = ((savings / compare_price)
-                              * Decimal("100")).quantize(Decimal("0.1"))
     if not promo_badge and is_on_sale:
         promo_badge = "Sale"
 
@@ -817,6 +855,46 @@ def _get_display_price_data(
         "savings_percentage": savings_percentage,
         "countdown_ends_at_iso": countdown_ends_at_iso,
     }
+
+
+def _get_volume_pricing_table(
+    variant: ProductVariant | None,
+    *,
+    customer=None,
+    currency_code: str = "USD",
+) -> list[dict[str, Any]]:
+    if variant is None or VolumePricingTier is None:
+        return []
+    customer_group_ids = set()
+    if customer and hasattr(customer, "groups"):
+        try:
+            customer_group_ids = {group.id for group in customer.groups.all()}
+        except Exception:
+            customer_group_ids = set()
+    tiers = variant.volume_tiers.filter(is_active=True).order_by("min_quantity", "max_quantity")
+    rows = []
+    for tier in tiers:
+        if tier.customer_group_id and tier.customer_group_id not in customer_group_ids:
+            continue
+        tier_price = quantize_money(tier.compute_price(variant.effective_price))
+        rows.append(
+            {
+                "id": str(tier.id),
+                "min_quantity": tier.min_quantity,
+                "max_quantity": tier.max_quantity,
+                "label": f"{tier.min_quantity}+" if tier.max_quantity is None else f"{tier.min_quantity}-{tier.max_quantity}",
+                "price": tier_price,
+                "price_display": format_money(tier_price, currency_code),
+                "savings_label": (
+                    f"Save {tier.discount_percentage}%"
+                    if tier.price_type == "percentage" and tier.discount_percentage
+                    else f"Save {format_money(tier.fixed_discount, currency_code)}"
+                    if tier.price_type == "fixed_discount" and tier.fixed_discount
+                    else ""
+                ),
+            }
+        )
+    return rows
 
 
 def _serialize_attribute_assignment(product_value: ProductAttributeValue) -> dict[str, str]:
@@ -952,6 +1030,7 @@ def serialize_product_detail(product, request, flash_sale_lookup: dict[str, Any]
     settings_obj = get_store_settings_cached(request)
     currency = getattr(settings_obj, "currency",
                        "USD") if settings_obj else "USD"
+    customer_profile = get_or_create_customer_profile(request.user) if getattr(request.user, "is_authenticated", False) else None
     images = list(product.images.all())
     videos = list(product.videos.all())
     variants = list(product.variants.all())
@@ -960,7 +1039,7 @@ def serialize_product_detail(product, request, flash_sale_lookup: dict[str, Any]
     default_variant = next(
         (variant for variant in variants if variant.is_default), variants[0] if variants else None)
     pricing = _get_display_price_data(
-        product, default_variant, currency, flash_sale_lookup=flash_sale_lookup)
+        product, default_variant, currency, flash_sale_lookup=flash_sale_lookup, customer=customer_profile)
     specification_items = [
         {"label": key.replace("_", " ").title(), "value": value}
         for key, value in (product.specifications or {}).items()
@@ -971,6 +1050,31 @@ def serialize_product_detail(product, request, flash_sale_lookup: dict[str, Any]
         for item in attribute_values
         if item["is_visible_on_front"] and item["value"]
     )
+    variant_rows = []
+    for variant in variants:
+        variant_pricing = _get_display_price_data(
+            product,
+            variant,
+            currency,
+            flash_sale_lookup=flash_sale_lookup,
+            customer=customer_profile,
+        )
+        variant_rows.append(
+            {
+                "id": str(variant.id),
+                "label": variant.variant_name or " / ".join(option.value for option in variant.option_values.all()) or variant.sku,
+                "sku": variant.sku,
+                "price": variant_pricing["price"],
+                "price_display": variant_pricing["price_display"],
+                "compare_price": variant_pricing["compare_price"],
+                "compare_price_display": variant_pricing["compare_price_display"],
+                "available_quantity": getattr(variant, "available_quantity", 0),
+                "is_default": variant.is_default,
+                "in_stock": getattr(variant, "available_quantity", 0) > 0,
+                "option_values": [_serialize_variant_option(option) for option in variant.option_values.all()],
+                "volume_pricing": _get_volume_pricing_table(variant, customer=customer_profile, currency_code=currency),
+            }
+        )
 
     return {
         "id": str(product.id),
@@ -1014,22 +1118,8 @@ def serialize_product_detail(product, request, flash_sale_lookup: dict[str, Any]
             for video in videos
             if video.video_url or video.video_file
         ],
-        "variants": [
-            {
-                "id": str(variant.id),
-                "label": variant.variant_name or " / ".join(option.value for option in variant.option_values.all()) or variant.sku,
-                "sku": variant.sku,
-                "price": quantize_money(variant.price),
-                "price_display": format_money(variant.price, currency),
-                "compare_price": quantize_money(variant.compare_at_price) if variant.compare_at_price else None,
-                "compare_price_display": format_money(variant.compare_at_price, currency) if variant.compare_at_price else "",
-                "available_quantity": getattr(variant, "available_quantity", 0),
-                "is_default": variant.is_default,
-                "in_stock": getattr(variant, "available_quantity", 0) > 0,
-                "option_values": [_serialize_variant_option(option) for option in variant.option_values.all()],
-            }
-            for variant in variants
-        ],
+        "variants": variant_rows,
+        "volume_pricing": _get_volume_pricing_table(default_variant, customer=customer_profile, currency_code=currency) if default_variant else [],
         "categories": [{"name": category.name, "slug": category.slug, "url": safe_reverse("category:category_detail", category_slug=category.slug)} for category in product.categories.all()],
         "tags": [{"name": tag.name, "slug": tag.slug} for tag in product.tags.all()],
         "stock_label": "In stock" if ((default_variant and default_variant.available_quantity > 0) or (not variants and product.stock_status != "out_of_stock")) else "Out of stock",
@@ -1456,6 +1546,123 @@ def get_discount_code(code: str | None):
         return None
 
 
+def _resolve_variant_cart_pricing_details(
+    variant: ProductVariant,
+    *,
+    customer=None,
+    quantity: int = 1,
+    currency_code: str = "USD",
+) -> dict[str, Any]:
+    quantity = max(int(quantity or 1), 1)
+    result = resolve_price(
+        variant,
+        PricingContext(
+            customer=customer,
+            quantity=quantity,
+            currency_code=currency_code or "USD",
+        ),
+    )
+    compare_at_price = quantize_money(result.compare_at_price) if result.compare_at_price else None
+    details: dict[str, Any] = {
+        "unit_price": quantize_money(result.final_price),
+        "compare_at_price": compare_at_price if compare_at_price and compare_at_price > result.final_price else None,
+        "original_price": quantize_money(result.base_price),
+        "pricing_layer": result.applied_layer,
+        "flash_sale_id": result.flash_sale_id,
+        "flash_sale_item_id": None,
+        "volume_tier_min_qty": result.volume_tier_min_qty if result.volume_tier_applied else None,
+        "volume_tier_discount_pct": str(result.volume_tier_discount_pct or "") if result.volume_tier_applied else "",
+        "price_list_id": result.price_list_id,
+        "price_list_code": result.price_list_code,
+        "price_list_name": result.price_list_name,
+        "sale_badge": result.sale_badge,
+        "savings_label": result.savings_label,
+        "savings_percentage": str(result.savings_percentage or ""),
+    }
+    if FlashSaleItem is not None and result.flash_sale_applied and result.flash_sale_id:
+        flash_sale_item = (
+            FlashSaleItem.objects.filter(
+                flash_sale_id=result.flash_sale_id,
+                is_active=True,
+            )
+            .filter(Q(variant=variant) | Q(product=variant.product, variant__isnull=True))
+            .order_by("-variant")
+            .first()
+        )
+        if flash_sale_item:
+            details["flash_sale_item_id"] = str(flash_sale_item.id)
+    return details
+
+
+def _update_cart_item_pricing_snapshot(item: CartItem, pricing_details: dict[str, Any]) -> None:
+    properties = dict(item.custom_properties or {})
+    properties["pricing_snapshot"] = {
+        "pricing_layer": pricing_details.get("pricing_layer", "base"),
+        "flash_sale_id": pricing_details.get("flash_sale_id") or "",
+        "flash_sale_item_id": pricing_details.get("flash_sale_item_id") or "",
+        "volume_tier_min_qty": pricing_details.get("volume_tier_min_qty") or "",
+        "price_list_id": pricing_details.get("price_list_id") or "",
+        "price_list_code": pricing_details.get("price_list_code") or "",
+    }
+    item.custom_properties = properties
+
+
+def _cart_items_for_discount_engine(cart: Cart) -> list[dict[str, Any]]:
+    return [
+        {
+            "id": str(item.id),
+            "variant": item.variant,
+            "product": item.variant.product if item.variant else None,
+            "quantity": item.quantity,
+            "unit_price": item.unit_price,
+            "line_subtotal": item.line_total,
+            "compare_at_price": item.compare_at_price,
+            "sku": item.sku,
+            "product_title": item.product_title,
+        }
+        for item in cart.items.select_related("variant__product").all()
+        if item.variant_id
+    ]
+
+
+def _line_discount_map(line_allocations: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    return {
+        allocation["order_item_id"]: allocation
+        for allocation in line_allocations
+    }
+
+
+def _persist_cart_discount_rows(cart: Cart, applied_discounts: list[dict[str, Any]]) -> None:
+    from public.cart.models import CartDiscount
+
+    cart.discounts.filter(
+        discount_type__in=[
+            CartDiscount.DiscountType.CODE,
+            CartDiscount.DiscountType.AUTOMATIC,
+        ]
+    ).delete()
+    bulk_rows = [
+        CartDiscount(
+            cart=cart,
+            discount_type=(
+                CartDiscount.DiscountType.CODE
+                if row["discount_type"] == "code"
+                else CartDiscount.DiscountType.AUTOMATIC
+            ),
+            code=row.get("code", ""),
+            discount_id=row.get("discount_id") or None,
+            description=row.get("description", ""),
+            amount=quantize_money(row.get("amount")),
+            is_percentage=bool(row.get("is_percentage")),
+            percentage_value=row.get("percentage_value"),
+        )
+        for row in applied_discounts
+        if quantize_money(row.get("amount")) > 0 or row["discount_type"] in {"code", "automatic"}
+    ]
+    if bulk_rows:
+        CartDiscount.objects.bulk_create(bulk_rows)
+
+
 def recalculate_cart(cart: Cart):
     try:
         settings_obj = StoreSettings.objects.first()
@@ -1463,38 +1670,73 @@ def recalculate_cart(cart: Cart):
         logger.debug(
             "Store settings unavailable during cart recalculation: %s", exc)
         settings_obj = None
-    subtotal = sum(
-        quantize_money(item.unit_price) * item.quantity
-        for item in cart.items.all()
-    )
-    subtotal = quantize_money(subtotal)
+    currency_code = cart.currency or getattr(settings_obj, "currency", "USD")
+    customer = cart.customer
 
-    shipping_total = quantize_money(cart.shipping_total)
-    discount_total = Decimal("0.00")
-    discount_code = get_discount_code(cart.discount_code)
-    if discount_code:
-        if discount_code.minimum_order_amount and subtotal < discount_code.minimum_order_amount:
-            cart.discount_code = ""
-        elif discount_code.value_type == discount_code.ValueType.FREE_SHIPPING:
-            shipping_total = Decimal("0.00")
-        else:
-            discount_total = quantize_money(
-                discount_code.calculate_discount_amount(subtotal))
+    for item in cart.items.select_related("variant__product").all():
+        pricing_details = _resolve_variant_cart_pricing_details(
+            item.variant,
+            customer=customer,
+            quantity=item.quantity,
+            currency_code=currency_code,
+        )
+        item.unit_price = pricing_details["unit_price"]
+        item.compare_at_price = pricing_details["compare_at_price"]
+        item.original_price = pricing_details["original_price"]
+        _update_cart_item_pricing_snapshot(item, pricing_details)
+        item.save(
+            update_fields=[
+                "unit_price",
+                "compare_at_price",
+                "original_price",
+                "custom_properties",
+                "updated_at",
+            ]
+        )
+
+    cart_items = _cart_items_for_discount_engine(cart)
+    subtotal = quantize_money(sum((item["line_subtotal"] for item in cart_items), Decimal("0.00")))
+    base_shipping_total = quantize_money(cart.shipping_total)
+    discount_evaluation = evaluate_cart_discounts(
+        cart_subtotal=subtotal,
+        cart_items=cart_items,
+        customer=customer,
+        code=cart.discount_code,
+        shipping_total=base_shipping_total,
+        currency_code=currency_code,
+        ip_address=getattr(cart, "ip_address", ""),
+    )
+
+    if not discount_evaluation["valid"]:
+        cart.discount_code = ""
+        discount_evaluation = evaluate_cart_discounts(
+            cart_subtotal=subtotal,
+            cart_items=cart_items,
+            customer=customer,
+            code="",
+            shipping_total=base_shipping_total,
+            currency_code=currency_code,
+            ip_address=getattr(cart, "ip_address", ""),
+        )
+
+    _persist_cart_discount_rows(cart, discount_evaluation["applied_discounts"])
+
+    merchandise_discount_total = quantize_money(discount_evaluation["discount_total"])
+    shipping_discount_total = quantize_money(discount_evaluation["shipping_discount_total"])
+    shipping_total = max(Decimal("0.00"), quantize_money(base_shipping_total - shipping_discount_total))
+    total_discount = quantize_money(merchandise_discount_total + shipping_discount_total)
 
     tax_total = Decimal("0.00")
     if settings_obj and getattr(settings_obj, "tax_enabled", False):
-        taxable_amount = subtotal - discount_total + shipping_total
+        taxable_amount = subtotal - merchandise_discount_total + shipping_total
         if not getattr(settings_obj, "charge_tax_on_shipping", True):
-            taxable_amount = subtotal - discount_total
-        tax_rate = Decimal(
-            getattr(settings_obj, "default_tax_rate", Decimal("0.00")) or Decimal("0.00"))
-        tax_total = quantize_money(
-            taxable_amount * (tax_rate / Decimal("100")))
+            taxable_amount = subtotal - merchandise_discount_total
+        tax_rate = Decimal(str(getattr(settings_obj, "default_tax_rate", Decimal("0.00")) or Decimal("0.00")))
+        tax_total = quantize_money(taxable_amount * (tax_rate / Decimal("100")))
 
-    grand_total = quantize_money(
-        subtotal - discount_total + shipping_total + tax_total)
+    grand_total = quantize_money(subtotal - merchandise_discount_total + shipping_total + tax_total)
     cart.subtotal = subtotal
-    cart.discount_total = discount_total
+    cart.discount_total = total_discount
     cart.shipping_total = shipping_total
     cart.tax_total = tax_total
     cart.grand_total = grand_total
@@ -1565,27 +1807,24 @@ def get_cart_item_count(request) -> int:
         return 0
 
 
-def _resolve_variant_cart_prices(variant: ProductVariant) -> tuple[Decimal, Decimal | None, Decimal]:
-    base_price = quantize_money(variant.price)
-    compare_at_price = quantize_money(
-        variant.compare_at_price) if variant.compare_at_price else None
-    current_price = base_price
-
-    active_flash_sale = get_active_flash_sale()
-    if active_flash_sale is None:
-        return current_price, compare_at_price, compare_at_price or base_price
-
-    flash_sale_lookup = build_flash_sale_lookup(active_flash_sale)
-    flash_sale_item = flash_sale_lookup["variant_items"].get(str(
-        variant.id)) or flash_sale_lookup["product_items"].get(str(variant.product_id))
-    if flash_sale_item is not None:
-        sale_price = quantize_money(
-            flash_sale_item.compute_sale_price(base_price))
-        if sale_price < current_price:
-            compare_at_price = compare_at_price if compare_at_price and compare_at_price > current_price else current_price
-            current_price = sale_price
-
-    return current_price, compare_at_price, compare_at_price or base_price
+def _resolve_variant_cart_prices(
+    variant: ProductVariant,
+    *,
+    customer=None,
+    quantity: int = 1,
+    currency_code: str = "USD",
+) -> tuple[Decimal, Decimal | None, Decimal]:
+    pricing_details = _resolve_variant_cart_pricing_details(
+        variant,
+        customer=customer,
+        quantity=quantity,
+        currency_code=currency_code,
+    )
+    return (
+        pricing_details["unit_price"],
+        pricing_details["compare_at_price"],
+        pricing_details["original_price"],
+    )
 
 
 def add_variant_to_cart(cart: Cart, variant: ProductVariant, quantity: int = 1) -> Cart:
@@ -1593,29 +1832,37 @@ def add_variant_to_cart(cart: Cart, variant: ProductVariant, quantity: int = 1) 
     item = cart.items.filter(variant=variant).first()
     primary_image = variant.product.images.order_by(
         "-is_primary", "display_order", "created_at").first()
-    unit_price, compare_at_price, original_price = _resolve_variant_cart_prices(
-        variant)
+    new_quantity = (item.quantity + quantity) if item else quantity
+    pricing_details = _resolve_variant_cart_pricing_details(
+        variant,
+        customer=cart.customer,
+        quantity=new_quantity,
+        currency_code=cart.currency or "USD",
+    )
     if item:
         item.quantity += quantity
-        item.unit_price = unit_price
-        item.compare_at_price = compare_at_price
-        item.original_price = original_price
+        item.unit_price = pricing_details["unit_price"]
+        item.compare_at_price = pricing_details["compare_at_price"]
+        item.original_price = pricing_details["original_price"]
+        _update_cart_item_pricing_snapshot(item, pricing_details)
         item.save(update_fields=["quantity", "unit_price",
-                  "compare_at_price", "original_price", "updated_at"])
+                  "compare_at_price", "original_price", "custom_properties", "updated_at"])
     else:
-        CartItem.objects.create(
+        item = CartItem.objects.create(
             cart=cart,
             variant=variant,
             quantity=quantity,
-            unit_price=unit_price,
-            compare_at_price=compare_at_price,
-            original_price=original_price,
+            unit_price=pricing_details["unit_price"],
+            compare_at_price=pricing_details["compare_at_price"],
+            original_price=pricing_details["original_price"],
             product_title=variant.product.name,
             variant_title=variant.variant_name,
             product_image_url=primary_image.image.url if primary_image and primary_image.image else "",
             sku=variant.sku,
             requires_shipping=variant.product.requires_shipping,
         )
+        _update_cart_item_pricing_snapshot(item, pricing_details)
+        item.save(update_fields=["custom_properties", "updated_at"])
     return recalculate_cart(_prefetched_cart_queryset().get(pk=cart.pk))
 
 
@@ -1633,7 +1880,17 @@ def update_cart_from_payload(request, cart: Cart) -> Cart:
             item.delete()
         else:
             item.quantity = quantity
-            item.save(update_fields=["quantity", "updated_at"])
+            pricing_details = _resolve_variant_cart_pricing_details(
+                item.variant,
+                customer=cart.customer,
+                quantity=quantity,
+                currency_code=cart.currency or "USD",
+            )
+            item.unit_price = pricing_details["unit_price"]
+            item.compare_at_price = pricing_details["compare_at_price"]
+            item.original_price = pricing_details["original_price"]
+            _update_cart_item_pricing_snapshot(item, pricing_details)
+            item.save(update_fields=["quantity", "unit_price", "compare_at_price", "original_price", "custom_properties", "updated_at"])
 
     remove_item_id = request.POST.get("remove_item")
     if remove_item_id:
@@ -1644,14 +1901,17 @@ def update_cart_from_payload(request, cart: Cart) -> Cart:
 
 def apply_coupon_to_cart(cart: Cart, code: str) -> Cart:
     cleaned_code = (code or "").strip().upper()
-    discount_code = get_discount_code(cleaned_code)
-    if discount_code is None:
-        raise ValueError("That discount code is not available right now.")
-
-    if discount_code.minimum_order_amount and cart.subtotal < discount_code.minimum_order_amount:
-        raise ValueError(
-            f"Order subtotal must be at least {discount_code.minimum_order_amount} to use this code."
-        )
+    validation = validate_discount_code(
+        code=cleaned_code,
+        cart_subtotal=quantize_money(cart.subtotal),
+        customer=cart.customer,
+        cart_items=_cart_items_for_discount_engine(cart),
+        ip_address=getattr(cart, "ip_address", ""),
+        shipping_total=quantize_money(cart.shipping_total),
+        currency_code=cart.currency or "USD",
+    )
+    if not validation.valid:
+        raise ValueError(validation.message)
 
     cart.discount_code = cleaned_code
     cart.save(update_fields=["discount_code", "updated_at"])
@@ -1687,10 +1947,21 @@ def get_cart_summary(request) -> dict[str, Any]:
                 "product_url": safe_reverse("product:product_detail", product_slug=item.variant.product.slug) if item.variant else "#",
             }
         )
+    discount_lines = [
+        {
+            "type": discount.discount_type,
+            "label": discount.description or discount.code or discount.discount_type.replace("_", " ").title(),
+            "amount": quantize_money(discount.amount),
+            "amount_display": format_money(discount.amount, currency),
+            "code": discount.code,
+        }
+        for discount in cart.discounts.all()
+    ]
     return {
         "id": str(cart.id),
         "item_count": cart.item_count,
         "items": items,
+        "discount_lines": discount_lines,
         "subtotal": quantize_money(cart.subtotal),
         "discount_total": quantize_money(cart.discount_total),
         "shipping_total": quantize_money(cart.shipping_total),
@@ -1904,6 +2175,112 @@ def get_customer_order_queryset(request):
     )
 
 
+def _create_order_tax_rows(order: Order) -> None:
+    if quantize_money(order.total_tax) <= 0:
+        return
+    OrderTax.objects.create(
+        order=order,
+        title="Tax",
+        rate=Decimal("0.00"),
+        amount=quantize_money(order.total_tax),
+        is_included_in_price=False,
+        jurisdiction="",
+        tax_authority="",
+    )
+
+
+def _build_flash_sale_consumption_map(order: Order) -> dict[str, int]:
+    consumption: dict[str, int] = {}
+    for item in order.items.all():
+        pricing_snapshot = (item.custom_properties or {}).get("pricing_snapshot", {})
+        flash_sale_item_id = str(pricing_snapshot.get("flash_sale_item_id") or "").strip()
+        if not flash_sale_item_id:
+            continue
+        consumption[flash_sale_item_id] = consumption.get(flash_sale_item_id, 0) + int(item.quantity or 0)
+    return consumption
+
+
+def _increment_automatic_discount_usage(order: Order) -> list[str]:
+    applied_ids: list[str] = []
+    for order_discount in order.discounts.filter(discount_type=OrderDiscount.DiscountType.AUTOMATIC):
+        if not order_discount.discount_id:
+            continue
+        discount_id = str(order_discount.discount_id)
+        AutomaticDiscount.objects.filter(pk=discount_id).update(usage_count=F("usage_count") + 1)
+        applied_ids.append(discount_id)
+    return applied_ids
+
+
+def _decrement_automatic_discount_usage(order: Order) -> list[str]:
+    reversed_ids: list[str] = []
+    for order_discount in order.discounts.filter(discount_type=OrderDiscount.DiscountType.AUTOMATIC):
+        if not order_discount.discount_id:
+            continue
+        discount = AutomaticDiscount.objects.filter(pk=order_discount.discount_id).first()
+        if not discount:
+            continue
+        discount.usage_count = max(0, int(discount.usage_count or 0) - 1)
+        discount.save(update_fields=["usage_count", "updated_at"])
+        reversed_ids.append(str(order_discount.discount_id))
+    return reversed_ids
+
+
+def _increment_flash_sale_units_for_order(order: Order) -> dict[str, int]:
+    consumption = _build_flash_sale_consumption_map(order)
+    if not consumption:
+        return {}
+
+    applied: dict[str, int] = {}
+    for flash_sale_item_id, quantity in consumption.items():
+        flash_item = FlashSaleItem.objects.filter(pk=flash_sale_item_id).first() if FlashSaleItem is not None else None
+        if not flash_item:
+            continue
+        flash_item.increment_units_sold(quantity)
+        applied[flash_sale_item_id] = quantity
+    return applied
+
+
+def _decrement_flash_sale_units_for_order(order: Order) -> dict[str, int]:
+    consumption = _build_flash_sale_consumption_map(order)
+    if not consumption or FlashSaleItem is None:
+        return {}
+
+    reversed_items: dict[str, int] = {}
+    for flash_sale_item_id, quantity in consumption.items():
+        flash_item = FlashSaleItem.objects.filter(pk=flash_sale_item_id).first()
+        if not flash_item:
+            continue
+        flash_item.units_sold = max(0, int(flash_item.units_sold or 0) - int(quantity or 0))
+        flash_item.save(update_fields=["units_sold", "updated_at"])
+        reversed_items[flash_sale_item_id] = quantity
+    return reversed_items
+
+
+def reverse_order_pricing_effects(order: Order, reason: str = "") -> bool:
+    metadata = dict(order.metafields or {})
+    pricing_effects = dict(metadata.get("pricing_effects") or {})
+    if pricing_effects.get("reversed_at"):
+        return False
+
+    reversed_usage_count = reverse_discount_usage_for_order(order, reason=reason)
+    reversed_automatic_ids = _decrement_automatic_discount_usage(order)
+    reversed_flash_items = _decrement_flash_sale_units_for_order(order)
+
+    pricing_effects.update(
+        {
+            "reversed_at": timezone.now().isoformat(),
+            "reversal_reason": (reason or "")[:255],
+            "reversed_discount_usage_count": reversed_usage_count,
+            "reversed_automatic_discount_ids": reversed_automatic_ids,
+            "reversed_flash_sale_items": reversed_flash_items,
+        }
+    )
+    metadata["pricing_effects"] = pricing_effects
+    order.metafields = metadata
+    order.save(update_fields=["metafields", "updated_at"])
+    return True
+
+
 @transaction.atomic
 def create_order_from_checkout(request) -> Order:
     cart = get_or_create_cart(request)
@@ -1929,6 +2306,23 @@ def create_order_from_checkout(request) -> Order:
 
     customer = get_or_create_customer_profile(request.user) if getattr(
         request.user, "is_authenticated", False) else None
+    discount_evaluation = evaluate_cart_discounts(
+        cart_subtotal=quantize_money(cart.subtotal),
+        cart_items=_cart_items_for_discount_engine(cart),
+        customer=customer,
+        code=cart.discount_code,
+        shipping_total=quantize_money(selected_shipping["amount"]),
+        currency_code=cart.currency or "USD",
+        ip_address=get_client_ip(request),
+    )
+    if not discount_evaluation["valid"]:
+        raise ValueError(discount_evaluation["message"] or "The active discount could not be validated at checkout.")
+
+    line_allocation_map = {
+        allocation["order_item_id"]: allocation
+        for allocation in discount_evaluation["line_allocations"]
+    }
+    applied_discounts = list(discount_evaluation["applied_discounts"])
     order_sequence = _next_order_sequence()
     payment_method = checkout_state["payment_method"]
 
@@ -1937,6 +2331,7 @@ def create_order_from_checkout(request) -> Order:
         order_number_sequence=order_sequence,
         customer=customer,
         cart_id=cart.id,
+        currency=cart.currency or "USD",
         customer_email=checkout_state.get(
             "email") or cart.email or getattr(request.user, "email", ""),
         customer_phone=checkout_state.get("phone", ""),
@@ -1963,6 +2358,14 @@ def create_order_from_checkout(request) -> Order:
             "payment_state": "pending",
             "checkout_schema": get_tenant_key(request),
             "checkout_token": cart.checkout_token,
+            "pricing_effects": {
+                "accounted_at": "",
+                "reversed_at": "",
+                "applied_discounts": [],
+                "automatic_discount_ids": [],
+                "flash_sale_items": {},
+                "discount_usage_recorded_for_code": "",
+            },
         },
     )
 
@@ -2002,6 +2405,18 @@ def create_order_from_checkout(request) -> Order:
     for item in cart.items.select_related("variant__product"):
         variant = item.variant
         product = variant.product if variant else None
+        allocation = line_allocation_map.get(str(item.id), {})
+        unit_discount = quantize_money(allocation.get("unit_discount"))
+        total_discount = quantize_money(allocation.get("line_discount"))
+        line_subtotal = quantize_money((item.unit_price * item.quantity) - total_discount)
+        line_total = quantize_money(line_subtotal)
+        custom_properties = dict(item.custom_properties or {})
+        custom_properties["discount_sources"] = allocation.get("sources", [])
+        applied_discount_ids = [
+            source["discount_id"]
+            for source in allocation.get("sources", [])
+            if source.get("discount_id")
+        ]
         OrderItem.objects.create(
             order=order,
             variant=variant,
@@ -2015,16 +2430,76 @@ def create_order_from_checkout(request) -> Order:
             product_image_url=item.product_image_url,
             unit_price=item.unit_price,
             compare_at_price=item.compare_at_price,
-            unit_discount=Decimal("0.00"),
+            unit_discount=unit_discount,
             unit_tax=Decimal("0.00"),
             tax_rate=Decimal("0.00"),
-            total_discount=Decimal("0.00"),
+            total_discount=total_discount,
             total_tax=Decimal("0.00"),
-            subtotal=item.line_total,
-            total=item.line_total,
+            subtotal=line_subtotal,
+            total=line_total,
             requires_shipping=item.requires_shipping,
-            custom_properties=item.custom_properties,
+            custom_properties=custom_properties,
+            applied_discount_ids=applied_discount_ids,
         )
+
+    for row in applied_discounts:
+        OrderDiscount.objects.create(
+            order=order,
+            discount_type=(
+                OrderDiscount.DiscountType.CODE
+                if row["discount_type"] == "code"
+                else OrderDiscount.DiscountType.AUTOMATIC
+            ),
+            code=row.get("code", ""),
+            description=row.get("description", ""),
+            discount_id=row.get("discount_id") or None,
+            allocation_method=row.get("allocation_method") or OrderDiscount.AllocationMethod.ACROSS,
+            amount=quantize_money(row.get("amount")),
+            is_percentage=bool(row.get("is_percentage")),
+            percentage_value=row.get("percentage_value"),
+        )
+
+    _create_order_tax_rows(order)
+
+    code_discount_id = ""
+    code_discount_amount = Decimal("0.00")
+    for row in applied_discounts:
+        if row["discount_type"] != "code" or not row.get("discount_id"):
+            continue
+        code_discount_id = str(row["discount_id"])
+        code_discount_amount = quantize_money(row.get("amount"))
+        record_discount_usage(
+            discount_code_id=code_discount_id,
+            order_id=str(order.id),
+            order_number=order.order_number,
+            discount_amount=code_discount_amount,
+            order_subtotal=quantize_money(order.subtotal_price),
+            customer=customer,
+            customer_email=order.customer_email,
+            currency=order.currency,
+            ip_address=order.ip_address or "",
+            user_agent=order.user_agent or "",
+        )
+        break
+
+    automatic_discount_ids = _increment_automatic_discount_usage(order)
+    flash_sale_items = _increment_flash_sale_units_for_order(order)
+
+    metafields = dict(order.metafields or {})
+    pricing_effects = dict(metafields.get("pricing_effects") or {})
+    pricing_effects.update(
+        {
+            "accounted_at": timezone.now().isoformat(),
+            "applied_discounts": applied_discounts,
+            "automatic_discount_ids": automatic_discount_ids,
+            "flash_sale_items": flash_sale_items,
+            "discount_usage_recorded_for_code": code_discount_id,
+            "discount_usage_amount": str(code_discount_amount),
+        }
+    )
+    metafields["pricing_effects"] = pricing_effects
+    order.metafields = metafields
+    order.save(update_fields=["metafields", "updated_at"])
 
     target_status = Order.OrderStatus.ON_HOLD if payment_method == "bank_transfer" else Order.OrderStatus.CONFIRMED
     order.transition_status(
@@ -2049,6 +2524,7 @@ def update_order_payment_state(order: Order, status: str, reference: str = "", p
 
     success_states = {"success", "succeeded", "paid", "completed"}
     failure_states = {"failed", "failure", "cancelled", "voided"}
+    reversal_states = {"cancelled", "voided"}
 
     if normalized_status in success_states and order.financial_status != Order.FinancialStatus.PAID:
         order.financial_status = Order.FinancialStatus.PAID
@@ -2064,6 +2540,13 @@ def update_order_payment_state(order: Order, status: str, reference: str = "", p
         return order
 
     if normalized_status in failure_states and order.financial_status != Order.FinancialStatus.FAILED:
+        if normalized_status in reversal_states:
+            reverse_order_pricing_effects(order, reason=f"payment_{normalized_status}")
+            if order.is_cancellable:
+                try:
+                    order.cancel(reason=f"payment_{normalized_status}", note="Payment was cancelled or voided.")
+                except Exception:
+                    logger.debug("Unable to cancel order %s during %s reversal.", order.order_number, normalized_status)
         order.financial_status = Order.FinancialStatus.FAILED
         metadata["payment_state"] = "failed"
         order.metafields = metadata

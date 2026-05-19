@@ -505,6 +505,26 @@ class DiscountUsage(IduuidModel):
     )
     user_agent = models.TextField(_("User Agent"), blank=True)
 
+    is_reversed = models.BooleanField(
+        _("Is Reversed"),
+        default=False,
+        db_index=True,
+        help_text=_(
+            "Marks redemptions that were later voided or cancelled so they are "
+            "excluded from live validation and analytics."
+        ),
+    )
+    reversed_at = models.DateTimeField(
+        _("Reversed At"),
+        null=True,
+        blank=True,
+    )
+    reversal_reason = models.CharField(
+        _("Reversal Reason"),
+        max_length=255,
+        blank=True,
+    )
+
     # ── Immutable timestamp ──
     used_at = models.DateTimeField(
         _("Used At"),
@@ -522,6 +542,7 @@ class DiscountUsage(IduuidModel):
             models.Index(fields=["order_id"]),
             models.Index(fields=["customer_email"]),
             models.Index(fields=["ip_address"]),
+            models.Index(fields=["discount_code", "is_reversed", "-used_at"]),
         ]
 
     def __str__(self):
@@ -1061,7 +1082,7 @@ class BuyXGetYItem(MixIdAndTimeModel):
         ordering = ["promotion", "side"]
 
     def __str__(self):
-        target = self.variant or self.product or self.collection or self.category
+        target = self.variant or self.product or self.category
         return f"{self.promotion.title} — {self.side}: {target}"
 
 
