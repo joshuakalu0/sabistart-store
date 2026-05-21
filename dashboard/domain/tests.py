@@ -14,16 +14,28 @@ from datetime import timedelta
 from dashboard.domain.models import (
     ACMEChallenge,
     CustomDomain,
+    DomainActivityLog,
+    DomainAvailabilityCache,
     DomainDNSRecord,
     DomainEventLog,
     DomainHealthCheck,
+    DomainNotification,
+    DomainProvider,
+    DomainProviderCredential,
+    DomainProvisioningAttempt,
+    DomainPurchaseOrder,
     DomainQuota,
     DomainRedirectRule,
     DomainResolutionCache,
     DomainVerificationAttempt,
+    ManagedDomain,
+    ManagedDomainDNSRecord,
+    ManagedDomainRenewal,
     NginxVhostConfig,
     SSLCertificate,
     SSLProvisioningLog,
+    TenantDomainContact,
+    TldCatalogEntry,
 )
 from dashboard.feature_marketplace.models import ResourceQuota, TenantEntitlement
 from dashboard.feature_marketplace.services import FeatureEntitlementEngine
@@ -83,6 +95,18 @@ class DomainDashboardTenantTestCase(TenantTestCase):
                 NginxVhostConfig,
                 DomainResolutionCache,
                 ACMEChallenge,
+                DomainProvider,
+                DomainProviderCredential,
+                TldCatalogEntry,
+                DomainAvailabilityCache,
+                TenantDomainContact,
+                DomainPurchaseOrder,
+                ManagedDomain,
+                ManagedDomainDNSRecord,
+                DomainProvisioningAttempt,
+                ManagedDomainRenewal,
+                DomainNotification,
+                DomainActivityLog,
             ):
                 cls._ensure_public_model_table_exists(model)
             for model in (TenantUser, TenantEntitlement, ResourceQuota):
@@ -163,7 +187,13 @@ class DomainRouteTests(DomainDashboardTenantTestCase):
         self.assertEqual(match.url_name, "list")
         self.assertEqual(match.namespace, "dashboard:domain")
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Connect a custom domain")
+        self.assertContains(response, "Buy, connect, and operate domains")
+
+    def test_domain_checkout_without_selection_guides_user_back_to_search(self):
+        response = self.client.get(reverse("dashboard:domain:checkout", kwargs={"prefix": self.prefix}))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Pick a domain first")
 
 
 class DomainFlowTests(DomainDashboardTenantTestCase):
@@ -185,14 +215,46 @@ class DomainFlowTests(DomainDashboardTenantTestCase):
         self.assertEqual(quota.max_custom_domains, 1)
         mocked_verify.assert_called_once_with(str(custom_domain.id))
 
-    def test_domain_dashboard_redirects_without_domain_entitlement(self):
-        TenantEntitlement.objects.filter(feature_code="max_custom_domains").delete()
-        FeatureEntitlementEngine(self.tenant.schema_name).rebuild_quota("max_custom_domains")
+    @patch("dashboard.domain.commerce.verify_domain_dns.delay")
+    def test_connecting_managed_domain_creates_custom_domain_link(self, mocked_verify):
+        provider = DomainProvider.objects.create(code="namecheap-test", name="Namecheap Test", supports_dns=True)
+        managed_domain = ManagedDomain.objects.create(
+            tenant=self.tenant,
+            provider=provider,
+            domain_name="managed-example.com",
+            status=ManagedDomain.Status.ACTIVE,
+            currency="USD",
+        )
 
-        response = self.client.get(reverse("dashboard:domain:list", kwargs={"prefix": self.prefix}))
+        response = self.client.post(
+            reverse("dashboard:domain:managed_connect", kwargs={"prefix": self.prefix, "managed_domain_id": managed_domain.id}),
+            {"use_provider_dns": "0", "make_primary": "1"},
+            follow=True,
+        )
 
-        self.assertEqual(response.status_code, 302)
-        self.assertIn(reverse("dashboard:feature_marketplace:catalog", kwargs={"prefix": self.prefix}), response.url)
+        custom_domain = CustomDomain.objects.get(domain="managed-example.com")
+        managed_domain.refresh_from_db()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(custom_domain.managed_domain_id, managed_domain.id)
+        self.assertEqual(custom_domain.connection_source, "managed")
+        self.assertEqual(managed_domain.connection_status, ManagedDomain.ConnectionStatus.PENDING)
+        mocked_verify.assert_called_once()
+
+    def test_portfolio_renders_managed_domains(self):
+        provider = DomainProvider.objects.create(code="portfolio-provider", name="Portfolio Provider")
+        ManagedDomain.objects.create(
+            tenant=self.tenant,
+            provider=provider,
+            domain_name="portfolio-example.com",
+            status=ManagedDomain.Status.ACTIVE,
+            currency="USD",
+        )
+
+        response = self.client.get(reverse("dashboard:domain:portfolio", kwargs={"prefix": self.prefix}))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "portfolio-example.com")
 
     def test_acme_challenge_returns_key_authorization(self):
         custom_domain = CustomDomain.objects.create(

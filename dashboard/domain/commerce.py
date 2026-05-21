@@ -118,6 +118,42 @@ def get_provider_client(provider: DomainProvider | None = None, credential: Doma
     return adapter_cls(credential)
 
 
+def sync_provider_tld_catalog(
+    provider: DomainProvider | None = None,
+    credential: DomainProviderCredential | None = None,
+) -> int:
+    provider = provider or get_default_provider()
+    credential = credential or get_default_credential(provider)
+    if credential is None:
+        return 0
+    client = get_provider_client(provider=provider, credential=credential)
+    synced = 0
+    for sort_order, row in enumerate(client.get_tld_catalog(), start=1):
+        tld = row.get("tld", "")
+        if not tld:
+            continue
+        TldCatalogEntry.objects.update_or_create(
+            provider=provider,
+            tld=tld,
+            defaults={
+                "currency": row.get("currency", "USD"),
+                "registration_price": row.get("registration_price", Decimal("0.00")),
+                "renewal_price": row.get("renewal_price", Decimal("0.00")),
+                "transfer_price": row.get("transfer_price", Decimal("0.00")),
+                "supports_registration": row.get("supports_registration", True),
+                "supports_renewal": row.get("supports_renewal", True),
+                "supports_dns": row.get("supports_dns", False),
+                "is_enabled": row.get("is_enabled", True),
+                "is_premium_tld": row.get("is_premium_tld", False),
+                "sort_order": row.get("sort_order", sort_order * 10),
+                "last_synced_at": timezone.now(),
+                "raw_payload": row.get("raw_payload", {}),
+            },
+        )
+        synced += 1
+    return synced
+
+
 def log_domain_activity(*, tenant, event_type: str, message: str, actor: str = "", managed_domain=None, custom_domain=None, purchase_order=None, metadata: dict | None = None):
     return DomainActivityLog.objects.create(
         tenant=tenant,
@@ -603,6 +639,14 @@ def provision_renewal_order(order: DomainPurchaseOrder):
             status=ManagedDomainRenewal.Status.FAILED,
             message=str(exc),
         )
+        create_domain_notification(
+            tenant=order.tenant,
+            managed_domain=order.managed_domain,
+            purchase_order=order,
+            title="Domain renewal failed",
+            message=f"We could not renew {order.domain_name}. The renewal order is available for retry and review.",
+            level=DomainNotification.Level.ERROR,
+        )
         raise
 
 
@@ -712,7 +756,7 @@ def connect_managed_domain_to_storefront(*, managed_domain: ManagedDomain, make_
         title="Domain connection started",
         message=f"We started verification for {managed_domain.domain_name}.",
         level=DomainNotification.Level.INFO,
-        action_url=reverse("dashboard:domain:detail", kwargs={"prefix": "admin", "domain_id": custom_domain.id}),
+        action_url="",
     )
     return custom_domain
 
@@ -829,12 +873,95 @@ def process_due_domain_renewals(limit: int = 25) -> int:
         order.paid_at = timezone.now()
         order.save(update_fields=["status", "paid_at", "updated_at"])
         provision_renewal_order(order)
-        renewal.status = ManagedDomainRenewal.Status.PROCESSING
+        renewal.status = ManagedDomainRenewal.Status.COMPLETED
         renewal.executed_at = timezone.now()
         renewal.order = order
         renewal.save(update_fields=["status", "executed_at", "order", "updated_at"])
         processed += 1
     return processed
+
+
+def dispatch_domain_notifications(days: int = 30) -> int:
+    created = 0
+    now = timezone.now()
+    soon = now + timezone.timedelta(days=days)
+
+    expiring_domains = ManagedDomain.objects.filter(
+        status__in=[ManagedDomain.Status.ACTIVE, ManagedDomain.Status.EXPIRING, ManagedDomain.Status.RENEWAL_DUE],
+        expires_at__isnull=False,
+        expires_at__lte=soon,
+    )
+    for managed_domain in expiring_domains:
+        exists = DomainNotification.objects.filter(
+            tenant=managed_domain.tenant,
+            managed_domain=managed_domain,
+            title="Domain expiring soon",
+            created_at__gte=now - timezone.timedelta(days=7),
+        ).exists()
+        if exists:
+            continue
+        create_domain_notification(
+            tenant=managed_domain.tenant,
+            managed_domain=managed_domain,
+            title="Domain expiring soon",
+            message=f"{managed_domain.domain_name} expires on {managed_domain.expires_at:%b %d, %Y}. Review renewal settings now.",
+            level=DomainNotification.Level.WARNING,
+        )
+        created += 1
+
+    failed_renewals = ManagedDomainRenewal.objects.select_related("managed_domain__tenant").filter(
+        status=ManagedDomainRenewal.Status.FAILED,
+        created_at__gte=now - timezone.timedelta(days=7),
+    )
+    for renewal in failed_renewals:
+        exists = DomainNotification.objects.filter(
+            tenant=renewal.managed_domain.tenant,
+            managed_domain=renewal.managed_domain,
+            title="Renewal needs attention",
+            created_at__gte=renewal.created_at,
+        ).exists()
+        if exists:
+            continue
+        create_domain_notification(
+            tenant=renewal.managed_domain.tenant,
+            managed_domain=renewal.managed_domain,
+            purchase_order=renewal.order,
+            title="Renewal needs attention",
+            message=f"{renewal.managed_domain.domain_name} has a failed renewal event that needs review.",
+            level=DomainNotification.Level.ERROR,
+        )
+        created += 1
+
+    for managed_domain in ManagedDomain.objects.select_related("tenant").all():
+        custom_domain = getattr(managed_domain, "custom_connection", None)
+        if custom_domain is None:
+            if managed_domain.connection_status != ManagedDomain.ConnectionStatus.DETACHED:
+                managed_domain.connection_status = ManagedDomain.ConnectionStatus.DETACHED
+                managed_domain.save(update_fields=["connection_status", "updated_at"])
+            continue
+        if custom_domain.status == CustomDomain.Status.ACTIVE and managed_domain.connection_status != ManagedDomain.ConnectionStatus.CONNECTED:
+            managed_domain.connection_status = ManagedDomain.ConnectionStatus.CONNECTED
+            managed_domain.connected_at = managed_domain.connected_at or now
+            managed_domain.save(update_fields=["connection_status", "connected_at", "updated_at"])
+            exists = DomainNotification.objects.filter(
+                tenant=managed_domain.tenant,
+                managed_domain=managed_domain,
+                title="Domain connection is live",
+                created_at__gte=now - timezone.timedelta(days=7),
+            ).exists()
+            if not exists:
+                create_domain_notification(
+                    tenant=managed_domain.tenant,
+                    managed_domain=managed_domain,
+                    title="Domain connection is live",
+                    message=f"{managed_domain.domain_name} is now active on your storefront.",
+                    level=DomainNotification.Level.SUCCESS,
+                )
+                created += 1
+        elif custom_domain.status == CustomDomain.Status.FAILED and managed_domain.connection_status != ManagedDomain.ConnectionStatus.FAILED:
+            managed_domain.connection_status = ManagedDomain.ConnectionStatus.FAILED
+            managed_domain.save(update_fields=["connection_status", "updated_at"])
+    return created
 
 
 def reconcile_managed_domain_integrity() -> dict:
@@ -847,6 +974,27 @@ def reconcile_managed_domain_integrity() -> dict:
             custom_domain.connection_source = "managed"
             custom_domain.save(update_fields=["managed_domain", "connection_source", "updated_at"])
             fixed_connections += 1
+        if custom_domain is None and managed_domain.connection_status != ManagedDomain.ConnectionStatus.DETACHED:
+            managed_domain.connection_status = ManagedDomain.ConnectionStatus.DETACHED
+            managed_domain.save(update_fields=["connection_status", "updated_at"])
+            fixed_connections += 1
+        elif custom_domain is not None:
+            desired_status = managed_domain.connection_status
+            if custom_domain.status == CustomDomain.Status.ACTIVE:
+                desired_status = ManagedDomain.ConnectionStatus.CONNECTED
+            elif custom_domain.status == CustomDomain.Status.FAILED:
+                desired_status = ManagedDomain.ConnectionStatus.FAILED
+            elif custom_domain.status in {
+                CustomDomain.Status.PENDING,
+                CustomDomain.Status.DNS_CHECKING,
+                CustomDomain.Status.DNS_VERIFIED,
+                CustomDomain.Status.SSL_PENDING,
+            }:
+                desired_status = ManagedDomain.ConnectionStatus.PENDING
+            if desired_status != managed_domain.connection_status:
+                managed_domain.connection_status = desired_status
+                managed_domain.save(update_fields=["connection_status", "updated_at"])
+                fixed_connections += 1
         if managed_domain.status in {ManagedDomain.Status.ACTIVE, ManagedDomain.Status.EXPIRING, ManagedDomain.Status.RENEWAL_DUE}:
             try:
                 sync_managed_domain(managed_domain)

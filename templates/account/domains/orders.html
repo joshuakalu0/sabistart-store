@@ -1,0 +1,44 @@
+{% extends "account/domains/base.html" %}
+
+{% block domain_body %}
+  <section class="rounded-3xl border border-slate-200 bg-white p-6">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <h3 class="text-lg font-semibold text-slate-950">Domain orders</h3>
+        <p class="mt-1 text-sm text-slate-500">Search all registration and renewal orders across tenants.</p>
+      </div>
+      <form method="get" class="flex w-full max-w-md items-center gap-3">
+        <input type="text" name="q" value="{{ q }}" placeholder="Search by domain, reference, or tenant" class="block w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+        <button type="submit" class="rounded-full bg-slate-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-800">Search</button>
+      </form>
+    </div>
+    <div class="mt-6 overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="border-b border-slate-200 text-left text-slate-500">
+          <tr>
+            <th class="pb-3 pr-4 font-medium">Reference</th>
+            <th class="pb-3 pr-4 font-medium">Domain</th>
+            <th class="pb-3 pr-4 font-medium">Tenant</th>
+            <th class="pb-3 pr-4 font-medium">Type</th>
+            <th class="pb-3 pr-4 font-medium">Status</th>
+            <th class="pb-3 font-medium">Total</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for order in orders %}
+            <tr>
+              <td class="py-3 pr-4 font-semibold text-slate-900">{{ order.purchase_reference }}</td>
+              <td class="py-3 pr-4">{{ order.domain_name }}</td>
+              <td class="py-3 pr-4">{{ order.tenant.name }}</td>
+              <td class="py-3 pr-4">{{ order.get_order_type_display }}</td>
+              <td class="py-3 pr-4">{{ order.get_status_display }}</td>
+              <td class="py-3">{{ order.total_amount }} {{ order.currency }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6" class="py-8 text-center text-slate-500">No domain orders found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

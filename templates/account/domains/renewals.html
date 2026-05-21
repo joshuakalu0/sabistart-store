@@ -1,0 +1,36 @@
+{% extends "account/domains/base.html" %}
+
+{% block domain_body %}
+  <section class="rounded-3xl border border-slate-200 bg-white p-6">
+    <h3 class="text-lg font-semibold text-slate-950">Renewal queue</h3>
+    <p class="mt-1 text-sm text-slate-500">Scheduled renewals stay visible even after payment or provider retries.</p>
+    <div class="mt-6 overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="border-b border-slate-200 text-left text-slate-500">
+          <tr>
+            <th class="pb-3 pr-4 font-medium">Domain</th>
+            <th class="pb-3 pr-4 font-medium">Tenant</th>
+            <th class="pb-3 pr-4 font-medium">Scheduled</th>
+            <th class="pb-3 pr-4 font-medium">Status</th>
+            <th class="pb-3 pr-4 font-medium">Years</th>
+            <th class="pb-3 font-medium">Amount</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for renewal in renewals %}
+            <tr>
+              <td class="py-3 pr-4 font-semibold text-slate-900">{{ renewal.managed_domain.domain_name }}</td>
+              <td class="py-3 pr-4">{{ renewal.managed_domain.tenant.name }}</td>
+              <td class="py-3 pr-4">{{ renewal.scheduled_for|date:"M j, Y g:i A" }}</td>
+              <td class="py-3 pr-4">{{ renewal.get_status_display }}</td>
+              <td class="py-3 pr-4">{{ renewal.years }}</td>
+              <td class="py-3">{{ renewal.amount }} {{ renewal.currency }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6" class="py-8 text-center text-slate-500">No renewal events scheduled yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

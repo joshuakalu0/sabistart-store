@@ -77,9 +77,11 @@ class NamecheapAdapter(DomainProviderAdapter):
 
     def _pricing_for(self, domain_name: str) -> tuple[Decimal, Decimal, str]:
         _, tld = split_registered_domain(domain_name, self._tlds())
-        entry = TldCatalogEntry.objects.filter(provider__code=self.provider_code, tld__iexact=f".{tld}".rstrip(".")).first()
-        if entry is None:
-            entry = TldCatalogEntry.objects.filter(provider__code=self.provider_code, tld__iexact=f".{tld}").first()
+        normalized_tld = tld if tld.startswith(".") else f".{tld}"
+        entry = TldCatalogEntry.objects.filter(
+            provider__code=self.provider_code,
+            tld__iexact=normalized_tld,
+        ).first()
         if entry is None:
             return Decimal("0.00"), Decimal("0.00"), "USD"
         return entry.selling_registration_price, entry.selling_renewal_price, entry.currency

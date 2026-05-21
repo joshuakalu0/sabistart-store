@@ -1,0 +1,60 @@
+{% extends "account/domains/base.html" %}
+
+{% block domain_body %}
+  <section class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+    <article class="rounded-3xl border border-slate-200 bg-white p-6">
+      <h3 class="text-lg font-semibold text-slate-950">TLD catalog</h3>
+      <p class="mt-2 text-sm text-slate-500">Control retail pricing, renewals, markups, and which endings are purchasable in tenant search.</p>
+      <div class="mt-5 overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="border-b border-slate-200 text-left text-slate-500">
+            <tr>
+              <th class="pb-3 pr-4 font-medium">TLD</th>
+              <th class="pb-3 pr-4 font-medium">Provider</th>
+              <th class="pb-3 pr-4 font-medium">Register</th>
+              <th class="pb-3 pr-4 font-medium">Renew</th>
+              <th class="pb-3 pr-4 font-medium">Sell Price</th>
+              <th class="pb-3 font-medium">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            {% for entry in tlds %}
+              <tr>
+                <td class="py-3 pr-4 font-semibold text-slate-900">{{ entry.tld }}</td>
+                <td class="py-3 pr-4">{{ entry.provider.name }}</td>
+                <td class="py-3 pr-4">{{ entry.registration_price }} {{ entry.currency }}</td>
+                <td class="py-3 pr-4">{{ entry.renewal_price }} {{ entry.currency }}</td>
+                <td class="py-3 pr-4">{{ entry.selling_registration_price }} {{ entry.currency }}</td>
+                <td class="py-3">
+                  <a href="?entry={{ entry.id }}" class="text-sm font-medium text-blue-600 hover:text-blue-700">Edit</a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="6" class="py-8 text-center text-slate-500">No TLD catalog entries yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="rounded-3xl border border-slate-200 bg-white p-6">
+      <h3 class="text-lg font-semibold text-slate-950">{% if editing_entry %}Edit {{ editing_entry.tld }}{% else %}Add TLD pricing{% endif %}</h3>
+      <form method="post" class="mt-6 space-y-4">
+        {% csrf_token %}
+        {% for field in form %}
+          <div>
+            <label class="mb-2 block text-sm font-medium text-slate-700" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+              <p class="mt-2 text-sm text-rose-600">{{ field.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+        <div class="flex flex-wrap gap-3 pt-2">
+          <button type="submit" class="rounded-full bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700">Save entry</button>
+          <a href="{% url 'platform_domains:tlds' %}" class="rounded-full border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Reset</a>
+        </div>
+      </form>
+    </article>
+  </section>
+{% endblock %}

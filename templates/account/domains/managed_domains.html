@@ -1,0 +1,36 @@
+{% extends "account/domains/base.html" %}
+
+{% block domain_body %}
+  <section class="rounded-3xl border border-slate-200 bg-white p-6">
+    <h3 class="text-lg font-semibold text-slate-950">Managed domains</h3>
+    <p class="mt-1 text-sm text-slate-500">Track registrar-backed portfolio state separately from storefront routing state.</p>
+    <div class="mt-6 overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="border-b border-slate-200 text-left text-slate-500">
+          <tr>
+            <th class="pb-3 pr-4 font-medium">Domain</th>
+            <th class="pb-3 pr-4 font-medium">Tenant</th>
+            <th class="pb-3 pr-4 font-medium">Provider</th>
+            <th class="pb-3 pr-4 font-medium">Lifecycle</th>
+            <th class="pb-3 pr-4 font-medium">Connection</th>
+            <th class="pb-3 font-medium">Expiry</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for domain in managed_domains %}
+            <tr>
+              <td class="py-3 pr-4 font-semibold text-slate-900">{{ domain.domain_name }}</td>
+              <td class="py-3 pr-4">{{ domain.tenant.name }}</td>
+              <td class="py-3 pr-4">{{ domain.provider.name }}</td>
+              <td class="py-3 pr-4">{{ domain.get_status_display }}</td>
+              <td class="py-3 pr-4">{{ domain.get_connection_status_display }}</td>
+              <td class="py-3">{{ domain.expires_at|date:"M j, Y"|default:"-" }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6" class="py-8 text-center text-slate-500">No managed domains yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

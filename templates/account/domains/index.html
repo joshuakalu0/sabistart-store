@@ -1,0 +1,111 @@
+{% extends "account/domains/base.html" %}
+
+{% block page_actions %}
+  <a href="?action=sync_tlds" class="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50">Ensure catalog</a>
+  <a href="?action=process_orders" class="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50">Process paid orders</a>
+  <a href="?action=process_renewals" class="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:border-slate-300 hover:bg-slate-50">Run renewals</a>
+  <a href="?action=reconcile" class="rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Reconcile integrity</a>
+{% endblock %}
+
+{% block domain_body %}
+  <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+    <article class="rounded-3xl border border-slate-200 bg-white p-5">
+      <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Providers</p>
+      <p class="mt-3 text-3xl font-bold text-slate-950">{{ provider_count }}</p>
+    </article>
+    <article class="rounded-3xl border border-slate-200 bg-white p-5">
+      <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Credentials</p>
+      <p class="mt-3 text-3xl font-bold text-slate-950">{{ credential_count }}</p>
+    </article>
+    <article class="rounded-3xl border border-slate-200 bg-white p-5">
+      <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Orders</p>
+      <p class="mt-3 text-3xl font-bold text-slate-950">{{ order_count }}</p>
+    </article>
+    <article class="rounded-3xl border border-slate-200 bg-white p-5">
+      <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Managed Domains</p>
+      <p class="mt-3 text-3xl font-bold text-slate-950">{{ managed_count }}</p>
+    </article>
+    <article class="rounded-3xl border border-slate-200 bg-white p-5">
+      <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Renewals Due</p>
+      <p class="mt-3 text-3xl font-bold {% if renewals_due %}text-amber-600{% else %}text-slate-950{% endif %}">{{ renewals_due }}</p>
+    </article>
+  </section>
+
+  <section class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+    <article class="rounded-3xl border border-slate-200 bg-white p-6">
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <h3 class="text-lg font-semibold text-slate-950">Recent orders</h3>
+          <p class="mt-1 text-sm text-slate-500">Watch purchase, renewal, and provisioning flow from one queue.</p>
+        </div>
+        <a href="{% url 'platform_domains:orders' %}" class="text-sm font-medium text-blue-600 hover:text-blue-700">View all</a>
+      </div>
+      <div class="mt-5 overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="border-b border-slate-200 text-left text-slate-500">
+            <tr>
+              <th class="pb-3 pr-4 font-medium">Reference</th>
+              <th class="pb-3 pr-4 font-medium">Domain</th>
+              <th class="pb-3 pr-4 font-medium">Tenant</th>
+              <th class="pb-3 pr-4 font-medium">Status</th>
+              <th class="pb-3 font-medium">Created</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            {% for order in recent_orders %}
+              <tr>
+                <td class="py-3 pr-4 font-semibold text-slate-900">{{ order.purchase_reference }}</td>
+                <td class="py-3 pr-4">{{ order.domain_name }}</td>
+                <td class="py-3 pr-4">{{ order.tenant.name }}</td>
+                <td class="py-3 pr-4">
+                  <span class="rounded-full px-3 py-1 text-xs font-semibold {% if order.status == 'active' %}bg-emerald-100 text-emerald-700{% elif order.status == 'failed' %}bg-rose-100 text-rose-700{% elif order.status == 'provisioning' %}bg-amber-100 text-amber-700{% else %}bg-slate-100 text-slate-700{% endif %}">
+                    {{ order.get_status_display }}
+                  </span>
+                </td>
+                <td class="py-3">{{ order.created_at|date:"M j, Y g:i A" }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" class="py-8 text-center text-slate-500">No domain orders yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <div class="space-y-6">
+      <article class="rounded-3xl border border-slate-200 bg-white p-6">
+        <h3 class="text-lg font-semibold text-slate-950">Recent activity</h3>
+        <div class="mt-5 space-y-3">
+          {% for event in recent_activity %}
+            <div class="rounded-2xl bg-slate-50 px-4 py-3">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <p class="font-semibold text-slate-900">{{ event.event_type|title|cut:"_" }}</p>
+                  <p class="mt-1 text-sm text-slate-600">{{ event.message }}</p>
+                </div>
+                <p class="shrink-0 text-xs text-slate-400">{{ event.created_at|date:"M j, g:i A" }}</p>
+              </div>
+            </div>
+          {% empty %}
+            <p class="text-sm text-slate-500">No activity captured yet.</p>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="rounded-3xl border border-slate-200 bg-white p-6">
+        <h3 class="text-lg font-semibold text-slate-950">Failed attempts</h3>
+        <div class="mt-5 space-y-3">
+          {% for attempt in failing_attempts %}
+            <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3">
+              <p class="font-semibold text-rose-700">{{ attempt.get_action_display }}</p>
+              <p class="mt-1 text-sm text-rose-600">{{ attempt.message|default:"Provider call failed." }}</p>
+              <p class="mt-2 text-xs text-rose-500">{{ attempt.created_at|date:"M j, Y g:i A" }}</p>
+            </div>
+          {% empty %}
+            <p class="text-sm text-slate-500">No failed provisioning attempts right now.</p>
+          {% endfor %}
+        </div>
+      </article>
+    </div>
+  </section>
+{% endblock %}

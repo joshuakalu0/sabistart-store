@@ -1,0 +1,153 @@
+{% extends "dashboard/_partials/base.html" %}
+{% block content %}
+<section class="mx-auto max-w-6xl space-y-6">
+  <div class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-slate-200">
+    <div class="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+      <div class="max-w-3xl">
+        <a href="{% url 'dashboard:domain:list' prefix=prefix %}" class="text-sm font-medium text-blue-600 hover:text-blue-700">Back to domain workspace</a>
+        <h1 class="mt-4 text-3xl font-bold text-slate-950">Complete your domain order</h1>
+        <p class="mt-3 text-sm leading-7 text-slate-500">Choose the registrant contact, nameserver mode, and payment gateway. The provider registration stays separate from storefront connection until you decide to attach the domain.</p>
+      </div>
+      {% if search_result %}
+        <div class="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4">
+          <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Selected domain</p>
+          <p class="mt-3 text-2xl font-bold text-slate-950">{{ search_result.domain_name }}</p>
+          <p class="mt-2 text-sm text-slate-500">Registration starts at {{ search_result.registration_price }} {{ search_result.currency }}</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if not search_result %}
+    <div class="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center">
+      <p class="text-lg font-semibold text-slate-900">Pick a domain first</p>
+      <p class="mt-2 text-sm text-slate-500">Search from the overview page or pass a domain into this checkout flow.</p>
+      <a href="{% url 'dashboard:domain:list' prefix=prefix %}" class="mt-5 inline-flex rounded-full bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700">Go to domain search</a>
+    </div>
+  {% else %}
+    <div class="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+        {{ checkout_form.domain_name }}
+        <section class="rounded-3xl border border-slate-200 bg-white p-6">
+          <h2 class="text-xl font-semibold text-slate-950">Order setup</h2>
+          <div class="mt-5 grid gap-5 md:grid-cols-2">
+            <div>
+              <label class="mb-2 block text-sm font-medium text-slate-700" for="{{ checkout_form.years.id_for_label }}">Registration term</label>
+              {{ checkout_form.years }}
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-medium text-slate-700" for="{{ checkout_form.gateway_provider.id_for_label }}">Payment gateway</label>
+              {{ checkout_form.gateway_provider }}
+            </div>
+          </div>
+          <div class="mt-5 grid gap-4 md:grid-cols-2">
+            <label class="flex items-start gap-3 rounded-3xl border border-slate-200 px-4 py-4">
+              {{ checkout_form.auto_renew }}
+              <span>
+                <span class="block text-sm font-medium text-slate-900">Enable auto-renew</span>
+                <span class="mt-1 block text-xs text-slate-500">Future renewals stay on a managed schedule.</span>
+              </span>
+            </label>
+            <label class="flex items-start gap-3 rounded-3xl border border-slate-200 px-4 py-4">
+              {{ checkout_form.privacy_enabled }}
+              <span>
+                <span class="block text-sm font-medium text-slate-900">Request privacy</span>
+                <span class="mt-1 block text-xs text-slate-500">Only applies if the provider supports privacy protection.</span>
+              </span>
+            </label>
+          </div>
+        </section>
+
+        <section class="rounded-3xl border border-slate-200 bg-white p-6">
+          <h2 class="text-xl font-semibold text-slate-950">Nameserver and DNS mode</h2>
+          <div class="mt-5">
+            <label class="mb-2 block text-sm font-medium text-slate-700" for="{{ checkout_form.nameserver_mode.id_for_label }}">Mode</label>
+            {{ checkout_form.nameserver_mode }}
+          </div>
+          <div class="mt-5">
+            <label class="mb-2 block text-sm font-medium text-slate-700" for="{{ checkout_form.custom_nameservers.id_for_label }}">Custom nameservers</label>
+            {{ checkout_form.custom_nameservers }}
+            <p class="mt-2 text-xs text-slate-500">Only required when using custom nameservers. Enter one per line.</p>
+            {% if checkout_form.custom_nameservers.errors %}
+              <p class="mt-2 text-sm text-rose-600">{{ checkout_form.custom_nameservers.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+        </section>
+
+        <section class="rounded-3xl border border-slate-200 bg-white p-6">
+          <h2 class="text-xl font-semibold text-slate-950">Registrant contact</h2>
+          <div class="mt-5">
+            <label class="mb-2 block text-sm font-medium text-slate-700" for="{{ checkout_form.contact.id_for_label }}">Saved contact</label>
+            {{ checkout_form.contact }}
+            <p class="mt-2 text-xs text-slate-500">Choose an existing contact or leave this blank and fill the form below.</p>
+          </div>
+
+          <div class="mt-6 grid gap-5 md:grid-cols-2">
+            {% for field in checkout_form %}
+              {% if field.name == 'first_name' or field.name == 'last_name' or field.name == 'organization' or field.name == 'email' or field.name == 'phone' or field.name == 'address1' or field.name == 'address2' or field.name == 'city' or field.name == 'state_province' or field.name == 'postal_code' or field.name == 'country_code' %}
+                <div class="{% if field.name == 'address1' or field.name == 'address2' %}md:col-span-2{% endif %}">
+                  <label class="mb-2 block text-sm font-medium text-slate-700" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                  {{ field }}
+                  {% if field.errors %}
+                    <p class="mt-2 text-sm text-rose-600">{{ field.errors|join:", " }}</p>
+                  {% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <label class="mt-5 flex items-start gap-3 rounded-3xl border border-slate-200 px-4 py-4">
+            {{ checkout_form.save_contact_as_default }}
+            <span>
+              <span class="block text-sm font-medium text-slate-900">Save as default contact</span>
+              <span class="mt-1 block text-xs text-slate-500">Use this contact automatically on future purchases and renewals.</span>
+            </span>
+          </label>
+        </section>
+
+        {% if checkout_form.non_field_errors %}
+          <div class="rounded-3xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700">
+            {{ checkout_form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <button type="submit" class="rounded-full bg-blue-600 px-6 py-3 text-sm font-medium text-white hover:bg-blue-700">Create order and continue to payment</button>
+      </form>
+
+      <aside class="space-y-6">
+        <section class="rounded-3xl border border-slate-200 bg-white p-6">
+          <h2 class="text-xl font-semibold text-slate-950">Order summary</h2>
+          <dl class="mt-5 space-y-4 text-sm">
+            <div class="flex items-center justify-between gap-4">
+              <dt class="text-slate-500">Domain</dt>
+              <dd class="font-semibold text-slate-900">{{ search_result.domain_name }}</dd>
+            </div>
+            <div class="flex items-center justify-between gap-4">
+              <dt class="text-slate-500">Registration price</dt>
+              <dd class="font-semibold text-slate-900">{{ search_result.registration_price }} {{ search_result.currency }}</dd>
+            </div>
+            <div class="flex items-center justify-between gap-4">
+              <dt class="text-slate-500">Renewal price</dt>
+              <dd class="font-semibold text-slate-900">{{ search_result.renewal_price }} {{ search_result.currency }}</dd>
+            </div>
+            <div class="flex items-center justify-between gap-4">
+              <dt class="text-slate-500">Provider status</dt>
+              <dd class="font-semibold text-slate-900">{% if search_result.is_available %}Available{% else %}Unavailable{% endif %}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="rounded-3xl border border-slate-200 bg-white p-6">
+          <h2 class="text-xl font-semibold text-slate-950">What happens after payment</h2>
+          <ol class="mt-5 space-y-3 text-sm text-slate-600">
+            <li>1. We mark the order as paid and start registrar provisioning.</li>
+            <li>2. The managed domain appears in your portfolio even before storefront routing goes live.</li>
+            <li>3. You can connect it to your store in one click and push DNS records where supported.</li>
+            <li>4. SSL and verification continue under the original custom-domain workflow.</li>
+          </ol>
+        </section>
+      </aside>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

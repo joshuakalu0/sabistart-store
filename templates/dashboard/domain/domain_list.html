@@ -1,83 +1,145 @@
 {% extends "dashboard/_partials/base.html" %}
 {% block content %}
 <section class="space-y-6">
-  <div class="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
-    <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-      <div>
-        <p class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Domains</p>
-        <h1 class="mt-3 text-3xl font-semibold text-slate-900">Connect a custom domain to your store.</h1>
-        <p class="mt-3 max-w-3xl text-sm text-slate-600">
-          Add branded domains, verify DNS, watch SSL status, and choose which address should be primary for your storefront.
+  <div class="rounded-[2rem] bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 p-8 text-white shadow-xl">
+    <div class="flex flex-col gap-8 xl:flex-row xl:items-end xl:justify-between">
+      <div class="max-w-3xl">
+        <p class="text-xs font-semibold uppercase tracking-[0.34em] text-blue-200">Domain Commerce</p>
+        <h1 class="mt-4 text-4xl font-extrabold leading-tight">Buy, connect, and operate domains without leaving your store workspace.</h1>
+        <p class="mt-4 text-sm leading-7 text-slate-200">
+          Search new names, keep registrar-backed domains in a portfolio, and still connect external domains with the original DNS and SSL workflow.
         </p>
       </div>
-      <div class="rounded-3xl bg-slate-50 px-5 py-4">
-        <div class="text-xs uppercase tracking-[0.24em] text-slate-400">Usage</div>
-        <div class="mt-2 text-2xl font-semibold text-slate-900">{{ quota.domains_used }} / {{ quota.max_custom_domains }}</div>
-        <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
-          <div class="h-full rounded-full bg-primary" style="width:{% if quota.max_custom_domains %}{% widthratio quota.domains_used quota.max_custom_domains 100 %}{% else %}0{% endif %}%"></div>
+      <div class="grid gap-4 sm:grid-cols-3 xl:min-w-[460px]">
+        <div class="rounded-3xl bg-white/10 px-5 py-4 backdrop-blur">
+          <p class="text-xs uppercase tracking-[0.24em] text-blue-100">Connected</p>
+          <p class="mt-3 text-3xl font-bold">{{ connected_count }}</p>
+        </div>
+        <div class="rounded-3xl bg-white/10 px-5 py-4 backdrop-blur">
+          <p class="text-xs uppercase tracking-[0.24em] text-blue-100">Managed</p>
+          <p class="mt-3 text-3xl font-bold">{{ managed_count }}</p>
+        </div>
+        <div class="rounded-3xl bg-white/10 px-5 py-4 backdrop-blur">
+          <p class="text-xs uppercase tracking-[0.24em] text-blue-100">Quota</p>
+          <p class="mt-3 text-3xl font-bold">{{ quota.domains_used }}/{{ quota.max_custom_domains }}</p>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="grid gap-4 md:grid-cols-3">
-    <div class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-      <div class="text-sm text-slate-500">Active domains</div>
-      <div class="mt-2 text-3xl font-semibold text-slate-900">{{ active_count }}</div>
-    </div>
-    <div class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-      <div class="text-sm text-slate-500">In progress</div>
-      <div class="mt-2 text-3xl font-semibold text-slate-900">{{ pending_count }}</div>
-    </div>
-    <div class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-      <div class="text-sm text-slate-500">Needs attention</div>
-      <div class="mt-2 text-3xl font-semibold {% if failed_count %}text-rose-600{% else %}text-slate-900{% endif %}">{{ failed_count }}</div>
-    </div>
+  <div class="grid gap-4 md:grid-cols-4">
+    <article class="rounded-3xl border border-slate-200 bg-white p-5">
+      <p class="text-sm text-slate-500">Active custom domains</p>
+      <p class="mt-2 text-3xl font-bold text-slate-950">{{ active_count }}</p>
+    </article>
+    <article class="rounded-3xl border border-slate-200 bg-white p-5">
+      <p class="text-sm text-slate-500">Pending setup</p>
+      <p class="mt-2 text-3xl font-bold text-slate-950">{{ pending_count }}</p>
+    </article>
+    <article class="rounded-3xl border border-slate-200 bg-white p-5">
+      <p class="text-sm text-slate-500">Expiring soon</p>
+      <p class="mt-2 text-3xl font-bold {% if expiring_count %}text-amber-600{% else %}text-slate-950{% endif %}">{{ expiring_count }}</p>
+    </article>
+    <article class="rounded-3xl border border-slate-200 bg-white p-5">
+      <p class="text-sm text-slate-500">Needs attention</p>
+      <p class="mt-2 text-3xl font-bold {% if failed_count %}text-rose-600{% else %}text-slate-950{% endif %}">{{ failed_count }}</p>
+    </article>
   </div>
 
-  <div class="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-    <section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-      <h2 class="text-lg font-semibold text-slate-900">Add a new domain</h2>
-      <p class="mt-2 text-sm text-slate-500">Enter the hostname you want customers to use for your store. We will generate the DNS records you need to add at your registrar.</p>
-
-      <form method="post" action="{% url 'dashboard:domain:add' prefix=prefix %}" class="mt-6 space-y-4">
-        {% csrf_token %}
-        <div>
-          <label class="mb-2 block text-sm font-medium text-slate-700" for="{{ add_form.domain.id_for_label }}">Domain</label>
-          {{ add_form.domain }}
-          {% if add_form.domain.errors %}
-            <p class="mt-2 text-sm text-rose-600">{{ add_form.domain.errors|join:", " }}</p>
-          {% endif %}
-          <p class="mt-2 text-xs text-slate-500">{{ add_form.domain.help_text }}</p>
+  <div class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+    <section class="space-y-6">
+      <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-semibold text-slate-950">Discover & buy</h2>
+            <p class="mt-1 text-sm text-slate-500">Search exact domains or brand keywords and move straight into checkout.</p>
+          </div>
+          <a href="{% url 'dashboard:domain:checkout' prefix=prefix %}" class="rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Open checkout</a>
         </div>
-        <button type="submit" class="inline-flex items-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700">
-          Add domain
-        </button>
-      </form>
+        <form method="get" class="mt-5 flex flex-col gap-3 lg:flex-row">
+          <div class="min-w-0 flex-1">
+            {{ search_form.query }}
+            {% if search_form.query.errors %}
+              <p class="mt-2 text-sm text-rose-600">{{ search_form.query.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+          <button type="submit" class="rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">Search domains</button>
+        </form>
+        <div class="mt-4 flex flex-wrap gap-2">
+          {% for entry in featured_tlds %}
+            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{{ entry.tld }} · {{ entry.selling_registration_price }} {{ entry.currency }}</span>
+          {% endfor %}
+        </div>
 
-      <div class="mt-8 rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-5">
-        <h3 class="text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">What happens next</h3>
-        <ol class="mt-4 space-y-3 text-sm text-slate-600">
-          <li>1. We create your verification token and DNS instructions.</li>
-          <li>2. You add the shown records at your DNS provider.</li>
-          <li>3. The system checks propagation and prepares SSL.</li>
-          <li>4. Once active, you can make the domain primary.</li>
-        </ol>
-      </div>
+        {% if search_bundle %}
+          <div class="mt-6 space-y-3">
+            {% for result in search_bundle.results %}
+              <div class="flex flex-col gap-4 rounded-3xl border border-slate-200 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <div class="flex items-center gap-3">
+                    <p class="text-base font-semibold text-slate-950">{{ result.domain_name }}</p>
+                    <span class="rounded-full px-3 py-1 text-xs font-semibold {% if result.is_available %}bg-emerald-100 text-emerald-700{% elif result.is_premium %}bg-amber-100 text-amber-700{% else %}bg-slate-100 text-slate-700{% endif %}">
+                      {% if result.is_available %}Available{% elif result.is_premium %}Premium{% else %}Taken{% endif %}
+                    </span>
+                  </div>
+                  <p class="mt-2 text-sm text-slate-500">
+                    Register from {{ result.registration_price }} {{ result.currency }}{% if result.status_reason %} · {{ result.status_reason }}{% endif %}
+                  </p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                  {% if result.is_available %}
+                    <a href="{% url 'dashboard:domain:checkout' prefix=prefix %}?domain={{ result.domain_name }}" class="rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Buy this domain</a>
+                  {% endif %}
+                  <a href="{% url 'dashboard:domain:checkout' prefix=prefix %}?domain={{ result.domain_name }}" class="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">View pricing</a>
+                </div>
+              </div>
+            {% empty %}
+              <div class="rounded-3xl border border-dashed border-slate-300 px-5 py-8 text-center text-sm text-slate-500">No results came back for that search yet.</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </article>
+
+      <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-semibold text-slate-950">Connect an existing domain</h2>
+            <p class="mt-1 text-sm text-slate-500">Already own the domain elsewhere? Add it here and keep the original SSL and verification workflow.</p>
+          </div>
+          <div class="rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700">Slots: {{ quota.domains_used }}/{{ quota.max_custom_domains }}</div>
+        </div>
+        <form method="post" action="{% url 'dashboard:domain:add' prefix=prefix %}" class="mt-6 space-y-4">
+          {% csrf_token %}
+          <div>
+            <label class="mb-2 block text-sm font-medium text-slate-700" for="{{ add_form.domain.id_for_label }}">Domain you already own</label>
+            {{ add_form.domain }}
+            {% if add_form.domain.errors %}
+              <p class="mt-2 text-sm text-rose-600">{{ add_form.domain.errors|join:", " }}</p>
+            {% endif %}
+            <p class="mt-2 text-xs text-slate-500">{{ add_form.domain.help_text }}</p>
+          </div>
+          <button type="submit" class="rounded-full border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Add external domain</button>
+        </form>
+      </article>
     </section>
 
-    <section class="space-y-4">
-      {% for domain in domains %}
-        {% include "dashboard/domain/partials/domain_card.html" with domain=domain prefix=prefix %}
-      {% empty %}
-        <div class="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
-          <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-500">
-            <span class="material-icons-outlined">language</span>
-          </div>
-          <h2 class="mt-4 text-xl font-semibold text-slate-900">No custom domains yet</h2>
-          <p class="mt-2 text-sm text-slate-500">Add your first domain to start routing storefront traffic through your own brand address.</p>
+    <section class="space-y-6">
+      <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="text-xl font-semibold text-slate-950">Connected storefront domains</h2>
+          <a href="{% url 'dashboard:domain:portfolio' prefix=prefix %}" class="text-sm font-medium text-blue-600 hover:text-blue-700">Managed portfolio</a>
         </div>
-      {% endfor %}
+        <div class="mt-5 space-y-4">
+          {% for domain in existing_domains %}
+            {% include "dashboard/domain/partials/domain_card.html" with domain=domain prefix=prefix %}
+          {% empty %}
+            <div class="rounded-3xl border border-dashed border-slate-300 px-5 py-10 text-center">
+              <p class="text-base font-semibold text-slate-900">No connected domains yet</p>
+              <p class="mt-2 text-sm text-slate-500">Search a new name above or connect an existing domain you already control.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </article>
     </section>
   </div>
 </section>

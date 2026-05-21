@@ -152,6 +152,27 @@
       </section>
 
       <section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <h2 class="text-lg font-semibold text-slate-900">Domain source</h2>
+        <div class="mt-4 space-y-3 text-sm">
+          <div class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
+            <span class="text-slate-500">Connection source</span>
+            <span class="font-medium text-slate-900">{{ domain.connection_source|title }}</span>
+          </div>
+          {% if managed_domain %}
+            <div class="rounded-2xl border border-slate-200 px-4 py-3">
+              <p class="text-slate-500">Managed portfolio record</p>
+              <p class="mt-1 font-medium text-slate-900">{{ managed_domain.domain_name }}</p>
+              <a href="{% url 'dashboard:domain:managed_detail' prefix=prefix managed_domain_id=managed_domain.id %}" class="mt-3 inline-flex text-sm font-medium text-primary hover:underline">Open managed domain workspace</a>
+            </div>
+          {% else %}
+            <div class="rounded-2xl border border-dashed border-slate-200 px-4 py-3 text-slate-500">
+              This custom domain was connected manually and does not have a registrar-managed portfolio record.
+            </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <h2 class="text-lg font-semibold text-slate-900">Health snapshots</h2>
         <div class="mt-4 space-y-3">
           {% for check in health_checks %}

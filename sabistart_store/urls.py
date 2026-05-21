@@ -36,6 +36,7 @@ urlpatterns = [
     path('platform/payments/', include(('system.system_pay.urls', 'system.system_pay'), namespace='platform_payments')),
     path('platform/features/', include(('system.feature_marketplace.urls', 'system.feature_marketplace'), namespace='platform_features')),
     path('platform/themes/', include(('system.theme_marketplace.urls', 'system.theme_marketplace'), namespace='platform_themes')),
+    path('platform/domains/', include(('dashboard.domain.platform_urls', 'dashboard.domain'), namespace='platform_domains')),
     path('.well-known/acme-challenge/<str:token>/', domain_views.acme_challenge, name='acme_challenge'),
 
     # Tenant storefront URLs

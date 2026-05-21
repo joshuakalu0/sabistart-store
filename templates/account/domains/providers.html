@@ -1,0 +1,71 @@
+{% extends "account/domains/base.html" %}
+
+{% block page_actions %}
+  <a href="{% url 'platform_domains:provider_credential_create' %}" class="rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Add credential</a>
+{% endblock %}
+
+{% block domain_body %}
+  <section class="space-y-6">
+    {% for provider in providers %}
+      <article class="rounded-3xl border border-slate-200 bg-white p-6">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <div class="flex items-center gap-3">
+              <h3 class="text-xl font-semibold text-slate-950">{{ provider.name }}</h3>
+              <span class="rounded-full px-3 py-1 text-xs font-semibold {% if provider.is_active %}bg-emerald-100 text-emerald-700{% else %}bg-slate-100 text-slate-700{% endif %}">
+                {% if provider.is_active %}Active{% else %}Inactive{% endif %}
+              </span>
+            </div>
+            <p class="mt-2 text-sm text-slate-500">Code: {{ provider.code }}{% if provider.docs_url %} · <a href="{{ provider.docs_url }}" class="text-blue-600 hover:text-blue-700">Provider docs</a>{% endif %}</p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              {% if provider.supports_availability %}<span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">Availability</span>{% endif %}
+              {% if provider.supports_registration %}<span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">Registration</span>{% endif %}
+              {% if provider.supports_renewal %}<span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">Renewals</span>{% endif %}
+              {% if provider.supports_dns %}<span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">DNS API</span>{% endif %}
+              {% if provider.supports_nameserver_update %}<span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">Nameservers</span>{% endif %}
+              {% if provider.supports_contact_management %}<span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">Contacts</span>{% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="border-b border-slate-200 text-left text-slate-500">
+              <tr>
+                <th class="pb-3 pr-4 font-medium">Credential</th>
+                <th class="pb-3 pr-4 font-medium">Environment</th>
+                <th class="pb-3 pr-4 font-medium">Client IP</th>
+                <th class="pb-3 pr-4 font-medium">Health</th>
+                <th class="pb-3 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              {% for credential in provider.credentials.all %}
+                <tr>
+                  <td class="py-3 pr-4">
+                    <p class="font-semibold text-slate-900">{{ credential.name }}</p>
+                    <p class="text-xs text-slate-500">{% if credential.is_default %}Default credential{% endif %}</p>
+                  </td>
+                  <td class="py-3 pr-4">{{ credential.get_environment_display }}</td>
+                  <td class="py-3 pr-4">{{ credential.client_ip|default:"-" }}</td>
+                  <td class="py-3 pr-4">
+                    {% if credential.last_error %}
+                      <span class="rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700">Needs attention</span>
+                    {% else %}
+                      <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">Healthy</span>
+                    {% endif %}
+                  </td>
+                  <td class="py-3">
+                    <a href="{% url 'platform_domains:provider_credential_edit' credential.id %}" class="text-sm font-medium text-blue-600 hover:text-blue-700">Edit</a>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="5" class="py-8 text-center text-slate-500">No credentials added for this provider yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </article>
+    {% endfor %}
+  </section>
+{% endblock %}

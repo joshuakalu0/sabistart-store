@@ -12,6 +12,7 @@ PLATFORM_NAVIGATION = (
             {"key": "platform_themes", "name": "Themes", "icon": "palette", "route": "platform_themes:home"},
             {"key": "platform_features", "name": "Feature Marketplace", "icon": "store", "route": "platform_features:home"},
             {"key": "platform_payments", "name": "Payments", "icon": "payments", "route": "platform_payments:home"},
+            {"key": "platform_domains", "name": "Domains", "icon": "language", "route": "platform_domains:home"},
         ),
     },
 )
@@ -200,10 +201,22 @@ TENANT_NAVIGATION = (
                 "name": "Domains & SSL",
                 "icon": "language",
                 "route": "dashboard:domain:list",
-                "feature_code": "max_custom_domains",
-                "active_keys": ("domains", "domains_list"),
+                "active_keys": (
+                    "domains",
+                    "domains_list",
+                    "domains_search",
+                    "domains_portfolio",
+                    "domains_orders",
+                    "domains_contacts",
+                    "domains_notifications",
+                ),
                 "children": (
-                    {"key": "domains_list", "name": "Overview", "icon": "dashboard", "route": "dashboard:domain:list", "feature_code": "max_custom_domains"},
+                    {"key": "domains_list", "name": "Overview", "icon": "dashboard", "route": "dashboard:domain:list"},
+                    {"key": "domains_search", "name": "Discover & Buy", "icon": "travel_explore", "route": "dashboard:domain:checkout"},
+                    {"key": "domains_portfolio", "name": "Portfolio", "icon": "domain", "route": "dashboard:domain:portfolio"},
+                    {"key": "domains_orders", "name": "Orders & Renewals", "icon": "receipt_long", "route": "dashboard:domain:orders"},
+                    {"key": "domains_contacts", "name": "Contacts", "icon": "contacts", "route": "dashboard:domain:contacts"},
+                    {"key": "domains_notifications", "name": "Notifications", "icon": "notifications", "route": "dashboard:domain:notifications"},
                 ),
             },
             {
