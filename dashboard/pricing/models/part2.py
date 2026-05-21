@@ -249,6 +249,42 @@ class DiscountCode(AuditModel, ActivatableModel):
     internal_note = models.TextField(_("Internal Note"), blank=True)
     last_used_at = models.DateTimeField(
         _("Last Used At"), null=True, blank=True)
+    attributed_partner = models.ForeignKey(
+        "pricing.PromotionPartner",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="discount_codes",
+        verbose_name=_("Attributed Partner"),
+        help_text=_("Optional influencer, affiliate, or campaign source credited for this code."),
+    )
+    total_stack_cap_amount = models.DecimalField(
+        _("Total Stack Cap Amount"),
+        max_digits=14,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(Decimal("0.01"))],
+        help_text=_("Maximum combined savings allowed when this code stacks with other promotions."),
+    )
+    eligible_countries = models.JSONField(
+        _("Eligible Countries"),
+        default=list,
+        blank=True,
+        help_text=_("Optional ISO country codes that can use this code."),
+    )
+    eligible_states = models.JSONField(
+        _("Eligible States"),
+        default=list,
+        blank=True,
+        help_text=_("Optional state or region filters for this code."),
+    )
+    eligible_cities = models.JSONField(
+        _("Eligible Cities"),
+        default=list,
+        blank=True,
+        help_text=_("Optional city filters for this code."),
+    )
 
     class Meta:
         verbose_name = _("Discount Code")
@@ -682,6 +718,38 @@ class AutomaticDiscount(AuditModel, ActivatableModel):
     )
 
     internal_note = models.TextField(_("Internal Note"), blank=True)
+    attributed_partner = models.ForeignKey(
+        "pricing.PromotionPartner",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="automatic_discounts",
+        verbose_name=_("Attributed Partner"),
+    )
+    total_stack_cap_amount = models.DecimalField(
+        _("Total Stack Cap Amount"),
+        max_digits=14,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(Decimal("0.01"))],
+        help_text=_("Maximum combined savings allowed when this automatic discount stacks."),
+    )
+    eligible_countries = models.JSONField(
+        _("Eligible Countries"),
+        default=list,
+        blank=True,
+    )
+    eligible_states = models.JSONField(
+        _("Eligible States"),
+        default=list,
+        blank=True,
+    )
+    eligible_cities = models.JSONField(
+        _("Eligible Cities"),
+        default=list,
+        blank=True,
+    )
 
     class Meta:
         verbose_name = _("Automatic Discount")

@@ -50,7 +50,18 @@ from dashboard.pricing.models import (
     TaxCategory,
     TaxZone,
     TaxRate,
+    PromotionPartner,
+    PromotionLink,
+    DiscountExperiment,
+    DiscountExperimentVariant,
+    PromotionCompatibilityRule,
+    DiscountImportBatch,
+    PricingAutomationRule,
+    BundleOffer,
+    BundleOfferItem,
 )
+from public.product.models import ProductReview
+from public.userauth.models import CustomerGroup
 
 
 # ─────────────────────────────────────────────────────────────
@@ -359,10 +370,15 @@ class DiscountCodeForm(forms.ModelForm):
             "minimum_quantity",
             "requires_first_order",
             "customer_eligibility",
+            "attributed_partner",
+            "eligible_countries",
+            "eligible_states",
+            "eligible_cities",
             "is_combinable_with_price_lists",
             "is_combinable_with_automatic_discounts",
             "is_combinable_with_other_codes",
             "max_discount_amount",
+            "total_stack_cap_amount",
             "internal_note",
             "is_active",
             "starts_at",
@@ -386,10 +402,15 @@ class DiscountCodeForm(forms.ModelForm):
             "minimum_quantity": forms.NumberInput(attrs={"class": _INPUT, "min": "1"}),
             "requires_first_order": forms.CheckboxInput(attrs={"class": _CHECKBOX}),
             "customer_eligibility": forms.Select(attrs={"class": _SELECT}),
+            "attributed_partner": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "eligible_countries": forms.Textarea(attrs={"class": _TEXTAREA, "rows": 3, "placeholder": '["NG", "GH"]'}),
+            "eligible_states": forms.Textarea(attrs={"class": _TEXTAREA, "rows": 3, "placeholder": '["Lagos", "Ogun"]'}),
+            "eligible_cities": forms.Textarea(attrs={"class": _TEXTAREA, "rows": 3, "placeholder": '["Ikeja", "Lekki"]'}),
             "is_combinable_with_price_lists": forms.CheckboxInput(attrs={"class": _CHECKBOX}),
             "is_combinable_with_automatic_discounts": forms.CheckboxInput(attrs={"class": _CHECKBOX}),
             "is_combinable_with_other_codes": forms.CheckboxInput(attrs={"class": _CHECKBOX}),
             "max_discount_amount": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0.01"}),
+            "total_stack_cap_amount": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0.01"}),
             "internal_note": forms.Textarea(attrs={"class": _TEXTAREA}),
             "is_active": forms.CheckboxInput(attrs={"class": _CHECKBOX}),
             "starts_at": forms.DateTimeInput(attrs={"class": _DATETIME, "type": "datetime-local"}, format="%Y-%m-%dT%H:%M"),
@@ -467,6 +488,11 @@ class AutomaticDiscountForm(forms.ModelForm):
             "priority",
             "usage_limit",
             "usage_limit_per_customer",
+            "attributed_partner",
+            "eligible_countries",
+            "eligible_states",
+            "eligible_cities",
+            "total_stack_cap_amount",
             "internal_note",
             "is_active",
             "starts_at",
@@ -488,6 +514,11 @@ class AutomaticDiscountForm(forms.ModelForm):
             "priority": forms.NumberInput(attrs={"class": _INPUT, "min": "0"}),
             "usage_limit": forms.NumberInput(attrs={"class": _INPUT, "min": "1"}),
             "usage_limit_per_customer": forms.NumberInput(attrs={"class": _INPUT, "min": "1"}),
+            "attributed_partner": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "eligible_countries": forms.Textarea(attrs={"class": _TEXTAREA, "rows": 3, "placeholder": '["NG", "GH"]'}),
+            "eligible_states": forms.Textarea(attrs={"class": _TEXTAREA, "rows": 3, "placeholder": '["Lagos", "Ogun"]'}),
+            "eligible_cities": forms.Textarea(attrs={"class": _TEXTAREA, "rows": 3, "placeholder": '["Ikeja", "Lekki"]'}),
+            "total_stack_cap_amount": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0.01"}),
             "internal_note": forms.Textarea(attrs={"class": _TEXTAREA}),
             "is_active": forms.CheckboxInput(attrs={"class": _CHECKBOX}),
             "starts_at": forms.DateTimeInput(attrs={"class": _DATETIME, "type": "datetime-local"}, format="%Y-%m-%dT%H:%M"),
@@ -919,3 +950,381 @@ class TaxRateForm(forms.ModelForm):
             "starts_at": forms.DateTimeInput(attrs={"class": _DATETIME, "type": "datetime-local"}, format="%Y-%m-%dT%H:%M"),
             "ends_at": forms.DateTimeInput(attrs={"class": _DATETIME, "type": "datetime-local"}, format="%Y-%m-%dT%H:%M"),
         }
+
+
+# ---------------------------------------------------------------------
+# ADVANCED PRICING WORKFLOWS
+# ---------------------------------------------------------------------
+
+
+class PromotionPartnerForm(forms.ModelForm):
+    class Meta:
+        model = PromotionPartner
+        fields = [
+            "name",
+            "slug",
+            "partner_type",
+            "email",
+            "code_prefix",
+            "referral_slug",
+            "commission_rate_percentage",
+            "default_utm_source",
+            "default_utm_medium",
+            "default_utm_campaign",
+            "notes",
+            "is_active",
+        ]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": _INPUT, "placeholder": "Partner or creator name"}),
+            "slug": forms.TextInput(attrs={"class": _INPUT, "placeholder": "Auto-generated if left blank"}),
+            "partner_type": forms.Select(attrs={"class": _SELECT}),
+            "email": forms.EmailInput(attrs={"class": _INPUT, "placeholder": "name@example.com"}),
+            "code_prefix": forms.TextInput(attrs={"class": _INPUT, "placeholder": "e.g. CREATOR"}),
+            "referral_slug": forms.TextInput(attrs={"class": _INPUT, "placeholder": "e.g. creator-name"}),
+            "commission_rate_percentage": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0", "max": "100"}),
+            "default_utm_source": forms.TextInput(attrs={"class": _INPUT, "placeholder": "referral"}),
+            "default_utm_medium": forms.TextInput(attrs={"class": _INPUT, "placeholder": "creator-share"}),
+            "default_utm_campaign": forms.TextInput(attrs={"class": _INPUT, "placeholder": "summer-launch"}),
+            "notes": forms.Textarea(attrs={"class": _TEXTAREA, "placeholder": "Internal notes about this partner..."}),
+            "is_active": forms.CheckboxInput(attrs={"class": _CHECKBOX}),
+        }
+
+
+class PromotionLinkForm(forms.ModelForm):
+    query_overrides = forms.JSONField(
+        required=False,
+        widget=forms.Textarea(attrs={"class": _TEXTAREA, "placeholder": '{"coupon_source": "creator"}'}),
+    )
+
+    class Meta:
+        model = PromotionLink
+        fields = [
+            "slug",
+            "landing_path",
+            "utm_source",
+            "utm_medium",
+            "utm_campaign",
+            "utm_content",
+            "query_overrides",
+        ]
+        widgets = {
+            "slug": forms.TextInput(attrs={"class": _INPUT, "placeholder": "promo-link-slug"}),
+            "landing_path": forms.TextInput(attrs={"class": _INPUT, "placeholder": "/promotions/coupons/"}),
+            "utm_source": forms.TextInput(attrs={"class": _INPUT, "placeholder": "newsletter"}),
+            "utm_medium": forms.TextInput(attrs={"class": _INPUT, "placeholder": "email"}),
+            "utm_campaign": forms.TextInput(attrs={"class": _INPUT, "placeholder": "summer-launch"}),
+            "utm_content": forms.TextInput(attrs={"class": _INPUT, "placeholder": "hero-banner"}),
+        }
+
+
+class DiscountExperimentForm(forms.ModelForm):
+    class Meta:
+        model = DiscountExperiment
+        fields = [
+            "title",
+            "description",
+            "source_discount",
+            "status",
+            "assignment_mode",
+            "minimum_sample_size",
+            "is_active",
+        ]
+        widgets = {
+            "title": forms.TextInput(attrs={"class": _INPUT, "placeholder": "e.g. 15% vs 500 NGN Off"}),
+            "description": forms.Textarea(attrs={"class": _TEXTAREA}),
+            "source_discount": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "status": forms.Select(attrs={"class": _SELECT}),
+            "assignment_mode": forms.Select(attrs={"class": _SELECT}),
+            "minimum_sample_size": forms.NumberInput(attrs={"class": _INPUT, "min": "1"}),
+            "is_active": forms.CheckboxInput(attrs={"class": _CHECKBOX}),
+        }
+
+
+class DiscountExperimentVariantForm(forms.ModelForm):
+    class Meta:
+        model = DiscountExperimentVariant
+        fields = [
+            "label",
+            "discount_code",
+            "allocation_weight",
+            "is_control",
+            "is_active",
+        ]
+        widgets = {
+            "label": forms.TextInput(attrs={"class": _INPUT, "placeholder": "Variant A"}),
+            "discount_code": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "allocation_weight": forms.NumberInput(attrs={"class": _INPUT, "min": "1"}),
+            "is_control": forms.CheckboxInput(attrs={"class": _CHECKBOX}),
+            "is_active": forms.CheckboxInput(attrs={"class": _CHECKBOX}),
+        }
+
+
+class PromotionCompatibilityRuleForm(forms.ModelForm):
+    class Meta:
+        model = PromotionCompatibilityRule
+        fields = [
+            "left_type",
+            "left_discount_code",
+            "left_automatic_discount",
+            "right_type",
+            "right_discount_code",
+            "right_automatic_discount",
+            "resolution",
+            "max_combined_discount_amount",
+            "notes",
+            "is_active",
+        ]
+        widgets = {
+            "left_type": forms.Select(attrs={"class": _SELECT}),
+            "left_discount_code": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "left_automatic_discount": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "right_type": forms.Select(attrs={"class": _SELECT}),
+            "right_discount_code": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "right_automatic_discount": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "resolution": forms.Select(attrs={"class": _SELECT}),
+            "max_combined_discount_amount": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0.01"}),
+            "notes": forms.Textarea(attrs={"class": _TEXTAREA}),
+            "is_active": forms.CheckboxInput(attrs={"class": _CHECKBOX}),
+        }
+
+    def clean(self):
+        cleaned = super().clean()
+        left_type = cleaned.get("left_type")
+        right_type = cleaned.get("right_type")
+        left_obj = cleaned.get("left_discount_code") if left_type == PromotionCompatibilityRule.PromotionType.DISCOUNT_CODE else cleaned.get("left_automatic_discount")
+        right_obj = cleaned.get("right_discount_code") if right_type == PromotionCompatibilityRule.PromotionType.DISCOUNT_CODE else cleaned.get("right_automatic_discount")
+        if left_obj is None:
+            raise forms.ValidationError(_("Choose the left-side promotion that this rule applies to."))
+        if right_obj is None:
+            raise forms.ValidationError(_("Choose the right-side promotion that this rule applies to."))
+        if left_type == right_type and left_obj == right_obj:
+            raise forms.ValidationError(_("A promotion cannot define a compatibility rule against itself."))
+        return cleaned
+
+
+class DiscountImportUploadForm(forms.Form):
+    title = forms.CharField(
+        max_length=255,
+        widget=forms.TextInput(attrs={"class": _INPUT, "placeholder": "e.g. Influencer March Upload"}),
+    )
+    csv_file = forms.FileField(
+        widget=forms.ClearableFileInput(attrs={"class": "block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white hover:file:bg-blue-600"}),
+    )
+    default_value_type = forms.ChoiceField(
+        required=False,
+        choices=[("", "Infer from CSV")] + list(DiscountCode.ValueType.choices),
+        widget=forms.Select(attrs={"class": _SELECT}),
+    )
+    default_scope = forms.ChoiceField(
+        required=False,
+        choices=[("", "Infer from CSV")] + list(DiscountCode.DiscountScope.choices),
+        widget=forms.Select(attrs={"class": _SELECT}),
+    )
+    default_currency = forms.CharField(
+        required=False,
+        max_length=3,
+        widget=forms.TextInput(attrs={"class": _INPUT, "placeholder": "USD"}),
+    )
+
+
+class DiscountImportMappingForm(forms.Form):
+    CANONICAL_FIELDS = [
+        ("code", "Code"),
+        ("title", "Title"),
+        ("description", "Description"),
+        ("value_type", "Value Type"),
+        ("percentage_value", "Percentage Value"),
+        ("fixed_amount", "Fixed Amount"),
+        ("currency", "Currency"),
+        ("scope", "Scope"),
+        ("usage_limit", "Usage Limit"),
+        ("usage_limit_per_customer", "Per Customer Limit"),
+        ("minimum_order_amount", "Minimum Order Amount"),
+        ("minimum_quantity", "Minimum Quantity"),
+        ("is_active", "Is Active"),
+        ("starts_at", "Starts At"),
+        ("ends_at", "Ends At"),
+        ("partner_slug", "Partner Slug"),
+    ]
+
+    def __init__(self, *args, headers=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        choices = [("", "Not mapped")] + [(header, header) for header in (headers or [])]
+        for field_name, label in self.CANONICAL_FIELDS:
+            self.fields[field_name] = forms.ChoiceField(
+                required=False,
+                choices=choices,
+                label=label,
+                widget=forms.Select(attrs={"class": _SELECT}),
+            )
+
+
+class PricingAutomationRuleForm(forms.ModelForm):
+    class Meta:
+        model = PricingAutomationRule
+        fields = [
+            "name",
+            "trigger_type",
+            "source_discount",
+            "target_group",
+            "delivery_mode",
+            "delay_minutes",
+            "evaluation_window_days",
+            "issue_prefix",
+            "requires_verified_customer",
+            "config",
+            "is_active",
+        ]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": _INPUT, "placeholder": "e.g. 48h Win-back"}),
+            "trigger_type": forms.Select(attrs={"class": _SELECT}),
+            "source_discount": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "target_group": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "delivery_mode": forms.Select(attrs={"class": _SELECT}),
+            "delay_minutes": forms.NumberInput(attrs={"class": _INPUT, "min": "0"}),
+            "evaluation_window_days": forms.NumberInput(attrs={"class": _INPUT, "min": "1"}),
+            "issue_prefix": forms.TextInput(attrs={"class": _INPUT, "placeholder": "WINBACK"}),
+            "requires_verified_customer": forms.CheckboxInput(attrs={"class": _CHECKBOX}),
+            "config": forms.Textarea(attrs={"class": _TEXTAREA, "placeholder": '{"milestone_orders": 3}'}),
+            "is_active": forms.CheckboxInput(attrs={"class": _CHECKBOX}),
+        }
+
+
+class BundleOfferForm(forms.ModelForm):
+    class Meta:
+        model = BundleOffer
+        fields = [
+            "name",
+            "slug",
+            "offer_type",
+            "description",
+            "public_title",
+            "bundle_price",
+            "currency",
+            "required_quantity",
+            "min_selection",
+            "max_selection",
+            "upsell_parent_product",
+            "badge_label",
+            "is_public",
+            "share_copy",
+            "is_active",
+        ]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": _INPUT, "placeholder": "Starter Kit Bundle"}),
+            "slug": forms.TextInput(attrs={"class": _INPUT, "placeholder": "starter-kit"}),
+            "offer_type": forms.Select(attrs={"class": _SELECT}),
+            "description": forms.Textarea(attrs={"class": _TEXTAREA}),
+            "public_title": forms.TextInput(attrs={"class": _INPUT, "placeholder": "Limited-time Starter Kit"}),
+            "bundle_price": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0"}),
+            "currency": forms.TextInput(attrs={"class": _INPUT, "maxlength": 3}),
+            "required_quantity": forms.NumberInput(attrs={"class": _INPUT, "min": "1"}),
+            "min_selection": forms.NumberInput(attrs={"class": _INPUT, "min": "1"}),
+            "max_selection": forms.NumberInput(attrs={"class": _INPUT, "min": "1"}),
+            "upsell_parent_product": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "badge_label": forms.TextInput(attrs={"class": _INPUT, "placeholder": "Bundle Deal"}),
+            "is_public": forms.CheckboxInput(attrs={"class": _CHECKBOX}),
+            "share_copy": forms.TextInput(attrs={"class": _INPUT, "placeholder": "Save more when you buy together"}),
+            "is_active": forms.CheckboxInput(attrs={"class": _CHECKBOX}),
+        }
+
+
+class BundleOfferItemForm(forms.ModelForm):
+    class Meta:
+        model = BundleOfferItem
+        fields = [
+            "role",
+            "product",
+            "variant",
+            "category",
+            "quantity",
+            "discounted_unit_price",
+            "discount_percentage",
+            "sort_order",
+        ]
+        widgets = {
+            "role": forms.Select(attrs={"class": _SELECT}),
+            "product": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "variant": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "category": forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+            "quantity": forms.NumberInput(attrs={"class": _INPUT, "min": "1"}),
+            "discounted_unit_price": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0"}),
+            "discount_percentage": forms.NumberInput(attrs={"class": _INPUT, "step": "0.01", "min": "0.01", "max": "100"}),
+            "sort_order": forms.NumberInput(attrs={"class": _INPUT, "min": "0"}),
+        }
+
+    def clean(self):
+        cleaned = super().clean()
+        if not any([cleaned.get("product"), cleaned.get("variant"), cleaned.get("category")]):
+            raise forms.ValidationError(_("Each bundle item must target a product, variant, or category."))
+        return cleaned
+
+
+class PartnerDiscountGenerationForm(forms.Form):
+    source_discount = forms.ModelChoiceField(
+        queryset=DiscountCode.objects.all().order_by("code"),
+        widget=forms.Select(attrs={"class": _SEARCHABLE_SELECT, "data-searchable": "true"}),
+    )
+    code = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={"class": _INPUT, "placeholder": "e.g. CREATOR20"}),
+    )
+    title = forms.CharField(
+        max_length=255,
+        required=False,
+        widget=forms.TextInput(attrs={"class": _INPUT, "placeholder": "Optional override title"}),
+    )
+    share_path = forms.CharField(
+        max_length=255,
+        required=False,
+        widget=forms.TextInput(attrs={"class": _INPUT, "placeholder": "/promotions/coupons/"}),
+    )
+
+    def clean_code(self):
+        return self.cleaned_data["code"].strip().upper()
+
+
+class ProductReviewModerationForm(forms.ModelForm):
+    class Meta:
+        model = ProductReview
+        fields = [
+            "status",
+            "is_featured",
+            "moderation_notes",
+            "response_title",
+            "response_body",
+        ]
+        widgets = {
+            "status": forms.Select(attrs={"class": _SELECT}),
+            "is_featured": forms.CheckboxInput(attrs={"class": _CHECKBOX}),
+            "moderation_notes": forms.Textarea(attrs={"class": _TEXTAREA, "placeholder": "Internal moderation notes"}),
+            "response_title": forms.TextInput(attrs={"class": _INPUT, "placeholder": "Optional merchant response title"}),
+            "response_body": forms.Textarea(attrs={"class": _TEXTAREA, "placeholder": "Public response to the customer review"}),
+        }
+
+
+class PricingSegmentForm(forms.ModelForm):
+    class Meta:
+        model = CustomerGroup
+        fields = [
+            "name",
+            "slug",
+            "description",
+            "group_type",
+            "color",
+            "auto_rules",
+            "sort_order",
+        ]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": _INPUT}),
+            "slug": forms.TextInput(attrs={"class": _INPUT, "placeholder": "Auto-generated if left blank"}),
+            "description": forms.Textarea(attrs={"class": _TEXTAREA}),
+            "group_type": forms.Select(attrs={"class": _SELECT}),
+            "color": forms.TextInput(attrs={"class": _INPUT, "type": "color"}),
+            "auto_rules": forms.Textarea(attrs={"class": _TEXTAREA, "placeholder": '{"min_total_spend": 50000, "country": "NG"}'}),
+            "sort_order": forms.NumberInput(attrs={"class": _INPUT, "min": "0"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["slug"].required = False

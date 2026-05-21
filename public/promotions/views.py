@@ -1,7 +1,8 @@
 from django.contrib import messages
-from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 
+from dashboard.pricing.models import PromotionLink, PromotionPartner
+from dashboard.pricing.utiles.partners import build_partner_share_bundle, get_partner_primary_discount
 from dashboard.pricing.models import FlashSale
 from public.storefront.forms import NewsletterSignupForm
 from public.storefront.services import (
@@ -46,11 +47,42 @@ def loyalty_info_view(request):
 
 
 def referral_landing_view(request):
-    return render_info_page(
+    link_slug = (request.GET.get("l") or "").strip()
+    partner_slug = (request.GET.get("ref") or request.GET.get("partner") or "").strip()
+    link = PromotionLink.objects.select_related("discount_code", "partner").filter(slug=link_slug).first() if link_slug else None
+    partner = None
+    if link and link.partner_id:
+        partner = link.partner
+        link.click_count += 1
+        link.save(update_fields=["click_count", "updated_at"])
+    elif partner_slug:
+        partner = PromotionPartner.objects.filter(referral_slug__iexact=partner_slug).first()
+
+    discount_code = None
+    if link and link.discount_code_id:
+        discount_code = link.discount_code
+    elif partner is not None:
+        discount_code = get_partner_primary_discount(partner)
+
+    if discount_code is not None and request.GET.get("auto", "1") != "0":
+        try:
+            apply_coupon_to_cart(get_or_create_cart(request), discount_code.code)
+            messages.success(request, f"{discount_code.code} is now active in your cart.")
+        except ValueError as exc:
+            messages.error(request, str(exc))
+
+    share_bundle = build_partner_share_bundle(request, partner, discount_code=discount_code) if partner else None
+    return render_storefront(
         request,
-        title="Refer a Friend",
-        body="Referral messaging is live, with the persistence layer intentionally deferred until a referral program is selected.",
-        extra_context={"breadcrumbs": build_breadcrumbs(("Home", "/"), ("Referrals", ""))},
+        "promotions/referral_landing.html",
+        {
+            "breadcrumbs": build_breadcrumbs(("Home", "/"), ("Referrals", "")),
+            "partner": partner,
+            "share_bundle": share_bundle,
+            "discount_code": discount_code,
+        },
+        page_title="Refer a Friend",
+        page_description="Trackable referral and influencer offers for this storefront.",
     )
 
 

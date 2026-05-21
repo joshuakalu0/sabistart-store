@@ -13,7 +13,15 @@ from django.utils import timezone
 
 from dashboard.decorators import dashboard_prefix_required
 from dashboard.feature_marketplace.services import require_feature
-from dashboard.pricing.models import DiscountCode, DiscountUsage
+from dashboard.pricing.models import (
+    BundleOrderLedger,
+    DiscountCode,
+    DiscountExperiment,
+    DiscountExperimentSnapshot,
+    DiscountUsage,
+    PricingAutomationRule,
+    PromotionCommissionLedger,
+)
 from dashboard.pricing.utiles.analytics import (
     get_automatic_discount_performance,
     get_discount_performance,
@@ -24,6 +32,7 @@ from dashboard.pricing.utiles.analytics import (
 from dashboard.pricing.utiles.dashboard import get_pricing_health_checks
 from dashboard.sidebar_utiles import main_sidebar
 from public.cart.models import Order, OrderDiscount, OrderItem
+from public.userauth.models import CustomerGroup
 
 
 def _parse_window(request):
@@ -135,6 +144,126 @@ def _build_pricing_analytics_bundle(start, end):
         .order_by("-discount_amount", "-uses")
     )
 
+    partner_rows = list(
+        PromotionCommissionLedger.objects.filter(
+            status=PromotionCommissionLedger.LedgerStatus.EARNED,
+            created_at__gte=start,
+            created_at__lte=end,
+        )
+        .values("partner__name", "currency")
+        .annotate(
+            revenue=Sum("revenue_attributed"),
+            commission=Sum("commission_amount"),
+            orders=Count("order_id", distinct=True),
+        )
+        .order_by("-revenue", "-commission")[:8]
+    )
+
+    bundle_rows = list(
+        BundleOrderLedger.objects.filter(
+            created_at__gte=start,
+            created_at__lte=end,
+        )
+        .values("bundle__name")
+        .annotate(
+            orders=Count("order_id", distinct=True),
+            quantity=Sum("quantity"),
+            discount_amount=Sum("bundle_discount_amount"),
+            revenue=Sum("revenue_attributed"),
+        )
+        .order_by("-revenue", "-discount_amount")[:8]
+    )
+
+    experiment_rows = []
+    experiments = list(
+        DiscountExperiment.objects.prefetch_related("variants__discount_code", "snapshots__variant")
+        .order_by("title")
+    )
+    for experiment in experiments:
+        latest_by_variant = {}
+        for snapshot in experiment.snapshots.filter(created_at__lte=end).order_by("variant_id", "-created_at"):
+            latest_by_variant.setdefault(snapshot.variant_id, snapshot)
+        variant_rows = []
+        total_revenue = Decimal("0.00")
+        total_assignments = 0
+        total_redemptions = 0
+        winning_label = ""
+        for variant in experiment.variants.filter(is_active=True).order_by("label"):
+            snapshot = latest_by_variant.get(variant.id)
+            if snapshot is None:
+                assignments = 0
+                redemptions = 0
+                conversion_rate = Decimal("0.0000")
+                revenue = Decimal("0.00")
+                is_winner = False
+            else:
+                assignments = int(snapshot.assignments or 0)
+                redemptions = int(snapshot.redemptions or 0)
+                conversion_rate = (snapshot.conversion_rate or Decimal("0.0000")) * Decimal("100")
+                revenue = snapshot.revenue_attributed or Decimal("0.00")
+                is_winner = bool(snapshot.is_winner)
+            total_assignments += assignments
+            total_redemptions += redemptions
+            total_revenue += revenue
+            if is_winner:
+                winning_label = variant.label
+            variant_rows.append(
+                {
+                    "label": variant.label,
+                    "code": getattr(variant.discount_code, "code", ""),
+                    "allocation_weight": int(variant.allocation_weight or 0),
+                    "assignments": assignments,
+                    "redemptions": redemptions,
+                    "conversion_rate": conversion_rate,
+                    "revenue": revenue,
+                    "is_winner": is_winner,
+                }
+            )
+        if variant_rows:
+            split_label = " / ".join(
+                f"{variant['label']} {variant['allocation_weight']}%"
+                for variant in variant_rows
+            )
+            experiment_rows.append(
+                {
+                    "title": experiment.title,
+                    "status": experiment.get_status_display(),
+                    "traffic_split": split_label,
+                    "winner_label": winning_label,
+                    "assignments": total_assignments,
+                    "redemptions": total_redemptions,
+                    "revenue": total_revenue,
+                    "variants": variant_rows,
+                }
+            )
+
+    automation_rows = []
+    automation_rules = list(PricingAutomationRule.objects.prefetch_related("delivery_logs").order_by("name"))
+    for rule in automation_rules:
+        logs = rule.delivery_logs.filter(created_at__gte=start, created_at__lte=end)
+        automation_rows.append(
+            {
+                "name": rule.name,
+                "trigger_type": rule.get_trigger_type_display(),
+                "delivery_mode": rule.get_delivery_mode_display(),
+                "issued": logs.exclude(issued_code__isnull=True).values("issued_code").distinct().count(),
+                "delivered": logs.filter(result="delivered").count(),
+                "queued": logs.filter(result="queued").count(),
+                "prepared": logs.filter(result="prepared").count(),
+            }
+        )
+    automation_rows.sort(key=lambda row: (row["delivered"], row["issued"]), reverse=True)
+
+    segment_rows = list(
+        CustomerGroup.objects.annotate(live_customers=Count("customers", distinct=True))
+        .values("name", "group_type", "live_customers", "customer_count")
+        .order_by("-live_customers", "name")[:8]
+    )
+
+    partner_commission_total = sum((row["commission"] or Decimal("0.00")) for row in partner_rows) or Decimal("0.00")
+    bundle_revenue_total = sum((row["revenue"] or Decimal("0.00")) for row in bundle_rows) or Decimal("0.00")
+    automation_issued_total = sum(row["issued"] for row in automation_rows)
+
     bundle = {
         "filters": {
             "start": start.date().isoformat(),
@@ -148,6 +277,9 @@ def _build_pricing_analytics_bundle(start, end):
             _kpi("AOV With Discount", avg_discounted_aov, "currency", "Average order value for discounted orders"),
             _kpi("AOV Without Discount", avg_regular_aov, "currency", "Average order value for non-discounted orders"),
             _kpi("Remaining Uses", remaining_uses, "number", "Unused limited discount capacity"),
+            _kpi("Partner Commission", partner_commission_total, "currency", "Commission owed or earned by tracked partners in range"),
+            _kpi("Bundle Revenue", bundle_revenue_total, "currency", "Revenue attributed to bundle offers in range"),
+            _kpi("Automation Issued", automation_issued_total, "number", "Issued codes created by pricing automation rules"),
         ],
         "charts": {
             "usage_trend": {
@@ -179,6 +311,11 @@ def _build_pricing_analytics_bundle(start, end):
             "flash_sales": flash_perf,
             "products": top_products,
             "usage_rows": usage_rows,
+            "partners": partner_rows,
+            "bundles": bundle_rows,
+            "experiments": experiment_rows,
+            "automation": automation_rows[:8],
+            "segments": segment_rows,
         },
         "fraud_signals": {
             "ip_velocity": suspicious_by_ip,
@@ -203,6 +340,14 @@ def _csv_response(bundle, filename: str):
         writer.writerow(["top_product", row["product_title"], row["discount_amount"], row["units"]])
     for row in bundle["tables"]["flash_sales"]:
         writer.writerow(["flash_sale", row["name"], row["total_revenue_est"], row["units_sold_at_flash_price"]])
+    for row in bundle["tables"]["partners"]:
+        writer.writerow(["partner", row["partner__name"], row["revenue"], row["commission"]])
+    for row in bundle["tables"]["bundles"]:
+        writer.writerow(["bundle", row["bundle__name"], row["revenue"], row["discount_amount"]])
+    for row in bundle["tables"]["automation"]:
+        writer.writerow(["automation_rule", row["name"], row["issued"], row["delivered"]])
+    for row in bundle["tables"]["segments"]:
+        writer.writerow(["segment", row["name"], row["live_customers"], row["group_type"]])
     response = HttpResponse(buffer.getvalue(), content_type="text/csv")
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
     return response
@@ -214,6 +359,17 @@ def _csv_response(bundle, filename: str):
 def pricing_analytics(request, prefix):
     start, end = _parse_window(request)
     bundle = _build_pricing_analytics_bundle(start, end)
+    operator_links = [
+        {"label": "Experiments", "url": reverse("dashboard:pricing:discount_experiment_list", kwargs={"prefix": prefix})},
+        {"label": "Imports", "url": reverse("dashboard:pricing:discount_import_batch_list", kwargs={"prefix": prefix})},
+        {"label": "Automation", "url": reverse("dashboard:pricing:pricing_automation_rule_list", kwargs={"prefix": prefix})},
+        {"label": "Partners", "url": reverse("dashboard:pricing:promotion_partner_list", kwargs={"prefix": prefix})},
+        {"label": "Share Links", "url": reverse("dashboard:pricing:promotion_link_list", kwargs={"prefix": prefix})},
+        {"label": "Bundles", "url": reverse("dashboard:pricing:bundle_offer_list", kwargs={"prefix": prefix})},
+        {"label": "Conflicts", "url": reverse("dashboard:pricing:promotion_conflict_list", kwargs={"prefix": prefix})},
+        {"label": "Reviews", "url": reverse("dashboard:pricing:review_moderation_list", kwargs={"prefix": prefix})},
+        {"label": "Segments", "url": reverse("dashboard:pricing:pricing_segment_list", kwargs={"prefix": prefix})},
+    ]
     return render(
         request,
         "dashboard/pricing/analytics.html",
@@ -225,6 +381,7 @@ def pricing_analytics(request, prefix):
             "analytics_bundle": bundle,
             "analytics_json_url": reverse("dashboard:pricing:pricing_analytics_data", kwargs={"prefix": prefix}),
             "analytics_csv_url": reverse("dashboard:pricing:pricing_analytics_export_csv", kwargs={"prefix": prefix}),
+            "operator_links": operator_links,
         },
     )
 

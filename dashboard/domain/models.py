@@ -35,6 +35,18 @@ class CustomDomain(models.Model):
     domain     = models.CharField(max_length=253, unique=True, db_index=True)
     status     = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     is_primary = models.BooleanField(default=False)  # all others redirect here
+    managed_domain = models.OneToOneField(
+        "ManagedDomain",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="custom_connection",
+    )
+    connection_source = models.CharField(
+        max_length=20,
+        choices=[("manual", "Manual"), ("managed", "Managed Domain")],
+        default="manual",
+    )
 
     # Verification
     verification_token  = models.CharField(max_length=64, unique=True, editable=False)
@@ -463,3 +475,6 @@ class ACMEChallenge(models.Model):
     @property
     def is_expired(self):
         return timezone.now() > self.expires_at
+
+
+from .commerce_models import *  # noqa: E402,F401,F403

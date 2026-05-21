@@ -7,13 +7,15 @@ from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
+from dashboard.pricing.utiles.partners import build_partner_dashboard_bundle
 from public.cart.models import Order
-from public.product.models import Product
+from public.product.models import Product, ProductReview
 from public.storefront.forms import (
     AddressForm,
     PasswordResetConfirmForm,
     PasswordResetRequestForm,
     ProfileForm,
+    ReferralInviteForm,
     SecurityForm,
 )
 from public.storefront.services import (
@@ -282,8 +284,26 @@ def loyalty_portal_view(request):
     return _account_shell(request, "Loyalty", "Loyalty program details can be connected later without changing this tenant-facing route.")
 
 
+@login_required(login_url="tenant:login")
 def referral_dashboard_view(request):
-    return _account_shell(request, "Referrals", "Referral analytics and invite tracking are staged as a tenant-themed shell.")
+    customer = get_or_create_customer_profile(request.user)
+    dashboard_bundle = build_partner_dashboard_bundle(request, customer)
+    invite_form = ReferralInviteForm(request.POST or None)
+    if request.method == "POST" and invite_form.is_valid():
+        messages.success(
+            request,
+            f"Referral invite prepared for {invite_form.cleaned_data['email']}. Share link: {dashboard_bundle['share']['share_url']}"
+            if dashboard_bundle.get("share")
+            else "Referral invite prepared.",
+        )
+        return redirect("tenant:referral_dashboard")
+
+    context = {
+        "breadcrumbs": build_breadcrumbs(("Account", "/account/dashboard/"), ("Referrals", "")),
+        "invite_form": invite_form,
+        "referral_bundle": dashboard_bundle,
+    }
+    return render_storefront(request, "account/referrals.html", context, page_title="Referrals")
 
 
 def store_credit_view(request):
@@ -306,5 +326,16 @@ def account_delete_view(request):
     return _account_shell(request, "Delete Account", "Self-service account deletion is intentionally disabled in this implementation.")
 
 
+@login_required(login_url="tenant:login")
 def user_reviews_view(request):
-    return _account_shell(request, "Reviews", "Review history is reserved for a later phase once review persistence is added.")
+    customer = get_or_create_customer_profile(request.user)
+    reviews = (
+        ProductReview.objects.select_related("product")
+        .filter(customer=customer)
+        .order_by("-created_at")
+    )
+    context = {
+        "breadcrumbs": build_breadcrumbs(("Account", "/account/dashboard/"), ("Reviews", "")),
+        "reviews": reviews,
+    }
+    return render_storefront(request, "account/reviews.html", context, page_title="Reviews")

@@ -1,11 +1,16 @@
+from django.contrib import messages
 from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect
 
 from dashboard.store_settings.content_services import (
     get_public_blog_post,
     get_public_blog_posts,
     get_public_custom_page,
 )
-from public.storefront.services import build_breadcrumbs, render_info_page, render_storefront
+from public.product.models import Product
+from public.product.review_services import get_product_review_payload, refresh_product_review_stats, submit_product_review
+from public.storefront.forms import ReviewSubmissionForm
+from public.storefront.services import build_breadcrumbs, get_or_create_customer_profile, render_info_page, render_storefront
 
 
 def blog_index_view(request):
@@ -103,11 +108,45 @@ def product_qa_view(request, product_slug):
 
 
 def submit_review_view(request, product_slug):
-    return render_info_page(
+    product = get_object_or_404(Product.objects.filter(is_active=True), slug=product_slug)
+    if not product.enable_reviews:
+        raise Http404("Reviews are disabled for this product.")
+    if not getattr(request.user, "is_authenticated", False):
+        messages.info(request, "Please sign in before submitting a review.")
+        return redirect("tenant:login")
+
+    customer = get_or_create_customer_profile(request.user)
+    refresh_product_review_stats(product)
+    form = ReviewSubmissionForm(request.POST or None)
+    review_bundle = get_product_review_payload(product, customer=customer)
+    if request.method == "POST" and form.is_valid():
+        review = submit_product_review(
+            product=product,
+            customer=customer,
+            user=request.user,
+            title=form.cleaned_data["title"],
+            body=form.cleaned_data["body"],
+            rating=form.cleaned_data["rating"],
+        )
+        messages.success(
+            request,
+            "Your review has been submitted for moderation."
+            if review.status == review.Status.PENDING
+            else "Your review is now live.",
+        )
+        return redirect("content:submit_review", product_slug=product.slug)
+
+    return render_storefront(
         request,
-        title="Submit Review",
-        body=f"Review submission for {product_slug} is displayed as a themed shell until review persistence is enabled.",
-        extra_context={"breadcrumbs": build_breadcrumbs(("Home", "/"), ("Reviews", ""))},
+        "content/review_submit.html",
+        {
+            "product": product,
+            "form": form,
+            "review_bundle": review_bundle,
+            "breadcrumbs": build_breadcrumbs(("Home", "/"), ("Reviews", "/account/reviews/"), (product.name, "")),
+        },
+        page_title=f"Review {product.name}",
+        page_description=f"Submit a product review for {product.name}.",
     )
 
 

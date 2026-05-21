@@ -91,6 +91,84 @@
       <p class="text-sm text-slate-500">Available to all customers.</p>
       {% endif %}
     </div>
+
+    <div class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+      <h3 class="text-md font-semibold text-slate-900 dark:text-white mb-3">Attribution & Share</h3>
+      <dl class="space-y-3 text-sm">
+        <div class="flex justify-between">
+          <dt class="text-slate-500 dark:text-slate-400">Attributed Partner</dt>
+          <dd class="font-medium text-slate-900 dark:text-white">{{ discount.attributed_partner.name|default:"None" }}</dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-slate-500 dark:text-slate-400">Share Slug</dt>
+          <dd class="font-mono text-slate-900 dark:text-white">{{ share_link.slug }}</dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-slate-500 dark:text-slate-400">Stack Cap</dt>
+          <dd class="font-medium text-slate-900 dark:text-white">{{ discount.total_stack_cap_amount|default:"No cap" }}</dd>
+        </div>
+      </dl>
+      <div class="mt-4">
+        <a href="{{ share_link_detail_url }}" class="inline-flex items-center rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+          <span class="material-icons-outlined mr-2 text-[18px]">qr_code_2</span>Manage Share Link
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+      <div>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white">Experiments</h3>
+        <p class="text-xs text-slate-500 mt-1">A/B tests using this code as the source discount.</p>
+      </div>
+      <a href="{% url 'dashboard:pricing:discount_experiment_list' prefix %}" class="text-primary hover:text-blue-700 text-sm font-medium">Open Lab</a>
+    </div>
+    <div class="p-6">
+      {% if experiments %}
+      <div class="space-y-4">
+        {% for experiment in experiments %}
+        <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <p class="font-medium text-slate-900 dark:text-white">{{ experiment.title }}</p>
+              <p class="text-xs text-slate-500 mt-1">{{ experiment.get_status_display }} · Winner: {{ experiment.winner_variant.label|default:"Undecided" }}</p>
+            </div>
+            <a href="{% url 'dashboard:pricing:discount_experiment_detail' prefix experiment.id %}" class="text-sm text-primary hover:text-blue-700">View</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-sm text-slate-500">No experiments are using this code yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+      <div>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white">Conflicts</h3>
+        <p class="text-xs text-slate-500 mt-1">Overlap warnings and stack-blocking records involving this code.</p>
+      </div>
+      <a href="{% url 'dashboard:pricing:promotion_conflict_list' prefix %}" class="text-primary hover:text-blue-700 text-sm font-medium">Open Conflicts</a>
+    </div>
+    <div class="p-6">
+      {% if conflicts %}
+      <div class="space-y-4">
+        {% for conflict in conflicts %}
+        <div class="rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+          <p class="font-medium text-slate-900 dark:text-white">{{ conflict.summary }}</p>
+          <p class="text-xs text-slate-500 mt-1">{{ conflict.get_severity_display }} · {{ conflict.get_status_display }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-sm text-slate-500">No conflict records found for this code.</p>
+      {% endif %}
+    </div>
   </div>
 </div>
 

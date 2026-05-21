@@ -115,6 +115,18 @@ class NewsletterSignupForm(forms.Form):
     email = forms.EmailField(label="Email address")
 
 
+class ReviewSubmissionForm(forms.Form):
+    title = forms.CharField(max_length=160, required=False)
+    rating = forms.IntegerField(min_value=1, max_value=5)
+    body = forms.CharField(widget=forms.Textarea(attrs={"rows": 6}))
+
+
+class ReferralInviteForm(forms.Form):
+    name = forms.CharField(max_length=150, required=False)
+    email = forms.EmailField(label="Friend's email")
+    note = forms.CharField(widget=forms.Textarea(attrs={"rows": 4}), required=False)
+
+
 class B2BLeadForm(forms.Form):
     company_name = forms.CharField(max_length=200)
     contact_name = forms.CharField(max_length=150)

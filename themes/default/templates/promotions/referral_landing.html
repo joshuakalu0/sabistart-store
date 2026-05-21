@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="space-y-8">
+    <div class="surface-card overflow-hidden p-8 lg:p-10">
+        <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            {% for crumb in breadcrumbs %}
+                {% if crumb.url %}<a href="{{ crumb.url }}" class="transition hover:text-slate-900">{{ crumb.label }}</a>{% else %}<span>{{ crumb.label }}</span>{% endif %}
+                {% if not forloop.last %}<span>/</span>{% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="hero-grid mt-6 items-start">
+            <div class="space-y-5">
+                <p class="eyebrow">Referral Offer</p>
+                <h1 class="section-title">
+                    {% if partner %}
+                        Unlock {{ partner.name }}'s shared promotion
+                    {% else %}
+                        Join the referral program
+                    {% endif %}
+                </h1>
+                <p class="section-copy text-base">
+                    {% if discount_code %}
+                        The linked discount is ready for your cart now. You can keep shopping and the promotion will follow through checkout.
+                    {% else %}
+                        This landing page keeps share attribution intact so the storefront can credit the right partner, creator, or customer advocate.
+                    {% endif %}
+                </p>
+                <div class="flex flex-wrap gap-3">
+                    <a href="{% url 'cart:cart_page' %}" class="button-primary">Open Cart</a>
+                    <a href="{% url 'category:deals' %}" class="button-secondary">Browse Deals</a>
+                </div>
+            </div>
+
+            <div class="surface-card-soft p-6">
+                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Live Offer</p>
+                {% if discount_code %}
+                    <div class="mt-4 flex flex-wrap items-center gap-3">
+                        <span class="chip chip-active">{{ discount_code.code }}</span>
+                        {% if discount_code.title %}<span class="text-sm font-semibold text-slate-700">{{ discount_code.title }}</span>{% endif %}
+                    </div>
+                    {% if discount_code.description %}
+                        <p class="mt-4 text-sm leading-7 text-slate-600">{{ discount_code.description }}</p>
+                    {% endif %}
+                {% else %}
+                    <p class="mt-4 text-sm leading-7 text-slate-500">No active discount code is attached to this referral yet, but attribution tracking is still ready.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="grid gap-8 xl:grid-cols-[1.05fr,0.95fr]">
+        <div class="surface-card p-8">
+            <p class="eyebrow">Partner Details</p>
+            <h2 class="brand-font mt-3 text-3xl font-bold text-slate-950">{{ partner.name|default:"Referral Partner" }}</h2>
+            {% if partner %}
+                <div class="mt-6 grid gap-4 md:grid-cols-2">
+                    <div class="surface-card-soft p-5">
+                        <p class="text-sm text-slate-500">Partner Type</p>
+                        <p class="mt-3 text-lg font-semibold text-slate-950">{{ partner.get_partner_type_display }}</p>
+                    </div>
+                    <div class="surface-card-soft p-5">
+                        <p class="text-sm text-slate-500">Referral Slug</p>
+                        <p class="mt-3 text-lg font-semibold text-slate-950">{{ partner.referral_slug|default:"Not set" }}</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="surface-card p-8">
+            <p class="eyebrow">Share Asset</p>
+            <h2 class="brand-font mt-3 text-3xl font-bold text-slate-950">Save or reshare this link</h2>
+            {% if share_bundle %}
+                <div class="mt-6 space-y-4">
+                    <div class="surface-card-soft p-4">
+                        <div class="mx-auto h-40 w-40 [&_svg]:h-full [&_svg]:w-full">
+                            {{ share_bundle.qr_svg|safe }}
+                        </div>
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-sm font-semibold text-slate-700" for="share-ref-link">Referral URL</label>
+                        <div class="flex flex-col gap-3 md:flex-row">
+                            <input id="share-ref-link" type="text" readonly value="{{ share_bundle.share_url }}">
+                            <button type="button" class="button-secondary shrink-0" data-copy-target="share-ref-link">Copy link</button>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <p class="mt-4 text-sm leading-7 text-slate-500">This landing page is ready, but no share bundle was generated for the current request.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+    (function () {
+        document.querySelectorAll("[data-copy-target]").forEach(function (button) {
+            button.addEventListener("click", function () {
+                const input = document.getElementById(button.getAttribute("data-copy-target"));
+                if (!input) return;
+                input.select();
+                input.setSelectionRange(0, input.value.length);
+                navigator.clipboard.writeText(input.value).then(function () {
+                    button.textContent = "Copied";
+                    window.setTimeout(function () {
+                        button.textContent = "Copy link";
+                    }, 1400);
+                });
+            });
+        });
+    }());
+</script>
+{% endblock %}

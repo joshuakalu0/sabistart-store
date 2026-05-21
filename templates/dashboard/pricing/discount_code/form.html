@@ -70,7 +70,7 @@
         <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 pb-2 border-b border-slate-200 dark:border-slate-700">Eligibility Conditions</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           {% for field in form %}
-            {% if field.name in "minimum_order_amount,minimum_quantity,requires_first_order,customer_eligibility" %}
+            {% if field.name in "minimum_order_amount,minimum_quantity,requires_first_order,customer_eligibility,attributed_partner" %}
             <div class="space-y-1 {% if field.field.widget.input_type == 'checkbox' %}flex items-center space-x-2 space-y-0 h-full pt-6{% endif %}">
               {% if field.field.widget.input_type == 'checkbox' %}
                 {{ field }}
@@ -79,6 +79,22 @@
                 <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ field.label }} {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}</label>
                 {{ field }}
               {% endif %}
+              {% if field.help_text %}<p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ field.help_text|safe }}</p>{% endif %}
+              {% if field.errors %}<p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ field.errors.0 }}</p>{% endif %}
+            </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 pb-2 border-b border-slate-200 dark:border-slate-700">Location Targeting</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {% for field in form %}
+            {% if field.name in "eligible_countries,eligible_states,eligible_cities" %}
+            <div class="space-y-1">
+              <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ field.label }}</label>
+              {{ field }}
               {% if field.help_text %}<p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ field.help_text|safe }}</p>{% endif %}
               {% if field.errors %}<p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ field.errors.0 }}</p>{% endif %}
             </div>
@@ -118,6 +134,12 @@
             </div>
             {% endif %}
           {% endfor %}
+          <div class="space-y-1">
+            <label for="{{ form.total_stack_cap_amount.id_for_label }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ form.total_stack_cap_amount.label }}</label>
+            {{ form.total_stack_cap_amount }}
+            {% if form.total_stack_cap_amount.help_text %}<p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ form.total_stack_cap_amount.help_text|safe }}</p>{% endif %}
+            {% if form.total_stack_cap_amount.errors %}<p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ form.total_stack_cap_amount.errors.0 }}</p>{% endif %}
+          </div>
           <div class="space-y-1 md:col-span-2">
             <label for="{{ form.internal_note.id_for_label }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ form.internal_note.label }}</label>
             {{ form.internal_note }}

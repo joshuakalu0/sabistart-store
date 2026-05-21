@@ -17,6 +17,13 @@ from django.db import transaction
 from django.db.models import Count, F, Q
 from django.utils import timezone
 
+from .advanced import (
+    assign_discount_experiment_variant,
+    customer_geography_matches,
+    get_customer_group_ids,
+    resolve_discount_compatibility,
+)
+
 logger = logging.getLogger("pricing.discount")
 TWO_PLACES = Decimal("0.01")
 
@@ -109,6 +116,7 @@ def _get_customer_groups(customer) -> list:
         return []
     if hasattr(customer, "groups"):
         try:
+            get_customer_group_ids(customer)
             return list(customer.groups.all())
         except Exception:
             return []
@@ -241,7 +249,7 @@ def _discount_rule_checks(discount, cart_items: list[dict[str, Any]], customer, 
                 if line["is_on_sale"]:
                     excluded_item_ids.add(line["id"])
         elif rule.rule_type == DiscountRule.RuleType.CUSTOMER_GROUP:
-            groups = {group.id for group in _get_customer_groups(customer)}
+            groups = get_customer_group_ids(customer)
             if not rule.customer_group_id or rule.customer_group_id not in groups:
                 return False, "This code is not available for your customer group.", []
         elif rule.rule_type == DiscountRule.RuleType.SPECIFIC_CUSTOMER:
@@ -269,6 +277,13 @@ def _discount_rule_checks(discount, cart_items: list[dict[str, Any]], customer, 
 
 def _check_customer_eligibility(discount, customer) -> tuple[bool, str]:
     if discount.customer_eligibility == "all":
+        if not customer_geography_matches(
+            customer,
+            countries=getattr(discount, "eligible_countries", []),
+            states=getattr(discount, "eligible_states", []),
+            cities=getattr(discount, "eligible_cities", []),
+        ):
+            return False, "This discount is not available in your location."
         return True, ""
     if customer is None:
         return False, "Please sign in to use this discount."
@@ -288,9 +303,16 @@ def _check_customer_eligibility(discount, customer) -> tuple[bool, str]:
                 customer_group__isnull=False,
             ).values_list("customer_group_id", flat=True)
         )
-        customer_group_ids = {group.id for group in _get_customer_groups(customer)}
+        customer_group_ids = get_customer_group_ids(customer)
         if group_ids and not (group_ids & customer_group_ids):
             return False, "This discount is not available for your customer segment."
+    if not customer_geography_matches(
+        customer,
+        countries=getattr(discount, "eligible_countries", []),
+        states=getattr(discount, "eligible_states", []),
+        cities=getattr(discount, "eligible_cities", []),
+    ):
+        return False, "This discount is not available in your location."
     return True, ""
 
 
@@ -435,10 +457,18 @@ def _evaluate_auto_discount_conditions(discount, cart_subtotal: Decimal, custome
     if not conditions:
         return True
 
-    customer_groups = {group.id for group in _get_customer_groups(customer)}
+    customer_groups = get_customer_group_ids(customer)
     customer_tags = set(getattr(customer, "tags", []) or []) if customer else set()
     total_qty = sum(line["quantity"] for line in cart_items)
     order_count = _customer_order_count(customer) if customer else 0
+
+    if not customer_geography_matches(
+        customer,
+        countries=getattr(discount, "eligible_countries", []),
+        states=getattr(discount, "eligible_states", []),
+        cities=getattr(discount, "eligible_cities", []),
+    ):
+        return False
 
     for condition in conditions:
         if condition.condition_type == ADC.ConditionType.MINIMUM_SUBTOTAL:
@@ -482,6 +512,9 @@ def validate_discount_code(
     ip_address: str = "",
     shipping_total: Decimal = Decimal("0.00"),
     currency_code: str | None = None,
+    session_key: str = "",
+    cart_token: str = "",
+    cart_id=None,
 ) -> DiscountValidationResult:
     from pricing.models import DiscountCode
 
@@ -496,7 +529,7 @@ def validate_discount_code(
         )
 
     try:
-        discount = (
+        entered_discount = (
             DiscountCode.objects.select_related("free_item_variant", "buy_x_get_y_promotion")
             .prefetch_related("rules")
             .get(code=code)
@@ -508,6 +541,15 @@ def validate_discount_code(
             message="This discount code is invalid.",
             error_type="invalid",
         )
+
+    _, assigned_discount, _ = assign_discount_experiment_variant(
+        entered_discount,
+        customer=customer,
+        session_key=session_key,
+        cart_id=cart_id,
+        cart_token=cart_token,
+    )
+    discount = assigned_discount or entered_discount
 
     now = timezone.now()
     if not discount.is_active:
@@ -819,25 +861,15 @@ def evaluate_cart_discounts(
     shipping_total: Decimal = Decimal("0.00"),
     currency_code: str = "USD",
     ip_address: str = "",
+    session_key: str = "",
+    cart_token: str = "",
+    cart_id=None,
 ) -> dict[str, Any]:
     normalized_items = _normalize_cart_items(cart_items)
     subtotal = _money(cart_subtotal)
     shipping_total = _money(shipping_total)
-    applied_discounts: list[dict[str, Any]] = []
-    aggregated_allocations: dict[str, dict[str, Any]] = defaultdict(
-        lambda: {
-            "order_item_id": "",
-            "sku": "",
-            "product_title": "",
-            "unit_discount": Decimal("0.00"),
-            "line_discount": Decimal("0.00"),
-            "sources": [],
-        }
-    )
-
     code_result = None
-    code_discount_total = Decimal("0.00")
-    shipping_discount_total = Decimal("0.00")
+    warnings: list[str] = []
 
     if code:
         code_result = validate_discount_code(
@@ -848,6 +880,9 @@ def evaluate_cart_discounts(
             ip_address=ip_address,
             shipping_total=shipping_total,
             currency_code=currency_code,
+            session_key=session_key,
+            cart_token=cart_token,
+            cart_id=cart_id,
         )
         if not code_result.valid:
             return {
@@ -859,7 +894,71 @@ def evaluate_cart_discounts(
                 "line_allocations": [],
                 "discount_total": Decimal("0.00"),
                 "shipping_discount_total": Decimal("0.00"),
+                "warnings": [],
             }
+
+    auto_discounts = apply_automatic_discounts(
+        subtotal,
+        customer=customer,
+        cart_items=normalized_items,
+        applied_code=code_result.code if code_result and code_result.valid else "",
+        shipping_total=shipping_total,
+        currency_code=currency_code,
+        code_allows_automatic=bool(code_result is None or code_result.allows_stacking_with_auto_discounts),
+    )
+
+    candidate_rows: list[dict[str, Any]] = []
+    if code_result:
+        candidate_rows.append(
+            {
+                "discount_type": "code",
+                "code": code_result.code,
+                "discount_id": code_result.discount_id,
+                "description": code_result.discount_title or code_result.message,
+                "amount": _money(code_result.discount_amount),
+                "is_percentage": code_result.value_type == "percentage",
+                "percentage_value": code_result.percentage_value,
+                "allocation_method": code_result.allocation_method,
+            }
+        )
+    for auto_discount in auto_discounts:
+        candidate_rows.append(
+            {
+                "discount_type": "automatic",
+                "code": "",
+                "discount_id": auto_discount.discount_id,
+                "description": auto_discount.customer_facing_title,
+                "amount": _money(auto_discount.discount_amount),
+                "is_percentage": auto_discount.discount_method == "percentage",
+                "percentage_value": auto_discount.percentage_value,
+                "allocation_method": "across",
+            }
+        )
+
+    compatibility = resolve_discount_compatibility(candidate_rows)
+    warnings.extend(compatibility.warnings)
+    applied_discounts = compatibility.applied_discounts
+    allowed_discount_ids = {
+        str(row.get("discount_id"))
+        for row in applied_discounts
+        if row.get("discount_id")
+    }
+
+    aggregated_allocations: dict[str, dict[str, Any]] = defaultdict(
+        lambda: {
+            "order_item_id": "",
+            "sku": "",
+            "product_title": "",
+            "unit_discount": Decimal("0.00"),
+            "line_discount": Decimal("0.00"),
+            "sources": [],
+        }
+    )
+    code_discount_total = Decimal("0.00")
+    auto_discount_total = Decimal("0.00")
+    shipping_discount_total = Decimal("0.00")
+
+    if code_result and str(code_result.discount_id or "") in allowed_discount_ids:
         if code_result.value_type == "free_shipping":
             shipping_discount_total += _money(code_result.discount_amount)
         else:
@@ -898,83 +997,65 @@ def evaluate_cart_discounts(
                         "discount_id": code_result.discount_id,
                     }
                 )
-        applied_discounts.append(
-            {
-                "discount_type": "code",
-                "code": code_result.code,
-                "discount_id": code_result.discount_id,
-                "description": code_result.discount_title or code_result.message,
-                "amount": _money(code_result.discount_amount),
-                "is_percentage": code_result.value_type == "percentage",
-                "percentage_value": code_result.percentage_value,
-                "allocation_method": code_result.allocation_method,
-            }
-        )
 
-    auto_discounts = apply_automatic_discounts(
-        subtotal,
-        customer=customer,
-        cart_items=normalized_items,
-        applied_code=code_result.code if code_result and code_result.valid else "",
-        shipping_total=shipping_total,
-        currency_code=currency_code,
-        code_allows_automatic=bool(code_result is None or code_result.allows_stacking_with_auto_discounts),
-    )
-
-    auto_discount_total = Decimal("0.00")
     for auto_discount in auto_discounts:
+        if str(auto_discount.discount_id) not in allowed_discount_ids:
+            continue
         amount = _money(auto_discount.discount_amount)
         if auto_discount.scope == "shipping":
             shipping_discount_total += amount
-        else:
-            auto_discount_total += amount
-            eligible_lines = [
-                line for line in normalized_items
-                if not auto_discount.eligible_item_ids or line["id"] in auto_discount.eligible_item_ids
-            ]
-            for allocation in calculate_line_level_discounts(
-                [
-                    {
-                        "id": line["id"],
-                        "sku": line["sku"],
-                        "product_title": line["product_title"],
-                        "quantity": line["quantity"],
-                        "subtotal": line["line_subtotal"],
-                        "unit_price": line["unit_price"],
-                    }
-                    for line in eligible_lines
-                ],
-                amount,
-                allocation_method="across",
-            ):
-                bucket = aggregated_allocations[allocation.order_item_id]
-                bucket["order_item_id"] = allocation.order_item_id
-                bucket["sku"] = allocation.sku
-                bucket["product_title"] = allocation.product_title
-                bucket["unit_discount"] = _money(bucket["unit_discount"] + allocation.unit_discount)
-                bucket["line_discount"] = _money(bucket["line_discount"] + allocation.line_discount)
-                bucket["sources"].append(
-                    {
-                        "type": "automatic",
-                        "label": auto_discount.customer_facing_title,
-                        "amount": allocation.line_discount,
-                        "discount_id": auto_discount.discount_id,
-                    }
-                )
-        applied_discounts.append(
-            {
-                "discount_type": "automatic",
-                "code": "",
-                "discount_id": auto_discount.discount_id,
-                "description": auto_discount.customer_facing_title,
-                "amount": amount,
-                "is_percentage": auto_discount.discount_method == "percentage",
-                "percentage_value": auto_discount.percentage_value,
-                "allocation_method": "across",
-            }
-        )
+            continue
+        auto_discount_total += amount
+        eligible_lines = [
+            line for line in normalized_items
+            if not auto_discount.eligible_item_ids or line["id"] in auto_discount.eligible_item_ids
+        ]
+        for allocation in calculate_line_level_discounts(
+            [
+                {
+                    "id": line["id"],
+                    "sku": line["sku"],
+                    "product_title": line["product_title"],
+                    "quantity": line["quantity"],
+                    "subtotal": line["line_subtotal"],
+                    "unit_price": line["unit_price"],
+                }
+                for line in eligible_lines
+            ],
+            amount,
+            allocation_method="across",
+        ):
+            bucket = aggregated_allocations[allocation.order_item_id]
+            bucket["order_item_id"] = allocation.order_item_id
+            bucket["sku"] = allocation.sku
+            bucket["product_title"] = allocation.product_title
+            bucket["unit_discount"] = _money(bucket["unit_discount"] + allocation.unit_discount)
+            bucket["line_discount"] = _money(bucket["line_discount"] + allocation.line_discount)
+            bucket["sources"].append(
+                {
+                    "type": "automatic",
+                    "label": auto_discount.customer_facing_title,
+                    "amount": allocation.line_discount,
+                    "discount_id": auto_discount.discount_id,
+                }
+            )
 
     merchandise_discount_total = min(subtotal, _money(code_discount_total + auto_discount_total))
+    if compatibility.total_cap is not None and merchandise_discount_total > compatibility.total_cap:
+        scale_ratio = compatibility.total_cap / merchandise_discount_total if merchandise_discount_total else Decimal("1")
+        warnings.append(f"Stacked promotion savings were capped at {compatibility.total_cap}.")
+        merchandise_discount_total = _money(compatibility.total_cap)
+        for row in applied_discounts:
+            original = _money(row.get("amount"))
+            if row.get("discount_type") == "code" and code_result and code_result.value_type == "free_shipping":
+                continue
+            row["amount"] = _money(original * scale_ratio)
+        for bucket in aggregated_allocations.values():
+            bucket["line_discount"] = _money(bucket["line_discount"] * scale_ratio)
+            quantity = max(1, sum(1 for source in bucket["sources"] if source.get("amount") is not None))
+            bucket["unit_discount"] = _money(bucket["line_discount"] / quantity) if bucket["line_discount"] else Decimal("0.00")
+            for source in bucket["sources"]:
+                source["amount"] = _money(source["amount"] * scale_ratio)
     shipping_discount_total = min(shipping_total, _money(shipping_discount_total))
     return {
         "valid": True,
@@ -985,6 +1066,7 @@ def evaluate_cart_discounts(
         "line_allocations": list(aggregated_allocations.values()),
         "discount_total": _money(merchandise_discount_total),
         "shipping_discount_total": _money(shipping_discount_total),
+        "warnings": warnings,
     }
 
 

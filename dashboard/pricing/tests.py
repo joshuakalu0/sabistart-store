@@ -10,12 +10,20 @@ from django.utils import timezone
 from dashboard.pricing.models import (
     BuyXGetYItem,
     BuyXGetYPromotion,
+    BundleOffer,
+    BundleOfferItem,
     Currency,
     DiscountCode,
+    DiscountExperiment,
+    DiscountExperimentVariant,
+    DiscountImportBatch,
+    DiscountImportRow,
     DiscountRule,
     ExchangeRate,
     FlashSale,
     FlashSaleItem,
+    PromotionLink,
+    PromotionPartner,
     VolumePricingTier,
 )
 from dashboard.pricing.utiles.discount import (
@@ -24,9 +32,11 @@ from dashboard.pricing.utiles.discount import (
     validate_discount_code,
 )
 from dashboard.pricing.utiles.price_resolver import PricingContext, resolve_price
+from dashboard.pricing.views import advanced as advanced_views
 from dashboard.pricing.views import analytics as analytics_views
 from dashboard.pricing.views import discount as discount_views
 from dashboard.pricing.views import promotions as promotion_views
+from public.product.models import ProductReview
 from public.storefront.tests import StorefrontTestCase, attach_session
 from public.userauth.models import Customer, CustomerGroup, TenantUser
 
@@ -429,3 +439,296 @@ class PricingEngineTests(StorefrontTestCase):
         self.assertIn("kpis", json_response.json())
 
         call_command("reconcile_pricing_integrity", "--dry-run", verbosity=0)
+
+    def test_discount_experiment_winner_promotion_updates_source_discount(self):
+        source_discount = DiscountCode.objects.create(
+            code="EXPBASE",
+            title="Base Experiment Code",
+            value_type=DiscountCode.ValueType.PERCENTAGE,
+            percentage_value=Decimal("10.00"),
+        )
+        control_code = DiscountCode.objects.create(
+            code="EXPA",
+            title="Variant A",
+            value_type=DiscountCode.ValueType.PERCENTAGE,
+            percentage_value=Decimal("15.00"),
+        )
+        winner_code = DiscountCode.objects.create(
+            code="EXPB",
+            title="Variant B",
+            value_type=DiscountCode.ValueType.FIXED_AMOUNT,
+            fixed_amount=Decimal("5.00"),
+            currency="USD",
+        )
+        experiment = DiscountExperiment.objects.create(
+            title="Experiment",
+            source_discount=source_discount,
+            status=DiscountExperiment.Status.LIVE,
+        )
+        control = DiscountExperimentVariant.objects.create(
+            experiment=experiment,
+            label="A",
+            discount_code=control_code,
+            allocation_weight=50,
+            is_control=True,
+        )
+        winner = DiscountExperimentVariant.objects.create(
+            experiment=experiment,
+            label="B",
+            discount_code=winner_code,
+            allocation_weight=50,
+        )
+
+        request = attach_session(self.factory.post("/dashboard/store/pricing/discount-experiments/"))
+        request.user = self.user
+
+        response = self._unwrap(advanced_views.discount_experiment_promote_winner)(
+            request,
+            prefix=self.tenant.schema_name,
+            experiment_pk=experiment.id,
+            variant_pk=winner.id,
+        )
+
+        source_discount.refresh_from_db()
+        experiment.refresh_from_db()
+        control.refresh_from_db()
+        winner.refresh_from_db()
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(experiment.winner_variant_id, winner.id)
+        self.assertEqual(experiment.status, DiscountExperiment.Status.COMPLETED)
+        self.assertEqual(source_discount.value_type, DiscountCode.ValueType.FIXED_AMOUNT)
+        self.assertEqual(source_discount.fixed_amount, Decimal("5.00"))
+        self.assertFalse(control.is_active)
+        self.assertTrue(winner.is_active)
+
+    def test_discount_import_preview_and_commit_create_codes(self):
+        batch = DiscountImportBatch.objects.create(
+            title="CSV Import",
+            column_mapping={
+                "code": "code",
+                "title": "title",
+                "value_type": "value_type",
+                "percentage_value": "percentage_value",
+            },
+            default_values={"scope": DiscountCode.DiscountScope.ORDER, "currency": "USD"},
+        )
+        DiscountImportRow.objects.create(
+            batch=batch,
+            row_number=2,
+            raw_data={
+                "code": "BULK20",
+                "title": "Bulk Discount",
+                "value_type": "percentage",
+                "percentage_value": "20",
+            },
+        )
+
+        advanced_views._preview_import_batch(batch)
+        batch.refresh_from_db()
+        row = batch.rows.get()
+
+        self.assertEqual(batch.valid_row_count, 1)
+        self.assertTrue(row.is_valid)
+        self.assertEqual(row.preview_code, "BULK20")
+
+        committed = advanced_views._commit_import_batch(batch, committed_by=self.user.email)
+        batch.refresh_from_db()
+        row.refresh_from_db()
+
+        self.assertEqual(committed, 1)
+        self.assertEqual(batch.status, DiscountImportBatch.Status.COMMITTED)
+        self.assertTrue(row.is_committed)
+        self.assertTrue(DiscountCode.objects.filter(code="BULK20").exists())
+
+    def test_partner_code_generation_clones_discount_and_share_link(self):
+        source_discount = DiscountCode.objects.create(
+            code="SOURCE20",
+            title="Source 20",
+            value_type=DiscountCode.ValueType.PERCENTAGE,
+            percentage_value=Decimal("20.00"),
+        )
+        partner = PromotionPartner.objects.create(
+            name="Creator Jane",
+            slug="creator-jane",
+            partner_type=PromotionPartner.PartnerType.CREATOR,
+        )
+
+        request = attach_session(
+            self.factory.post(
+                "/dashboard/store/pricing/partners/",
+                {
+                    "source_discount": str(source_discount.id),
+                    "code": "JANE20",
+                    "title": "Jane 20",
+                    "share_path": "/promotions/coupons/",
+                },
+            )
+        )
+        request.user = self.user
+
+        response = self._unwrap(advanced_views.promotion_partner_generate_code)(
+            request,
+            prefix=self.tenant.schema_name,
+            pk=partner.id,
+        )
+
+        cloned = DiscountCode.objects.get(code="JANE20")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(cloned.attributed_partner, partner)
+        self.assertEqual(cloned.percentage_value, Decimal("20.00"))
+        self.assertTrue(PromotionLink.objects.filter(discount_code=cloned, partner=partner).exists())
+
+    def test_bundle_offer_dashboard_detail_renders(self):
+        bundle = BundleOffer.objects.create(
+            name="Starter Bundle",
+            slug="starter-bundle",
+            offer_type=BundleOffer.OfferType.FIXED,
+            bundle_price=Decimal("80.00"),
+            currency="USD",
+            is_active=True,
+        )
+        BundleOfferItem.objects.create(
+            bundle=bundle,
+            role=BundleOfferItem.ItemRole.REQUIRED,
+            variant=self.sale_variant,
+            quantity=1,
+        )
+
+        request = attach_session(self.factory.get("/dashboard/store/pricing/bundle-offers/"))
+        request.user = self.user
+
+        response = self._unwrap(advanced_views.bundle_offer_detail)(
+            request,
+            prefix=self.tenant.schema_name,
+            pk=bundle.id,
+        )
+        response.render()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Starter Bundle", response.content.decode("utf-8"))
+
+    def test_review_moderation_detail_updates_status_and_response(self):
+        review = ProductReview.objects.create(
+            product=self.sale_product,
+            customer=self.customer,
+            user=self.user,
+            title="Loved it",
+            body="Great quality and fit.",
+            rating=5,
+            status=ProductReview.Status.PENDING,
+            is_verified_purchase=True,
+        )
+
+        request = attach_session(
+            self.factory.post(
+                "/dashboard/store/pricing/review-moderation/",
+                {
+                    "status": ProductReview.Status.APPROVED,
+                    "is_featured": "on",
+                    "moderation_notes": "Looks legitimate.",
+                    "response_title": "Thanks for the review",
+                    "response_body": "We are glad the fit worked out well.",
+                },
+            )
+        )
+        request.user = self.user
+
+        response = self._unwrap(advanced_views.review_moderation_detail)(
+            request,
+            prefix=self.tenant.schema_name,
+            pk=review.id,
+        )
+
+        review.refresh_from_db()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(review.status, ProductReview.Status.APPROVED)
+        self.assertTrue(review.is_featured)
+        self.assertEqual(review.response_title, "Thanks for the review")
+        self.assertTrue(review.responded_at is not None)
+
+    def test_promotion_link_detail_and_qr_download_render_share_assets(self):
+        discount = DiscountCode.objects.create(
+            code="SHARE20",
+            title="Share 20",
+            value_type=DiscountCode.ValueType.PERCENTAGE,
+            percentage_value=Decimal("20.00"),
+        )
+        link = PromotionLink.objects.create(
+            discount_code=discount,
+            slug="share20-link",
+            landing_path="/promotions/coupons/",
+            utm_source="creator",
+            utm_medium="social",
+            utm_campaign="launch",
+        )
+
+        request = attach_session(self.factory.get("/dashboard/store/pricing/promotion-links/"))
+        request.user = self.user
+
+        detail_response = self._unwrap(advanced_views.promotion_link_detail)(
+            request,
+            prefix=self.tenant.schema_name,
+            pk=link.id,
+        )
+        detail_response.render()
+        download_response = self._unwrap(advanced_views.promotion_link_download_qr)(
+            request,
+            prefix=self.tenant.schema_name,
+            pk=link.id,
+        )
+
+        link.refresh_from_db()
+        self.assertEqual(detail_response.status_code, 200)
+        self.assertIn("share20-link", detail_response.content.decode("utf-8"))
+        self.assertIn("discount=SHARE20", detail_response.content.decode("utf-8"))
+        self.assertTrue(link.qr_svg)
+        self.assertEqual(download_response.status_code, 200)
+        self.assertEqual(download_response["Content-Type"], "image/svg+xml")
+
+    def test_discount_import_error_report_exports_validation_rows(self):
+        batch = DiscountImportBatch.objects.create(
+            title="CSV Errors",
+            column_mapping={"code": "code", "value_type": "value_type"},
+            default_values={"scope": DiscountCode.DiscountScope.ORDER, "currency": "USD"},
+        )
+        DiscountImportRow.objects.create(
+            batch=batch,
+            row_number=2,
+            raw_data={"code": "", "value_type": "percentage"},
+        )
+        advanced_views._preview_import_batch(batch)
+
+        request = attach_session(self.factory.get("/dashboard/store/pricing/discount-imports/"))
+        request.user = self.user
+
+        response = self._unwrap(advanced_views.discount_import_batch_error_report)(
+            request,
+            prefix=self.tenant.schema_name,
+            pk=batch.id,
+        )
+
+        payload = response.content.decode("utf-8")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("row_number", payload)
+        self.assertIn("Missing code.", payload)
+
+    def test_pricing_segment_delete_blocks_system_groups(self):
+        group = CustomerGroup.objects.create(
+            name="System VIP",
+            slug="system-vip",
+            group_type=CustomerGroup.GroupType.SYSTEM,
+            is_system=True,
+        )
+
+        request = attach_session(self.factory.post("/dashboard/store/pricing/segments/"))
+        request.user = self.user
+
+        response = self._unwrap(advanced_views.pricing_segment_delete)(
+            request,
+            prefix=self.tenant.schema_name,
+            pk=group.id,
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(CustomerGroup.objects.filter(pk=group.pk).exists())

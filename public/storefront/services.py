@@ -29,11 +29,15 @@ from dashboard.store_settings.models import (
 )
 from dashboard.theme_manager.utils import render_theme_template
 from pricing.utils.discount import (
+    calculate_line_level_discounts,
     DiscountValidationError,
     evaluate_cart_discounts,
     record_discount_usage,
     reverse_discount_usage_for_order,
     validate_discount_code,
+)
+from dashboard.pricing.utiles.advanced import (
+    mark_discount_experiment_redeemed,
 )
 from pricing.utils.price_resolver import PricingContext, resolve_price
 from public.cart.models import (
@@ -60,9 +64,15 @@ from public.userauth.models import Customer
 try:
     from dashboard.pricing.models import (
         AutomaticDiscount,
+        BundleOffer,
+        BundleOfferItem,
+        BundleOrderLedger,
         DiscountCode,
         FlashSale,
         FlashSaleItem,
+        IssuedDiscountCode,
+        PromotionCommissionLedger,
+        PromotionLink,
         VolumePricingTier,
     )
 except Exception:  # pragma: no cover - defensive import
@@ -71,6 +81,12 @@ except Exception:  # pragma: no cover - defensive import
     FlashSaleItem = None
     VolumePricingTier = None
     AutomaticDiscount = None
+    BundleOffer = None
+    BundleOfferItem = None
+    BundleOrderLedger = None
+    IssuedDiscountCode = None
+    PromotionCommissionLedger = None
+    PromotionLink = None
 
 
 logger = logging.getLogger(__name__)
@@ -1098,6 +1114,9 @@ def serialize_product_detail(product, request, flash_sale_lookup: dict[str, Any]
         "savings_display": pricing["savings_display"],
         "savings_percentage": pricing["savings_percentage"],
         "countdown_ends_at_iso": pricing["countdown_ends_at_iso"],
+        "average_rating": quantize_money(getattr(product, "average_rating", Decimal("0.00"))),
+        "review_count": int(getattr(product, "review_count", 0) or 0),
+        "rating_count": int(getattr(product, "rating_count", 0) or 0),
         "images": [
             {
                 "url": image.image.url if image.image else "",
@@ -1632,6 +1651,263 @@ def _line_discount_map(line_allocations: list[dict[str, Any]]) -> dict[str, dict
     }
 
 
+def _bundle_item_matches_cart_item(bundle_item, cart_item: CartItem) -> bool:
+    if bundle_item.variant_id:
+        return cart_item.variant_id == bundle_item.variant_id
+    if bundle_item.product_id:
+        return getattr(cart_item.variant, "product_id", None) == bundle_item.product_id
+    if bundle_item.category_id:
+        try:
+            return cart_item.variant.product.categories.filter(pk=bundle_item.category_id).exists()
+        except Exception:
+            return False
+    return False
+
+
+def _bundle_candidate_lines(bundle_items, cart_items):
+    matched = []
+    for cart_item in cart_items:
+        for bundle_item in bundle_items:
+            if _bundle_item_matches_cart_item(bundle_item, cart_item):
+                matched.append((bundle_item, cart_item))
+                break
+    return matched
+
+
+def _merge_line_allocations(
+    primary_allocations: list[dict[str, Any]],
+    secondary_allocations: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    buckets: dict[str, dict[str, Any]] = {}
+    for allocation in [*primary_allocations, *secondary_allocations]:
+        order_item_id = str(allocation.get("order_item_id") or "")
+        if not order_item_id:
+            continue
+        bucket = buckets.setdefault(
+            order_item_id,
+            {
+                "order_item_id": order_item_id,
+                "sku": allocation.get("sku", ""),
+                "product_title": allocation.get("product_title", ""),
+                "unit_discount": Decimal("0.00"),
+                "line_discount": Decimal("0.00"),
+                "sources": [],
+            },
+        )
+        bucket["sku"] = bucket["sku"] or allocation.get("sku", "")
+        bucket["product_title"] = bucket["product_title"] or allocation.get("product_title", "")
+        bucket["unit_discount"] = quantize_money(bucket["unit_discount"] + quantize_money(allocation.get("unit_discount")))
+        bucket["line_discount"] = quantize_money(bucket["line_discount"] + quantize_money(allocation.get("line_discount")))
+        bucket["sources"].extend(list(allocation.get("sources") or []))
+    return list(buckets.values())
+
+
+def _evaluate_bundle_discounts(
+    cart: Cart,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
+    if BundleOffer is None:
+        return [], [], []
+
+    now = timezone.now()
+    cart_items = list(cart.items.select_related("variant__product").all())
+    if not cart_items:
+        return [], [], []
+
+    bundle_rows: list[dict[str, Any]] = []
+    line_allocations: list[dict[str, Any]] = []
+    bundle_ledgers: list[dict[str, Any]] = []
+    active_bundles = (
+        BundleOffer.objects.filter(is_active=True, is_public=True)
+        .filter(Q(starts_at__isnull=True) | Q(starts_at__lte=now))
+        .filter(Q(ends_at__isnull=True) | Q(ends_at__gte=now))
+        .prefetch_related("items__product", "items__variant", "items__category")
+    )
+
+    for bundle in active_bundles:
+        items = list(bundle.items.all())
+        if not items:
+            continue
+
+        discount_amount = Decimal("0.00")
+        targeted_cart_items: list[CartItem] = []
+        bundle_quantity = 0
+        revenue_attributed = Decimal("0.00")
+
+        if bundle.offer_type == BundleOffer.OfferType.FIXED:
+            required_items = [item for item in items if item.role == BundleOfferItem.ItemRole.REQUIRED]
+            if not required_items or bundle.bundle_price is None:
+                continue
+            bundle_units = None
+            for bundle_item in required_items:
+                matching_qty = sum(
+                    cart_item.quantity
+                    for cart_item in cart_items
+                    if _bundle_item_matches_cart_item(bundle_item, cart_item)
+                )
+                units_for_item = matching_qty // max(1, int(bundle_item.quantity or 1))
+                bundle_units = units_for_item if bundle_units is None else min(bundle_units, units_for_item)
+            bundle_units = int(bundle_units or 0)
+            if bundle_units <= 0:
+                continue
+            bundle_quantity = bundle_units
+            for bundle_item in required_items:
+                targeted_cart_items.extend(
+                    cart_item for cart_item in cart_items if _bundle_item_matches_cart_item(bundle_item, cart_item)
+                )
+            unique_targeted = {str(item.id): item for item in targeted_cart_items}
+            regular_total = sum(
+                quantize_money(cart_item.unit_price) * Decimal(cart_item.quantity)
+                for cart_item in unique_targeted.values()
+            )
+            revenue_attributed = quantize_money(regular_total)
+            discount_amount = max(Decimal("0.00"), quantize_money(regular_total - (quantize_money(bundle.bundle_price) * bundle_units)))
+
+        elif bundle.offer_type == BundleOffer.OfferType.MIX_MATCH:
+            choice_items = [item for item in items if item.role in {BundleOfferItem.ItemRole.CHOICE, BundleOfferItem.ItemRole.REQUIRED}]
+            if not choice_items or bundle.bundle_price is None:
+                continue
+            matching = [cart_item for cart_item in cart_items if any(_bundle_item_matches_cart_item(bundle_item, cart_item) for bundle_item in choice_items)]
+            total_qty = sum(item.quantity for item in matching)
+            required_qty = max(1, int(bundle.required_quantity or bundle.min_selection or 1))
+            bundle_groups = total_qty // required_qty
+            if bundle_groups <= 0:
+                continue
+            bundle_quantity = bundle_groups
+            targeted_cart_items = matching
+            regular_total = sum(quantize_money(item.unit_price) * Decimal(item.quantity) for item in matching)
+            bundle_total = quantize_money(bundle.bundle_price) * bundle_groups
+            revenue_attributed = quantize_money(regular_total)
+            discount_amount = max(Decimal("0.00"), quantize_money(regular_total - bundle_total))
+
+        elif bundle.offer_type == BundleOffer.OfferType.UPSELL:
+            if not bundle.upsell_parent_product_id:
+                continue
+            parent_in_cart = any(getattr(item.variant, "product_id", None) == bundle.upsell_parent_product_id for item in cart_items)
+            if not parent_in_cart:
+                continue
+            upsell_items = [item for item in items if item.role == BundleOfferItem.ItemRole.UPSELL]
+            matching = [cart_item for cart_item in cart_items if any(_bundle_item_matches_cart_item(bundle_item, cart_item) for bundle_item in upsell_items)]
+            if not matching:
+                continue
+            targeted_cart_items = matching
+            bundle_quantity = sum(item.quantity for item in matching)
+            for cart_item in matching:
+                bundle_item = next((candidate for candidate in upsell_items if _bundle_item_matches_cart_item(candidate, cart_item)), None)
+                if bundle_item is None:
+                    continue
+                if bundle_item.discounted_unit_price is not None:
+                    per_unit_discount = max(Decimal("0.00"), quantize_money(cart_item.unit_price - bundle_item.discounted_unit_price))
+                elif bundle_item.discount_percentage:
+                    per_unit_discount = quantize_money(cart_item.unit_price * (Decimal(str(bundle_item.discount_percentage)) / Decimal("100")))
+                else:
+                    per_unit_discount = Decimal("0.00")
+                discount_amount += quantize_money(per_unit_discount * cart_item.quantity)
+                revenue_attributed += quantize_money(cart_item.unit_price * Decimal(cart_item.quantity))
+
+        discount_amount = quantize_money(discount_amount)
+        if discount_amount <= 0 or not targeted_cart_items:
+            continue
+
+        unique_targeted = {str(item.id): item for item in targeted_cart_items}
+        bundle_rows.append(
+            {
+                "discount_type": "bundle",
+                "code": "",
+                "discount_id": str(bundle.id),
+                "description": bundle.public_title or bundle.name,
+                "amount": discount_amount,
+                "is_percentage": False,
+                "percentage_value": None,
+                "allocation_method": "across",
+            }
+        )
+        bundle_ledgers.append(
+            {
+                "bundle_id": str(bundle.id),
+                "quantity": max(1, int(bundle_quantity or 1)),
+                "discount_amount": discount_amount,
+                "revenue_attributed": quantize_money(revenue_attributed or sum(item.line_total for item in unique_targeted.values())),
+                "item_ids": list(unique_targeted.keys()),
+                "offer_type": bundle.offer_type,
+                "title": bundle.public_title or bundle.name,
+            }
+        )
+        line_allocations.extend(
+            {
+                "order_item_id": allocation.order_item_id,
+                "sku": allocation.sku,
+                "product_title": allocation.product_title,
+                "unit_discount": allocation.unit_discount,
+                "line_discount": allocation.line_discount,
+                "sources": [
+                    {
+                        "type": "bundle",
+                        "label": bundle.public_title or bundle.name,
+                        "amount": allocation.line_discount,
+                        "discount_id": str(bundle.id),
+                    }
+                ],
+            }
+            for allocation in calculate_line_level_discounts(
+                [
+                    {
+                        "id": str(item.id),
+                        "sku": item.sku,
+                        "product_title": item.product_title,
+                        "quantity": item.quantity,
+                        "subtotal": item.line_total,
+                        "unit_price": item.unit_price,
+                    }
+                    for item in unique_targeted.values()
+                ],
+                discount_amount,
+                allocation_method="across",
+            )
+        )
+
+    return bundle_rows, line_allocations, bundle_ledgers
+
+
+def _evaluate_all_cart_promotions(
+    cart: Cart,
+    *,
+    customer,
+    cart_items: list[dict[str, Any]],
+    subtotal: Decimal,
+    shipping_total: Decimal,
+    currency_code: str,
+    ip_address: str = "",
+) -> dict[str, Any]:
+    discount_evaluation = evaluate_cart_discounts(
+        cart_subtotal=subtotal,
+        cart_items=cart_items,
+        customer=customer,
+        code=cart.discount_code,
+        shipping_total=shipping_total,
+        currency_code=currency_code,
+        ip_address=ip_address,
+        session_key=cart.session_key,
+        cart_token=cart.checkout_token,
+        cart_id=cart.id,
+    )
+    if not discount_evaluation["valid"]:
+        return discount_evaluation
+
+    bundle_rows, bundle_allocations, bundle_ledgers = _evaluate_bundle_discounts(cart)
+    merged_rows = list(discount_evaluation["applied_discounts"]) + bundle_rows
+    merged_allocations = _merge_line_allocations(
+        list(discount_evaluation["line_allocations"]),
+        bundle_allocations,
+    )
+    bundle_total = quantize_money(sum((row.get("amount") or Decimal("0.00")) for row in bundle_rows))
+    discount_evaluation["applied_discounts"] = merged_rows
+    discount_evaluation["line_allocations"] = merged_allocations
+    discount_evaluation["discount_total"] = quantize_money(discount_evaluation["discount_total"] + bundle_total)
+    discount_evaluation["bundle_rows"] = bundle_rows
+    discount_evaluation["bundle_ledgers"] = bundle_ledgers
+    return discount_evaluation
+
+
 def _persist_cart_discount_rows(cart: Cart, applied_discounts: list[dict[str, Any]]) -> None:
     from public.cart.models import CartDiscount
 
@@ -1639,6 +1915,7 @@ def _persist_cart_discount_rows(cart: Cart, applied_discounts: list[dict[str, An
         discount_type__in=[
             CartDiscount.DiscountType.CODE,
             CartDiscount.DiscountType.AUTOMATIC,
+            CartDiscount.DiscountType.BUNDLE,
         ]
     ).delete()
     bulk_rows = [
@@ -1647,6 +1924,8 @@ def _persist_cart_discount_rows(cart: Cart, applied_discounts: list[dict[str, An
             discount_type=(
                 CartDiscount.DiscountType.CODE
                 if row["discount_type"] == "code"
+                else CartDiscount.DiscountType.BUNDLE
+                if row["discount_type"] == "bundle"
                 else CartDiscount.DiscountType.AUTOMATIC
             ),
             code=row.get("code", ""),
@@ -1657,7 +1936,7 @@ def _persist_cart_discount_rows(cart: Cart, applied_discounts: list[dict[str, An
             percentage_value=row.get("percentage_value"),
         )
         for row in applied_discounts
-        if quantize_money(row.get("amount")) > 0 or row["discount_type"] in {"code", "automatic"}
+        if quantize_money(row.get("amount")) > 0 or row["discount_type"] in {"code", "automatic", "bundle"}
     ]
     if bulk_rows:
         CartDiscount.objects.bulk_create(bulk_rows)
@@ -1697,11 +1976,11 @@ def recalculate_cart(cart: Cart):
     cart_items = _cart_items_for_discount_engine(cart)
     subtotal = quantize_money(sum((item["line_subtotal"] for item in cart_items), Decimal("0.00")))
     base_shipping_total = quantize_money(cart.shipping_total)
-    discount_evaluation = evaluate_cart_discounts(
-        cart_subtotal=subtotal,
-        cart_items=cart_items,
+    discount_evaluation = _evaluate_all_cart_promotions(
+        cart,
         customer=customer,
-        code=cart.discount_code,
+        cart_items=cart_items,
+        subtotal=subtotal,
         shipping_total=base_shipping_total,
         currency_code=currency_code,
         ip_address=getattr(cart, "ip_address", ""),
@@ -1709,11 +1988,11 @@ def recalculate_cart(cart: Cart):
 
     if not discount_evaluation["valid"]:
         cart.discount_code = ""
-        discount_evaluation = evaluate_cart_discounts(
-            cart_subtotal=subtotal,
-            cart_items=cart_items,
+        discount_evaluation = _evaluate_all_cart_promotions(
+            cart,
             customer=customer,
-            code="",
+            cart_items=cart_items,
+            subtotal=subtotal,
             shipping_total=base_shipping_total,
             currency_code=currency_code,
             ip_address=getattr(cart, "ip_address", ""),
@@ -1758,6 +2037,18 @@ def recalculate_cart(cart: Cart):
 
 def get_or_create_cart(request) -> Cart:
     session_identifier = get_cart_session_identifier(request)
+    update_promo_context(
+        request,
+        utm_source=request.GET.get("utm_source", ""),
+        utm_medium=request.GET.get("utm_medium", ""),
+        utm_campaign=request.GET.get("utm_campaign", ""),
+        utm_content=request.GET.get("utm_content", ""),
+        promo_code=request.GET.get("discount") or request.GET.get("code") or "",
+        referral_slug=request.GET.get("ref") or request.GET.get("partner") or "",
+        landing_path=request.path,
+        referrer_url=request.META.get("HTTP_REFERER", ""),
+    )
+    promo_context = get_promo_context(request)
     defaults = {
         "status": Cart.CartStatus.ACTIVE,
         "session_key": session_identifier,
@@ -1765,6 +2056,10 @@ def get_or_create_cart(request) -> Cart:
         "checkout_token": generate_checkout_token(),
         "ip_address": get_client_ip(request),
         "user_agent": request.META.get("HTTP_USER_AGENT", ""),
+        "utm_source": promo_context.get("utm_source", ""),
+        "utm_medium": promo_context.get("utm_medium", ""),
+        "utm_campaign": promo_context.get("utm_campaign", ""),
+        "referrer_url": promo_context.get("referrer_url", ""),
     }
 
     customer = None
@@ -1780,21 +2075,43 @@ def get_or_create_cart(request) -> Cart:
             cart = Cart.objects.create(customer=customer, **defaults)
         if guest_cart and guest_cart.pk != cart.pk:
             _merge_carts(cart, guest_cart)
-        if cart.email != request.user.email or cart.session_key != session_identifier or not cart.checkout_token:
+        if (
+            cart.email != request.user.email
+            or cart.session_key != session_identifier
+            or not cart.checkout_token
+            or cart.utm_source != promo_context.get("utm_source", cart.utm_source)
+            or cart.utm_medium != promo_context.get("utm_medium", cart.utm_medium)
+            or cart.utm_campaign != promo_context.get("utm_campaign", cart.utm_campaign)
+            or cart.referrer_url != promo_context.get("referrer_url", cart.referrer_url)
+        ):
             cart.email = request.user.email
             cart.session_key = session_identifier
             if not cart.checkout_token:
                 cart.checkout_token = generate_checkout_token()
+            cart.utm_source = promo_context.get("utm_source", cart.utm_source)
+            cart.utm_medium = promo_context.get("utm_medium", cart.utm_medium)
+            cart.utm_campaign = promo_context.get("utm_campaign", cart.utm_campaign)
+            cart.referrer_url = promo_context.get("referrer_url", cart.referrer_url)
             cart.save(update_fields=[
-                      "email", "session_key", "checkout_token", "updated_at"])
+                      "email", "session_key", "checkout_token", "utm_source", "utm_medium", "utm_campaign", "referrer_url", "updated_at"])
     else:
         cart = _prefetched_cart_queryset().filter(session_key=session_identifier,
                                                   status=Cart.CartStatus.ACTIVE).first()
         if cart is None:
             cart = Cart.objects.create(**defaults)
-        elif not cart.checkout_token:
+        elif (
+            not cart.checkout_token
+            or cart.utm_source != promo_context.get("utm_source", cart.utm_source)
+            or cart.utm_medium != promo_context.get("utm_medium", cart.utm_medium)
+            or cart.utm_campaign != promo_context.get("utm_campaign", cart.utm_campaign)
+            or cart.referrer_url != promo_context.get("referrer_url", cart.referrer_url)
+        ):
             cart.checkout_token = generate_checkout_token()
-            cart.save(update_fields=["checkout_token", "updated_at"])
+            cart.utm_source = promo_context.get("utm_source", cart.utm_source)
+            cart.utm_medium = promo_context.get("utm_medium", cart.utm_medium)
+            cart.utm_campaign = promo_context.get("utm_campaign", cart.utm_campaign)
+            cart.referrer_url = promo_context.get("referrer_url", cart.referrer_url)
+            cart.save(update_fields=["checkout_token", "utm_source", "utm_medium", "utm_campaign", "referrer_url", "updated_at"])
 
     return recalculate_cart(_prefetched_cart_queryset().get(pk=cart.pk))
 
@@ -1909,6 +2226,9 @@ def apply_coupon_to_cart(cart: Cart, code: str) -> Cart:
         ip_address=getattr(cart, "ip_address", ""),
         shipping_total=quantize_money(cart.shipping_total),
         currency_code=cart.currency or "USD",
+        session_key=cart.session_key,
+        cart_token=cart.checkout_token,
+        cart_id=cart.id,
     )
     if not validation.valid:
         raise ValueError(validation.message)
@@ -2047,6 +2367,23 @@ def update_checkout_state(request, **values) -> dict[str, Any]:
 
 def clear_checkout_state(request) -> None:
     request.session.pop(tenant_session_key(request, "checkout_state"), None)
+    request.session.modified = True
+
+
+def get_promo_context(request) -> dict[str, Any]:
+    return dict(request.session.get(tenant_session_key(request, "promo_context"), {}))
+
+
+def update_promo_context(request, **values) -> dict[str, Any]:
+    current = get_promo_context(request)
+    current.update({key: value for key, value in values.items() if value not in (None, "")})
+    request.session[tenant_session_key(request, "promo_context")] = current
+    request.session.modified = True
+    return current
+
+
+def clear_promo_context(request) -> None:
+    request.session.pop(tenant_session_key(request, "promo_context"), None)
     request.session.modified = True
 
 
@@ -2256,6 +2593,156 @@ def _decrement_flash_sale_units_for_order(order: Order) -> dict[str, int]:
     return reversed_items
 
 
+def _record_partner_commissions(order: Order, applied_discounts: list[dict[str, Any]], code_usage=None) -> list[str]:
+    if PromotionCommissionLedger is None:
+        return []
+
+    recorded: list[str] = []
+    for row in applied_discounts:
+        discount_id = row.get("discount_id")
+        if not discount_id:
+            continue
+        source = None
+        if row.get("discount_type") == "code":
+            source = DiscountCode.objects.select_related("attributed_partner").filter(pk=discount_id).first()
+        elif row.get("discount_type") == "automatic":
+            source = AutomaticDiscount.objects.select_related("attributed_partner").filter(pk=discount_id).first()
+        partner = getattr(source, "attributed_partner", None)
+        if partner is None:
+            continue
+        commission_rate = Decimal(str(partner.commission_rate_percentage or 0)) / Decimal("100")
+        revenue = quantize_money(order.total_price)
+        discount_value = quantize_money(row.get("amount"))
+        commission_amount = quantize_money(revenue * commission_rate)
+        entry, _ = PromotionCommissionLedger.objects.get_or_create(
+            partner=partner,
+            order_id=order.id,
+            discount_code=source if isinstance(source, DiscountCode) else None,
+            defaults={
+                "usage": code_usage if isinstance(source, DiscountCode) else None,
+                "order_number": order.order_number,
+                "revenue_attributed": revenue,
+                "discount_value": discount_value,
+                "commission_amount": commission_amount,
+                "currency": order.currency,
+                "metadata": {
+                    "discount_type": row.get("discount_type"),
+                    "description": row.get("description", ""),
+                },
+            },
+        )
+        recorded.append(str(entry.id))
+    return recorded
+
+
+def _reverse_partner_commissions(order: Order) -> list[str]:
+    if PromotionCommissionLedger is None:
+        return []
+    entries = list(PromotionCommissionLedger.objects.filter(order_id=order.id).exclude(status=PromotionCommissionLedger.LedgerStatus.REVERSED))
+    if not entries:
+        return []
+    reversed_ids: list[str] = []
+    for entry in entries:
+        entry.status = PromotionCommissionLedger.LedgerStatus.REVERSED
+        entry.metadata = dict(entry.metadata or {})
+        entry.metadata["reversed_at"] = timezone.now().isoformat()
+        entry.save(update_fields=["status", "metadata", "updated_at"])
+        reversed_ids.append(str(entry.id))
+    return reversed_ids
+
+
+def _record_bundle_ledgers(order: Order, bundle_ledgers: list[dict[str, Any]], *, customer=None) -> list[str]:
+    if BundleOrderLedger is None:
+        return []
+    saved_ids: list[str] = []
+    for payload in bundle_ledgers:
+        bundle_id = payload.get("bundle_id")
+        if not bundle_id:
+            continue
+        ledger, _ = BundleOrderLedger.objects.update_or_create(
+            bundle_id=bundle_id,
+            order_id=order.id,
+            defaults={
+                "order_number": order.order_number,
+                "customer": customer,
+                "quantity": max(1, int(payload.get("quantity") or 1)),
+                "bundle_discount_amount": quantize_money(payload.get("discount_amount")),
+                "revenue_attributed": quantize_money(payload.get("revenue_attributed")),
+                "metadata": {
+                    "item_ids": list(payload.get("item_ids") or []),
+                    "offer_type": payload.get("offer_type", ""),
+                    "title": payload.get("title", ""),
+                },
+            },
+        )
+        saved_ids.append(str(ledger.id))
+    return saved_ids
+
+
+def _reverse_bundle_ledgers(order: Order) -> list[str]:
+    if BundleOrderLedger is None:
+        return []
+    ledgers = list(BundleOrderLedger.objects.filter(order_id=order.id))
+    reversed_ids: list[str] = []
+    for ledger in ledgers:
+        metadata = dict(ledger.metadata or {})
+        if metadata.get("reversed_at"):
+            continue
+        metadata["reversed_at"] = timezone.now().isoformat()
+        metadata["reversed_order_status"] = order.status
+        ledger.metadata = metadata
+        ledger.save(update_fields=["metadata", "updated_at"])
+        reversed_ids.append(str(ledger.id))
+    return reversed_ids
+
+
+def _mark_issued_code_redeemed(discount_code_id: str, *, customer=None) -> list[str]:
+    if IssuedDiscountCode is None:
+        return []
+    queryset = IssuedDiscountCode.objects.filter(
+        discount_code_id=discount_code_id,
+        status__in=[IssuedDiscountCode.Status.PENDING, IssuedDiscountCode.Status.DELIVERED],
+    )
+    if customer is not None:
+        queryset = queryset.filter(customer=customer)
+    issued_codes = list(queryset.order_by("-created_at"))
+    marked_ids: list[str] = []
+    for issued_code in issued_codes:
+        issued_code.status = IssuedDiscountCode.Status.REDEEMED
+        issued_code.redeemed_at = timezone.now()
+        payload = dict(issued_code.delivery_payload or {})
+        payload["redeemed_at"] = issued_code.redeemed_at.isoformat()
+        issued_code.delivery_payload = payload
+        issued_code.save(update_fields=["status", "redeemed_at", "delivery_payload", "updated_at"])
+        marked_ids.append(str(issued_code.id))
+    return marked_ids
+
+
+def _restore_redeemed_issued_codes(order: Order, *, reason: str = "") -> list[str]:
+    if IssuedDiscountCode is None:
+        return []
+    restored_ids: list[str] = []
+    code_rows = [row for row in order.discounts.filter(discount_type=OrderDiscount.DiscountType.CODE) if row.discount_id]
+    for row in code_rows:
+        queryset = IssuedDiscountCode.objects.filter(
+            discount_code_id=row.discount_id,
+            status=IssuedDiscountCode.Status.REDEEMED,
+        )
+        if order.customer_id:
+            queryset = queryset.filter(customer=order.customer)
+        for issued_code in queryset.order_by("-updated_at"):
+            payload = dict(issued_code.delivery_payload or {})
+            payload["reversal_order_id"] = str(order.id)
+            payload["reversal_order_number"] = order.order_number
+            payload["reversal_reason"] = reason or order.cancellation_reason or ""
+            issued_code.status = IssuedDiscountCode.Status.DELIVERED
+            issued_code.redeemed_at = None
+            issued_code.delivery_payload = payload
+            issued_code.save(update_fields=["status", "redeemed_at", "delivery_payload", "updated_at"])
+            restored_ids.append(str(issued_code.id))
+    return restored_ids
+
+
 def reverse_order_pricing_effects(order: Order, reason: str = "") -> bool:
     metadata = dict(order.metafields or {})
     pricing_effects = dict(metadata.get("pricing_effects") or {})
@@ -2265,6 +2752,9 @@ def reverse_order_pricing_effects(order: Order, reason: str = "") -> bool:
     reversed_usage_count = reverse_discount_usage_for_order(order, reason=reason)
     reversed_automatic_ids = _decrement_automatic_discount_usage(order)
     reversed_flash_items = _decrement_flash_sale_units_for_order(order)
+    reversed_bundle_ledgers = _reverse_bundle_ledgers(order)
+    reversed_commission_ids = _reverse_partner_commissions(order)
+    restored_issued_codes = _restore_redeemed_issued_codes(order, reason=reason)
 
     pricing_effects.update(
         {
@@ -2273,6 +2763,9 @@ def reverse_order_pricing_effects(order: Order, reason: str = "") -> bool:
             "reversed_discount_usage_count": reversed_usage_count,
             "reversed_automatic_discount_ids": reversed_automatic_ids,
             "reversed_flash_sale_items": reversed_flash_items,
+            "reversed_bundle_ledger_ids": reversed_bundle_ledgers,
+            "reversed_commission_ids": reversed_commission_ids,
+            "restored_issued_code_ids": restored_issued_codes,
         }
     )
     metadata["pricing_effects"] = pricing_effects
@@ -2303,14 +2796,15 @@ def create_order_from_checkout(request) -> Order:
 
     cart.shipping_total = quantize_money(selected_shipping["amount"])
     recalculate_cart(cart)
+    promo_context = get_promo_context(request)
 
     customer = get_or_create_customer_profile(request.user) if getattr(
         request.user, "is_authenticated", False) else None
-    discount_evaluation = evaluate_cart_discounts(
-        cart_subtotal=quantize_money(cart.subtotal),
-        cart_items=_cart_items_for_discount_engine(cart),
+    discount_evaluation = _evaluate_all_cart_promotions(
+        cart,
         customer=customer,
-        code=cart.discount_code,
+        cart_items=_cart_items_for_discount_engine(cart),
+        subtotal=quantize_money(cart.subtotal),
         shipping_total=quantize_money(selected_shipping["amount"]),
         currency_code=cart.currency or "USD",
         ip_address=get_client_ip(request),
@@ -2353,11 +2847,16 @@ def create_order_from_checkout(request) -> Order:
         ip_address=get_client_ip(request),
         user_agent=request.META.get("HTTP_USER_AGENT", ""),
         buyer_accepts_marketing=bool(checkout_state.get("marketing_opt_in")),
+        utm_source=promo_context.get("utm_source", "") or cart.utm_source,
+        utm_medium=promo_context.get("utm_medium", "") or cart.utm_medium,
+        utm_campaign=promo_context.get("utm_campaign", "") or cart.utm_campaign,
+        referrer_url=promo_context.get("referrer_url", "") or cart.referrer_url,
         metafields={
             "payment_method": payment_method,
             "payment_state": "pending",
             "checkout_schema": get_tenant_key(request),
             "checkout_token": cart.checkout_token,
+            "promo_context": promo_context,
             "pricing_effects": {
                 "accounted_at": "",
                 "reversed_at": "",
@@ -2365,6 +2864,7 @@ def create_order_from_checkout(request) -> Order:
                 "automatic_discount_ids": [],
                 "flash_sale_items": {},
                 "discount_usage_recorded_for_code": "",
+                "warnings": discount_evaluation.get("warnings", []),
             },
         },
     )
@@ -2448,6 +2948,8 @@ def create_order_from_checkout(request) -> Order:
             discount_type=(
                 OrderDiscount.DiscountType.CODE
                 if row["discount_type"] == "code"
+                else OrderDiscount.DiscountType.BUNDLE
+                if row["discount_type"] == "bundle"
                 else OrderDiscount.DiscountType.AUTOMATIC
             ),
             code=row.get("code", ""),
@@ -2463,12 +2965,14 @@ def create_order_from_checkout(request) -> Order:
 
     code_discount_id = ""
     code_discount_amount = Decimal("0.00")
+    code_usage = None
+    redeemed_issued_code_ids: list[str] = []
     for row in applied_discounts:
         if row["discount_type"] != "code" or not row.get("discount_id"):
             continue
         code_discount_id = str(row["discount_id"])
         code_discount_amount = quantize_money(row.get("amount"))
-        record_discount_usage(
+        code_usage = record_discount_usage(
             discount_code_id=code_discount_id,
             order_id=str(order.id),
             order_number=order.order_number,
@@ -2480,10 +2984,28 @@ def create_order_from_checkout(request) -> Order:
             ip_address=order.ip_address or "",
             user_agent=order.user_agent or "",
         )
+        discount_obj = DiscountCode.objects.filter(pk=code_discount_id).first()
+        if discount_obj is not None:
+            mark_discount_experiment_redeemed(
+                discount_code=discount_obj,
+                order=order,
+                customer=customer,
+                session_key=cart.session_key,
+            )
+        redeemed_issued_code_ids = _mark_issued_code_redeemed(
+            code_discount_id,
+            customer=customer,
+        )
         break
 
     automatic_discount_ids = _increment_automatic_discount_usage(order)
     flash_sale_items = _increment_flash_sale_units_for_order(order)
+    bundle_ledger_ids = _record_bundle_ledgers(
+        order,
+        discount_evaluation.get("bundle_ledgers", []),
+        customer=customer,
+    )
+    commission_entry_ids = _record_partner_commissions(order, applied_discounts, code_usage=code_usage)
 
     metafields = dict(order.metafields or {})
     pricing_effects = dict(metafields.get("pricing_effects") or {})
@@ -2493,8 +3015,11 @@ def create_order_from_checkout(request) -> Order:
             "applied_discounts": applied_discounts,
             "automatic_discount_ids": automatic_discount_ids,
             "flash_sale_items": flash_sale_items,
+            "bundle_ledger_ids": bundle_ledger_ids,
             "discount_usage_recorded_for_code": code_discount_id,
             "discount_usage_amount": str(code_discount_amount),
+            "redeemed_issued_code_ids": redeemed_issued_code_ids,
+            "commission_entry_ids": commission_entry_ids,
         }
     )
     metafields["pricing_effects"] = pricing_effects
@@ -2511,6 +3036,7 @@ def create_order_from_checkout(request) -> Order:
     request.session.modified = True
     cart.mark_converted(order.id)
     clear_checkout_state(request)
+    clear_promo_context(request)
     return order
 
 

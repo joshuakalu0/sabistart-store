@@ -16,11 +16,13 @@ from dashboard.sidebar_utiles import main_sidebar
 from dashboard.pricing.models import (
     DiscountCode, DiscountRule, DiscountUsage,
     AutomaticDiscount, AutomaticDiscountCondition, AutomaticDiscountBenefit,
+    DiscountExperiment, PromotionConflictRecord,
 )
 from dashboard.pricing.forms import (
     DiscountCodeForm, DiscountRuleForm,
     AutomaticDiscountForm, AutomaticDiscountConditionForm, AutomaticDiscountBenefitForm,
 )
+from dashboard.pricing.utiles.advanced import build_promotion_link
 
 logger = logging.getLogger("pricing.views.discount")
 
@@ -607,6 +609,11 @@ def discount_code_detail(request, prefix, pk):
     obj = _decorate_discount_code(get_object_or_404(DiscountCode, pk=pk))
     rules = [_decorate_discount_rule(rule) for rule in obj.rules.all()]
     usages = [_decorate_usage(usage) for usage in obj.usages.select_related("customer").order_by("-used_at")[:50]]
+    share_link = build_promotion_link(discount_code=obj)
+    experiments = DiscountExperiment.objects.filter(source_discount=obj).select_related("winner_variant__discount_code").order_by("-created_at")[:5]
+    conflicts = PromotionConflictRecord.objects.filter(
+        Q(left_discount_code=obj) | Q(right_discount_code=obj)
+    ).order_by("-created_at")[:5]
     ctx = _ctx(
         prefix,
         f"Discount - {obj.code}",
@@ -614,6 +621,10 @@ def discount_code_detail(request, prefix, pk):
         discount=obj,
         rules=rules,
         usages=usages,
+        share_link=share_link,
+        share_link_detail_url=reverse("dashboard:pricing:promotion_link_detail", kwargs={"prefix": prefix, "pk": share_link.pk}),
+        experiments=experiments,
+        conflicts=conflicts,
         edit_url=reverse("dashboard:pricing:discount_code_edit", kwargs={"prefix": prefix, "pk": pk}),
         rules_url=reverse("dashboard:pricing:discount_rule_list", kwargs={"prefix": prefix, "code_pk": pk}),
         usages_url=reverse("dashboard:pricing:discount_usage_list", kwargs={"prefix": prefix, "code_pk": pk}),
@@ -689,6 +700,9 @@ def automatic_discount_detail(request, prefix, pk):
     discount = _decorate_automatic_discount(get_object_or_404(AutomaticDiscount, pk=pk))
     conditions = [_decorate_auto_condition(condition) for condition in discount.conditions.all()]
     benefits = [_decorate_auto_benefit(discount, benefit) for benefit in discount.benefits.all()]
+    conflicts = PromotionConflictRecord.objects.filter(
+        Q(left_automatic_discount=discount) | Q(right_automatic_discount=discount)
+    ).order_by("-created_at")[:5]
     ctx = _ctx(
         prefix,
         f"Auto Discount - {discount.title}",
@@ -696,6 +710,7 @@ def automatic_discount_detail(request, prefix, pk):
         discount=discount,
         conditions=conditions,
         benefits=benefits,
+        conflicts=conflicts,
         edit_url=reverse("dashboard:pricing:automatic_discount_edit", kwargs={"prefix": prefix, "pk": pk}),
         conditions_url=reverse("dashboard:pricing:auto_condition_list", kwargs={"prefix": prefix, "discount_pk": pk}),
         benefits_url=reverse("dashboard:pricing:auto_benefit_list", kwargs={"prefix": prefix, "discount_pk": pk}),

@@ -417,6 +417,7 @@ class CartDiscount(MixIdAndTimeModel):
     class DiscountType(models.TextChoices):
         CODE = "code", _("Coupon Code")
         AUTOMATIC = "automatic", _("Automatic Discount")
+        BUNDLE = "bundle", _("Bundle Discount")
         GIFT_CARD = "gift_card", _("Gift Card")
         LOYALTY = "loyalty", _("Loyalty Points")
 

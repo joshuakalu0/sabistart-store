@@ -551,3 +551,120 @@ class VariantImage(AuditModel):
 
     def __str__(self):
         return f"{self.variant} - Image {self.display_order}"
+
+
+class ProductReview(AuditModel):
+    """Customer review with moderation and verified-purchase tracking."""
+
+    class Status(models.TextChoices):
+        DRAFT = "draft", "Draft"
+        PENDING = "pending", "Pending Moderation"
+        APPROVED = "approved", "Approved"
+        REJECTED = "rejected", "Rejected"
+        FLAGGED = "flagged", "Flagged"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="reviews",
+    )
+    customer = models.ForeignKey(
+        "userauth.Customer",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="product_reviews",
+    )
+    user = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="product_reviews",
+    )
+    order_id = models.UUIDField(null=True, blank=True, db_index=True)
+    order_number = models.CharField(max_length=50, blank=True)
+    order_item_id = models.UUIDField(null=True, blank=True, db_index=True)
+    title = models.CharField(max_length=255, blank=True)
+    body = models.TextField()
+    rating = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    status = models.CharField(
+        max_length=16,
+        choices=Status.choices,
+        default=Status.PENDING,
+        db_index=True,
+    )
+    is_verified_purchase = models.BooleanField(default=False, db_index=True)
+    is_featured = models.BooleanField(default=False)
+    moderation_notes = models.TextField(blank=True)
+    approved_at = models.DateTimeField(null=True, blank=True)
+    rejected_at = models.DateTimeField(null=True, blank=True)
+    published_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    helpful_votes = models.PositiveIntegerField(default=0)
+    unhelpful_votes = models.PositiveIntegerField(default=0)
+    report_count = models.PositiveIntegerField(default=0)
+    response_title = models.CharField(max_length=255, blank=True)
+    response_body = models.TextField(blank=True)
+    response_by = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="product_review_responses",
+    )
+    responded_at = models.DateTimeField(null=True, blank=True)
+    metadata = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        ordering = ["-published_at", "-created_at"]
+        indexes = [
+            models.Index(fields=["product", "status", "published_at"]),
+            models.Index(fields=["customer", "status"]),
+            models.Index(fields=["rating", "status"]),
+        ]
+
+    def __str__(self):
+        return f"{self.product.name} review ({self.rating}/5)"
+
+    def mark_approved(self):
+        self.status = self.Status.APPROVED
+        self.approved_at = timezone.now()
+        self.published_at = self.published_at or timezone.now()
+
+    def mark_rejected(self, notes: str = ""):
+        self.status = self.Status.REJECTED
+        self.rejected_at = timezone.now()
+        if notes:
+            self.moderation_notes = notes
+
+
+class ProductReviewVote(AuditModel):
+    class VoteType(models.TextChoices):
+        HELPFUL = "helpful", "Helpful"
+        UNHELPFUL = "unhelpful", "Not Helpful"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    review = models.ForeignKey(
+        ProductReview,
+        on_delete=models.CASCADE,
+        related_name="votes",
+    )
+    customer = models.ForeignKey(
+        "userauth.Customer",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="review_votes",
+    )
+    session_key = models.CharField(max_length=255, blank=True, db_index=True)
+    vote_type = models.CharField(max_length=16, choices=VoteType.choices)
+
+    class Meta:
+        unique_together = [["review", "customer"], ["review", "session_key"]]
+        indexes = [models.Index(fields=["review", "vote_type"])]
+
+    def __str__(self):
+        return f"{self.review_id} {self.vote_type}"

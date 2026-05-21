@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="grid gap-8 xl:grid-cols-[1.05fr,0.95fr]">
+    <div class="surface-card p-8 lg:p-10">
+        <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            {% for crumb in breadcrumbs %}
+                {% if crumb.url %}<a href="{{ crumb.url }}" class="transition hover:text-slate-900">{{ crumb.label }}</a>{% else %}<span>{{ crumb.label }}</span>{% endif %}
+                {% if not forloop.last %}<span>/</span>{% endif %}
+            {% endfor %}
+        </div>
+
+        <p class="eyebrow mt-6">Review Submission</p>
+        <h1 class="section-title mt-3">Share your experience with {{ product.name }}</h1>
+        <p class="section-copy mt-3 text-base">Reviews are moderated before publishing. Verified purchases are highlighted automatically when we can match the review back to a completed order.</p>
+
+        <div class="mt-8 grid gap-4 md:grid-cols-2">
+            <div class="surface-card-soft p-5">
+                <p class="text-sm text-slate-500">Approved Reviews</p>
+                <p class="brand-font mt-3 text-4xl font-bold text-slate-950">{{ review_bundle.review_count }}</p>
+            </div>
+            <div class="surface-card-soft p-5">
+                <p class="text-sm text-slate-500">Average Rating</p>
+                <p class="brand-font mt-3 text-4xl font-bold text-slate-950">{{ review_bundle.average_rating }}</p>
+            </div>
+        </div>
+
+        {% if review_bundle.is_verified_purchaser %}
+            <div class="mt-6 rounded-[1.5rem] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-semibold text-emerald-700">
+                Verified purchase confirmed{% if review_bundle.verified_order_number %} from order {{ review_bundle.verified_order_number }}{% endif %}.
+            </div>
+        {% endif %}
+
+        {% if review_bundle.existing_review %}
+            <div class="mt-6 surface-card-soft p-5">
+                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Current Review State</p>
+                <div class="mt-3 flex flex-wrap items-center gap-3">
+                    <span class="chip chip-active">{{ review_bundle.existing_review.rating }}/5</span>
+                    <span class="chip">{{ review_bundle.existing_review.status_label }}</span>
+                </div>
+                {% if review_bundle.existing_review.title %}<h2 class="brand-font mt-4 text-2xl font-bold text-slate-950">{{ review_bundle.existing_review.title }}</h2>{% endif %}
+                <div class="mt-3 text-sm leading-7 text-slate-600">{{ review_bundle.existing_review.body|linebreaks }}</div>
+            </div>
+        {% endif %}
+
+        <form method="post" class="mt-8 space-y-5">
+            {% csrf_token %}
+            <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700" for="{{ form.title.id_for_label }}">Headline</label>
+                {{ form.title }}
+            </div>
+            <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700" for="{{ form.rating.id_for_label }}">Rating</label>
+                {{ form.rating }}
+            </div>
+            <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700" for="{{ form.body.id_for_label }}">Review</label>
+                {{ form.body }}
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <button type="submit" class="button-primary">Submit Review</button>
+                <a href="{% url 'product:product_detail' product.slug %}" class="button-secondary">Back to Product</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="space-y-8">
+        <div class="surface-card p-8">
+            <p class="eyebrow">Product Snapshot</p>
+            <h2 class="brand-font mt-3 text-3xl font-bold text-slate-950">{{ product.name }}</h2>
+            {% if product.short_description %}<p class="mt-3 text-sm leading-7 text-slate-500">{{ product.short_description }}</p>{% endif %}
+        </div>
+
+        <div class="surface-card p-8">
+            <p class="eyebrow">Recent Reviews</p>
+            <h2 class="brand-font mt-3 text-3xl font-bold text-slate-950">What other shoppers are saying</h2>
+            <div class="mt-6 space-y-4">
+                {% for review in review_bundle.approved_reviews|slice:":3" %}
+                    <article class="surface-card-soft p-5">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <span class="chip chip-active">{{ review.rating }}/5</span>
+                            {% if review.verified_purchase %}<span class="chip border-emerald-200 bg-emerald-50 text-emerald-700">Verified</span>{% endif %}
+                        </div>
+                        {% if review.title %}<h3 class="brand-font mt-4 text-2xl font-bold text-slate-950">{{ review.title }}</h3>{% endif %}
+                        <div class="mt-3 text-sm leading-7 text-slate-600">{{ review.body|linebreaks }}</div>
+                        <p class="mt-3 text-xs uppercase tracking-[0.18em] text-slate-400">{{ review.display_name }}{% if review.submitted_at %} • {{ review.submitted_at }}{% endif %}</p>
+                    </article>
+                {% empty %}
+                    <div class="surface-card-soft p-6 text-sm text-slate-500">No approved reviews have been published for this product yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

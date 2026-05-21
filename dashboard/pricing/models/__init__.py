@@ -52,6 +52,27 @@ from .part3 import (
     TaxRate,
 )
 
+from .part4 import (
+    PromotionPartner,
+    PromotionLink,
+    DiscountExperiment,
+    DiscountExperimentVariant,
+    DiscountExperimentAssignment,
+    DiscountExperimentSnapshot,
+    PromotionCompatibilityRule,
+    PromotionConflictRecord,
+    DiscountImportBatch,
+    DiscountImportRow,
+    PricingAutomationRule,
+    IssuedDiscountCode,
+    PricingAutomationDeliveryLog,
+    BundleOffer,
+    BundleOfferItem,
+    BundleOrderLedger,
+    PromotionCommissionLedger,
+    build_promo_qr_svg,
+)
+
 __all__ = [
     # Abstracts
 
@@ -84,4 +105,23 @@ __all__ = [
     "TaxCategory",
     "TaxZone",
     "TaxRate",
+    # Section 8 — Advanced pricing workflows
+    "PromotionPartner",
+    "PromotionLink",
+    "DiscountExperiment",
+    "DiscountExperimentVariant",
+    "DiscountExperimentAssignment",
+    "DiscountExperimentSnapshot",
+    "PromotionCompatibilityRule",
+    "PromotionConflictRecord",
+    "DiscountImportBatch",
+    "DiscountImportRow",
+    "PricingAutomationRule",
+    "IssuedDiscountCode",
+    "PricingAutomationDeliveryLog",
+    "BundleOffer",
+    "BundleOfferItem",
+    "BundleOrderLedger",
+    "PromotionCommissionLedger",
+    "build_promo_qr_svg",
 ]
