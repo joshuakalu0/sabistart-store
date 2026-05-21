@@ -839,11 +839,14 @@ def process_paid_domain_orders(limit: int = 25) -> int:
         "tenant", "provider", "provider_credential", "contact", "managed_domain"
     ).filter(status=DomainPurchaseOrder.Status.PAID).order_by("created_at")[:limit]
     for order in orders:
-        if order.order_type == DomainPurchaseOrder.OrderType.REGISTER:
-            provision_registration_order(order)
-        else:
-            provision_renewal_order(order)
-        processed += 1
+        try:
+            if order.order_type == DomainPurchaseOrder.OrderType.REGISTER:
+                provision_registration_order(order)
+            else:
+                provision_renewal_order(order)
+            processed += 1
+        except Exception:
+            continue
     return processed
 
 
@@ -855,29 +858,36 @@ def process_due_domain_renewals(limit: int = 25) -> int:
     ).order_by("scheduled_for")[:limit]
     for renewal in due:
         managed_domain = renewal.managed_domain
-        order = create_domain_purchase_order(
-            tenant=managed_domain.tenant,
-            domain_name=managed_domain.domain_name,
-            years=renewal.years,
-            contact=managed_domain.contact,
-            auto_renew=managed_domain.auto_renew,
-            privacy_enabled=managed_domain.privacy_enabled,
-            nameserver_mode=managed_domain.nameserver_mode,
-            custom_nameservers=managed_domain.current_nameservers,
-            gateway_provider="manual",
-            initiated_by=None,
-            order_type=DomainPurchaseOrder.OrderType.RENEW,
-            managed_domain=managed_domain,
-        )
-        order.status = DomainPurchaseOrder.Status.PAID
-        order.paid_at = timezone.now()
-        order.save(update_fields=["status", "paid_at", "updated_at"])
-        provision_renewal_order(order)
-        renewal.status = ManagedDomainRenewal.Status.COMPLETED
-        renewal.executed_at = timezone.now()
-        renewal.order = order
-        renewal.save(update_fields=["status", "executed_at", "order", "updated_at"])
-        processed += 1
+        try:
+            order = create_domain_purchase_order(
+                tenant=managed_domain.tenant,
+                domain_name=managed_domain.domain_name,
+                years=renewal.years,
+                contact=managed_domain.contact,
+                auto_renew=managed_domain.auto_renew,
+                privacy_enabled=managed_domain.privacy_enabled,
+                nameserver_mode=managed_domain.nameserver_mode,
+                custom_nameservers=managed_domain.current_nameservers,
+                gateway_provider="manual",
+                initiated_by=None,
+                order_type=DomainPurchaseOrder.OrderType.RENEW,
+                managed_domain=managed_domain,
+            )
+            order.status = DomainPurchaseOrder.Status.PAID
+            order.paid_at = timezone.now()
+            order.save(update_fields=["status", "paid_at", "updated_at"])
+            provision_renewal_order(order)
+            renewal.status = ManagedDomainRenewal.Status.COMPLETED
+            renewal.executed_at = timezone.now()
+            renewal.order = order
+            renewal.save(update_fields=["status", "executed_at", "order", "updated_at"])
+            processed += 1
+        except Exception as exc:
+            renewal.status = ManagedDomainRenewal.Status.FAILED
+            renewal.message = str(exc)
+            renewal.executed_at = timezone.now()
+            renewal.save(update_fields=["status", "message", "executed_at", "updated_at"])
+            continue
     return processed
 
 

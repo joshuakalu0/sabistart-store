@@ -215,19 +215,35 @@ def domain_checkout(request, prefix):
     form = DomainCheckoutForm(request.POST or None, tenant=request.tenant, initial={"domain_name": domain_name})
     gateways = _bind_gateway_choices(form, currency=result_row.currency if result_row else "USD")
     if request.method == "POST" and form.is_valid():
-        contact = _inline_contact_from_checkout(request, form)
-        purchase = create_domain_purchase_order(
-            tenant=request.tenant,
-            domain_name=form.cleaned_data["domain_name"],
-            years=form.cleaned_data["years"],
-            contact=contact,
-            auto_renew=form.cleaned_data["auto_renew"],
-            privacy_enabled=form.cleaned_data["privacy_enabled"],
-            nameserver_mode=form.cleaned_data["nameserver_mode"],
-            custom_nameservers=form.cleaned_data["custom_nameservers"],
-            gateway_provider=form.cleaned_data.get("gateway_provider", ""),
-            initiated_by=request.user,
-        )
+        try:
+            contact = _inline_contact_from_checkout(request, form)
+            purchase = create_domain_purchase_order(
+                tenant=request.tenant,
+                domain_name=form.cleaned_data["domain_name"],
+                years=form.cleaned_data["years"],
+                contact=contact,
+                auto_renew=form.cleaned_data["auto_renew"],
+                privacy_enabled=form.cleaned_data["privacy_enabled"],
+                nameserver_mode=form.cleaned_data["nameserver_mode"],
+                custom_nameservers=form.cleaned_data["custom_nameservers"],
+                gateway_provider=form.cleaned_data.get("gateway_provider", ""),
+                initiated_by=request.user,
+            )
+        except ValueError as exc:
+            form.add_error(None, str(exc))
+            purchase = None
+        if purchase is None:
+            context = _build_summary_context(
+                request,
+                prefix,
+                "domains_search",
+                checkout_form=form,
+                search_bundle=search_bundle,
+                search_result=result_row,
+                gateway_options=gateways,
+                page_title="Buy a Domain",
+            )
+            return render(request, "dashboard/domain/domain_checkout.html", context, status=400)
         purchase.success_redirect_url = request.build_absolute_uri(
             reverse("dashboard:domain:order_detail", kwargs={"prefix": prefix, "purchase_reference": purchase.purchase_reference})
         )
@@ -399,20 +415,24 @@ def managed_domain_renew(request, prefix, managed_domain_id):
     if contact is None:
         messages.error(request, "Create a registrant contact before starting a renewal.")
         return redirect("dashboard:domain:contacts", prefix=prefix)
-    order = create_domain_purchase_order(
-        tenant=request.tenant,
-        domain_name=managed_domain.domain_name,
-        years=int(request.POST.get("years", "1") or 1),
-        contact=contact,
-        auto_renew=managed_domain.auto_renew,
-        privacy_enabled=managed_domain.privacy_enabled,
-        nameserver_mode=managed_domain.nameserver_mode,
-        custom_nameservers=managed_domain.current_nameservers,
-        gateway_provider=request.POST.get("gateway_provider", ""),
-        initiated_by=request.user,
-        order_type=DomainPurchaseOrder.OrderType.RENEW,
-        managed_domain=managed_domain,
-    )
+    try:
+        order = create_domain_purchase_order(
+            tenant=request.tenant,
+            domain_name=managed_domain.domain_name,
+            years=int(request.POST.get("years", "1") or 1),
+            contact=contact,
+            auto_renew=managed_domain.auto_renew,
+            privacy_enabled=managed_domain.privacy_enabled,
+            nameserver_mode=managed_domain.nameserver_mode,
+            custom_nameservers=managed_domain.current_nameservers,
+            gateway_provider=request.POST.get("gateway_provider", ""),
+            initiated_by=request.user,
+            order_type=DomainPurchaseOrder.OrderType.RENEW,
+            managed_domain=managed_domain,
+        )
+    except ValueError as exc:
+        messages.error(request, str(exc))
+        return redirect("dashboard:domain:managed_detail", prefix=prefix, managed_domain_id=managed_domain.id)
     order.success_redirect_url = request.build_absolute_uri(
         reverse("dashboard:domain:order_detail", kwargs={"prefix": prefix, "purchase_reference": order.purchase_reference})
     )
