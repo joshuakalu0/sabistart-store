@@ -93,6 +93,8 @@ Why:
 - a root folder named `public` is a risky shape on Vercel because it overlaps with Vercel's own concept of public/static assets
 - bundling the Python packages from a neutral internal path avoids that conflict while preserving the existing import paths
 
+On Vercel builds, the script then prunes the root `public`, `dashboard`, and `system` directories after copying them. That keeps the final deployment bundle focused on the internal runtime package path instead of leaving duplicate source trees at the deployment root.
+
 ## PDF dependency note
 
 This repo uses `xhtml2pdf` for PDF exports in analytics and POS. On Vercel, `svglib 1.6.x` pulls in `rlpycairo -> pycairo`, which requires native Cairo build libraries that are not available in the standard Vercel Python build image.

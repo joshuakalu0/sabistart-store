@@ -22,10 +22,10 @@ def bootstrap_paths(base_dir: str | Path) -> Path:
     bundled_apps_dir = project_root / "sabistart_store" / "_runtime_apps"
     bundled_apps_dir_str = str(bundled_apps_dir)
 
-    if bundled_apps_dir.exists() and bundled_apps_dir_str not in sys.path:
-        sys.path.insert(0, bundled_apps_dir_str)
     if project_root_str not in sys.path:
         sys.path.insert(0, project_root_str)
+    if bundled_apps_dir.exists() and bundled_apps_dir_str not in sys.path:
+        sys.path.insert(0, bundled_apps_dir_str)
 
     runtime_packages_env = os.getenv("SABISTART_RUNTIME_PACKAGES_DIR", "").strip()
     if runtime_packages_env:

@@ -18,6 +18,10 @@ cp -R public "$BUNDLED_APPS_DIR/public"
 cp -R dashboard "$BUNDLED_APPS_DIR/dashboard"
 cp -R system "$BUNDLED_APPS_DIR/system"
 
+if [ -n "${VERCEL:-}" ] && [ "${VERCEL_PRUNE_SOURCE_PACKAGES:-1}" = "1" ]; then
+  rm -rf public dashboard system
+fi
+
 rm -rf "$RUNTIME_PACKAGES_DIR"
 python -m pip install --disable-pip-version-check --no-cache-dir --target "$RUNTIME_PACKAGES_DIR" -r requirements.txt
 export PYTHONPATH="$RUNTIME_PACKAGES_DIR${PYTHONPATH:+:$PYTHONPATH}"
@@ -30,6 +34,14 @@ if [ "${VERCEL_RUN_MIGRATIONS:-0}" = "1" ]; then
   python manage.py migrate_schemas --shared --noinput
   python manage.py migrate_schemas --tenant --noinput
   python manage.py sync_theme_catalog
+fi
+
+if [ "${VERCEL_BOOTSTRAP_PUBLIC_DOMAIN:-0}" = "1" ]; then
+  if [ "${VERCEL_BOOTSTRAP_PUBLIC_DOMAIN_REASSIGN:-0}" = "1" ]; then
+    python manage.py sync_public_vercel_domain --create-public-tenant --make-primary --reassign
+  else
+    python manage.py sync_public_vercel_domain --create-public-tenant --make-primary
+  fi
 fi
 
 python manage.py collectstatic --noinput

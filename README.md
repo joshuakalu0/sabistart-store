@@ -7,18 +7,26 @@ SabiStart Store is a Django multi-tenant commerce platform built on:
 - PostgreSQL schemas
 - tenant storefront + dashboard routing
 
-This repository is now cleaned and prepared primarily for **cPanel production deployment** using:
+This repository is prepared for both **cPanel** and **Vercel** deployment using:
 
 - cPanel Python App
 - Passenger
 - PostgreSQL
 - filesystem media/static storage
+- Vercel Python runtime
+- Vercel Blob for media
 
 ## Production target
 
-The active production path for this repo is now **cPanel**, not Vercel.
+This repo now supports two maintained deployment paths:
 
-You can ignore the legacy Vercel files unless you intentionally plan to reuse that deployment path later.
+- **cPanel** for traditional shared hosting with Passenger
+- **Vercel** for serverless deployment with PostgreSQL and Blob storage
+
+Use the guide that matches your hosting target:
+
+- [deployment/cpanel/README.md](C:/Users/user/Desktop/build/backend/sabistart-store/deployment/cpanel/README.md)
+- [deployment/vercel/README.md](C:/Users/user/Desktop/build/backend/sabistart-store/deployment/vercel/README.md)
 
 ## Hosting requirement
 

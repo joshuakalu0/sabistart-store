@@ -5,13 +5,11 @@
   "functions": {
     "api/index.py": {
       "maxDuration": 60,
-      "includeFiles": "{templates/**,themes/**,sabistart_store/**}"
+      "includeFiles": "{templates/**,themes/**,sabistart_store/**,staticfiles/**}",
+      "excludeFiles": "{**/tests.py,**/tests/**,plans/**,sample/**,deployment/cpanel/**,htmlcov/**,**/__pycache__/**,**/*.pyc,.venv/**,node_modules/**,media/**,logs/**,tmp/**}"
     }
   },
   "routes": [
-    {
-      "handle": "filesystem"
-    },
     {
       "src": "/(.*)",
       "dest": "/api/index.py"
