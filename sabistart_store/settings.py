@@ -57,6 +57,14 @@ def env_path(name: str, default: Path) -> Path:
     return Path(raw_value).expanduser()
 
 
+def env_first(*names: str, default=None):
+    for name in names:
+        raw_value = os.getenv(name)
+        if raw_value is not None and raw_value != "":
+            return raw_value
+    return default
+
+
 def _active_management_command() -> str:
     return sys.argv[1] if len(sys.argv) > 1 else ""
 
@@ -340,7 +348,15 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 DASHBOARD_PREFIX = "admin"
 
 SERVER_IP = env("SERVER_IP", "127.0.0.1")
-PLATFORM_CNAME = env("PLATFORM_CNAME", "localhost")
+configured_platform_cname = env("PLATFORM_CNAME", "")
+if IS_VERCEL and configured_platform_cname.strip().lower() in {"", "localhost", "127.0.0.1"}:
+    PLATFORM_CNAME = env_first(
+        "PUBLIC_VERCEL_URL",
+        "VERCEL_URL",
+        default="localhost",
+    )
+else:
+    PLATFORM_CNAME = configured_platform_cname or "localhost"
 SUBDOMAIN_SUFFIX = env("SUBDOMAIN_SUFFIX", "")
 DOMAIN_RESOLUTION_CACHE_TTL = env_int("DOMAIN_RESOLUTION_CACHE_TTL", 300)
 DOMAIN_SIMULATE_INFRA = env_bool("DOMAIN_SIMULATE_INFRA", default=DEBUG and not IS_VERCEL)

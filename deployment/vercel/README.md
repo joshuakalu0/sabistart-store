@@ -40,6 +40,8 @@ At minimum, set these in Vercel Project Settings:
 - `DATABASE_URL`
 - `BLOB_READ_WRITE_TOKEN`
 - `PLATFORM_CNAME`
+  - For previews this can fall back automatically to `PUBLIC_VERCEL_URL` or `VERCEL_URL`.
+  - For production you should still set `PLATFORM_CNAME` to your real platform hostname.
 
 Optional but useful:
 

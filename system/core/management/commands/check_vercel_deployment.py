@@ -42,7 +42,11 @@ class Command(BaseCommand):
         checks.append(("secret_key", settings.SECRET_KEY and "django-insecure" not in settings.SECRET_KEY, "Set a real DJANGO_SECRET_KEY."))
         checks.append(("allowed_hosts", settings.ALLOWED_HOSTS and settings.ALLOWED_HOSTS != ["*"], "Set DJANGO_ALLOWED_HOSTS to your real domains."))
         checks.append(("csrf_trusted_origins", bool(settings.CSRF_TRUSTED_ORIGINS), "Set DJANGO_CSRF_TRUSTED_ORIGINS for your HTTPS domains."))
-        checks.append(("platform_cname", settings.PLATFORM_CNAME not in {"", "localhost", "127.0.0.1"}, "Set PLATFORM_CNAME to the real platform hostname."))
+        checks.append((
+            "platform_cname",
+            settings.PLATFORM_CNAME not in {"", "localhost", "127.0.0.1"},
+            "Set PLATFORM_CNAME to your production custom domain, or let Vercel provide PUBLIC_VERCEL_URL / VERCEL_URL for previews.",
+        ))
         checks.append(("postgres_backend", settings.DATABASES["default"]["ENGINE"] == "django_tenants.postgresql_backend", "The project must use django_tenants.postgresql_backend."))
         checks.append(("static_root", bool(settings.STATIC_ROOT), "STATIC_ROOT must be configured."))
         checks.append(("media_url", bool(settings.MEDIA_URL), "MEDIA_URL must be configured."))

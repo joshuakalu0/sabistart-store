@@ -21,6 +21,8 @@ Before deploying, make sure Vercel has:
 - `DJANGO_SECRET_KEY`
 - `DJANGO_ALLOWED_HOSTS`
 - `DJANGO_CSRF_TRUSTED_ORIGINS`
+  - preview builds can rely on `VERCEL_URL` / `PUBLIC_VERCEL_URL`
+  - production should still set `PLATFORM_CNAME` explicitly
 
 The PostgreSQL driver is provided through `psycopg[binary]` in [`requirements.txt`](C:/Users/user/Desktop/build/backend/sabistart-store/requirements.txt). This codebase intentionally uses psycopg 3 on Vercel because Django 5.2 and `django-tenants` support it, and it avoids the `_psycopg` binary-extension loading issue that can happen with `psycopg2-binary` in Vercel's Python runtime.
 
