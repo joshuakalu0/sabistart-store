@@ -31,10 +31,10 @@ Keep the application code outside the public web root when possible.
 
 Example:
 
-- app root: `/home/username/sabistart-store`
-- static root: `/home/username/sabistart-store/staticfiles`
-- media root: `/home/username/sabistart-store/media`
-- log dir: `/home/username/sabistart-store/logs`
+- app root: `/home/sabistar/sabi-store`
+- static root: `/home/sabistar/sabi-store/staticfiles`
+- media root: `/home/sabistar/sabi-store/media`
+- log dir: `/home/sabistar/sabi-store/logs`
 
 ## cPanel setup steps
 
@@ -67,6 +67,34 @@ At minimum, set:
 - `DJANGO_MEDIA_ROOT`
 - `DJANGO_LOG_DIR`
 - `PLATFORM_CNAME`
+- `SUBDOMAIN_SUFFIX`
+
+## Recommended domain strategy for sabistart.store
+
+Use:
+
+- platform root: `sabistart.store`
+- optional public marketing alias: `www.sabistart.store`
+- tenant stores: `{tenant}.sabistart.store`
+
+Recommended values:
+
+```env
+DJANGO_ALLOWED_HOSTS=sabistart.store,www.sabistart.store,.sabistart.store
+DJANGO_CSRF_TRUSTED_ORIGINS=https://sabistart.store,https://www.sabistart.store,https://*.sabistart.store
+PLATFORM_CNAME=sabistart.store
+SUBDOMAIN_SUFFIX=.sabistart.store
+DJANGO_DEFAULT_FROM_EMAIL=no-reply@sabistart.store
+DJANGO_SERVER_EMAIL=no-reply@sabistart.store
+```
+
+If your cPanel host supports wildcard subdomains, create:
+
+- an `A` or `CNAME` record for `sabistart.store`
+- an `A` or `CNAME` record for `www`
+- a wildcard `*` subdomain pointing to the same app target
+
+If wildcard DNS or wildcard subdomains are not supported on your plan, tenant subdomain routing will not be fully usable and you should rely on custom domains instead.
 
 ## First deploy
 
@@ -99,8 +127,9 @@ The Python deploy script then:
 5. runs shared migrations
 6. runs tenant migrations
 7. runs `sync_theme_catalog`
-8. runs `collectstatic`
-9. touches `tmp/restart.txt`
+8. runs `sync_domain_tld_catalog`
+9. runs `collectstatic`
+10. touches `tmp/restart.txt`
 
 ## Validation commands
 
@@ -155,8 +184,8 @@ That means:
 Example:
 
 ```env
-PLATFORM_CNAME=example.com
-SUBDOMAIN_SUFFIX=.example.com
+PLATFORM_CNAME=sabistart.store
+SUBDOMAIN_SUFFIX=.sabistart.store
 ```
 
 ## Health checks

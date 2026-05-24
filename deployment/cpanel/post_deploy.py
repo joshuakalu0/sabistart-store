@@ -90,7 +90,8 @@ def ensure_database_connection() -> None:
 
 
 def main() -> None:
-    run(PYTHON_EXECUTABLE, "-m", "pip", "install", "-r", "requirements.txt")
+    print(f"Using Python: {PYTHON_EXECUTABLE}")
+    run(PYTHON_EXECUTABLE, "-m", "pip", "install", "--disable-pip-version-check", "-r", "requirements.txt")
     run(PYTHON_EXECUTABLE, "manage.py", "check")
     run(PYTHON_EXECUTABLE, "manage.py", "check_cpanel_deployment", "--strict")
     ensure_runtime_directories()
@@ -98,6 +99,7 @@ def main() -> None:
     run(PYTHON_EXECUTABLE, "manage.py", "migrate_schemas", "--shared", "--noinput")
     run(PYTHON_EXECUTABLE, "manage.py", "migrate_schemas", "--tenant", "--noinput")
     run(PYTHON_EXECUTABLE, "manage.py", "sync_theme_catalog")
+    run(PYTHON_EXECUTABLE, "manage.py", "sync_domain_tld_catalog")
     run(PYTHON_EXECUTABLE, "manage.py", "collectstatic", "--noinput")
 
     tmp_dir = APP_ROOT / "tmp"

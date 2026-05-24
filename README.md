@@ -95,12 +95,12 @@ Use:
 
 `DJANGO_ALLOWED_HOSTS`
 - Comma-separated hostnames Django may serve.
-- Example: `example.com,www.example.com,shop.example.com`
+- Example: `sabistart.store,www.sabistart.store,.sabistart.store`
 
 `DJANGO_CSRF_TRUSTED_ORIGINS`
 - Full HTTPS origins used by forms, login, and admin POSTs.
 - Example:
-  `https://example.com,https://www.example.com,https://shop.example.com`
+  `https://sabistart.store,https://www.sabistart.store,https://*.sabistart.store`
 
 `DB_ENGINE`
 - Must remain `django_tenants.postgresql_backend`.
@@ -125,11 +125,11 @@ Use:
 
 `PLATFORM_CNAME`
 - Your main platform domain.
-- Example: `example.com`
+- Example: `sabistart.store`
 
 `SUBDOMAIN_SUFFIX`
 - Tenant subdomain suffix.
-- Example: `.example.com`
+- Example: `.sabistart.store`
 
 ### Strongly recommended for production
 
