@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -29,8 +30,9 @@ def load_environment() -> None:
     Load local env files when present.
 
     Order:
-    1. .env
-    2. .env.local (overrides .env)
+    1. SABISTART_ENV_FILE (when explicitly provided)
+    2. .env
+    3. .env.local (overrides .env)
 
     This keeps local development predictable while still letting real hosting
     environments override values with true process-level environment variables.
@@ -42,8 +44,20 @@ def load_environment() -> None:
         return
 
     base_dir = project_root()
+    explicit_env_file = os.getenv("SABISTART_ENV_FILE", "").strip()
+    explicit_override = os.getenv("SABISTART_ENV_OVERRIDE", "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
     env_file = base_dir / ".env"
     env_local_file = base_dir / ".env.local"
+
+    if explicit_env_file:
+        candidate = Path(explicit_env_file).expanduser()
+        if candidate.exists():
+            load_dotenv(candidate, override=explicit_override)
 
     if env_file.exists():
         load_dotenv(env_file, override=False)

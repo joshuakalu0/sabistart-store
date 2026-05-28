@@ -105,6 +105,13 @@ cd ~/sabistart-store
 bash deployment/cpanel/post_deploy.sh
 ```
 
+If Bash reports `set: pipefail` or other odd syntax errors, the server copy of the script usually has Windows line endings. Normalize it once, then rerun:
+
+```bash
+sed -i 's/\r$//' deployment/cpanel/post_deploy.sh
+bash deployment/cpanel/post_deploy.sh
+```
+
 If a deployment tool insists on executing deployment through Python instead of Bash, use:
 
 ```bash
@@ -129,6 +136,33 @@ The Python deploy script then:
 7. runs `sync_theme_catalog`
 8. runs `sync_domain_tld_catalog`
 9. runs `collectstatic`
+
+If you already know the database is reachable and the migrations are already applied, you can skip those steps explicitly for a redeploy:
+
+```bash
+SABISTART_SKIP_DATABASE_PREFLIGHT=1 SABISTART_SKIP_MIGRATIONS=1 bash deployment/cpanel/post_deploy.sh
+```
+
+You can also skip only the preflight and still let migrations run:
+
+```bash
+SABISTART_SKIP_DATABASE_PREFLIGHT=1 bash deployment/cpanel/post_deploy.sh
+```
+
+If you want the deploy script to bypass all DB-dependent deployment work and just install dependencies, run checks, collect static files, and trigger the app reload, use:
+
+```bash
+SABISTART_FAST_DEPLOY=1 bash deployment/cpanel/post_deploy.sh
+```
+
+`SABISTART_FAST_DEPLOY=1` implies:
+
+- skip database preflight
+- skip schema migrations
+- skip `sync_theme_catalog`
+- skip `sync_domain_tld_catalog`
+
+If the server previously used Neon or another remote database, clear any stale cPanel app-level database variables before rerunning deploy. The cPanel runtime can keep exporting old values such as `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `POSTGRES_URL`, or `POSTGRES_PRISMA_URL` until you remove or replace them.
 10. touches `tmp/restart.txt`
 
 ## Validation commands

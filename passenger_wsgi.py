@@ -29,6 +29,12 @@ for candidate in _candidate_python_paths(BASE_DIR):
         os.environ.setdefault("PYTHONHOME", str(candidate.parent.parent))
         break
 
+os.environ.setdefault(
+    "SABISTART_ENV_FILE",
+    str(BASE_DIR / "deployment" / "cpanel" / ".env.cpanel"),
+)
+os.environ.setdefault("SABISTART_ENV_OVERRIDE", "1")
+
 bootstrap_paths(BASE_DIR)
 ensure_project_root_on_path()
 load_environment()

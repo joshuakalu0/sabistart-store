@@ -8,10 +8,21 @@ from pathlib import Path
 
 APP_ROOT = Path(__file__).resolve().parents[2]
 PYTHON_EXECUTABLE = sys.executable
+CPANEL_ENV_FILE = APP_ROOT / "deployment" / "cpanel" / ".env.cpanel"
+
+
+def env_flag(name: str, default: bool = False) -> bool:
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
 def run(*args: str) -> None:
-    subprocess.run(args, cwd=APP_ROOT, check=True)
+    env = os.environ.copy()
+    env.setdefault("SABISTART_ENV_FILE", str(CPANEL_ENV_FILE))
+    env.setdefault("SABISTART_ENV_OVERRIDE", "1")
+    subprocess.run(args, cwd=APP_ROOT, check=True, env=env)
 
 
 def ensure_runtime_directories() -> None:
@@ -90,16 +101,36 @@ def ensure_database_connection() -> None:
 
 
 def main() -> None:
+    os.environ.setdefault("SABISTART_ENV_FILE", str(CPANEL_ENV_FILE))
+    os.environ.setdefault("SABISTART_ENV_OVERRIDE", "1")
+    fast_deploy = env_flag("SABISTART_FAST_DEPLOY")
+    skip_db_preflight = env_flag("SABISTART_SKIP_DATABASE_PREFLIGHT", fast_deploy)
+    skip_migrations = env_flag("SABISTART_SKIP_MIGRATIONS", fast_deploy)
+    skip_data_sync = env_flag("SABISTART_SKIP_DATA_SYNC", fast_deploy)
+
     print(f"Using Python: {PYTHON_EXECUTABLE}")
     run(PYTHON_EXECUTABLE, "-m", "pip", "install", "--disable-pip-version-check", "-r", "requirements.txt")
     run(PYTHON_EXECUTABLE, "manage.py", "check")
     run(PYTHON_EXECUTABLE, "manage.py", "check_cpanel_deployment", "--strict")
     ensure_runtime_directories()
-    ensure_database_connection()
-    run(PYTHON_EXECUTABLE, "manage.py", "migrate_schemas", "--shared", "--noinput")
-    run(PYTHON_EXECUTABLE, "manage.py", "migrate_schemas", "--tenant", "--noinput")
-    run(PYTHON_EXECUTABLE, "manage.py", "sync_theme_catalog")
-    run(PYTHON_EXECUTABLE, "manage.py", "sync_domain_tld_catalog")
+
+    if skip_db_preflight:
+        print("Skipping database connection preflight because SABISTART_SKIP_DATABASE_PREFLIGHT is enabled.")
+    else:
+        ensure_database_connection()
+
+    if skip_migrations:
+        print("Skipping schema migrations because SABISTART_SKIP_MIGRATIONS is enabled.")
+    else:
+        run(PYTHON_EXECUTABLE, "manage.py", "migrate_schemas", "--shared", "--noinput")
+        run(PYTHON_EXECUTABLE, "manage.py", "migrate_schemas", "--tenant", "--noinput")
+
+    if skip_data_sync:
+        print("Skipping theme and domain catalog sync because SABISTART_SKIP_DATA_SYNC is enabled.")
+    else:
+        run(PYTHON_EXECUTABLE, "manage.py", "sync_theme_catalog")
+        run(PYTHON_EXECUTABLE, "manage.py", "sync_domain_tld_catalog")
+
     run(PYTHON_EXECUTABLE, "manage.py", "collectstatic", "--noinput")
 
     tmp_dir = APP_ROOT / "tmp"
