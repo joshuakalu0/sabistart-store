@@ -21,11 +21,13 @@ from django.conf.urls.static import static
 from django.views.static import serve
 from django.urls import re_path
 from dashboard.domain import views as domain_views
+from sabistart_store import deploy_status
 from sabistart_store import health
 from sabistart_store.media_proxy import media_proxy
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("deployz/", deploy_status.deployz, name="deployz"),
     path("healthz/", health.healthz, name="healthz"),
     path("readyz/", health.readyz, name="readyz"),
 

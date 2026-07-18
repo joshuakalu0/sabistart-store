@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -100,18 +101,49 @@ def ensure_database_connection() -> None:
         raise RuntimeError("\n".join(message)) from exc
 
 
+def write_deploy_marker(mode: str, run_checks: bool, skip_db_preflight: bool, skip_migrations: bool, skip_data_sync: bool) -> None:
+    import json
+
+    tmp_dir = APP_ROOT / "tmp"
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "deployed_at": datetime.now(timezone.utc).isoformat(),
+        "mode": mode,
+        "checks": run_checks,
+        "db_preflight": not skip_db_preflight,
+        "migrations": not skip_migrations,
+        "data_sync": not skip_data_sync,
+        "app_root": str(APP_ROOT),
+        "python": PYTHON_EXECUTABLE,
+    }
+    (tmp_dir / "deploy.json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
 def main() -> None:
     os.environ.setdefault("SABISTART_ENV_FILE", str(CPANEL_ENV_FILE))
     os.environ.setdefault("SABISTART_ENV_OVERRIDE", "1")
-    fast_deploy = env_flag("SABISTART_FAST_DEPLOY")
+
+    full_deploy = env_flag("SABISTART_FULL_DEPLOY")
+    fast_deploy = env_flag("SABISTART_FAST_DEPLOY", default=not full_deploy)
+    run_checks = env_flag("SABISTART_RUN_CHECKS", default=full_deploy)
     skip_db_preflight = env_flag("SABISTART_SKIP_DATABASE_PREFLIGHT", fast_deploy)
     skip_migrations = env_flag("SABISTART_SKIP_MIGRATIONS", fast_deploy)
     skip_data_sync = env_flag("SABISTART_SKIP_DATA_SYNC", fast_deploy)
 
     print(f"Using Python: {PYTHON_EXECUTABLE}")
+    if fast_deploy:
+        print("Running direct cPanel deploy: checks, database work, migrations, and data sync are skipped.")
+    else:
+        print("Running full cPanel deploy: checks, database preflight, migrations, and data sync are enabled.")
+
     run(PYTHON_EXECUTABLE, "-m", "pip", "install", "--disable-pip-version-check", "-r", "requirements.txt")
-    run(PYTHON_EXECUTABLE, "manage.py", "check")
-    run(PYTHON_EXECUTABLE, "manage.py", "check_cpanel_deployment", "--strict")
+
+    if run_checks:
+        run(PYTHON_EXECUTABLE, "manage.py", "check")
+        run(PYTHON_EXECUTABLE, "manage.py", "check_cpanel_deployment", "--strict")
+    else:
+        print("Skipping Django deployment checks because SABISTART_RUN_CHECKS is disabled.")
+
     ensure_runtime_directories()
 
     if skip_db_preflight:
@@ -133,8 +165,10 @@ def main() -> None:
 
     run(PYTHON_EXECUTABLE, "manage.py", "collectstatic", "--noinput")
 
+    mode = "direct" if fast_deploy else "full"
+    write_deploy_marker(mode, run_checks, skip_db_preflight, skip_migrations, skip_data_sync)
+
     tmp_dir = APP_ROOT / "tmp"
-    tmp_dir.mkdir(parents=True, exist_ok=True)
     (tmp_dir / "restart.txt").touch()
 
     print("cPanel post-deploy finished successfully.")
