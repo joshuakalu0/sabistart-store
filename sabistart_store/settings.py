@@ -20,6 +20,7 @@ except Exception:  # pragma: no cover - optional dependency until installed
 BASE_DIR = Path(__file__).resolve().parent.parent
 THEMES_ROOT = BASE_DIR / "themes"
 IS_VERCEL = bool(os.getenv("VERCEL")) or bool(os.getenv("VERCEL_URL"))
+IS_RENDER = bool(os.getenv("RENDER"))
 
 
 def env(name: str, default=None):
@@ -381,7 +382,7 @@ SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", DEFAULT_FROM_EMAIL)
 
 log_to_file = env_bool("DJANGO_LOG_TO_FILE", default=not IS_VERCEL)
 LOG_TO_FILE = log_to_file
-LOG_DIR = env_path("DJANGO_LOG_DIR", Path("/tmp/logs") if IS_VERCEL else BASE_DIR / "logs")
+LOG_DIR = env_path("DJANGO_LOG_DIR", Path("/tmp/logs") if (IS_VERCEL or IS_RENDER) else BASE_DIR / "logs")
 if log_to_file:
     LOG_DIR.mkdir(parents=True, exist_ok=True)
 
