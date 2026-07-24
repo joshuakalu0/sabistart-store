@@ -383,8 +383,6 @@ SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", DEFAULT_FROM_EMAIL)
 log_to_file = env_bool("DJANGO_LOG_TO_FILE", default=not IS_VERCEL)
 LOG_TO_FILE = log_to_file
 LOG_DIR = env_path("DJANGO_LOG_DIR", Path("/tmp/logs") if (IS_VERCEL or IS_RENDER) else BASE_DIR / "logs")
-if log_to_file:
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 log_handlers = ["console"]
 handlers = {
@@ -394,12 +392,19 @@ handlers = {
     },
 }
 if log_to_file:
-    handlers["file"] = {
-        "class": "logging.FileHandler",
-        "filename": str(LOG_DIR / "django.log"),
-        "formatter": "standard",
-    }
-    log_handlers.append("file")
+    # Create logs directory only when file logging is enabled and defer creation until runtime
+    try:
+        LOG_DIR.mkdir(parents=True, exist_ok=True)
+        handlers["file"] = {
+            "class": "logging.FileHandler",
+            "filename": str(LOG_DIR / "django.log"),
+            "formatter": "standard",
+        }
+        log_handlers.append("file")
+    except (OSError, IOError):
+        # If we can't create the log directory (e.g., read-only filesystem), fall back to console only
+        print("Warning: Could not create log directory. Logging to console only.")
+        pass
 
 LOGGING = {
     "version": 1,

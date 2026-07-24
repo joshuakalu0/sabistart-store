@@ -208,3 +208,112 @@ If your cPanel layout needs extra Apache rules, start from:
 - [deployment/cpanel/.htaccess.example](C:/Users/user/Desktop/build/backend/sabistart-store/deployment/cpanel/.htaccess.example)
 
 Use it only in the public web root if your hosting layout requires it.
+
+## Railway
+
+Deploy your SabiStart Store backend to Railway with these steps:
+
+1. **Create a Railway project**
+   - Sign in to [Railway](https://railway.app/)
+   - Click "New Project" -> "Deploy from GitHub"
+   - Select this repository
+
+2. **Configure the service**
+   - Railway will automatically detect `railway.json` and `Procfile`
+   - Add a PostgreSQL plugin: Click "+" -> "Add Resource" -> "PostgreSQL"
+   - Ensure the database is linked to your service
+
+3. **Set environment variables**
+   - Go to the "Variables" tab in your service
+   - Set:
+     - `SECRET_KEY`: Generate a secret key (e.g., `python -c "import secrets; print(secrets.token_urlsafe(64))"`)
+     - `DEBUG`: `False`
+     - `DJANGO_ALLOWED_HOSTS`: Your domain (e.g., `example.com,www.example.com`)
+     - `DJANGO_CSRF_TRUSTED_ORIGINS`: `https://example.com,https://www.example.com`
+     - `DJANGO_SECURE_SSL_REDIRECT`: `True` (recommended)
+     - `DJANGO_SESSION_COOKIE_SECURE`: `True`
+     - `DJANGO_CSRF_COOKIE_SECURE`: `True`
+     - `DJANGO_LOG_TO_FILE`: `True`
+
+4. **Deploy**
+   - Click "Deploy" and Railway will build and deploy your application
+   - Check the logs for any issues
+
+## Render
+
+Your repository already includes a `render.yaml` for Render. To deploy:
+
+1. **Create a Render Web Service**
+   - Sign in to [Render](https://render.com/)
+   - Click "New" -> "Web Service"
+   - Connect your GitHub repository
+   - Select this repository
+
+2. **Configure the service**
+   - Render will automatically detect `render.yaml`
+   - In the service settings, add a PostgreSQL database (if not already defined in render.yaml)
+   - Ensure the database is linked to the service
+
+3. **Set environment variables**
+   - In the "Environment" section, set:
+     - `SECRET_KEY`: Generate a secret key
+     - `DEBUG`: `False`
+     - `DJANGO_ALLOWED_HOSTS`: Your domain
+     - `DJANGO_CSRF_TRUSTED_ORIGINS`: Your domain with HTTPS
+     - `DJANGO_SECURE_SSL_REDIRECT`: `True`
+     - `DJANGO_SESSION_COOKIE_SECURE`: `True`
+     - `DJANGO_CSRF_COOKIE_SECURE`: `True`
+     - `DJANGO_LOG_TO_FILE`: `True`
+
+4. **Deploy**
+   - Click "Create Web Service" and Render will build and deploy your app
+
+## Defang
+
+Defang allows you to deploy to your own cloud (AWS, GCP, Azure) using a Docker Compose file.
+
+1. **Install Defang CLI**
+   ```bash
+   curl -fsSL s.defang.io/install | bash
+   ```
+
+2. **Login to Defang**
+   ```bash
+   defang login
+   ```
+
+3. **Deploy to Defang Playground (for testing)**
+   ```bash
+   defang compose up
+   ```
+   - This will deploy to Defang's shared infrastructure
+
+4. **Deploy to your own cloud (e.g., AWS)**
+   - Set your cloud provider:
+     ```bash
+     export DEFANG_PROVIDER=aws
+     ```
+   - Ensure your AWS credentials are configured (via AWS CLI or environment variables)
+   - Deploy:
+     ```bash
+     defang compose up
+   ```
+   - Defang will provision:
+     - ECS cluster and service for the web app
+     - RDS PostgreSQL instance
+     - Necessary networking, load balancer, and security groups
+
+5. **Configure environment variables**
+   - Defang uses a secrets management system. Set secrets with:
+     ```bash
+     defang config set SECRET_KEY=<your-secret-key>
+     defang config set DJANGO_ALLOWED_HOSTS="<your-domain>"
+     # ... other variables as needed
+   ```
+   - Alternatively, define them in the `compose.yaml` under the `web` service's `environment` section (not recommended for production secrets)
+
+6. **Verify deployment**
+   - After deployment, Defang will provide a URL to access your application
+   - Check the health endpoints: `/healthz/` and `/readyz/`
+
+Note: The `compose.yaml` file in the repository defines the services (web and db) and uses the `build.sh` for building the Docker image. The startup script waits for the database, runs migrations, collects static files, and starts the Gunicorn server with Uvicorn workers.
