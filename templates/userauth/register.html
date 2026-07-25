@@ -47,9 +47,7 @@
     <header class="fixed w-full z-50 bg-white/80 backdrop-blur-lg shadow-sm">
       <div class="container mx-auto px-6 py-3 flex items-center justify-between">
         <a href="/" class="flex items-center gap-3">
-          <div class="w-9 h-9 bg-[#4f46e5] rounded-xl flex items-center justify-center">
-            <span class="material-symbols-outlined text-white text-[18px]">storefront</span>
-          </div>
+          <img src="{% static 'img/favion.png' %}" alt="SabiStart" class="h-9 w-auto" />
           <span class="text-xl font-extrabold text-gray-900">{{ request.tenant.name|default:"Store" }}</span>
         </a>
       </div>
@@ -125,9 +123,7 @@
       <div class="max-w-7xl mx-auto px-6">
         <div class="flex flex-col md:flex-row justify-between items-center gap-4">
           <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-[#4f46e5] rounded-lg flex items-center justify-center">
-              <span class="material-symbols-outlined text-white text-[16px]">storefront</span>
-            </div>
+            <img src="{% static 'img/favion.png' %}" alt="SabiStart" class="h-8 w-auto" />
             <span class="text-lg font-extrabold text-white">{{ request.tenant.name|default:"Store" }}</span>
           </div>
           <p class="text-xs text-gray-500">&copy; <span id="current-year"></span> SabiStart. All rights reserved.</p>
