@@ -1,18 +1,10 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": null,
   "buildCommand": "bash deployment/vercel/build.sh",
-  "functions": {
-    "api/index.py": {
-      "maxDuration": 60,
-      "includeFiles": "{templates/**,themes/**,sabistart_store/**,staticfiles/**}",
-      "excludeFiles": "{**/tests.py,**/tests/**,plans/**,sample/**,deployment/cpanel/**,htmlcov/**,**/__pycache__/**,**/*.pyc,.venv/**,node_modules/**,media/**,logs/**,tmp/**}"
-    }
-  },
-  "routes": [
+  "outputDirectory": "staticfiles",
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "/api/index.py"
+      "source": "/(.*)",
+      "destination": "/api/index.py"
     }
   ]
 }
