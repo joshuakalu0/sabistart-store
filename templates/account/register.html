@@ -1,52 +1,76 @@
 {% extends "account/_auth_base.html" %}
+{% block title %}Create Account - SabiStart{% endblock %}
 {% block auth_content %}
-  <div>
-    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-blue-600">Create Platform Account</p>
-    <h1 class="mt-3 text-3xl font-extrabold text-slate-950">Launch your first store</h1>
-    <p class="mt-2 text-sm leading-6 text-slate-500">Create the platform account, reserve the schema prefix, and open the tenant dashboard in one flow.</p>
+  <div class="text-center mb-8">
+    <span class="inline-block mb-3 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-[color:var(--brand-primary)]">Platform Account</span>
+    <h1 class="text-2xl font-extrabold text-gray-900">Create your account</h1>
+    <p class="mt-2 text-sm text-gray-500">Launch your first store in one guided flow.</p>
   </div>
 
   {% if form.non_field_errors or form.errors %}
-    <div class="mt-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+    <div class="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
       Please correct the highlighted fields and try again.
     </div>
   {% endif %}
 
-  <form method="post" class="mt-8 space-y-5">
+  <form method="post" class="space-y-4">
     {% csrf_token %}
-    <div class="grid gap-5 sm:grid-cols-2">
-      {% include "shared/forms/field.html" with field=form.first_name %}
-      {% include "shared/forms/field.html" with field=form.last_name %}
-    </div>
-    {% include "shared/forms/field.html" with field=form.email %}
-    {% include "shared/forms/field.html" with field=form.tenant_name %}
-
-    <div class="space-y-2">
-      <label for="{{ form.tenant_subdomain.id_for_label }}" class="block text-sm font-medium text-slate-700">Store Subdomain <span class="text-rose-500">*</span></label>
-      <div class="flex overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10">
-        {{ form.tenant_subdomain }}
-        <span class="inline-flex items-center border-l border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-500">.{{ platform_domain_suffix|default:"sabistart.com" }}</span>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div>
+        <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">First name</label>
+        {{ form.first_name }}
       </div>
-      <p id="subdomain-feedback" class="text-xs text-slate-500">{{ form.tenant_subdomain.help_text }}</p>
+      <div>
+        <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Last name</label>
+        {{ form.last_name }}
+      </div>
+    </div>
+    <div>
+      <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+      {{ form.email }}
+    </div>
+    <div>
+      <label for="{{ form.tenant_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Store name</label>
+      {{ form.tenant_name }}
+    </div>
+    <div>
+      <label for="{{ form.tenant_subdomain.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Store subdomain <span class="text-rose-500">*</span></label>
+      <div class="flex overflow-hidden rounded-xl border border-gray-200 focus-within:border-[color:var(--brand-primary)] focus-within:ring-4 focus-within:ring-indigo-500/10">
+        {{ form.tenant_subdomain }}
+        <span class="inline-flex items-center border-l border-gray-200 bg-gray-50 px-4 text-sm font-semibold text-gray-500">.{{ platform_domain_suffix|default:"sabistart.com" }}</span>
+      </div>
+      <p id="subdomain-feedback" class="mt-1 text-xs text-gray-500">{{ form.tenant_subdomain.help_text }}</p>
       {% for error in form.tenant_subdomain.errors %}
-        <p class="text-xs font-medium text-rose-600">{{ error }}</p>
+        <p class="mt-1 text-xs font-medium text-rose-600">{{ error }}</p>
       {% endfor %}
     </div>
-
-    <div class="grid gap-5 sm:grid-cols-2">
-      {% include "shared/forms/field.html" with field=form.password1 %}
-      {% include "shared/forms/field.html" with field=form.password2 %}
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div>
+        <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+        {{ form.password1 }}
+      </div>
+      <div>
+        <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Confirm password</label>
+        {{ form.password2 }}
+      </div>
     </div>
-    {% include "shared/forms/field.html" with field=form.agree_terms %}
-
-    <button type="submit" class="inline-flex w-full items-center justify-center rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
+    <div>
+      <label class="flex items-center gap-2 text-sm text-gray-600">
+        {{ form.agree_terms }}
+        <span>I agree to the <a href="/legal/terms/" class="text-[color:var(--brand-primary)] font-medium">Terms</a> and <a href="/legal/privacy/" class="text-[color:var(--brand-primary)] font-medium">Privacy Policy</a></span>
+      </label>
+      {% for error in form.agree_terms.errors %}
+        <p class="mt-1 text-xs font-medium text-rose-600">{{ error }}</p>
+      {% endfor %}
+    </div>
+    <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl btn-primary px-5 py-3 text-sm font-semibold">
       Create store workspace
     </button>
   </form>
 
-  <p class="mt-6 text-center text-sm text-slate-500">
+  <p class="mt-6 text-center text-sm text-gray-500">
     Already have an account?
-    <a href="{% url 'platform:login' %}" class="font-semibold text-blue-600 hover:text-blue-700">Sign in</a>
+    <a href="{% url 'platform:login' %}" class="font-semibold text-[color:var(--brand-primary)] hover:text-[color:var(--brand-primary-hover)]">Sign in</a>
   </p>
 
   <script>
@@ -69,7 +93,7 @@
           .then((response) => response.json())
           .then((data) => {
             feedback.textContent = data.message;
-            feedback.className = data.available ? "text-xs text-emerald-600" : "text-xs text-rose-600";
+            feedback.className = data.available ? "mt-1 text-xs font-medium text-emerald-600" : "mt-1 text-xs font-medium text-rose-600";
           });
       });
     }

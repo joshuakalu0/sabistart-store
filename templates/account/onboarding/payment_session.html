@@ -1,44 +1,49 @@
 {% extends "account/_auth_base.html" %}
+{% block title %}Payment - SabiStart{% endblock %}
 {% block auth_content %}
-  <div>
-    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-blue-600">Step 3 of 5</p>
-    <h1 class="mt-3 text-3xl font-extrabold text-slate-950">Hosted payment handoff</h1>
-    <p class="mt-2 text-sm leading-6 text-slate-500">This page stands in for the platform-hosted billing handoff. It keeps the onboarding session resumable and records a real payment state before store creation.</p>
+  <div class="mb-8">
+    <span class="inline-block mb-3 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-[color:var(--brand-primary)]">Step 3 of 5</span>
+    <h1 class="text-2xl font-extrabold text-gray-900">Hosted payment handoff</h1>
+    <p class="mt-2 text-sm text-gray-500">This page keeps the onboarding session resumable and records a real payment state before store creation.</p>
   </div>
 
-  <div class="mt-8 rounded-[2rem] border border-slate-200 bg-slate-50 p-6 text-sm">
+  <div class="mb-8 rounded-2xl border border-gray-200 bg-gray-50 p-6 text-sm">
     <div class="flex items-center justify-between gap-4">
-      <span class="text-slate-500">Gateway</span>
-      <strong class="text-slate-900">{{ selected_gateway.name }}</strong>
+      <span class="text-gray-500">Gateway</span>
+      <strong class="text-gray-900">{{ selected_gateway.name }}</strong>
     </div>
     <div class="mt-4 flex items-center justify-between gap-4">
-      <span class="text-slate-500">Checkout Reference</span>
-      <strong class="font-mono text-slate-900">{{ checkout_reference }}</strong>
+      <span class="text-gray-500">Checkout Reference</span>
+      <strong class="font-mono text-gray-900">{{ checkout_reference }}</strong>
     </div>
     <div class="mt-4 flex items-center justify-between gap-4">
-      <span class="text-slate-500">Plan Total</span>
-      <strong class="text-slate-900">{{ onboarding_session.currency }} {{ onboarding_session.estimated_total }}</strong>
+      <span class="text-gray-500">Plan Total</span>
+      <strong class="text-gray-900">{{ onboarding_session.currency }} {{ onboarding_session.estimated_total }}</strong>
     </div>
     <div class="mt-4 flex items-center justify-between gap-4">
-      <span class="text-slate-500">Plan</span>
-      <strong class="text-slate-900">{{ selected_bundle.name|default:"Starter plan" }}</strong>
+      <span class="text-gray-500">Plan</span>
+      <strong class="text-gray-900">{{ selected_bundle.name|default:"Starter plan" }}</strong>
     </div>
   </div>
 
   {% if selected_addons %}
-    <div class="mt-6 rounded-[2rem] border border-slate-200 bg-white p-6">
-      <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Add-ons being charged now</p>
+    <div class="mb-8 rounded-2xl border border-gray-200 bg-white p-6">
+      <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">Add-ons being charged now</p>
       <div class="mt-4 flex flex-wrap gap-2">
         {% for addon in selected_addons %}
-          <span class="inline-flex rounded-full bg-slate-100 px-3 py-2 text-sm font-medium text-slate-600">{{ addon.name }}</span>
+          <span class="inline-flex rounded-full bg-gray-100 px-3 py-2 text-sm font-medium text-gray-600">{{ addon.name }}</span>
         {% endfor %}
       </div>
     </div>
   {% endif %}
 
-  <form method="post" class="mt-8 space-y-4">
+  <form method="post" class="space-y-3">
     {% csrf_token %}
-    <button type="submit" name="action" value="confirm" class="inline-flex w-full items-center justify-center rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">Confirm payment</button>
-    <button type="submit" name="action" value="cancel" class="inline-flex w-full items-center justify-center rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">Cancel payment</button>
+    <button type="submit" name="action" value="confirm" class="inline-flex w-full items-center justify-center rounded-xl btn-primary px-5 py-3 text-sm font-semibold">
+      Confirm payment
+    </button>
+    <button type="submit" name="action" value="cancel" class="inline-flex w-full items-center justify-center rounded-xl border border-gray-200 px-5 py-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">
+      Cancel payment
+    </button>
   </form>
 {% endblock %}

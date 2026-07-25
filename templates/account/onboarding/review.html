@@ -1,24 +1,59 @@
 {% extends "account/_auth_base.html" %}
+{% block title %}Review - SabiStart{% endblock %}
 {% block auth_content %}
-  <div>
-    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-blue-600">Step 5 of 5</p>
-    <h1 class="mt-3 text-3xl font-extrabold text-slate-950">Review and launch</h1>
-    <p class="mt-2 text-sm leading-6 text-slate-500">This will create the platform account, bootstrap the tenant schema, and apply the starter entitlements you already paid for during onboarding.</p>
+  <div class="mb-8">
+    <span class="inline-block mb-3 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-[color:var(--brand-primary)]">Step 5 of 5</span>
+    <h1 class="text-2xl font-extrabold text-gray-900">Review and launch</h1>
+    <p class="mt-2 text-sm text-gray-500">This will create the platform account, bootstrap the tenant schema, and apply the starter entitlements you already paid for during onboarding.</p>
   </div>
-  <div class="mt-8 space-y-4 rounded-[2rem] border border-slate-200 bg-slate-50 p-6 text-sm">
-    <div class="flex items-center justify-between gap-4"><span class="text-slate-500">Business</span><strong class="text-slate-900">{{ onboarding_session.business_name }}</strong></div>
-    <div class="flex items-center justify-between gap-4"><span class="text-slate-500">Email</span><strong class="text-slate-900">{{ onboarding_session.email }}</strong></div>
-    <div class="flex items-center justify-between gap-4"><span class="text-slate-500">Subdomain</span><strong class="text-slate-900">{{ onboarding_session.desired_subdomain }}.{{ platform_domain_suffix }}</strong></div>
-    <div class="flex items-center justify-between gap-4"><span class="text-slate-500">Plan</span><strong class="text-slate-900">{{ selected_bundle.name|default:"No starter plan selected" }}</strong></div>
-    <div class="flex items-start justify-between gap-4"><span class="pt-1 text-slate-500">Add-ons</span><div class="text-right">{% for addon in selected_addons %}<div class="font-semibold text-slate-900">{{ addon.name }}</div>{% empty %}<span class="text-slate-500">No add-ons selected</span>{% endfor %}</div></div>
-    <div class="flex items-center justify-between gap-4"><span class="text-slate-500">Gateway</span><strong class="text-slate-900">{{ selected_gateway_name|default:"Platform billing" }}</strong></div>
+
+  <div class="mb-8 space-y-3 rounded-2xl border border-gray-200 bg-gray-50 p-6 text-sm">
+    <div class="flex items-center justify-between gap-4">
+      <span class="text-gray-500">Business</span>
+      <strong class="text-gray-900">{{ onboarding_session.business_name }}</strong>
+    </div>
+    <div class="flex items-center justify-between gap-4">
+      <span class="text-gray-500">Email</span>
+      <strong class="text-gray-900">{{ onboarding_session.email }}</strong>
+    </div>
+    <div class="flex items-center justify-between gap-4">
+      <span class="text-gray-500">Subdomain</span>
+      <strong class="text-gray-900">{{ onboarding_session.desired_subdomain }}.{{ platform_domain_suffix }}</strong>
+    </div>
+    <div class="flex items-center justify-between gap-4">
+      <span class="text-gray-500">Plan</span>
+      <strong class="text-gray-900">{{ selected_bundle.name|default:"No starter plan selected" }}</strong>
+    </div>
+    <div class="flex items-start justify-between gap-4">
+      <span class="pt-1 text-gray-500">Add-ons</span>
+      <div class="text-right">
+        {% for addon in selected_addons %}
+          <div class="font-semibold text-gray-900">{{ addon.name }}</div>
+        {% empty %}
+          <span class="text-gray-500">No add-ons selected</span>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="flex items-center justify-between gap-4">
+      <span class="text-gray-500">Gateway</span>
+      <strong class="text-gray-900">{{ selected_gateway_name|default:"Platform billing" }}</strong>
+    </div>
     {% if payment_reference %}
-      <div class="flex items-center justify-between gap-4"><span class="text-slate-500">Payment Reference</span><strong class="font-mono text-slate-900">{{ payment_reference }}</strong></div>
+      <div class="flex items-center justify-between gap-4">
+        <span class="text-gray-500">Payment Reference</span>
+        <strong class="font-mono text-gray-900">{{ payment_reference }}</strong>
+      </div>
     {% endif %}
-    <div class="flex items-center justify-between gap-4 border-t border-slate-200 pt-4"><span class="text-slate-500">Estimated total</span><strong class="text-lg text-slate-950">{{ onboarding_session.currency }} {{ onboarding_session.estimated_total }}</strong></div>
+    <div class="flex items-center justify-between gap-4 border-t border-gray-200 pt-4">
+      <span class="text-gray-500">Estimated total</span>
+      <strong class="text-lg text-gray-900">{{ onboarding_session.currency }} {{ onboarding_session.estimated_total }}</strong>
+    </div>
   </div>
-  <form method="post" class="mt-8">
+
+  <form method="post">
     {% csrf_token %}
-    <button type="submit" class="inline-flex w-full items-center justify-center rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">Launch my store</button>
+    <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl btn-primary px-5 py-3 text-sm font-semibold">
+      Launch my store
+    </button>
   </form>
 {% endblock %}

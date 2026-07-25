@@ -4,83 +4,137 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - {{ request.tenant.name|default:"Store" }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
     <style>
-        body { background-color: #f8f9fa; }
-        .auth-card { max-width: 450px; margin: 50px auto; }
-        .form-control:focus { border-color: #4c4c88; box-shadow: 0 0 0 0.2rem rgba(76, 76, 136, 0.25); }
+      :root {
+        --brand-primary: #4f46e5;
+        --brand-primary-hover: #4338ca;
+      }
+      html, body {
+        font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+        scroll-behavior: smooth;
+      }
+      .btn-primary {
+        background: var(--brand-primary);
+        color: #fff;
+        transition: all 0.3s ease;
+      }
+      .btn-primary:hover {
+        background: var(--brand-primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+      }
+      .auth-input {
+        width: 100%;
+        border-radius: 0.75rem;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        padding: 0.75rem 1rem;
+        outline: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+      .auth-input:focus {
+        border-color: var(--brand-primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+      }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="auth-card">
-            <div class="card shadow">
-                <div class="card-body p-4">
-                    <h3 class="text-center mb-4">Create Account</h3>
+<body class="bg-gray-50 text-gray-900 antialiased">
+    <header class="fixed w-full z-50 bg-white/80 backdrop-blur-lg shadow-sm">
+      <div class="container mx-auto px-6 py-3 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-3">
+          <div class="w-9 h-9 bg-[#4f46e5] rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined text-white text-[18px]">storefront</span>
+          </div>
+          <span class="text-xl font-extrabold text-gray-900">{{ request.tenant.name|default:"Store" }}</span>
+        </a>
+      </div>
+    </header>
 
-                    {% if form.errors %}
-                    <div class="alert alert-danger">
-                        {% for field in form %}
-                            {% for error in field.errors %}
-                                <div>{{ error }}</div>
-                            {% endfor %}
-                        {% endfor %}
-                        {% for error in form.non_field_errors %}
-                            <div>{{ error }}</div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-
-                    <form method="post">
-                        {% csrf_token %}
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="id_first_name" class="form-label">First Name</label>
-                                <input type="text" name="first_name" class="form-control" id="id_first_name" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="id_last_name" class="form-label">Last Name</label>
-                                <input type="text" name="last_name" class="form-control" id="id_last_name" required>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_email" class="form-label">Email Address</label>
-                            <input type="email" name="email" class="form-control" id="id_email" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_phone" class="form-label">Phone Number</label>
-                            <input type="tel" name="phone" class="form-control" id="id_phone" placeholder="+2348012345678">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_password1" class="form-label">Password</label>
-                            <input type="password" name="password1" class="form-control" id="id_password1" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_password2" class="form-label">Confirm Password</label>
-                            <input type="password" name="password2" class="form-control" id="id_password2" required>
-                        </div>
-
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" name="agree_terms" class="form-check-input" id="id_agree_terms" required>
-                            <label class="form-check-label" for="id_agree_terms">
-                                I agree to the Terms of Service and Privacy Policy
-                            </label>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100">Create Account</button>
-                    </form>
-
-                    <div class="text-center mt-3">
-                        <p>Already have an account? <a href="{% url 'tenant:login' %}">Login</a></p>
-                    </div>
-                </div>
+    <main class="pt-24 pb-16">
+      <div class="container mx-auto px-6">
+        <div class="mx-auto max-w-md">
+          <div class="rounded-[2rem] border border-gray-200 bg-white p-8 shadow-sm">
+            <div class="text-center mb-8">
+              <h1 class="text-2xl font-extrabold text-gray-900">Create Account</h1>
+              <p class="mt-2 text-sm text-gray-500">Join {{ request.tenant.name|default:"our store" }} today.</p>
             </div>
+
+            {% if form.errors %}
+              <div class="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                Please correct the errors below and try again.
+              </div>
+            {% endif %}
+
+            <form method="post" class="space-y-4">
+              {% csrf_token %}
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                  <input type="text" name="first_name" class="auth-input" id="id_first_name" required>
+                </div>
+                <div>
+                  <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                  <input type="text" name="last_name" class="auth-input" id="id_last_name" required>
+                </div>
+              </div>
+
+              <div>
+                <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                <input type="email" name="email" class="auth-input" id="id_email" required>
+              </div>
+
+              <div>
+                <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <input type="tel" name="phone" class="auth-input" id="id_phone" placeholder="+2348012345678">
+              </div>
+
+              <div>
+                <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input type="password" name="password1" class="auth-input" id="id_password1" required>
+              </div>
+
+              <div>
+                <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                <input type="password" name="password2" class="auth-input" id="id_password2" required>
+              </div>
+
+              <div>
+                <label class="flex items-center gap-2 text-sm text-gray-600">
+                  <input type="checkbox" name="agree_terms" class="accent-[#4f46e5] rounded" id="id_agree_terms" required>
+                  <span>I agree to the <a href="/legal/terms/" class="text-[color:var(--brand-primary)] font-medium">Terms</a> and <a href="/legal/privacy/" class="text-[color:var(--brand-primary)] font-medium">Privacy Policy</a></span>
+                </label>
+              </div>
+
+              <button type="submit" class="w-full rounded-xl btn-primary px-5 py-3 text-sm font-semibold">Create Account</button>
+            </form>
+
+            <p class="mt-6 text-center text-sm text-gray-500">
+              Already have an account? <a href="{% url 'tenant:login' %}" class="font-semibold text-[color:var(--brand-primary)] hover:text-[color:var(--brand-primary-hover)]">Login</a>
+            </p>
+          </div>
         </div>
-    </div>
+      </div>
+    </main>
+
+    <footer class="billeef-footer py-10">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-[#4f46e5] rounded-lg flex items-center justify-center">
+              <span class="material-symbols-outlined text-white text-[16px]">storefront</span>
+            </div>
+            <span class="text-lg font-extrabold text-white">{{ request.tenant.name|default:"Store" }}</span>
+          </div>
+          <p class="text-xs text-gray-500">&copy; <span id="current-year"></span> SabiStart. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      document.getElementById("current-year").textContent = new Date().getFullYear();
+    </script>
 </body>
 </html>
