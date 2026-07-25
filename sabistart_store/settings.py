@@ -138,7 +138,7 @@ SHARED_APPS = (
     "system.core",
     "system.account",
     "system.system_pay",
-    "system.feature_marketplace",
+    "system.feature_marketplace.apps.FeatureMarketplaceConfig",
     "system.theme_marketplace",
     "public.monitoring",
     "dashboard.domain",
