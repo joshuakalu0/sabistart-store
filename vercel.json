@@ -1,6 +1,6 @@
 {
   "buildCommand": "bash deployment/vercel/build.sh",
-  "outputDirectory": "staticfiles",
+  "outputDirectory": "staticfiles/public",
   "rewrites": [
     {
       "source": "/(.*)",
