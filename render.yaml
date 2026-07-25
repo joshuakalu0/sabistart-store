@@ -9,6 +9,8 @@ services:
     plan: free
     name: mysite
     runtime: python
+    buildCommand: ./build.sh
+    startCommand: ./start.sh
     envVars:
       - key: DATABASE_URL
         fromDatabase:

@@ -312,7 +312,7 @@ USE_TZ = True
 
 STATIC_ROOT = env_path("DJANGO_STATIC_ROOT", BASE_DIR / "staticfiles")
 STATIC_URL = env("DJANGO_STATIC_URL", "/static/")
-STATICFILES_DIRS = _discover_theme_static_dirs()
+STATICFILES_DIRS = [BASE_DIR / "static", * _discover_theme_static_dirs()]
 MULTITENANT_RELATIVE_STATIC_ROOT = ""
 WHITENOISE_AUTOREFRESH = DEBUG
 WHITENOISE_USE_FINDERS = DEBUG
