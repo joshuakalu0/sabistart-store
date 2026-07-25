@@ -1,77 +1,59 @@
 {% extends "landing/base.html" %}
 {% block content %}
-<section class="py-20 bg-slate-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center max-w-3xl mx-auto mb-16">
-            <p class="text-sm font-semibold uppercase tracking-widest text-accent mb-4">Features</p>
-            <h2 class="text-3xl lg:text-4xl font-extrabold text-primary mb-6">Everything you need to run a modern commerce platform</h2>
-            <p class="text-lg text-slate-600">From tenant isolation to payment processing, SabiStart provides the foundation for your marketplace or SaaS commerce platform.</p>
+<section class="py-20 bg-white">
+  <div class="max-w-4xl mx-auto px-6 text-center">
+    <span class="inline-block mb-4 px-4 py-1 rounded-full text-sm font-medium bg-indigo-50 text-[color:var(--brand-primary)]">Features</span>
+    <h1 class="text-4xl md:text-5xl font-extrabold mb-6">Everything you need to sell online</h1>
+    <p class="text-lg text-gray-600 max-w-2xl mx-auto">From storefront and POS to WhatsApp alerts and compliance tools, SabiStart gives you a complete business system.</p>
+  </div>
+</section>
+
+<section class="py-16 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div class="bg-white rounded-2xl border border-gray-200 p-6 hover-lift">
+        <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center mb-4">
+          <i class="bi bi-shop text-[#4f46e5] text-xl"></i>
         </div>
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition">
-                <div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
-                    <span class="material-symbols-outlined text-accent text-[28px]">hub</span>
-                </div>
-                <h3 class="text-lg font-bold text-primary mb-3">Multi-Tenant Architecture</h3>
-                <p class="text-slate-600 leading-relaxed">Isolated PostgreSQL schemas per tenant. Each store gets its own data space while sharing the same application instance.</p>
-            </div>
-            <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition">
-                <div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
-                    <span class="material-symbols-outlined text-accent text-[28px]">palette</span>
-                </div>
-                <h3 class="text-lg font-bold text-primary mb-3">Theme Marketplace</h3>
-                <p class="text-slate-600 leading-relaxed">Tenants can browse, acquire, and activate storefront themes. Customize layouts, colors, and branding without touching code.</p>
-            </div>
-            <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition">
-                <div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
-                    <span class="material-symbols-outlined text-accent text-[28px]">payments</span>
-                </div>
-                <h3 class="text-lg font-bold text-primary mb-3">Payment Infrastructure</h3>
-                <p class="text-slate-600 leading-relaxed">Platform-level payment gateway management with tenant-specific credentials, reconciliation, and dispute tracking.</p>
-            </div>
-            <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition">
-                <div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
-                    <span class="material-symbols-outlined text-accent text-[28px]">domain</span>
-                </div>
-                <h3 class="text-lg font-bold text-primary mb-3">Custom Domains</h3>
-                <p class="text-slate-600 leading-relaxed">Tenants can map custom domains with automatic SSL provisioning. ACME challenge support built in.</p>
-            </div>
-            <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition">
-                <div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
-                    <span class="material-symbols-outlined text-accent text-[28px]">analytics</span>
-                </div>
-                <h3 class="text-lg font-bold text-primary mb-3">Platform Analytics</h3>
-                <p class="text-slate-600 leading-relaxed">Monitor tenant growth, feature adoption, payment health, and operational metrics from a unified dashboard.</p>
-            </div>
-            <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition">
-                <div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
-                    <span class="material-symbols-outlined text-accent text-[28px]">cloud_deploy</span>
-                </div>
-                <h3 class="text-lg font-bold text-primary mb-3">Multiple Deploy Targets</h3>
-                <p class="text-slate-600 leading-relaxed">Deploy to Vercel, Railway, Render, or Defang. Docker-based builds with platform-specific configuration.</p>
-            </div>
-            <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition">
-                <div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
-                    <span class="material-symbols-outlined text-accent text-[28px]">shopping_bag</span>
-                </div>
-                <h3 class="text-lg font-bold text-primary mb-3">Full Commerce Stack</h3>
-                <p class="text-slate-600 leading-relaxed">Products, categories, cart, checkout, orders, and customer accounts. Everything a storefront needs.</p>
-            </div>
-            <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition">
-                <div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
-                    <span class="material-symbols-outlined text-accent text-[28px]">security</span>
-                </div>
-                <h3 class="text-lg font-bold text-primary mb-3">Secure by Default</h3>
-                <p class="text-slate-600 leading-relaxed">CSRF protection, secure cookies, HTTPS enforcement, and tenant isolation. Security best practices built in.</p>
-            </div>
-            <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition">
-                <div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
-                    <span class="material-symbols-outlined text-accent text-[28px]">extension</span>
-                </div>
-                <h3 class="text-lg font-bold text-primary mb-3">Feature Marketplace</h3>
-                <p class="text-slate-600 leading-relaxed">Manage feature catalogs, bundles, coupons, and entitlements. Give tenants access to powerful capabilities.</p>
-            </div>
+        <h4 class="font-semibold text-lg mb-2">Online Store</h4>
+        <p class="text-sm text-gray-600">Launch a beautiful storefront with product listings, cart, and checkout.</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-gray-200 p-6 hover-lift">
+        <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center mb-4">
+          <i class="bi bi-cart text-[#4f46e5] text-xl"></i>
         </div>
+        <h4 class="font-semibold text-lg mb-2">POS</h4>
+        <p class="text-sm text-gray-600">Record in-person sales and keep inventory in sync across channels.</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-gray-200 p-6 hover-lift">
+        <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center mb-4">
+          <i class="bi bi-whatsapp text-[#4f46e5] text-xl"></i>
+        </div>
+        <h4 class="font-semibold text-lg mb-2">WhatsApp Alerts</h4>
+        <p class="text-sm text-gray-600">Send instant order notifications and updates to customers.</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-gray-200 p-6 hover-lift">
+        <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center mb-4">
+          <i class="bi bi-box-seam text-[#4f46e5] text-xl"></i>
+        </div>
+        <h4 class="font-semibold text-lg mb-2">Inventory</h4>
+        <p class="text-sm text-gray-600">Auto stock updates across POS and online store to prevent overselling.</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-gray-200 p-6 hover-lift">
+        <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center mb-4">
+          <i class="bi bi-credit-card text-[#4f46e5] text-xl"></i>
+        </div>
+        <h4 class="font-semibold text-lg mb-2">Payments</h4>
+        <p class="text-sm text-gray-600">Accept payments online with Paystack and reconcile easily.</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-gray-200 p-6 hover-lift">
+        <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center mb-4">
+          <i class="bi bi-graph-up text-[#4f46e5] text-xl"></i>
+        </div>
+        <h4 class="font-semibold text-lg mb-2">Analytics</h4>
+        <p class="text-sm text-gray-600">Track sales performance, top products, and customer activity.</p>
+      </div>
     </div>
+  </div>
 </section>
 {% endblock %}

@@ -1,58 +1,90 @@
 {% extends "landing/base.html" %}
 {% block content %}
 <section class="py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center max-w-3xl mx-auto mb-16">
-            <p class="text-sm font-semibold uppercase tracking-widest text-accent mb-4">Pricing</p>
-            <h1 class="text-4xl lg:text-5xl font-extrabold text-primary mb-6">Simple, transparent pricing</h1>
-            <p class="text-lg text-slate-600">Start free and scale as your platform grows. No hidden fees.</p>
-        </div>
-        <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
-                <h3 class="text-lg font-bold text-primary mb-2">Starter</h3>
-                <p class="text-slate-500 text-sm mb-6">For side projects and MVPs</p>
-                <div class="mb-6">
-                    <span class="text-4xl font-extrabold text-primary">$0</span>
-                    <span class="text-slate-500">/month</span>
-                </div>
-                <ul class="space-y-3 text-sm text-slate-600 mb-8">
-                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>1 tenant store</li>
-                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>Default themes</li>
-                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>Community support</li>
-                </ul>
-                <a href="/platform/register/" class="block text-center rounded-full border border-slate-200 px-6 py-3 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-950 transition">Get Started</a>
-            </div>
-            <div class="bg-white rounded-3xl p-8 border-2 border-primary shadow-lg relative">
-                <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full">Most Popular</div>
-                <h3 class="text-lg font-bold text-primary mb-2">Pro</h3>
-                <p class="text-slate-500 text-sm mb-6">For growing platforms</p>
-                <div class="mb-6">
-                    <span class="text-4xl font-extrabold text-primary">$49</span>
-                    <span class="text-slate-500">/month</span>
-                </div>
-                <ul class="space-y-3 text-sm text-slate-600 mb-8">
-                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>Up to 10 tenants</li>
-                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>Theme marketplace</li>
-                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>Priority support</li>
-                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>Custom domains</li>
-                </ul>
-                <a href="/platform/register/" class="block text-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800 transition">Start Free Trial</a>
-            </div>
-            <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
-                <h3 class="text-lg font-bold text-primary mb-2">Enterprise</h3>
-                <p class="text-slate-500 text-sm mb-6">For large scale operations</p>
-                <div class="mb-6">
-                    <span class="text-4xl font-extrabold text-primary">Custom</span>
-                </div>
-                <ul class="space-y-3 text-sm text-slate-600 mb-8">
-                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>Unlimited tenants</li>
-                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>Dedicated infrastructure</li>
-                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>24/7 premium support</li>
-                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>Custom integrations</li>
-                </ul>
-                <a href="/platform/contact/" class="block text-center rounded-full border border-slate-200 px-6 py-3 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-950 transition">Contact Sales</a>
-            </div>
-        </div>
+  <div class="max-w-4xl mx-auto px-6 text-center">
+    <span class="inline-block mb-4 px-4 py-1 rounded-full text-sm font-medium bg-indigo-50 text-[color:var(--brand-primary)]">Pricing</span>
+    <h1 class="text-4xl md:text-5xl font-extrabold mb-6">Simple, transparent pricing</h1>
+    <p class="text-lg text-gray-600">Start free and scale as your business grows. No hidden fees.</p>
+  </div>
+</section>
+
+<section class="pb-20 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div class="bg-white rounded-2xl shadow p-6 flex flex-col">
+        <h3 class="text-xl font-bold mb-1">Startup Store</h3>
+        <p class="text-sm text-gray-600 mb-4">For new sellers starting small.</p>
+        <div class="text-2xl font-bold text-[color:var(--brand-primary)]">₦500 <span class="text-sm font-medium text-gray-500">/ Mo.</span></div>
+        <div class="text-sm text-gray-600 mb-4"><em>₦3500 one-time setup fee</em></div>
+        <hr class="mb-4 border-indigo-200" />
+        <ul class="text-sm text-gray-700 space-y-2 mb-6">
+          <li>• Up to 20 product listings</li>
+          <li>• Store name & logo</li>
+          <li>• Default store theme</li>
+          <li>• WhatsApp checkout</li>
+          <li>• Compliance tools</li>
+        </ul>
+        <a href="/platform/register/" class="mt-auto text-center py-3 rounded-xl btn-outline-brand font-semibold">Choose Plan</a>
+      </div>
+      <div class="bg-white rounded-2xl shadow p-6 flex flex-col border-2 border-[color:var(--brand-primary)]">
+        <span class="text-xs font-semibold text-[color:var(--brand-primary)] mb-2">MOST POPULAR</span>
+        <h3 class="text-xl font-bold mb-1">Pro Store</h3>
+        <p class="text-sm text-gray-600 mb-4">For growing online businesses.</p>
+        <div class="text-2xl font-bold text-[color:var(--brand-primary)]">₦999 <span class="text-sm font-medium text-gray-500">/ Mo.</span></div>
+        <div class="text-sm text-gray-600 mb-4"><em>₦7,000 one-time setup fee</em></div>
+        <hr class="mb-4 border-indigo-200" />
+        <ul class="text-sm text-gray-700 space-y-2 mb-6">
+          <li>• Up to 50 product listings</li>
+          <li>• Custom store colors</li>
+          <li>• .store domain</li>
+          <li>• WhatsApp Checkout</li>
+          <li>• Paystack integration</li>
+          <li>• Full customer lead access</li>
+          <li>• Compliance tools</li>
+          <li>• Limited customisation</li>
+          <li>• POS</li>
+        </ul>
+        <a href="/platform/register/" class="mt-auto text-center py-3 rounded-xl btn-primary font-semibold">Choose Plan</a>
+      </div>
+      <div class="bg-white rounded-2xl shadow p-6 flex flex-col">
+        <h3 class="text-xl font-bold mb-1">Brand Store</h3>
+        <p class="text-sm text-gray-600 mb-4">For serious brands & visibility.</p>
+        <div class="text-2xl font-bold text-[color:var(--brand-primary)]">₦1,499 <span class="text-sm font-medium text-gray-500">/ Mo.</span></div>
+        <div class="text-sm text-gray-600 mb-4"><em>₦7,000 one-time setup fee</em></div>
+        <hr class="mb-4 border-indigo-200" />
+        <ul class="text-sm text-gray-700 space-y-2 mb-6">
+          <li>• Up to 80 product listings</li>
+          <li>• Full branding</li>
+          <li>• .store domain</li>
+          <li>• Analytics</li>
+          <li>• Priority storefront design</li>
+          <li>• Contact details</li>
+          <li>• Paystack + WhatsApp checkout</li>
+          <li>• Admin Mobile App</li>
+          <li>• Compliance tools</li>
+          <li>• POS</li>
+        </ul>
+        <a href="/platform/register/" class="mt-auto text-center py-3 rounded-xl btn-outline-brand font-semibold">Choose Plan</a>
+      </div>
+      <div class="bg-white rounded-2xl shadow p-6 flex flex-col">
+        <h3 class="text-xl font-bold mb-1">Enterprise</h3>
+        <p class="text-sm text-gray-600 mb-4">For large scale operations.</p>
+        <div class="text-2xl font-bold text-[color:var(--brand-primary)]">Custom</div>
+        <div class="text-sm text-gray-600 mb-4"><em>Tailored to your business</em></div>
+        <hr class="mb-4 border-indigo-200" />
+        <ul class="text-sm text-gray-700 space-y-2 mb-6">
+          <li>• Unlimited product listings</li>
+          <li>• Full customization</li>
+          <li>• Dedicated infrastructure</li>
+          <li>• 24/7 premium support</li>
+          <li>• Custom integrations</li>
+          <li>• Admin Mobile App</li>
+          <li>• Compliance tools</li>
+          <li>• POS</li>
+        </ul>
+        <a href="{% url 'landing:contact' %}" class="mt-auto text-center py-3 rounded-xl btn-outline-brand font-semibold">Contact Sales</a>
+      </div>
     </div>
+  </div>
 </section>
 {% endblock %}

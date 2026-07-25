@@ -1,60 +1,48 @@
 {% extends "landing/base.html" %}
 {% block content %}
 <section class="py-20 bg-white">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-            <p class="text-sm font-semibold uppercase tracking-widest text-accent mb-4">About SabiStart</p>
-            <h1 class="text-4xl lg:text-5xl font-extrabold text-primary mb-6">Building the future of multi-tenant commerce</h1>
-            <p class="text-lg text-slate-600 leading-relaxed">SabiStart empowers businesses to launch and scale their own commerce platforms. Whether you are a startup building a marketplace or an enterprise managing multiple brands, our platform provides the infrastructure you need.</p>
+  <div class="max-w-4xl mx-auto px-6 text-center">
+    <span class="inline-block mb-4 px-4 py-1 rounded-full text-sm font-medium bg-indigo-50 text-[color:var(--brand-primary)]">About SabiStart</span>
+    <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6">Building the future of business enablement</h1>
+    <p class="text-lg text-gray-600 leading-relaxed max-w-2xl mx-auto">
+      SabiStart helps entrepreneurs and businesses launch, operate, and grow — from company registration and compliance to online stores, POS, and customer engagement.
+    </p>
+  </div>
+</section>
+
+<section class="py-16 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="grid md:grid-cols-2 gap-12 items-center">
+      <div>
+        <h2 class="text-3xl font-bold mb-4">Our mission</h2>
+        <p class="text-gray-600 leading-relaxed mb-4">
+          We make it faster and simpler to start and run a business in Nigeria. SabiStart combines registration support, store infrastructure, and operational tools into one platform.
+        </p>
+        <p class="text-gray-600 leading-relaxed">
+          From CAC registration to live storefronts, WhatsApp order alerts, and POS sales — we handle the complexity so you can focus on customers.
+        </p>
+      </div>
+      <div class="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="rounded-xl bg-indigo-50 p-4 text-center">
+            <p class="text-3xl font-extrabold text-[color:var(--brand-primary)]">10+</p>
+            <p class="text-sm text-gray-600">Themes</p>
+          </div>
+          <div class="rounded-xl bg-indigo-50 p-4 text-center">
+            <p class="text-3xl font-extrabold text-[color:var(--brand-primary)]">POS</p>
+            <p class="text-sm text-gray-600">Ready</p>
+          </div>
+          <div class="rounded-xl bg-indigo-50 p-4 text-center">
+            <p class="text-3xl font-extrabold text-[color:var(--brand-primary)]">24/7</p>
+            <p class="text-sm text-gray-600">Support</p>
+          </div>
+          <div class="rounded-xl bg-indigo-50 p-4 text-center">
+            <p class="text-3xl font-extrabold text-[color:var(--brand-primary)]">Paystack</p>
+            <p class="text-sm text-gray-600">Integrated</p>
+          </div>
         </div>
-        <div class="grid md:grid-cols-2 gap-12 items-center">
-            <div class="space-y-6">
-                <h3 class="text-2xl font-bold text-primary">Our Mission</h3>
-                <p class="text-slate-600 leading-relaxed">We believe that launching a commerce platform should not require months of development and a large engineering team. SabiStart provides a production-ready foundation so you can focus on growing your business.</p>
-                <h3 class="text-2xl font-bold text-primary">Our Technology</h3>
-                <p class="text-slate-600 leading-relaxed">Built on Django 5 with django-tenants for robust multi-tenancy, PostgreSQL for reliable data storage, and modern deployment targets including Vercel, Railway, Render, and Defang.</p>
-            </div>
-            <div class="bg-slate-50 rounded-3xl p-8 border border-slate-200">
-                <div class="space-y-6">
-                    <div class="flex items-start gap-4">
-                        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-accent text-[20px]">check</span>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-primary">Multi-Tenant by Design</h4>
-                            <p class="text-sm text-slate-600 mt-1">Isolated schemas, shared infrastructure. Each tenant gets their own data space.</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-4">
-                        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-accent text-[20px]">check</span>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-primary">Theme Marketplace</h4>
-                            <p class="text-sm text-slate-600 mt-1">Tenants can choose from multiple themes and customize their storefront appearance.</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-4">
-                        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-accent text-[20px]">check</span>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-primary">Payment Processing</h4>
-                            <p class="text-sm text-slate-600 mt-1">Platform-level payment gateway management with tenant-specific configurations.</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-4">
-                        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-accent text-[20px]">check</span>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-primary">Easy Deployment</h4>
-                            <p class="text-sm text-slate-600 mt-1">Deploy to your favorite platform. Docker-based builds with zero configuration.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+  </div>
 </section>
 {% endblock %}
