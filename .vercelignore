@@ -19,3 +19,6 @@ deployment/cpanel
 node_modules
 dist
 build
+/public
+/dashboard
+/system
