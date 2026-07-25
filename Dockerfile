@@ -21,8 +21,11 @@ RUN pip install --upgrade pip setuptools wheel && \
 # Copy project
 COPY . .
 
-# Collect static files
+# Collect static files (does not require database)
 RUN python manage.py collectstatic --noinput
+
+# Ensure start script is executable
+RUN chmod +x start.sh
 
 # Create a non-root user
 RUN adduser --disabled-password --gecos '' appuser
@@ -33,4 +36,4 @@ USER appuser
 EXPOSE 8000
 
 # Command to run the application
-CMD ["sh", "-c", "until python manage.py check --database default; do echo 'Waiting for database...'; sleep 1; done; python manage.py migrate; python manage.py collectstatic --noinput; gunicorn sabistart_store.asgi:application -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000"]
+CMD ["./start.sh"]

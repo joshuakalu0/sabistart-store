@@ -219,7 +219,7 @@ Deploy your SabiStart Store backend to Railway with these steps:
    - Select this repository
 
 2. **Configure the service**
-   - Railway will automatically detect `railway.json` and `Procfile`
+   - Railway will automatically detect the Dockerfile and use it to build your image.
    - Add a PostgreSQL plugin: Click "+" -> "Add Resource" -> "PostgreSQL"
    - Ensure the database is linked to your service
 
@@ -241,7 +241,7 @@ Deploy your SabiStart Store backend to Railway with these steps:
 
 ## Render
 
-Your repository already includes a `render.yaml` for Render. To deploy:
+To deploy to Render using Docker:
 
 1. **Create a Render Web Service**
    - Sign in to [Render](https://render.com/)
@@ -250,23 +250,23 @@ Your repository already includes a `render.yaml` for Render. To deploy:
    - Select this repository
 
 2. **Configure the service**
-   - Render will automatically detect `render.yaml`
-   - In the service settings, add a PostgreSQL database (if not already defined in render.yaml)
+   - In the service settings, choose "Docker" as the environment (if not auto-detected)
+   - Add a PostgreSQL database: Click "+" -> "Add Resource" -> "PostgreSQL"
    - Ensure the database is linked to the service
 
 3. **Set environment variables**
    - In the "Environment" section, set:
-     - `SECRET_KEY`: Generate a secret key
+     - `SECRET_KEY`: Generate a secret key (e.g., `python -c "import secrets; print(secrets.token_urlsafe(64))"`)
      - `DEBUG`: `False`
-     - `DJANGO_ALLOWED_HOSTS`: Your domain
-     - `DJANGO_CSRF_TRUSTED_ORIGINS`: Your domain with HTTPS
+     - `DJANGO_ALLOWED_HOSTS`: Your domain (e.g., `example.com,www.example.com`)
+     - `DJANGO_CSRF_TRUSTED_ORIGINS`: `https://example.com,https://www.example.com`
      - `DJANGO_SECURE_SSL_REDIRECT`: `True`
      - `DJANGO_SESSION_COOKIE_SECURE`: `True`
      - `DJANGO_CSRF_COOKIE_SECURE`: `True`
      - `DJANGO_LOG_TO_FILE`: `True`
 
 4. **Deploy**
-   - Click "Create Web Service" and Render will build and deploy your app
+   - Click "Create Web Service" and Render will build your Docker image and deploy your application
 
 ## Defang
 
@@ -309,11 +309,11 @@ Defang allows you to deploy to your own cloud (AWS, GCP, Azure) using a Docker C
      defang config set SECRET_KEY=<your-secret-key>
      defang config set DJANGO_ALLOWED_HOSTS="<your-domain>"
      # ... other variables as needed
-   ```
+     ```
    - Alternatively, define them in the `compose.yaml` under the `web` service's `environment` section (not recommended for production secrets)
 
 6. **Verify deployment**
    - After deployment, Defang will provide a URL to access your application
    - Check the health endpoints: `/healthz/` and `/readyz/`
 
-Note: The `compose.yaml` file in the repository defines the services (web and db) and uses the `build.sh` for building the Docker image. The startup script waits for the database, runs migrations, collects static files, and starts the Gunicorn server with Uvicorn workers.
+Note: The `compose.yaml` file in the repository defines the services (web and db) and uses the Dockerfile for building the Docker image. The startup script waits for the database, runs migrations, and starts the Gunicorn server with Uvicorn workers.

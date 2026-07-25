@@ -1,6 +1,6 @@
 {
   "build": {
-    "command": "./build.sh"
+    "dockerfile": "./Dockerfile"
   },
   "deploy": {
     "restartPolicyType": "ON_FAILURE",
