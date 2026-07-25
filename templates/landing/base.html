@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SabiStart{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}SabiStart - Multi-Tenant Commerce Platform{% endblock %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300..700" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F172A',
+                        secondary: '#9D4300',
+                        accent: '#FD761A',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .hero-gradient {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+        }
+    </style>
+</head>
+<body class="bg-white text-slate-900">
+    <!-- Navigation -->
+    <nav class="border-b border-slate-200 bg-white/80 backdrop-blur-xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-accent to-secondary rounded-xl flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white text-[18px]">storefront</span>
+                    </div>
+                    <a href="{% url 'landing:home' %}" class="text-xl font-bold text-primary">SabiStart</a>
+                </div>
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="{% url 'landing:features' %}" class="text-sm font-medium text-slate-600 hover:text-slate-900 transition">Features</a>
+                    <a href="{% url 'landing:pricing' %}" class="text-sm font-medium text-slate-600 hover:text-slate-900 transition">Pricing</a>
+                    <a href="{% url 'landing:about' %}" class="text-sm font-medium text-slate-600 hover:text-slate-900 transition">About</a>
+                    <a href="{% url 'landing:contact' %}" class="text-sm font-medium text-slate-600 hover:text-slate-900 transition">Contact</a>
+                    <a href="/platform/" class="text-sm font-medium text-slate-600 hover:text-slate-900 transition">Platform</a>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="/platform/login/" class="text-sm font-medium text-slate-600 hover:text-slate-900 transition">Sign In</a>
+                    <a href="/platform/register/" class="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 transition">
+                        Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 text-slate-400 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-accent to-secondary rounded-xl flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white text-[18px]">storefront</span>
+                    </div>
+                    <span class="text-lg font-bold text-white">SabiStart</span>
+                </div>
+                <div class="flex items-center gap-6 text-sm">
+                    <a href="{% url 'landing:features' %}" class="hover:text-white transition">Features</a>
+                    <a href="{% url 'landing:pricing' %}" class="hover:text-white transition">Pricing</a>
+                    <a href="{% url 'landing:about' %}" class="hover:text-white transition">About</a>
+                    <a href="{% url 'landing:contact' %}" class="hover:text-white transition">Contact</a>
+                    <a href="/legal/terms/" class="hover:text-white transition">Terms</a>
+                    <a href="/legal/privacy/" class="hover:text-white transition">Privacy</a>
+                </div>
+                <p class="text-sm text-slate-500"> Built for modern commerce teams.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

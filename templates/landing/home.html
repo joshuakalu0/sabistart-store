@@ -1,0 +1,181 @@
+{% extends "landing/base.html" %}
+{% block content %}
+<section class="hero-gradient text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <div class="space-y-8">
+                <div class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-orange-200">
+                    <span class="material-symbols-outlined text-[16px]">new_releases</span>
+                    Now available on Vercel, Railway, Render & Defang
+                </div>
+                <h1 class="text-4xl lg:text-6xl font-extrabold leading-tight">
+                    Launch modern storefronts
+                    <span class="text-accent">without the complexity</span>
+                </h1>
+                <p class="text-lg text-slate-300 leading-relaxed max-w-xl">
+                    SabiStart is a production-ready multi-tenant commerce platform. 
+                    Deploy in minutes, scale infinitely, and give every tenant their own branded storefront.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="/platform/register/" class="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-orange-600 transition shadow-lg shadow-orange-900/20">
+                        Start Building Free
+                        <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                    </a>
+                    <a href="{% url 'landing:pricing' %}" class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10 transition">
+                        View Pricing
+                    </a>
+                </div>
+                <div class="flex items-center gap-6 pt-4">
+                    <div class="text-center">
+                        <p class="text-2xl font-bold">10+</p>
+                        <p class="text-xs text-slate-400">Themes</p>
+                    </div>
+                    <div class="w-px h-10 bg-white/20"></div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold">Multi-tenant</p>
+                        <p class="text-xs text-slate-400">Architecture</p>
+                    </div>
+                    <div class="w-px h-10 bg-white/20"></div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold">Django 5</p>
+                        <p class="text-xs text-slate-400">Powered</p>
+                    </div>
+                </div>
+            </div>
+            <div class="relative">
+                <div class="bg-white/5 backdrop-blur rounded-3xl border border-white/10 p-6 shadow-2xl">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="h-4 bg-white/10 rounded w-3/4"></div>
+                        <div class="h-4 bg-white/10 rounded w-1/2"></div>
+                        <div class="h-4 bg-white/10 rounded w-2/3"></div>
+                    </div>
+                    <div class="mt-6 grid grid-cols-3 gap-3">
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                            <span class="material-symbols-outlined text-accent text-[24px]">shopping_bag</span>
+                            <p class="text-xs text-slate-400 mt-2">Commerce Ready</p>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                            <span class="material-symbols-outlined text-accent text-[24px]">domain</span>
+                            <p class="text-xs text-slate-400 mt-2">Multi-Tenant</p>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                            <span class="material-symbols-outlined text-accent text-[24px]">cloud_upload</span>
+                            <p class="text-xs text-slate-400 mt-2">Easy Deploy</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-20 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <p class="text-sm font-semibold uppercase tracking-widest text-accent mb-4">Features</p>
+            <h2 class="text-3xl lg:text-4xl font-extrabold text-primary mb-6">Everything you need to run a modern commerce platform</h2>
+            <p class="text-lg text-slate-600">From tenant isolation to payment processing, SabiStart provides the foundation for your marketplace or SaaS commerce platform.</p>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition">
+                <div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-accent text-[28px]">hub</span>
+                </div>
+                <h3 class="text-lg font-bold text-primary mb-3">Multi-Tenant Architecture</h3>
+                <p class="text-slate-600 leading-relaxed">Isolated PostgreSQL schemas per tenant. Each store gets its own data space while sharing the same application instance.</p>
+            </div>
+            <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition">
+                <div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-accent text-[28px]">palette</span>
+                </div>
+                <h3 class="text-lg font-bold text-primary mb-3">Theme Marketplace</h3>
+                <p class="text-slate-600 leading-relaxed">Tenants can browse, acquire, and activate storefront themes. Customize layouts, colors, and branding without touching code.</p>
+            </div>
+            <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition">
+                <div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-accent text-[28px]">payments</span>
+                </div>
+                <h3 class="text-lg font-bold text-primary mb-3">Payment Infrastructure</h3>
+                <p class="text-slate-600 leading-relaxed">Platform-level payment gateway management with tenant-specific credentials, reconciliation, and dispute tracking.</p>
+            </div>
+            <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition">
+                <div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-accent text-[28px]">domain</span>
+                </div>
+                <h3 class="text-lg font-bold text-primary mb-3">Custom Domains</h3>
+                <p class="text-slate-600 leading-relaxed">Tenants can map custom domains with automatic SSL provisioning. ACME challenge support built in.</p>
+            </div>
+            <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition">
+                <div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-accent text-[28px]">analytics</span>
+                </div>
+                <h3 class="text-lg font-bold text-primary mb-3">Platform Analytics</h3>
+                <p class="text-slate-600 leading-relaxed">Monitor tenant growth, feature adoption, payment health, and operational metrics from a unified dashboard.</p>
+            </div>
+            <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition">
+                <div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-accent text-[28px]">cloud_deploy</span>
+                </div>
+                <h3 class="text-lg font-bold text-primary mb-3">Multiple Deploy Targets</h3>
+                <p class="text-slate-600 leading-relaxed">Deploy to Vercel, Railway, Render, or Defang. Docker-based builds with platform-specific configuration.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section id="how-it-works" class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <p class="text-sm font-semibold uppercase tracking-widest text-accent mb-4">How It Works</p>
+            <h2 class="text-3xl lg:text-4xl font-extrabold text-primary mb-6">From zero to live storefront in minutes</h2>
+        </div>
+        <div class="grid md:grid-cols-4 gap-8">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold">1</div>
+                <h3 class="text-lg font-bold text-primary mb-2">Deploy</h3>
+                <p class="text-slate-600 text-sm">Connect your repository and deploy to Vercel, Railway, Render, or Defang in one click.</p>
+            </div>
+            <div class="text-center">
+                <div class="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold">2</div>
+                <h3 class="text-lg font-bold text-primary mb-2">Configure</h3>
+                <p class="text-slate-600 text-sm">Set your platform domain, database, and environment variables. We handle the rest.</p>
+            </div>
+            <div class="text-center">
+                <div class="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold">3</div>
+                <h3 class="text-lg font-bold text-primary mb-2">Onboard Tenants</h3>
+                <p class="text-slate-600 text-sm">Tenants register, choose a theme, configure their store, and go live with their own domain.</p>
+            </div>
+            <div class="text-center">
+                <div class="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold">4</div>
+                <h3 class="text-lg font-bold text-primary mb-2">Scale</h3>
+                <p class="text-slate-600 text-sm">Add features, manage payments, and monitor growth from the platform dashboard.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-20 bg-primary">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl lg:text-4xl font-extrabold text-white mb-6">Ready to build your commerce platform?</h2>
+        <p class="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">Deploy SabiStart today and give your tenants the storefront experience they deserve.</p>
+        <div class="flex flex-wrap justify-center gap-4">
+            <a href="/platform/register/" class="inline-flex items-center gap-2 rounded-full bg-accent px-8 py-4 text-sm font-semibold text-white hover:bg-orange-600 transition shadow-lg">
+                Get Started Now
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </a>
+            <a href="https://github.com/joshuakalu0/sabistart-store" target="_blank" class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-8 py-4 text-sm font-semibold text-white hover:bg-white/10 transition">
+                <span class="material-symbols-outlined text-[18px]">code</span>
+                View on GitHub
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "landing/base.html" %}
+{% block content %}
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <p class="text-sm font-semibold uppercase tracking-widest text-accent mb-4">Pricing</p>
+            <h1 class="text-4xl lg:text-5xl font-extrabold text-primary mb-6">Simple, transparent pricing</h1>
+            <p class="text-lg text-slate-600">Start free and scale as your platform grows. No hidden fees.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
+                <h3 class="text-lg font-bold text-primary mb-2">Starter</h3>
+                <p class="text-slate-500 text-sm mb-6">For side projects and MVPs</p>
+                <div class="mb-6">
+                    <span class="text-4xl font-extrabold text-primary">$0</span>
+                    <span class="text-slate-500">/month</span>
+                </div>
+                <ul class="space-y-3 text-sm text-slate-600 mb-8">
+                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>1 tenant store</li>
+                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>Default themes</li>
+                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>Community support</li>
+                </ul>
+                <a href="/platform/register/" class="block text-center rounded-full border border-slate-200 px-6 py-3 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-950 transition">Get Started</a>
+            </div>
+            <div class="bg-white rounded-3xl p-8 border-2 border-primary shadow-lg relative">
+                <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full">Most Popular</div>
+                <h3 class="text-lg font-bold text-primary mb-2">Pro</h3>
+                <p class="text-slate-500 text-sm mb-6">For growing platforms</p>
+                <div class="mb-6">
+                    <span class="text-4xl font-extrabold text-primary">$49</span>
+                    <span class="text-slate-500">/month</span>
+                </div>
+                <ul class="space-y-3 text-sm text-slate-600 mb-8">
+                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>Up to 10 tenants</li>
+                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>Theme marketplace</li>
+                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>Priority support</li>
+                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>Custom domains</li>
+                </ul>
+                <a href="/platform/register/" class="block text-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800 transition">Start Free Trial</a>
+            </div>
+            <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
+                <h3 class="text-lg font-bold text-primary mb-2">Enterprise</h3>
+                <p class="text-slate-500 text-sm mb-6">For large scale operations</p>
+                <div class="mb-6">
+                    <span class="text-4xl font-extrabold text-primary">Custom</span>
+                </div>
+                <ul class="space-y-3 text-sm text-slate-600 mb-8">
+                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>Unlimited tenants</li>
+                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>Dedicated infrastructure</li>
+                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>24/7 premium support</li>
+                    <li class="flex items-start gap-2"><span class="material-symbols-outlined text-accent text-[18px]">check</span>Custom integrations</li>
+                </ul>
+                <a href="/platform/contact/" class="block text-center rounded-full border border-slate-200 px-6 py-3 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-950 transition">Contact Sales</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

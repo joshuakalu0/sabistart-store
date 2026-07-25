@@ -17,6 +17,7 @@ from sabistart_store.media_proxy import media_proxy
 # app_name = ''
 
 urlpatterns = [
+    path('', include(('public.landing.urls', 'public.landing'), namespace='landing')),
     path('admin/', admin.site.urls),
     path("healthz/", health.healthz, name="healthz"),
     path("readyz/", health.readyz, name="readyz"),

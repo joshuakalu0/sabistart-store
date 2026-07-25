@@ -1,0 +1,60 @@
+{% extends "landing/base.html" %}
+{% block content %}
+<section class="py-20 bg-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <p class="text-sm font-semibold uppercase tracking-widest text-accent mb-4">About SabiStart</p>
+            <h1 class="text-4xl lg:text-5xl font-extrabold text-primary mb-6">Building the future of multi-tenant commerce</h1>
+            <p class="text-lg text-slate-600 leading-relaxed">SabiStart empowers businesses to launch and scale their own commerce platforms. Whether you are a startup building a marketplace or an enterprise managing multiple brands, our platform provides the infrastructure you need.</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div class="space-y-6">
+                <h3 class="text-2xl font-bold text-primary">Our Mission</h3>
+                <p class="text-slate-600 leading-relaxed">We believe that launching a commerce platform should not require months of development and a large engineering team. SabiStart provides a production-ready foundation so you can focus on growing your business.</p>
+                <h3 class="text-2xl font-bold text-primary">Our Technology</h3>
+                <p class="text-slate-600 leading-relaxed">Built on Django 5 with django-tenants for robust multi-tenancy, PostgreSQL for reliable data storage, and modern deployment targets including Vercel, Railway, Render, and Defang.</p>
+            </div>
+            <div class="bg-slate-50 rounded-3xl p-8 border border-slate-200">
+                <div class="space-y-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-accent text-[20px]">check</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-primary">Multi-Tenant by Design</h4>
+                            <p class="text-sm text-slate-600 mt-1">Isolated schemas, shared infrastructure. Each tenant gets their own data space.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-accent text-[20px]">check</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-primary">Theme Marketplace</h4>
+                            <p class="text-sm text-slate-600 mt-1">Tenants can choose from multiple themes and customize their storefront appearance.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-accent text-[20px]">check</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-primary">Payment Processing</h4>
+                            <p class="text-sm text-slate-600 mt-1">Platform-level payment gateway management with tenant-specific configurations.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-accent text-[20px]">check</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-primary">Easy Deployment</h4>
+                            <p class="text-sm text-slate-600 mt-1">Deploy to your favorite platform. Docker-based builds with zero configuration.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

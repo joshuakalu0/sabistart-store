@@ -33,8 +33,22 @@ class CustomDomainMiddleware(TenantMainMiddleware):
         except Http404:
             pass
 
-        if hostname in {"localhost", "127.0.0.1"}:
-            return self._domain_not_found(hostname)
+        platform_cname = getattr(settings, "PLATFORM_CNAME", "localhost").lower().strip()
+        normalized_host = hostname.lower().strip()
+        is_platform_host = (
+            normalized_host in {"localhost", "127.0.0.1"}
+            or normalized_host == platform_cname
+            or (platform_cname and normalized_host == f"www.{platform_cname}")
+        )
+        if is_platform_host:
+            from django_tenants.utils import get_tenant_model
+            from django.db import connection
+
+            connection.set_schema_to_public()
+            request.tenant = None
+            request.urlconf = getattr(settings, "PUBLIC_SCHEMA_URLCONF", None)
+            self.setup_url_routing(request)
+            return None
 
         cached = self._redis_get(hostname)
         if cached:
