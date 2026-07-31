@@ -119,3 +119,32 @@ Desktop.ini
 # -----------------------------------------------------------------------------
 nul
 -p/
+
+# -----------------------------------------------------------------------------
+# Temporary DB migration / restore scripts
+# -----------------------------------------------------------------------------
+check_columns.py
+check_json_columns.py
+check_new_neon.py
+check_schemas.py
+compare_tables.py
+copy_public_schema.py
+copy_tables_direct.py
+copy_tables_fixed.py
+copy_tables_manual.py
+direct_restore.py
+direct_restore2.py
+final_verify.py
+fix_json_columns.py
+fix_json_tables.py
+fix_json_tables2.py
+restore_local.py
+restore_to_neon.py
+restore_to_neon2.py
+restore_to_new_neon.py
+restore_to_new_neon2.py
+restore_via_psycopg2.py
+test_connection.py
+test_neon_connection.py
+test_pg_get_tabledef.py
+verify_new_neon.py

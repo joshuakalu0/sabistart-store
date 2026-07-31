@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "account/_platform_base.html" %}
 
 {% block content %}
 <section class="grid gap-8 xl:grid-cols-[320px,1fr]">
@@ -34,7 +34,7 @@
                     <p class="eyebrow">Recent Orders</p>
                     <h2 class="brand-font mt-3 text-3xl font-bold text-slate-950">Latest activity</h2>
                 </div>
-                <a href="{% url 'tenant:account_orders' %}" class="button-secondary">View All Orders</a>
+                <a href="{ url 'tenant:account_orders' %}" class="button-secondary">View All Orders</a>
             </div>
             <div class="mt-6 space-y-4">
                 {% for order in recent_orders %}
