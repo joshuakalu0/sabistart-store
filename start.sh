@@ -9,4 +9,4 @@ python manage.py migrate
 
 # Ensure setuptools is available before starting gunicorn
 python -c "import setuptools; print('setuptools version:', setuptools.__version__)"
-exec gunicorn sabistart_store.wsgi:application --bind 0.0.0.0:${PORT:-8000}
+exec gunicorn sabistart.wsgi:application --bind 0.0.0.0:${PORT:-8000}

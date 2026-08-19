@@ -11,7 +11,7 @@ from django_tenants.utils import get_tenant_model, schema_context
 
 from dashboard.feature_marketplace.models import FeaturePurchase, TenantEntitlement
 from dashboard.feature_marketplace.services import grant_manual_entitlement
-from sabistart_store.navigation import build_platform_navigation
+from sabistart.navigation import build_platform_navigation
 from system.account.platform_support import safe_platform_call, setup_warning_for
 from system.core.models import Shop
 from system.feature_marketplace.forms import (

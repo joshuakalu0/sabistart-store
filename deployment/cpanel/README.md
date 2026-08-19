@@ -149,3 +149,14 @@ sed -i 's/\r$//' deployment/cpanel/post_deploy.sh
 Direct deploy can make the deployment finish, but the live app still needs a working PostgreSQL database for tenant routing, login, dashboard pages, and storefront data.
 
 Use direct deploy to get Passenger and static files in place. Use full deploy once PostgreSQL is fixed.
+i want you to work on the ui of the entry system by for now only do the public part of the system, i want you to completely redesign and rebrand it , and make the ui totally morden and outstanding
+and properly arrange thingd inother, use brown-wine color for the color
+note this is a multi tenant syustem with a tennt system and the normal system where the tenat register and su[per admin live(plublic also localhost)
+"neon": {
+"url": "https://mcp.neon.tech/sse",
+"type": "http"
+},
+"github": {
+"url": "https://api.githubcopilot.com/mcp/",
+"type": "http"
+},

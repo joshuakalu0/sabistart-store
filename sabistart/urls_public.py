@@ -11,8 +11,8 @@ from django.contrib import admin
 from django.conf import settings
 from django.urls import re_path
 from dashboard.domain import views as domain_views
-from sabistart_store import health
-from sabistart_store.media_proxy import media_proxy
+from sabistart import health
+from sabistart.media_proxy import media_proxy
 
 # app_name = ''
 
@@ -34,7 +34,7 @@ urlpatterns = [
     path('.well-known/acme-challenge/<str:token>/', domain_views.acme_challenge, name='acme_challenge'),
 ]
 
-if settings.STORAGES.get("default", {}).get("BACKEND") == "sabistart_store.storage_backends.VercelBlobStorage":
+if settings.STORAGES.get("default", {}).get("BACKEND") == "sabistart.storage_backends.VercelBlobStorage":
     urlpatterns += [
         re_path(r"^media/(?P<path>.*)$", media_proxy, name="media_proxy"),
     ]

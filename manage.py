@@ -3,8 +3,8 @@
 import os
 import sys
 
-from sabistart_store.bootstrap import bootstrap_paths
-from sabistart_store.env import ensure_project_root_on_path, load_environment
+from sabistart.bootstrap import bootstrap_paths
+from sabistart.env import ensure_project_root_on_path, load_environment
 
 
 def main():
@@ -12,7 +12,7 @@ def main():
     bootstrap_paths(os.path.dirname(os.path.abspath(__file__)))
     ensure_project_root_on_path()
     load_environment()
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sabistart_store.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sabistart.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

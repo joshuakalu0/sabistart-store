@@ -53,7 +53,7 @@ class Command(BaseCommand):
         checks.append(("vercel_config", Path(settings.BASE_DIR / "vercel.json").exists(), "vercel.json must exist at the app root."))
         checks.append(("api_entrypoint", Path(settings.BASE_DIR / "api" / "index.py").exists(), "api/index.py must exist for the Vercel Python runtime."))
         checks.append(("build_script", Path(settings.BASE_DIR / "deployment" / "vercel" / "build.sh").exists(), "deployment/vercel/build.sh must exist."))
-        checks.append(("blob_storage", storage_backend == "sabistart_store.storage_backends.VercelBlobStorage", "Use sabistart_store.storage_backends.VercelBlobStorage for persistent media on Vercel."))
+        checks.append(("blob_storage", storage_backend == "sabistart.storage_backends.VercelBlobStorage", "Use sabistart.storage_backends.VercelBlobStorage for persistent media on Vercel."))
         checks.append(("python_version_pin", Path(settings.BASE_DIR / ".python-version").exists(), ".python-version must be committed so Vercel uses the intended Python runtime."))
         checks.append(("requirements_vercel_sdk", _requirements_declares("vercel"), "requirements.txt must declare the Python `vercel` package for Blob storage support."))
         checks.append(("requirements_requests", _requirements_declares("requests"), "requirements.txt must declare `requests` for the registrar integration layer."))
@@ -67,7 +67,7 @@ class Command(BaseCommand):
                 warnings.append(formatted)
                 self.stdout.write(self.style.WARNING(formatted))
 
-        if storage_backend == "sabistart_store.storage_backends.VercelBlobStorage" and not os.getenv("BLOB_READ_WRITE_TOKEN"):
+        if storage_backend == "sabistart.storage_backends.VercelBlobStorage" and not os.getenv("BLOB_READ_WRITE_TOKEN"):
             warning = "[warn] blob_token: BLOB_READ_WRITE_TOKEN is required for Vercel Blob media storage."
             warnings.append(warning)
             self.stdout.write(self.style.WARNING(warning))

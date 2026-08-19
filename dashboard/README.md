@@ -127,7 +127,7 @@ dashboard/
 ## Integration with Main URLs
 
 ```python
-# sabistart_store/urls.py
+# sabistart/urls.py
 from django.urls import path, include
 
 urlpatterns = [

@@ -9,7 +9,7 @@ from django.urls import resolve, reverse
 
 from public.storefront.context_processors import global_storefront_context
 from public.storefront.services import get_or_create_customer_profile
-from sabistart_store.navigation import build_platform_navigation
+from sabistart.navigation import build_platform_navigation
 from system.account.platform_support import safe_platform_call, setup_warning_for
 
 
@@ -23,18 +23,18 @@ class PlatformNavigationTests(SimpleTestCase):
         self.assertIn("platform_features", items)
         self.assertIn("platform_payments", items)
 
-    @override_settings(ROOT_URLCONF="sabistart_store.urls_public")
+    @override_settings(ROOT_URLCONF="sabistart.urls_public")
     def test_platform_namespace_exists_in_public_urlconf(self):
         self.assertEqual(reverse("platform:login"), "/platform/login/")
 
-    @override_settings(ROOT_URLCONF="sabistart_store.urls_public")
+    @override_settings(ROOT_URLCONF="sabistart.urls_public")
     def test_public_platform_theme_route_resolves(self):
         match = resolve("/platform/themes/")
 
         self.assertEqual(match.namespace, "platform_themes")
         self.assertEqual(match.url_name, "home")
 
-    @override_settings(ROOT_URLCONF="sabistart_store.urls_public")
+    @override_settings(ROOT_URLCONF="sabistart.urls_public")
     def test_dashboard_namespace_exists_in_public_urlconf(self):
         self.assertEqual(
             reverse("dashboard:dashboard_home:home", args=["demo-store"]),

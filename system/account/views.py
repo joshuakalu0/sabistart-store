@@ -43,7 +43,7 @@ from dashboard.feature_marketplace.services import grant_manual_entitlement
 from system.feature_marketplace.models import FeatureDefinition, FeaturePrice, FeatureType
 from system.feature_marketplace.services import get_active_bundles, get_active_feature_catalog, get_marketplace_gateways
 
-SCHEMA_AWARE_BACKEND = "sabistart_store.auth_backends.SchemaAwareAuthenticationBackend"
+SCHEMA_AWARE_BACKEND = "sabistart.auth_backends.SchemaAwareAuthenticationBackend"
 SUBDOMAIN_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$")
 RESERVED_SUBDOMAINS = {
     "www",

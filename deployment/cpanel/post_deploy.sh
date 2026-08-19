@@ -34,7 +34,7 @@ find_python_bin() {
 }
 
 PYTHON_EXECUTABLE="$(find_python_bin)"
-export DJANGO_SETTINGS_MODULE="${DJANGO_SETTINGS_MODULE:-sabistart_store.settings}"
+export DJANGO_SETTINGS_MODULE="${DJANGO_SETTINGS_MODULE:-sabistart.settings}"
 export SABISTART_ENV_FILE="${SABISTART_ENV_FILE:-${APP_ROOT}/deployment/cpanel/.env.cpanel}"
 export SABISTART_ENV_OVERRIDE="${SABISTART_ENV_OVERRIDE:-1}"
 

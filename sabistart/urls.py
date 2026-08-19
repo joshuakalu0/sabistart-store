@@ -1,5 +1,5 @@
 """
-URL configuration for sabistart_store project.
+URL configuration for sabistart project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.2/topics/http/urls/
@@ -21,9 +21,9 @@ from django.conf.urls.static import static
 from django.views.static import serve
 from django.urls import re_path
 from dashboard.domain import views as domain_views
-from sabistart_store import deploy_status
-from sabistart_store import health
-from sabistart_store.media_proxy import media_proxy
+from sabistart import deploy_status
+from sabistart import health
+from sabistart.media_proxy import media_proxy
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -50,7 +50,7 @@ urlpatterns = [
 
 using_vercel_blob_media = (
     settings.STORAGES.get("default", {}).get("BACKEND")
-    == "sabistart_store.storage_backends.VercelBlobStorage"
+    == "sabistart.storage_backends.VercelBlobStorage"
 )
 
 if using_vercel_blob_media:

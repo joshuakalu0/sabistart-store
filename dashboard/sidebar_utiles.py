@@ -1,6 +1,6 @@
 from django.db import connection
 
-from sabistart_store.navigation import iter_tenant_navigation
+from sabistart.navigation import iter_tenant_navigation
 
 
 def _apply_active_menu(sidebar, active_menu):

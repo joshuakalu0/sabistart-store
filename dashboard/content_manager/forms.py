@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 
 from dashboard.store_settings.models import BlogPost, BlogSettings, CustomPage, FAQEntry
-from sabistart_store.ui.forms import TailwindFormMixin
+from sabistart.ui.forms import TailwindFormMixin
 
 
 class ManagedPageForm(TailwindFormMixin, forms.ModelForm):

@@ -177,7 +177,7 @@ Do both:
 
 Tenant navigation is defined in:
 
-- `sabistart_store/navigation.py`
+- `sabistart/navigation.py`
 
 Add a real navigation entry with:
 

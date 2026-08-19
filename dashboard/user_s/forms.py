@@ -21,7 +21,7 @@ from public.userauth.models import (
     CustomerNote,
     CustomerAddress,
 )
-from sabistart_store.ui.forms import TailwindFormMixin
+from sabistart.ui.forms import TailwindFormMixin
 
 
 # ─────────────────────────────────────────────────────────────

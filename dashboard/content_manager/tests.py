@@ -74,7 +74,7 @@ class ContentManagerTenantTestCase(TenantTestCase):
         )
         self.client.force_login(
             self.user,
-            backend="sabistart_store.auth_backends.SchemaAwareAuthenticationBackend",
+            backend="sabistart.auth_backends.SchemaAwareAuthenticationBackend",
         )
 
 

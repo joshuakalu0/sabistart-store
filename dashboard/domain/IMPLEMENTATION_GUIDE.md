@@ -538,7 +538,7 @@ path('domains/', include('dashboard.domain.urls')),
 path('.well-known/acme-challenge/<str:token>/', domain_views.acme_challenge, name='acme_challenge'),
 ```
 
-3. **Add to Celery beat schedule** (`sabistart_store/celery.py`):
+3. **Add to Celery beat schedule** (`sabistart/celery.py`):
 ```python
 from dashboard.domain.celery_schedule import DOMAIN_BEAT_SCHEDULE
 app.conf.beat_schedule.update(DOMAIN_BEAT_SCHEDULE)

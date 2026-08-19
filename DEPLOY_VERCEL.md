@@ -12,7 +12,7 @@ Key files:
 - [`.python-version`](C:/Users/user/Desktop/build/backend/sabistart-store/.python-version)
 - [`deployment/vercel/build.sh`](C:/Users/user/Desktop/build/backend/sabistart-store/deployment/vercel/build.sh)
 - [`deployment/vercel/.env.vercel.example`](C:/Users/user/Desktop/build/backend/sabistart-store/deployment/vercel/.env.vercel.example)
-- [`sabistart_store/storage_backends.py`](C:/Users/user/Desktop/build/backend/sabistart-store/sabistart_store/storage_backends.py)
+- [`sabistart/storage_backends.py`](C:/Users/user/Desktop/build/backend/sabistart-store/sabistart/storage_backends.py)
 
 Before deploying, make sure Vercel has:
 
@@ -32,7 +32,7 @@ This project now uses an explicit Python function entrypoint at [`api/index.py`]
 
 The Vercel build script also vendors a temporary, runtime-compatible dependency set into `/tmp/sabistart_runtime_packages` using the actual Python interpreter running the build command. That is a deliberate workaround for the build/runtime Python mismatch visible in the Vercel logs, and keeping it outside the repository tree avoids bloating the deployed function bundle.
 
-To make Django app imports stable on Vercel, the build script also copies the `public`, `dashboard`, and `system` packages into [`sabistart_store/_runtime_apps`](C:/Users/user/Desktop/build/backend/sabistart-store/sabistart_store/_runtime_apps) before bundling. On Vercel builds it then prunes those source packages from the deployment root so the final bundle does not rely on top-level runtime imports or accidentally expose the repo’s `public/` Python package as static content.
+To make Django app imports stable on Vercel, the build script also copies the `public`, `dashboard`, and `system` packages into [`sabistart/_runtime_apps`](C:/Users/user/Desktop/build/backend/sabistart-store/sabistart/_runtime_apps) before bundling. On Vercel builds it then prunes those source packages from the deployment root so the final bundle does not rely on top-level runtime imports or accidentally expose the repo’s `public/` Python package as static content.
 
 Readiness check:
 

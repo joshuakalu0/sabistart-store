@@ -124,7 +124,7 @@ class PaymentsTenantTestCase(TenantTestCase):
         )
         self.client.force_login(
             self.staff_user,
-            backend="sabistart_store.auth_backends.SchemaAwareAuthenticationBackend",
+            backend="sabistart.auth_backends.SchemaAwareAuthenticationBackend",
         )
 
 

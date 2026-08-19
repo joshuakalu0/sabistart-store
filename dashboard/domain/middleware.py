@@ -47,7 +47,7 @@ class CustomDomainMiddleware(TenantMainMiddleware):
             connection.set_schema_to_public()
             request.tenant = None
             request.urlconf = getattr(settings, "PUBLIC_SCHEMA_URLCONF", None)
-            self.setup_url_routing(request)
+            self.setup_url_routing(request, force_public=True)
             return None
 
         cached = self._redis_get(hostname)

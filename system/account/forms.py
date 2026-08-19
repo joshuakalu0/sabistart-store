@@ -12,7 +12,7 @@ from django import forms
 from django.core.validators import MinLengthValidator
 from django.core.exceptions import ValidationError
 
-from sabistart_store.ui.forms import TailwindFormMixin
+from sabistart.ui.forms import TailwindFormMixin
 from system.account.models import PlatformUser
 from system.feature_marketplace.models import FeatureBundle
 

@@ -273,7 +273,7 @@ AUTHENTICATION BACKENDS
 
 | File                                     | Change                                             |
 | ---------------------------------------- | -------------------------------------------------- |
-| `sabistart_store/settings.py`            | Add `AUTH_USER_MODEL`, fix typo, add both backends |
+| `sabistart/settings.py`            | Add `AUTH_USER_MODEL`, fix typo, add both backends |
 | `system/account/admin.py`                | Fix broken import                                  |
 | `system/account/signals.py`              | Fix broken import                                  |
 | `public/userauth/models/models_part2.py` | Remove `User` FK, use `TenantUser`                 |

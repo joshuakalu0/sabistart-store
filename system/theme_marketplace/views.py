@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 
-from sabistart_store.navigation import build_platform_navigation
+from sabistart.navigation import build_platform_navigation
 from system.account.platform_support import safe_platform_call, setup_warning_for
 from system.theme_marketplace.forms import ThemeCategoryForm, ThemeForm
 from system.theme_marketplace.models import Theme, ThemeBasePage, ThemeCategory

@@ -110,7 +110,7 @@ class AnalyticsTenantTestCase(TenantTestCase):
         )
         self.client.force_login(
             self.user,
-            backend="sabistart_store.auth_backends.SchemaAwareAuthenticationBackend",
+            backend="sabistart.auth_backends.SchemaAwareAuthenticationBackend",
         )
 
         with schema_context(get_public_schema_name()):

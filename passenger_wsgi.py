@@ -6,8 +6,8 @@ BASE_DIR = Path(__file__).resolve().parent
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
-from sabistart_store.bootstrap import bootstrap_paths
-from sabistart_store.env import ensure_project_root_on_path, load_environment
+from sabistart.bootstrap import bootstrap_paths
+from sabistart.env import ensure_project_root_on_path, load_environment
 
 
 def _candidate_python_paths(base_dir: Path):
@@ -38,6 +38,6 @@ os.environ.setdefault("SABISTART_ENV_OVERRIDE", "1")
 bootstrap_paths(BASE_DIR)
 ensure_project_root_on_path()
 load_environment()
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "sabistart_store.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "sabistart.settings")
 
-from sabistart_store.wsgi import application  # noqa: E402
+from sabistart.wsgi import application  # noqa: E402

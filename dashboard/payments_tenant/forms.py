@@ -38,7 +38,7 @@ import logging
 from decimal import Decimal
 
 from django import forms
-from sabistart_store.ui.forms import TailwindFormMixin
+from sabistart.ui.forms import TailwindFormMixin
 
 logger = logging.getLogger("dashboard.payments_tenant.forms")
 

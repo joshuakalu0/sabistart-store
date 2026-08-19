@@ -86,7 +86,7 @@ class VercelBlobStorage(Storage):
     def __init__(self):
         if VERCEL_BLOB_IMPORT_ERROR is not None:
             raise ImproperlyConfigured(
-                "Install the `vercel` package to use sabistart_store.storage_backends.VercelBlobStorage."
+                "Install the `vercel` package to use sabistart.storage_backends.VercelBlobStorage."
             ) from VERCEL_BLOB_IMPORT_ERROR
         self.token = os.getenv("BLOB_READ_WRITE_TOKEN")
         self.access = os.getenv("VERCEL_BLOB_ACCESS", "private").strip().lower() or "private"

@@ -58,7 +58,7 @@ logs/
 tmp/
 celerybeat-schedule
 runtime_packages/
-sabistart_store/_runtime_apps/
+sabistart/_runtime_apps/
 
 # -----------------------------------------------------------------------------
 # Environment files / secrets
@@ -148,3 +148,6 @@ test_connection.py
 test_neon_connection.py
 test_pg_get_tabledef.py
 verify_new_neon.py
+.opencode
+
+sync_config.jsonc

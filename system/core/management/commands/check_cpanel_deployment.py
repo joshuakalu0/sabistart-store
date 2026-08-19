@@ -31,7 +31,7 @@ class Command(BaseCommand):
         checks.append(("passenger_wsgi", Path(settings.BASE_DIR / "passenger_wsgi.py").exists(), "passenger_wsgi.py must exist at the app root."))
         checks.append(("cpanel_manifest", Path(settings.BASE_DIR / ".cpanel.yml").exists(), ".cpanel.yml must exist at the app root."))
         checks.append(("cpanel_env_template", Path(settings.BASE_DIR / "deployment" / "cpanel" / ".env.cpanel.example").exists(), "deployment/cpanel/.env.cpanel.example must exist."))
-        checks.append(("filesystem_storage", settings.STORAGES["default"]["BACKEND"] != "sabistart_store.storage_backends.VercelBlobStorage", "Do not use Vercel Blob storage on cPanel."))
+        checks.append(("filesystem_storage", settings.STORAGES["default"]["BACKEND"] != "sabistart.storage_backends.VercelBlobStorage", "Do not use Vercel Blob storage on cPanel."))
         checks.append(("ssl_redirect", settings.SECURE_SSL_REDIRECT, "DJANGO_SECURE_SSL_REDIRECT should be True in production."))
         checks.append(("secure_session_cookie", settings.SESSION_COOKIE_SECURE, "DJANGO_SESSION_COOKIE_SECURE should be True in production."))
         checks.append(("secure_csrf_cookie", settings.CSRF_COOKIE_SECURE, "DJANGO_CSRF_COOKIE_SECURE should be True in production."))

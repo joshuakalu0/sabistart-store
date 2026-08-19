@@ -1,5 +1,5 @@
 """
-ASGI config for sabistart_store project.
+ASGI config for sabistart project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -17,11 +17,11 @@ if str(RAW_BASE_DIR) not in sys.path:
 
 from django.core.asgi import get_asgi_application
 
-from sabistart_store.bootstrap import bootstrap_paths
-from sabistart_store.env import load_environment
+from sabistart.bootstrap import bootstrap_paths
+from sabistart.env import load_environment
 
 BASE_DIR = bootstrap_paths(RAW_BASE_DIR)
 load_environment()
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sabistart_store.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sabistart.settings')
 
 application = get_asgi_application()

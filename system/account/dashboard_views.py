@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import View
 
-from sabistart_store.navigation import build_platform_navigation
+from sabistart.navigation import build_platform_navigation
 from dashboard.analytics.services import build_platform_dashboard_bundle, bundle_to_json
 from system.account.platform_support import safe_platform_call, setup_warning_for
 from system.core.models import Shop

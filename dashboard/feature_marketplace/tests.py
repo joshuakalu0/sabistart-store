@@ -137,7 +137,7 @@ class FeatureMarketplaceTenantTestCase(TenantTestCase):
             is_staff=True,
             account_status=TenantUser.AccountStatus.ACTIVE,
         )
-        self.client.force_login(self.user, backend="sabistart_store.auth_backends.SchemaAwareAuthenticationBackend")
+        self.client.force_login(self.user, backend="sabistart.auth_backends.SchemaAwareAuthenticationBackend")
 
 
 class FeatureMarketplaceRouteTests(FeatureMarketplaceTenantTestCase):

@@ -14,7 +14,7 @@ from dashboard.domain.commerce_models import (
 )
 from dashboard.domain.domain_utils import normalize_domain_name
 from dashboard.domain.models import CustomDomain
-from sabistart_store.ui.forms import TailwindFormMixin
+from sabistart.ui.forms import TailwindFormMixin
 
 
 TAILWIND_TEXT = "block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"

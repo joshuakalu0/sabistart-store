@@ -28,10 +28,10 @@ def run(*args: str) -> None:
 
 def ensure_runtime_directories() -> None:
     sys.path.insert(0, str(APP_ROOT))
-    from sabistart_store.env import load_environment
+    from sabistart.env import load_environment
 
     load_environment()
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "sabistart_store.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "sabistart.settings")
 
     from django.conf import settings
 
@@ -47,10 +47,10 @@ def ensure_runtime_directories() -> None:
 
 def ensure_database_connection() -> None:
     sys.path.insert(0, str(APP_ROOT))
-    from sabistart_store.env import load_environment
+    from sabistart.env import load_environment
 
     load_environment()
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "sabistart_store.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "sabistart.settings")
 
     import django
     from django.conf import settings

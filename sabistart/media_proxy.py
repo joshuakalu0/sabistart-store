@@ -6,7 +6,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.http import FileResponse, Http404, HttpResponse, HttpResponseNotModified
 
-from sabistart_store.storage_backends import VercelBlobStorage
+from sabistart.storage_backends import VercelBlobStorage
 
 
 def media_proxy(request, path: str):

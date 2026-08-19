@@ -4,7 +4,7 @@ import json
 
 from django import forms
 
-from sabistart_store.ui.forms import TailwindFormMixin
+from sabistart.ui.forms import TailwindFormMixin
 
 
 class TenantThemeConfigureForm(TailwindFormMixin, forms.Form):

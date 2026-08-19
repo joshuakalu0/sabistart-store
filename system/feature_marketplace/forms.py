@@ -1,6 +1,6 @@
 from django import forms
 
-from sabistart_store.ui.forms import TailwindFormMixin
+from sabistart.ui.forms import TailwindFormMixin
 from system.feature_marketplace.models import (
     BillingCycle,
     BundleItem,

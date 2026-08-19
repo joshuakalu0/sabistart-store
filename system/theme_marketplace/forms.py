@@ -1,6 +1,6 @@
 from django import forms
 
-from sabistart_store.ui.forms import TailwindFormMixin
+from sabistart.ui.forms import TailwindFormMixin
 from system.theme_marketplace.models import Theme, ThemeCategory
 from system.theme_marketplace.services import get_themes_root
 

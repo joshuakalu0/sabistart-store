@@ -1,8 +1,8 @@
 from django import forms
 from django.test import SimpleTestCase
 
-from sabistart_store.navigation import build_platform_navigation, iter_tenant_navigation
-from sabistart_store.ui.forms import TailwindFormMixin
+from sabistart.navigation import build_platform_navigation, iter_tenant_navigation
+from sabistart.ui.forms import TailwindFormMixin
 
 
 class NavigationRegistryTests(SimpleTestCase):

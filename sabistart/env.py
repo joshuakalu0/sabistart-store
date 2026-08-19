@@ -15,7 +15,7 @@ def ensure_project_root_on_path() -> None:
 
     Some hosts import the WSGI/ASGI entrypoint by absolute file path instead of
     executing from the repository root. In that case, Django can still import
-    ``sabistart_store`` but fail to resolve sibling app packages unless the
+    ``sabistart`` but fail to resolve sibling app packages unless the
     project root is added to ``sys.path`` explicitly.
     """
 

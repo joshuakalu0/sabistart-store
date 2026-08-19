@@ -61,8 +61,8 @@ Use [`deployment/vercel/.env.vercel.example`](C:/Users/user/Desktop/build/backen
 
 - Vercel runs the app through the explicit Python function entrypoint at [`api/index.py`](C:/Users/user/Desktop/build/backend/sabistart-store/api/index.py).
 - [`vercel.json`](C:/Users/user/Desktop/build/backend/sabistart-store/vercel.json) rewrites incoming requests to that function after checking the filesystem first.
-- The function config force-includes `templates`, `themes`, and `sabistart_store`.
-- During the Vercel build, the Django app packages are copied into `sabistart_store/_runtime_apps`, and the runtime prepends that directory to `sys.path`. This avoids Vercel-specific issues with a root package named `public`.
+- The function config force-includes `templates`, `themes`, and `sabistart`.
+- During the Vercel build, the Django app packages are copied into `sabistart/_runtime_apps`, and the runtime prepends that directory to `sys.path`. This avoids Vercel-specific issues with a root package named `public`.
 - Static files are collected at build time and served from the deployment filesystem.
 - Uploaded media is stored in Vercel Blob and streamed back through Django's `/media/...` URLs.
 - [`vercel.json`](C:/Users/user/Desktop/build/backend/sabistart-store/vercel.json) sets the framework to `null` so Vercel treats this as an explicitly configured Python app instead of zero-config Django.
@@ -87,7 +87,7 @@ The build script also copies:
 - `dashboard`
 - `system`
 
-into `sabistart_store/_runtime_apps` before Vercel creates the Python function bundle.
+into `sabistart/_runtime_apps` before Vercel creates the Python function bundle.
 
 Why:
 

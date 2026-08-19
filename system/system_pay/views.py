@@ -14,7 +14,7 @@ from django.views.decorators.http import require_http_methods
 from django.utils.decorators import method_decorator
 from django_tenants.utils import schema_context
 
-from sabistart_store.navigation import build_platform_navigation
+from sabistart.navigation import build_platform_navigation
 from system.account.platform_support import safe_platform_call, setup_warning_for
 from system.feature_marketplace.models import FeaturePurchaseIndex
 from system.system_pay.forms import (

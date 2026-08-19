@@ -86,7 +86,7 @@ class NotificationTenantTestCase(TenantTestCase):
         )
         self.client.force_login(
             self.user,
-            backend="sabistart_store.auth_backends.SchemaAwareAuthenticationBackend",
+            backend="sabistart.auth_backends.SchemaAwareAuthenticationBackend",
         )
 
         self.channel = NotificationChannel.objects.create(

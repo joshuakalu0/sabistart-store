@@ -30,7 +30,7 @@ from dashboard.domain.models import (
     ManagedDomainRenewal,
     TldCatalogEntry,
 )
-from sabistart_store.navigation import build_platform_navigation
+from sabistart.navigation import build_platform_navigation
 from system.account.platform_support import setup_warning_for
 
 

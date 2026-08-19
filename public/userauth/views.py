@@ -10,7 +10,7 @@ from public.storefront.services import get_or_create_cart, render_storefront
 from public.userauth.forms import TenantLoginForm, TenantRegistrationForm
 from public.userauth.models import Customer, TenantEmailVerificationToken
 
-SCHEMA_AWARE_BACKEND = "sabistart_store.auth_backends.SchemaAwareAuthenticationBackend"
+SCHEMA_AWARE_BACKEND = "sabistart.auth_backends.SchemaAwareAuthenticationBackend"
 
 
 def tenant_register_view(request):
