@@ -38,9 +38,15 @@ class FeatureCatalogSeedCommandTests(TestCase):
             ).exists()
         )
 
-        booster = FeatureBundle.objects.get(slug="ai-credit-booster")
-        booster_item = booster.items.get(feature__code="ai_credits")
-        self.assertEqual(booster_item.quantity_override, 3500)
+        starter = FeatureBundle.objects.get(slug="starter-pack-monthly")
+        premium = FeatureBundle.objects.get(slug="premium-pack-monthly")
+        pro_annual = FeatureBundle.objects.get(slug="pro-pack-annual")
+        self.assertEqual(starter.name, "Starter Pack Monthly")
+        self.assertEqual(premium.price, 15000)
+        self.assertTrue(premium.is_featured)
+        self.assertEqual(starter.items.get(feature__code="max_products").quantity_override, 50)
+        self.assertEqual(premium.items.get(feature__code="staff_management").quantity_override, 5)
+        self.assertEqual(pro_annual.items.get(feature__code="ai_credits").quantity_override, 300000)
 
         max_products = FeatureDefinition.objects.get(code="max_products")
         pos_locations = FeatureDefinition.objects.get(code="max_pos_locations")
@@ -58,9 +64,9 @@ class FeatureCatalogSeedCommandTests(TestCase):
             FeaturePrice.objects.get(feature=custom_domains, billing_cycle=BillingCycle.ANNUAL, currency="NGN").limit_increment,
             1,
         )
-        self.assertTrue(FeatureBundle.objects.filter(slug="operations-plus").exists())
-        self.assertTrue(FeatureBundle.objects.filter(slug="storefront-plus").exists())
-        self.assertTrue(FeatureBundle.objects.filter(slug="integrations-plus").exists())
+        self.assertTrue(FeatureBundle.objects.filter(slug="starter-pack-monthly", is_active=True).exists())
+        self.assertTrue(FeatureBundle.objects.filter(slug="premium-pack-monthly", is_active=True).exists())
+        self.assertTrue(FeatureBundle.objects.filter(slug="pro-pack-monthly", is_active=True).exists())
 
         call_command("seed_feature_catalog", profile="realistic-plus", verbosity=0)
 

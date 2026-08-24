@@ -223,6 +223,7 @@ def sync_theme_catalog(*, actor=None, bootstrap_access: bool = False) -> dict[st
     updated = 0
     category_created = 0
     pages_synced = 0
+    bootstrap_result = {"checked": 0, "activated": 0, "already_active": 0, "failed": 0}
 
     manifests = list_builtin_theme_manifests()
     seen_slugs = {manifest.slug for manifest in manifests}
@@ -298,16 +299,31 @@ def sync_theme_catalog(*, actor=None, bootstrap_access: bool = False) -> dict[st
         updated_at=timezone.now(),
     )
 
+    if bootstrap_access:
+        bootstrap_result = bootstrap_default_theme_for_schemas()
+
     return {
         "created": created,
         "updated": updated,
         "category_created": category_created,
         "pages_synced": pages_synced,
+        "bootstrap_checked": bootstrap_result["checked"],
+        "bootstrap_activated": bootstrap_result["activated"],
+        "bootstrap_already_active": bootstrap_result["already_active"],
+        "bootstrap_failed": bootstrap_result["failed"],
     }
 
 
 def get_shop_for_schema(schema_name: str) -> Shop | None:
     return Shop.objects.filter(schema_name=schema_name).first()
+
+
+def _tenant_schema_names() -> list[str]:
+    return [
+        schema_name
+        for schema_name in Shop.objects.exclude(schema_name="public").values_list("schema_name", flat=True)
+        if schema_name
+    ]
 
 
 @transaction.atomic
@@ -468,6 +484,42 @@ def activate_theme_for_schema(
     )
     clear_active_theme_cache(schema_name)
     return active
+
+
+@transaction.atomic
+def bootstrap_default_theme_for_schemas(schema_names: list[str] | None = None) -> dict[str, int]:
+    theme = get_default_theme()
+    if theme is None:
+        sync_theme_catalog(actor=None, bootstrap_access=False)
+        theme = get_default_theme()
+    if theme is None:
+        return {"checked": 0, "activated": 0, "already_active": 0, "failed": 0}
+
+    checked = 0
+    activated = 0
+    already_active = 0
+    failed = 0
+    for schema_name in schema_names or _tenant_schema_names():
+        normalized_schema = str(schema_name or "").strip()
+        if not normalized_schema or normalized_schema == "public":
+            continue
+        checked += 1
+        if has_active_theme_for_schema(normalized_schema):
+            already_active += 1
+            continue
+        try:
+            acquire_theme_for_schema(normalized_schema, theme)
+            install_theme_for_schema(normalized_schema, theme)
+            activate_theme_for_schema(normalized_schema, theme, reason="deployment_bootstrap")
+            activated += 1
+        except Exception:
+            failed += 1
+    return {
+        "checked": checked,
+        "activated": activated,
+        "already_active": already_active,
+        "failed": failed,
+    }
 
 
 @transaction.atomic

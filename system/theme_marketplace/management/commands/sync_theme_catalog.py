@@ -24,6 +24,9 @@ class Command(BaseCommand):
                 f"{result['created']} created, "
                 f"{result['updated']} updated, "
                 f"{result['category_created']} categories created, "
-                f"{result['pages_synced']} pages synced."
+                f"{result['pages_synced']} pages synced, "
+                f"{result['bootstrap_activated']} tenant theme(s) activated, "
+                f"{result['bootstrap_already_active']} already active, "
+                f"{result['bootstrap_failed']} failed."
             )
         )

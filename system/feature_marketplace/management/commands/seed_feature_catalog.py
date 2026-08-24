@@ -4,7 +4,11 @@ from decimal import Decimal
 
 from django.core.management.base import BaseCommand
 
-from system.feature_marketplace.catalog_registry import CATALOG_PROFILES
+from system.feature_marketplace.catalog_registry import (
+    CATALOG_PROFILES,
+    STALE_PLAN_BUNDLE_SLUGS,
+    STALE_PLAN_CAMPAIGN_NAMES,
+)
 from system.feature_marketplace.models import (
     BundleItem,
     Coupon,
@@ -41,9 +45,11 @@ class Command(BaseCommand):
 
         for spec in profile["bundles"]:
             self._upsert_bundle(spec, features)
+        self._deactivate_stale_bundles(profile["bundles"])
 
         for spec in profile["campaigns"]:
             self._upsert_campaign(spec)
+        self._deactivate_stale_campaigns(profile["campaigns"])
 
         for spec in profile["coupons"]:
             self._upsert_coupon(spec)
@@ -158,6 +164,12 @@ class Command(BaseCommand):
 
         bundle.items.exclude(feature__code__in=seen_codes).delete()
 
+    def _deactivate_stale_bundles(self, bundle_specs: list[dict]) -> None:
+        active_bundle_slugs = {spec["slug"] for spec in bundle_specs}
+        FeatureBundle.objects.filter(slug__in=STALE_PLAN_BUNDLE_SLUGS).exclude(
+            slug__in=active_bundle_slugs
+        ).update(is_active=False)
+
     def _upsert_campaign(self, campaign_spec: dict) -> None:
         campaign, _ = DiscountCampaign.objects.update_or_create(
             name=campaign_spec["name"],
@@ -175,6 +187,12 @@ class Command(BaseCommand):
         campaign.applicable_bundles.set(
             FeatureBundle.objects.filter(slug__in=campaign_spec.get("bundle_slugs", []))
         )
+
+    def _deactivate_stale_campaigns(self, campaign_specs: list[dict]) -> None:
+        active_campaign_names = {spec["name"] for spec in campaign_specs}
+        DiscountCampaign.objects.filter(name__in=STALE_PLAN_CAMPAIGN_NAMES).exclude(
+            name__in=active_campaign_names
+        ).update(is_active=False)
 
     def _upsert_coupon(self, coupon_spec: dict) -> None:
         coupon, _ = Coupon.objects.update_or_create(

@@ -23,7 +23,7 @@ class OnboardingResumeRoutingTests(SimpleTestCase):
 
         self.assertEqual(_resume_onboarding_url(session), reverse("platform:onboarding_account"))
 
-    def test_resume_url_points_to_checkout_when_plan_exists_but_payment_is_pending(self):
+    def test_resume_url_points_to_subdomain_when_plan_exists_but_subdomain_is_missing(self):
         session = SimpleNamespace(
             email="owner@example.com",
             business_name="Sabi Test",
@@ -33,19 +33,19 @@ class OnboardingResumeRoutingTests(SimpleTestCase):
             desired_subdomain="",
         )
 
-        self.assertEqual(_resume_onboarding_url(session), reverse("platform:onboarding_checkout"))
+        self.assertEqual(_resume_onboarding_url(session), reverse("platform:onboarding_subdomain"))
 
-    def test_resume_url_points_to_subdomain_when_paid_but_subdomain_is_missing(self):
+    def test_resume_url_points_to_checkout_when_subdomain_exists_but_payment_is_pending(self):
         session = SimpleNamespace(
             email="owner@example.com",
             business_name="Sabi Test",
             metadata={"password_hash": "hashed"},
             selected_bundle_slug="starter",
-            payment_status=OnboardingSession.PaymentStatus.PAID,
-            desired_subdomain="",
+            payment_status=OnboardingSession.PaymentStatus.PENDING,
+            desired_subdomain="sabi-test",
         )
 
-        self.assertEqual(_resume_onboarding_url(session), reverse("platform:onboarding_subdomain"))
+        self.assertEqual(_resume_onboarding_url(session), reverse("platform:onboarding_checkout"))
 
     def test_resume_url_points_to_review_when_required_data_exists(self):
         session = SimpleNamespace(

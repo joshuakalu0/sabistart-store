@@ -20,20 +20,23 @@
       <span class="text-gray-500">Subdomain</span>
       <strong class="text-gray-900">{{ onboarding_session.desired_subdomain }}.{{ platform_domain_suffix }}</strong>
     </div>
-    <div class="flex items-center justify-between gap-4">
-      <span class="text-gray-500">Plan</span>
-      <strong class="text-gray-900">{{ selected_bundle.name|default:"No starter plan selected" }}</strong>
-    </div>
-    <div class="flex items-start justify-between gap-4">
-      <span class="pt-1 text-gray-500">Add-ons</span>
-      <div class="text-right">
-        {% for addon in selected_addons %}
-          <div class="font-semibold text-gray-900">{{ addon.name }}</div>
-        {% empty %}
-          <span class="text-gray-500">No add-ons selected</span>
-        {% endfor %}
+    {% if selected_bundle %}
+      <div class="flex items-start justify-between gap-4">
+        <span class="pt-1 text-gray-500">Plan</span>
+        <div class="text-right">
+          <div class="font-semibold text-gray-900">{{ selected_bundle.name|cut:" Monthly"|cut:" Annual" }}</div>
+          <div class="text-xs text-gray-500">{{ selected_bundle.currency }} {{ selected_bundle.price }} / {{ selected_bundle.billing_cycle|title }}</div>
+          {% if selected_bundle.description %}
+            <div class="mt-1 text-xs text-gray-500">{{ selected_bundle.description }}</div>
+          {% endif %}
+        </div>
       </div>
-    </div>
+    {% else %}
+      <div class="flex items-center justify-between gap-4">
+        <span class="text-gray-500">Plan</span>
+        <strong class="text-gray-900">No plan selected</strong>
+      </div>
+    {% endif %}
     <div class="flex items-center justify-between gap-4">
       <span class="text-gray-500">Gateway</span>
       <strong class="text-gray-900">{{ selected_gateway_name|default:"Platform billing" }}</strong>

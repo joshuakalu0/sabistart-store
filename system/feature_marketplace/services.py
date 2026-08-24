@@ -7,9 +7,11 @@ from django.db import connection
 from django.db import transaction
 from django.db.models import Prefetch, Q
 from django.utils import timezone
+from django.core.cache import cache
 from django_tenants.utils import schema_context
 
 from system.feature_marketplace.models import (
+    BillingCycle,
     Coupon,
     DiscountCampaign,
     DiscountType,
@@ -21,6 +23,7 @@ from system.feature_marketplace.models import (
     TenantFeatureOverride,
 )
 from system.system_pay.services import get_enabled_gateways
+from system.feature_marketplace.catalog_registry import PLAN_BUNDLE_SLUGS
 
 
 LEGACY_FEATURE_MAP = {
@@ -35,6 +38,28 @@ LEGACY_FEATURE_MAP = {
     "webhooks": "enable_webhooks",
     "social_login": "enable_social_login",
 }
+
+
+PLAN_GROUPS = (
+    {
+        "key": "starter-pack",
+        "name": "Starter Pack",
+        "monthly_slug": "starter-pack-monthly",
+        "annual_slug": "starter-pack-annual",
+    },
+    {
+        "key": "premium-pack",
+        "name": "Premium Pack",
+        "monthly_slug": "premium-pack-monthly",
+        "annual_slug": "premium-pack-annual",
+    },
+    {
+        "key": "pro-pack",
+        "name": "Pro Pack",
+        "monthly_slug": "pro-pack-monthly",
+        "annual_slug": "pro-pack-annual",
+    },
+)
 
 
 @dataclass
@@ -57,6 +82,10 @@ class MarketplacePaymentResolutionResult:
 
 
 def get_active_feature_catalog(currency: str = "NGN", *, purchasable_only: bool = False):
+    cache_key = f"feature_catalog:{currency}:{purchasable_only}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
     now = timezone.now()
     price_qs = FeaturePrice.objects.filter(is_active=True, currency=currency).filter(
         Q(valid_from__isnull=True) | Q(valid_from__lte=now)
@@ -66,12 +95,18 @@ def get_active_feature_catalog(currency: str = "NGN", *, purchasable_only: bool 
     filters = {"is_active": True}
     if purchasable_only:
         filters["is_purchasable"] = True
-    return FeatureDefinition.objects.filter(**filters).select_related("category").prefetch_related(
+    qs = FeatureDefinition.objects.filter(**filters).select_related("category").prefetch_related(
         Prefetch("prices", queryset=price_qs.order_by("billing_cycle", "amount"))
     ).order_by("display_order", "name")
+    cache.set(cache_key, qs, 300)
+    return qs
 
 
 def get_active_bundles(currency: str = "NGN", *, current_only: bool = False):
+    cache_key = f"active_bundles:{currency}:{current_only}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
     qs = FeatureBundle.objects.filter(
         is_active=True,
         currency=currency,
@@ -83,7 +118,63 @@ def get_active_bundles(currency: str = "NGN", *, current_only: bool = False):
         ).filter(
             Q(valid_until__isnull=True) | Q(valid_until__gte=now)
         )
-    return qs.prefetch_related("items__feature").order_by("display_order", "name")
+    qs = qs.prefetch_related("items__feature").order_by("display_order", "name")
+    cache.set(cache_key, qs, 300)
+    return qs
+
+
+def get_plan_bundles(currency: str = "NGN", *, current_only: bool = True):
+    plan_slugs = set(PLAN_BUNDLE_SLUGS)
+    bundles = [
+        bundle
+        for bundle in get_active_bundles(currency=currency, current_only=current_only)
+        if bundle.slug in plan_slugs
+    ]
+    return sorted(bundles, key=lambda bundle: PLAN_BUNDLE_SLUGS.index(bundle.slug))
+
+
+def _bundle_feature_labels(bundle: FeatureBundle | None) -> list[str]:
+    if bundle is None:
+        return []
+    labels = []
+    for item in bundle.items.all():
+        feature = item.feature
+        if item.quantity_override:
+            unit_label = feature.unit_label or "included"
+            labels.append(f"{feature.name}: {item.quantity_override} {unit_label}")
+        else:
+            labels.append(feature.name)
+    return labels
+
+
+def get_plan_groups(currency: str = "NGN", *, current_only: bool = True) -> list[dict]:
+    bundle_map = {bundle.slug: bundle for bundle in get_plan_bundles(currency=currency, current_only=current_only)}
+    groups = []
+    for group in PLAN_GROUPS:
+        monthly = bundle_map.get(group["monthly_slug"])
+        annual = bundle_map.get(group["annual_slug"])
+        representative = monthly or annual
+        if representative is None:
+            continue
+        groups.append(
+            {
+                "key": group["key"],
+                "name": group["name"],
+                "monthly": monthly,
+                "annual": annual,
+                "default_bundle": monthly or annual,
+                "is_featured": bool((monthly and monthly.is_featured) or (annual and annual.is_featured)),
+                "description": representative.description,
+                "tagline": representative.tagline,
+                "features": _bundle_feature_labels(monthly or annual),
+            }
+        )
+    return groups
+
+
+def get_plan_bundle_by_slug(slug: str, currency: str = "NGN") -> FeatureBundle | None:
+    slug = (slug or "").strip()
+    return next((bundle for bundle in get_plan_bundles(currency=currency, current_only=True) if bundle.slug == slug), None)
 
 
 def get_feature_by_code(code: str, *, purchasable_only: bool = False) -> FeatureDefinition:
@@ -273,17 +364,19 @@ def _usage_summary_for_entitlement(entitlement) -> str:
 
 
 @transaction.atomic
-def register_purchase_index(*, purchase_id, purchase_reference: str, schema_name: str, gateway_provider: str = "", gateway_reference: str = "", metadata: dict | None = None):
-    return FeaturePurchaseIndex.objects.update_or_create(
-        purchase_id=purchase_id,
-        defaults={
-            "purchase_reference": purchase_reference,
-            "schema_name": schema_name,
-            "gateway_provider": gateway_provider,
-            "gateway_reference": gateway_reference,
-            "metadata": metadata or {},
-        },
-    )[0]
+def register_purchase_index(*, purchase_id, purchase_reference: str, schema_name: str, gateway_provider: str = "", gateway_reference: str = "", metadata: dict | None = None, index_schema: str = ""):
+    target_schema = index_schema or schema_name
+    with schema_context(target_schema):
+        return FeaturePurchaseIndex.objects.update_or_create(
+            purchase_id=purchase_id,
+            defaults={
+                "purchase_reference": purchase_reference,
+                "schema_name": schema_name,
+                "gateway_provider": gateway_provider,
+                "gateway_reference": gateway_reference,
+                "metadata": metadata or {},
+            },
+        )[0]
 
 
 def resolve_purchase_index(*, purchase_reference: str = "", gateway_reference: str = ""):

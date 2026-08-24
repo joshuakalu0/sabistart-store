@@ -35,6 +35,7 @@ class TenantService:
         owner: PlatformUser,
         name: str,
         subdomain: str,
+        schema_name: str = "",
     ) -> tuple[Shop, Domain]:
         """
         Create a new tenant (shop) for a platform user.
@@ -43,6 +44,7 @@ class TenantService:
             owner: The PlatformUser who will own this shop
             name: Display name for the shop
             subdomain: The subdomain part of the shop URL
+            schema_name: Optional schema name (defaults to subdomain)
 
         Returns:
             tuple of (Shop, Domain)
@@ -50,8 +52,10 @@ class TenantService:
         Raises:
             TenantCreationError: If creation fails
         """
-        # Validate subdomain isn't taken
-        if Domain.objects.filter(domain__iexact=f"{subdomain}").exists():
+        subdomain = subdomain.lower()
+        schema_name = (schema_name or "").strip() or subdomain
+
+        if Domain.objects.filter(domain__iexact=subdomain).exists():
             raise TenantCreationError(
                 f"The subdomain '{subdomain}' is already taken. "
                 "Please choose a different one."
@@ -59,28 +63,17 @@ class TenantService:
 
         try:
             with transaction.atomic():
-                # Create the tenant (Shop)
                 shop = Shop.objects.create(
                     owner=owner,
                     name=name,
-                    schema_name=subdomain.lower(),
-                    # auto_create_schema=True will create the schema
+                    schema_name=schema_name,
                 )
-
-                # Create the primary domain
                 domain = Domain.objects.create(
-                    domain=f"{subdomain.lower()}",
+                    domain=subdomain,
                     tenant=shop,
                     is_primary=True,
                 )
-
-                # NOTE: django-tenants will automatically create the schema
-                # when the Shop is saved if auto_create_schema=True.
-                # However, we need to run migrations for the new schema.
-                # This is typically done via a management command or async task.
-
                 return shop, domain
-
         except Exception as e:
             raise TenantCreationError(f"Failed to create tenant: {str(e)}")
 

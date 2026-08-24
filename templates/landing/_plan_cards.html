@@ -1,0 +1,86 @@
+<div class="mx-auto max-w-3xl text-center">
+  <div class="inline-flex rounded-2xl border border-indigo-100 bg-white p-1 shadow-sm" data-public-plan-toggle>
+    <button type="button" class="public-cycle-toggle rounded-xl bg-[color:var(--brand-primary)] px-5 py-2 text-sm font-extrabold text-white shadow-sm" data-cycle="monthly">Monthly</button>
+    <button type="button" class="public-cycle-toggle rounded-xl px-5 py-2 text-sm font-extrabold text-gray-500" data-cycle="annual">Annual <span class="text-green-600">Save 2 months</span></button>
+  </div>
+</div>
+
+<div class="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-3" data-public-plan-selector>
+  {% for group in plan_groups %}
+    <div class="relative flex flex-col rounded-3xl bg-white p-6 shadow-xl shadow-slate-200/60 ring-1 {% if group.is_featured %}ring-[color:var(--brand-primary)] lg:-mt-4{% else %}ring-slate-200{% endif %}">
+      {% if group.is_featured %}
+        <span class="absolute -top-4 left-6 rounded-full bg-[color:var(--brand-primary)] px-4 py-1 text-xs font-black uppercase tracking-widest text-white">Most Popular</span>
+      {% endif %}
+      <div>
+        <h3 class="text-2xl font-black text-gray-950">{{ group.name }}</h3>
+        <p class="mt-2 min-h-12 text-sm text-gray-600">{{ group.description }}</p>
+      </div>
+
+      <div class="mt-6">
+        {% if group.monthly %}
+          <div data-cycle-price="monthly">
+            <div class="text-4xl font-black text-[color:var(--brand-primary)]">{{ group.monthly.currency }} {{ group.monthly.price }}</div>
+            <p class="mt-1 text-sm font-semibold text-gray-500">per month</p>
+          </div>
+        {% endif %}
+        {% if group.annual %}
+          <div data-cycle-price="annual" class="hidden">
+            <div class="text-4xl font-black text-[color:var(--brand-primary)]">{{ group.annual.currency }} {{ group.annual.price }}</div>
+            <p class="mt-1 text-sm font-semibold text-gray-500">per year</p>
+          </div>
+        {% endif %}
+      </div>
+
+      <hr class="my-6 border-indigo-100" />
+
+      <ul class="mb-8 space-y-3 text-sm text-gray-700">
+        {% for feature in group.features %}
+          <li class="flex items-start gap-3">
+            <span class="mt-0.5 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-xs font-bold text-green-700">&check;</span>
+            <span>{{ feature }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+
+      <div class="mt-auto">
+        {% if group.monthly %}
+          <a data-cycle-link="monthly" href="{% url 'platform:onboarding_plan' %}?plan={{ group.monthly.slug }}" class="block rounded-xl px-5 py-3 text-center text-sm font-black {% if group.is_featured %}btn-primary{% else %}btn-outline-brand{% endif %}">Choose {{ group.name }}</a>
+        {% endif %}
+        {% if group.annual %}
+          <a data-cycle-link="annual" href="{% url 'platform:onboarding_plan' %}?plan={{ group.annual.slug }}" class="hidden rounded-xl px-5 py-3 text-center text-sm font-black {% if group.is_featured %}btn-primary{% else %}btn-outline-brand{% endif %}">Choose {{ group.name }}</a>
+        {% endif %}
+      </div>
+    </div>
+  {% empty %}
+    <div class="col-span-full rounded-3xl border border-amber-200 bg-amber-50 p-8 text-center text-sm font-semibold text-amber-800">
+      No plans are available right now. Please check back soon.
+    </div>
+  {% endfor %}
+</div>
+
+<script>
+  (function () {
+    const toggles = document.querySelectorAll("[data-public-plan-toggle] .public-cycle-toggle");
+    const selectors = document.querySelectorAll("[data-public-plan-selector]");
+    const setCycle = function (cycle) {
+      toggles.forEach(function (button) {
+        const active = button.dataset.cycle === cycle;
+        button.classList.toggle("bg-[color:var(--brand-primary)]", active);
+        button.classList.toggle("text-white", active);
+        button.classList.toggle("shadow-sm", active);
+        button.classList.toggle("text-gray-500", !active);
+      });
+      selectors.forEach(function (selector) {
+        selector.querySelectorAll("[data-cycle-price], [data-cycle-link]").forEach(function (node) {
+          node.classList.toggle("hidden", node.dataset.cyclePrice !== cycle && node.dataset.cycleLink !== cycle);
+        });
+      });
+    };
+    toggles.forEach(function (button) {
+      button.addEventListener("click", function () {
+        setCycle(button.dataset.cycle);
+      });
+    });
+    setCycle("monthly");
+  })();
+</script>

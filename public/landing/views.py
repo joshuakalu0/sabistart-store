@@ -1,8 +1,11 @@
 from django.shortcuts import render
 
+from system.feature_marketplace.services import get_plan_groups
+
 
 def landing_home(request):
-    return render(request, "landing/home.html")
+    plan_groups = get_plan_groups(currency="NGN", current_only=True)
+    return render(request, "landing/home.html", {"landing_plan_groups": plan_groups})
 
 
 def landing_about(request):
@@ -14,7 +17,8 @@ def landing_features(request):
 
 
 def landing_pricing(request):
-    return render(request, "landing/pricing.html")
+    plan_groups = get_plan_groups(currency="NGN", current_only=True)
+    return render(request, "landing/pricing.html", {"plan_groups": plan_groups})
 
 
 def landing_contact(request):

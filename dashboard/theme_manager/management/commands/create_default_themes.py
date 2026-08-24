@@ -18,6 +18,9 @@ class Command(BaseCommand):
                 "Synced shared theme catalog: "
                 f"{result['created']} created, "
                 f"{result['updated']} updated, "
-                f"{result['pages_synced']} pages synced."
+                f"{result['pages_synced']} pages synced, "
+                f"{result['bootstrap_activated']} tenant theme(s) activated, "
+                f"{result['bootstrap_already_active']} already active, "
+                f"{result['bootstrap_failed']} failed."
             )
         )

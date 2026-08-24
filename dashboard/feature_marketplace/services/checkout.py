@@ -9,6 +9,7 @@ from django.db import connection, transaction
 from django.db.models import F, Q
 from django.urls import reverse
 from django.utils import timezone
+from django_tenants.utils import schema_context
 
 from dashboard.feature_marketplace.models import (
     CouponRedemption,
@@ -155,7 +156,7 @@ def preview_purchase(*, feature_code: str = "", bundle_slug: str = "", currency:
 
 
 @transaction.atomic
-def create_purchase(*, schema_name: str, feature_code: str = "", bundle_slug: str = "", currency: str = "NGN", billing_cycle: str = BillingCycle.MONTHLY, quantity: int = 1, coupon_code: str = "", gateway_provider: str = "", initiated_by=None, success_redirect_url: str = "", cancel_redirect_url: str = ""):
+def create_purchase(*, schema_name: str, feature_code: str = "", bundle_slug: str = "", currency: str = "NGN", billing_cycle: str = BillingCycle.MONTHLY, quantity: int = 1, coupon_code: str = "", gateway_provider: str = "", initiated_by=None, success_redirect_url: str = "", cancel_redirect_url: str = "", index_schema: str = ""):
     preview = preview_purchase(
         feature_code=feature_code,
         bundle_slug=bundle_slug,
@@ -205,6 +206,7 @@ def create_purchase(*, schema_name: str, feature_code: str = "", bundle_slug: st
         purchase_reference=purchase.purchase_reference,
         schema_name=schema_name,
         gateway_provider=purchase.gateway_provider,
+        index_schema=index_schema,
     )
     purchase.payment_metadata = {
         "checkout_url": reverse("system_pay:marketplace_checkout", kwargs={"purchase_reference": purchase.purchase_reference}),
@@ -279,14 +281,20 @@ def initialize_purchase_payment(
         ),
     }
     purchase.save(update_fields=["gateway_reference", "payment_metadata", "updated_at"])
-    FeaturePurchaseIndex.objects.filter(purchase_id=purchase.id).update(
-        gateway_reference=intent_result.gateway_reference or "",
-        status=FeaturePurchaseIndex.PurchaseStatus.PROCESSING,
-        metadata={
-            **(purchase.payment_metadata or {}),
-            "payment_intent_id": intent_result.intent_id,
-        },
-    )
+    index_metadata = {
+        **(purchase.payment_metadata or {}),
+        "payment_intent_id": intent_result.intent_id,
+    }
+    index_schemas = {getattr(connection, "schema_name", "") or "", "public"}
+    for index_schema in index_schemas:
+        if not index_schema:
+            continue
+        with schema_context(index_schema):
+            FeaturePurchaseIndex.objects.filter(purchase_id=purchase.id).update(
+                gateway_reference=intent_result.gateway_reference or "",
+                status=FeaturePurchaseIndex.PurchaseStatus.PROCESSING,
+                metadata=index_metadata,
+            )
     return intent_result
 
 

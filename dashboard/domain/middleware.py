@@ -1,4 +1,5 @@
 import logging
+from types import SimpleNamespace
 
 from django.conf import settings
 from django.core.cache import cache
@@ -41,11 +42,13 @@ class CustomDomainMiddleware(TenantMainMiddleware):
             or (platform_cname and normalized_host == f"www.{platform_cname}")
         )
         if is_platform_host:
-            from django_tenants.utils import get_tenant_model
             from django.db import connection
+            from django_tenants.utils import get_public_schema_name, get_tenant_model
 
             connection.set_schema_to_public()
-            request.tenant = None
+            public_schema_name = get_public_schema_name()
+            public_tenant = get_tenant_model().objects.filter(schema_name=public_schema_name).first()
+            request.tenant = public_tenant or SimpleNamespace(schema_name=public_schema_name)
             request.urlconf = getattr(settings, "PUBLIC_SCHEMA_URLCONF", None)
             self.setup_url_routing(request, force_public=True)
             return None
@@ -126,8 +129,21 @@ class CustomDomainMiddleware(TenantMainMiddleware):
         except DomainRedirectRule.DoesNotExist:
             pass
 
-        logger.warning("[middleware] Unresolved hostname: %s", hostname)
-        return self._domain_not_found(hostname)
+        logger.warning("[middleware] Unresolved hostname: %s, falling back to default tenant", hostname)
+        return self._fallback_to_default_tenant(request, hostname)
+
+    def _fallback_to_default_tenant(self, request, hostname):
+        from django_tenants.utils import get_tenant_model
+
+        tenant_model = get_tenant_model()
+        default_schema = getattr(settings, "DEFAULT_TENANT_SCHEMA", "sho")
+        try:
+            tenant = tenant_model.objects.get(schema_name=default_schema)
+        except tenant_model.DoesNotExist:
+            return self._domain_not_found(hostname)
+
+        logger.info("[middleware] Fallback: %s -> %s", hostname, tenant.schema_name)
+        return self._set_tenant(request, tenant)
 
     def _get_hostname(self, request):
         host = request.get_host().lower().strip()

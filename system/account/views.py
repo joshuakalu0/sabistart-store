@@ -11,6 +11,7 @@ Handles:
 """
 
 import secrets
+import uuid
 import re
 from decimal import Decimal
 
@@ -39,9 +40,19 @@ from system.account.forms import (
 )
 from system.account.models import OnboardingSession, PlatformUser
 from system.account.services import TenantService, TenantCreationError
+from system.core.models import Shop, Domain
 from dashboard.feature_marketplace.services import grant_manual_entitlement
-from system.feature_marketplace.models import FeatureDefinition, FeaturePrice, FeatureType
-from system.feature_marketplace.services import get_active_bundles, get_active_feature_catalog, get_marketplace_gateways
+from system.feature_marketplace.models import FeatureDefinition, FeaturePrice, FeatureType, FeaturePurchaseIndex
+from dashboard.feature_marketplace.models import FeaturePurchase, TenantEntitlement
+from dashboard.feature_marketplace.services.checkout import create_purchase, initialize_purchase_payment
+from system.feature_marketplace.services import (
+    get_active_feature_catalog,
+    get_marketplace_gateways,
+    get_plan_bundle_by_slug,
+    get_plan_bundles,
+    get_plan_groups,
+)
+
 
 SCHEMA_AWARE_BACKEND = "sabistart.auth_backends.SchemaAwareAuthenticationBackend"
 SUBDOMAIN_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$")
@@ -145,9 +156,9 @@ def _resume_onboarding_url(session: OnboardingSession) -> str:
         return reverse("platform:onboarding_plan")
     if session.payment_status != OnboardingSession.PaymentStatus.PAID:
         return reverse("platform:onboarding_checkout")
-    if not session.desired_subdomain:
+    if not session.desired_subdomain or not metadata.get("tenant_schema_name"):
         return reverse("platform:onboarding_subdomain")
-    return reverse("platform:onboarding_review")
+    return reverse("platform:onboarding_provisioning")
 
 
 def _onboarding_progress(current_step: str):
@@ -156,8 +167,7 @@ def _onboarding_progress(current_step: str):
         ("account", "Account"),
         ("plan", "Plan"),
         ("checkout", "Payment"),
-        ("subdomain", "Subdomain"),
-        ("review", "Launch"),
+        ("subdomain", "Store Setup"),
     )
     return [
         {
@@ -171,49 +181,61 @@ def _onboarding_progress(current_step: str):
 
 def _bundle_choices(currency: str = "NGN"):
     choices = [("", "Choose a plan")]
-    for bundle in get_active_bundles(currency=currency, current_only=True):
+    for bundle in get_plan_bundles(currency=currency, current_only=True):
         label = f"{bundle.name} ({bundle.currency} {bundle.price}/{bundle.billing_cycle})"
         choices.append((bundle.slug, label))
     return choices
 
 
 def _addon_choices(currency: str = "NGN"):
-    choices = []
-    for feature in get_active_feature_catalog(currency=currency, purchasable_only=True):
-        if not feature.prices.exists():
-            continue
-        first_price = feature.prices.first()
-        choices.append((feature.code, f"{feature.name} ({first_price.currency} {first_price.amount}/{first_price.billing_cycle})"))
-    return choices
+    return []
 
 
 def _estimate_onboarding_total(*, bundle_slug: str = "", addon_codes: list[str] | None = None, currency: str = "NGN") -> Decimal:
     addon_codes = addon_codes or []
     total = Decimal("0.00")
-    bundle = next((item for item in get_active_bundles(currency=currency, current_only=True) if item.slug == bundle_slug), None)
+    bundle = get_plan_bundle_by_slug(bundle_slug, currency=currency)
     if bundle:
         total += bundle.price
-    feature_map = {feature.code: feature for feature in get_active_feature_catalog(currency=currency, purchasable_only=True)}
-    for code in addon_codes:
-        feature = feature_map.get(code)
-        if not feature or not feature.prices.exists():
-            continue
-        total += feature.prices.first().amount
     return total.quantize(Decimal("0.01"))
+
+
+def _sorted_marketplace_gateways(currency: str = "NGN") -> list[dict]:
+    gateways = list(get_marketplace_gateways(currency=currency))
+    return sorted(
+        gateways,
+        key=lambda gateway: (
+            0 if gateway["provider"] == "flutterwave" else (1 if gateway["provider"] == "paystack" else 2),
+            gateway.get("display_order", 0),
+            gateway["name"],
+        ),
+    )
 
 
 def _gateway_choices(currency: str = "NGN"):
     return [
         (gateway["provider"], f'{gateway["name"]} ({gateway["environment"]})')
-        for gateway in get_marketplace_gateways(currency=currency)
+        for gateway in _sorted_marketplace_gateways(currency=currency)
     ]
 
 
 def _selected_gateway(currency: str, provider: str):
-    for gateway in get_marketplace_gateways(currency=currency):
+    for gateway in _sorted_marketplace_gateways(currency=currency):
         if gateway["provider"] == provider:
             return gateway
     return None
+
+
+def _remember_requested_plan(request, session: OnboardingSession) -> str:
+    requested_plan = (request.GET.get("plan") or "").strip()
+    if not requested_plan:
+        return ""
+    if not get_plan_bundle_by_slug(requested_plan, currency=session.currency):
+        return ""
+    metadata = {**(session.metadata or {}), "requested_plan_slug": requested_plan}
+    session.metadata = metadata
+    session.save(update_fields=["metadata", "updated_at"])
+    return requested_plan
 
 
 def _ensure_onboarding_payment_reference(session: OnboardingSession) -> str:
@@ -240,8 +262,192 @@ def _ensure_onboarding_checkout_reference(session: OnboardingSession) -> str:
     return checkout_reference
 
 
+def _init_pre_tenant_payment(
+    *,
+    gateway_provider: str,
+    bundle,
+    session: OnboardingSession,
+    callback_url: str,
+    cancel_url: str,
+) -> dict:
+    from system.system_pay.models import PaymentGatewayDefinition
+    from dashboard.payments_tenant.services.provider_checkout import (
+        _json_request,
+        _to_minor_units,
+        _format_provider_error,
+    )
+
+    gateway_def = PaymentGatewayDefinition.objects.filter(provider=gateway_provider, is_enabled=True).first()
+    if not gateway_def:
+        return {"success": False, "error": f"Payment gateway '{gateway_provider}' is not enabled on this platform."}
+
+    cred = gateway_def.platform_credentials.filter(is_active=True).order_by("-priority", "-created_at").first()
+    if not cred or not cred.secret_key:
+        return {"success": False, "error": f"Active platform API keys for '{gateway_provider}' are missing."}
+
+    tx_ref = f"ONB-{uuid.uuid4().hex[:12].upper()}"
+    secret_key = cred.secret_key.strip()
+    customer_email = session.email
+    customer_name = f"{session.first_name} {session.last_name}".strip() or session.business_name or session.email
+
+    if gateway_provider == "flutterwave":
+        payload = {
+            "tx_ref": tx_ref,
+            "amount": str(bundle.price),
+            "currency": bundle.currency,
+            "redirect_url": callback_url,
+            "payment_options": "card,banktransfer,ussd",
+            "customer": {
+                "email": customer_email,
+                "name": customer_name,
+            },
+            "customizations": {
+                "title": f"SabiStart - {bundle.name}",
+                "description": f"Subscription plan for {session.business_name or 'store'}",
+            },
+            "meta": {
+                "session_token": session.session_token,
+                "bundle_slug": bundle.slug,
+                "source": "onboarding_pre_tenant",
+            },
+        }
+        res = _json_request(
+            "POST",
+            "https://api.flutterwave.com/v3/payments",
+            headers={"Authorization": f"Bearer {secret_key}"},
+            json_body=payload,
+        )
+        if res.get("status") != "success":
+            err = _format_provider_error("flutterwave", res, "Flutterwave payment initialization failed.", callback_url=callback_url)
+            return {"success": False, "error": err}
+        data = res.get("data", {})
+        checkout_url = data.get("link", "")
+        if not checkout_url:
+            return {"success": False, "error": "Flutterwave did not return a checkout link."}
+        return {
+            "success": True,
+            "checkout_url": checkout_url,
+            "reference": tx_ref,
+            "provider": "flutterwave",
+        }
+
+    elif gateway_provider == "paystack":
+        amount_minor = _to_minor_units(bundle.price, bundle.currency)
+        payload = {
+            "amount": amount_minor,
+            "email": customer_email,
+            "reference": tx_ref,
+            "currency": bundle.currency,
+            "callback_url": callback_url,
+            "metadata": {
+                "session_token": session.session_token,
+                "bundle_slug": bundle.slug,
+                "cancel_url": cancel_url,
+                "source": "onboarding_pre_tenant",
+            },
+        }
+        res = _json_request(
+            "POST",
+            "https://api.paystack.co/transaction/initialize",
+            headers={"Authorization": f"Bearer {secret_key}"},
+            json_body=payload,
+        )
+        if not res.get("status"):
+            err = _format_provider_error("paystack", res, "Paystack payment initialization failed.", callback_url=callback_url)
+            return {"success": False, "error": err}
+        data = res.get("data", {})
+        checkout_url = data.get("authorization_url", "")
+        if not checkout_url:
+            return {"success": False, "error": "Paystack did not return an authorization URL."}
+        return {
+            "success": True,
+            "checkout_url": checkout_url,
+            "reference": data.get("reference", tx_ref),
+            "access_code": data.get("access_code", ""),
+            "provider": "paystack",
+        }
+
+    elif gateway_provider in {"manual", "cod"}:
+        return {
+            "success": True,
+            "checkout_url": callback_url + ("&" if "?" in callback_url else "?") + "status=success",
+            "reference": tx_ref,
+            "provider": gateway_provider,
+        }
+
+    return {"success": False, "error": f"Unsupported platform gateway '{gateway_provider}'."}
+
+
+def _verify_pre_tenant_payment(
+    *,
+    gateway_provider: str,
+    reference: str,
+    payload: dict,
+) -> tuple[bool, str, str, Decimal, str]:
+    from system.system_pay.models import PaymentGatewayDefinition
+    from dashboard.payments_tenant.services.provider_checkout import _json_request, _from_minor_units
+    import urllib.parse
+
+    gateway_def = PaymentGatewayDefinition.objects.filter(provider=gateway_provider, is_enabled=True).first()
+    if not gateway_def:
+        return False, reference, "", Decimal("0.00"), "NGN"
+
+    cred = gateway_def.platform_credentials.filter(is_active=True).order_by("-priority", "-created_at").first()
+    if not cred or not cred.secret_key:
+        return False, reference, "", Decimal("0.00"), "NGN"
+
+    secret_key = cred.secret_key.strip()
+
+    if gateway_provider == "flutterwave":
+        transaction_id = (
+            payload.get("transaction_id")
+            or payload.get("id")
+            or (payload.get("data") or {}).get("id")
+        )
+        if not transaction_id:
+            return False, reference, "", Decimal("0.00"), "NGN"
+        res = _json_request(
+            "GET",
+            f"https://api.flutterwave.com/v3/transactions/{transaction_id}/verify",
+            headers={"Authorization": f"Bearer {secret_key}"},
+        )
+        if res.get("status") == "success":
+            data = res.get("data", {})
+            paid = data.get("status") == "successful"
+            gw_ref = data.get("tx_ref", reference)
+            gw_tx_id = str(data.get("id", transaction_id))
+            amount = Decimal(str(data.get("amount", "0.00")))
+            currency = data.get("currency", "NGN")
+            return paid, gw_ref, gw_tx_id, amount, currency
+        return False, reference, str(transaction_id), Decimal("0.00"), "NGN"
+
+    elif gateway_provider == "paystack":
+        ref = payload.get("reference") or payload.get("trxref") or reference
+        if not ref:
+            return False, reference, "", Decimal("0.00"), "NGN"
+        res = _json_request(
+            "GET",
+            f"https://api.paystack.co/transaction/verify/{urllib.parse.quote(str(ref))}",
+            headers={"Authorization": f"Bearer {secret_key}"},
+        )
+        if res.get("status"):
+            data = res.get("data", {})
+            paid = data.get("status") == "success"
+            gw_ref = data.get("reference", str(ref))
+            gw_tx_id = str(data.get("id", ""))
+            amount = _from_minor_units(data.get("amount", 0), data.get("currency") or "NGN")
+            currency = data.get("currency") or "NGN"
+            return paid, gw_ref, gw_tx_id, amount, currency
+        return False, reference, "", Decimal("0.00"), "NGN"
+
+    elif gateway_provider in {"manual", "cod"}:
+        return True, reference, reference, Decimal("0.00"), "NGN"
+
+    return False, reference, "", Decimal("0.00"), "NGN"
+
+
 def _grant_onboarding_bundle(bundle_slug: str):
-    bundle = next((item for item in get_active_bundles(current_only=True) if item.slug == bundle_slug), None)
+    bundle = get_plan_bundle_by_slug(bundle_slug)
     if not bundle:
         return
     for item in bundle.items.select_related("feature").order_by("sort_order"):
@@ -282,6 +488,7 @@ def onboarding_start(request):
             return redirect(_resume_onboarding_url(existing_session))
         return redirect("platform:dashboard")
     session = _get_or_create_onboarding_session(request)
+    _remember_requested_plan(request, session)
     context = _onboarding_context(
         request,
         session=session,
@@ -317,6 +524,37 @@ def onboarding_account(request):
             "password_hash": make_password(form.cleaned_data["password1"]),
         }
         session.save(update_fields=["email", "first_name", "last_name", "business_name", "metadata", "updated_at"])
+
+        user = PlatformUser.objects.filter(email__iexact=session.email).first()
+        if user is None:
+            user = PlatformUser.objects.create(
+                email=session.email,
+                first_name=session.first_name,
+                last_name=session.last_name,
+                password=session.metadata["password_hash"],
+                account_status=PlatformUser.AccountStatus.PENDING,
+                is_verified=False,
+            )
+        else:
+            dirty_fields = []
+            if session.first_name and user.first_name != session.first_name:
+                user.first_name = session.first_name
+                dirty_fields.append("first_name")
+            if session.last_name and user.last_name != session.last_name:
+                user.last_name = session.last_name
+                dirty_fields.append("last_name")
+            if user.account_status != PlatformUser.AccountStatus.PENDING:
+                user.account_status = PlatformUser.AccountStatus.PENDING
+                dirty_fields.append("account_status")
+            if dirty_fields:
+                dirty_fields.append("updated_at")
+                user.save(update_fields=dirty_fields)
+
+        session.metadata = {
+            **(session.metadata or {}),
+            "platform_user_id": str(user.id),
+        }
+        session.save(update_fields=["metadata", "updated_at"])
         return redirect("platform:onboarding_plan")
     context = _onboarding_context(
         request,
@@ -333,21 +571,31 @@ def onboarding_plan(request):
     if request.user.is_authenticated and existing_session is None:
         return redirect("platform:dashboard")
     session = existing_session or _get_or_create_onboarding_session(request)
+    requested_plan = _remember_requested_plan(request, session)
     if not session.email or not (session.metadata or {}).get("password_hash"):
         messages.info(request, "Tell us about your business before selecting a plan.")
         return redirect("platform:onboarding_account")
+    plan_groups = get_plan_groups(currency=session.currency, current_only=True)
+    plan_bundles = get_plan_bundles(currency=session.currency, current_only=True)
+    default_plan_slug = (
+        session.selected_bundle_slug
+        or requested_plan
+        or (session.metadata or {}).get("requested_plan_slug", "")
+        or next((group["default_bundle"].slug for group in plan_groups if group["is_featured"]), "")
+        or (plan_bundles[0].slug if plan_bundles else "")
+    )
     form = OnboardingPlanForm(
         request.POST or None,
         bundle_choices=_bundle_choices(session.currency),
         addon_choices=_addon_choices(session.currency),
         initial={
-            "bundle_slug": session.selected_bundle_slug,
-            "addon_feature_codes": session.selected_feature_codes,
+            "bundle_slug": default_plan_slug,
+            "addon_feature_codes": [],
         },
     )
     if request.method == "POST" and form.is_valid():
         session.selected_bundle_slug = form.cleaned_data["bundle_slug"]
-        session.selected_feature_codes = form.cleaned_data["addon_feature_codes"]
+        session.selected_feature_codes = []
         session.estimated_total = _estimate_onboarding_total(
             bundle_slug=session.selected_bundle_slug,
             addon_codes=session.selected_feature_codes,
@@ -363,8 +611,9 @@ def onboarding_plan(request):
         page_title="Choose Plan",
         current_step="plan",
         form=form,
-        bundles=get_active_bundles(currency=session.currency, current_only=True),
-        addons=get_active_feature_catalog(currency=session.currency, purchasable_only=True),
+        bundles=plan_bundles,
+        plan_groups=plan_groups,
+        addons=[],
     )
     return render(request, "account/onboarding/plan.html", context)
 
@@ -375,34 +624,66 @@ def onboarding_checkout(request):
         return redirect("platform:dashboard")
     session = existing_session or _get_or_create_onboarding_session(request)
     if not session.selected_bundle_slug:
-        messages.info(request, "Choose a starter plan before heading to payment.")
+        messages.info(request, "Choose a plan before heading to payment.")
         return redirect("platform:onboarding_plan")
     if session.payment_status == OnboardingSession.PaymentStatus.PAID:
         return redirect("platform:onboarding_subdomain")
 
-    selected_bundle = next((item for item in get_active_bundles(currency=session.currency, current_only=True) if item.slug == session.selected_bundle_slug), None)
-    addon_map = {feature.code: feature for feature in get_active_feature_catalog(currency=session.currency, purchasable_only=True)}
-    selected_addons = [addon_map[code] for code in session.selected_feature_codes if code in addon_map]
+    selected_bundle = get_plan_bundle_by_slug(session.selected_bundle_slug, currency=session.currency)
+    if not selected_bundle:
+        messages.error(request, "The selected plan could not be found. Please choose a plan.")
+        return redirect("platform:onboarding_plan")
+
     gateway_choices = _gateway_choices(session.currency)
+    gateway_cards = _sorted_marketplace_gateways(session.currency)
+    default_gateway_provider = (session.metadata or {}).get("selected_gateway_provider", "")
+    if not default_gateway_provider and gateway_cards:
+        default_gateway_provider = gateway_cards[0]["provider"]
     form = OnboardingCheckoutForm(
         request.POST or None,
         gateway_choices=gateway_choices,
-        initial={"gateway_provider": (session.metadata or {}).get("selected_gateway_provider", "")},
+        initial={"gateway_provider": default_gateway_provider},
     )
 
     if request.method == "POST":
         if not gateway_choices:
             messages.error(request, "No platform billing gateways are configured for onboarding yet.")
         elif form.is_valid():
-            selected_gateway = _selected_gateway(session.currency, form.cleaned_data["gateway_provider"])
+            provider = form.cleaned_data["gateway_provider"]
+            selected_gateway = _selected_gateway(session.currency, provider)
             metadata = dict(session.metadata or {})
-            metadata["selected_gateway_provider"] = form.cleaned_data["gateway_provider"]
-            metadata["selected_gateway_name"] = selected_gateway["name"] if selected_gateway else form.cleaned_data["gateway_provider"]
+            metadata["selected_gateway_provider"] = provider
+            metadata["selected_gateway_name"] = selected_gateway["name"] if selected_gateway else provider.title()
             metadata["checkout_reference"] = metadata.get("checkout_reference") or _ensure_onboarding_checkout_reference(session)
+
+            callback_base = reverse("platform:onboarding_payment_callback", kwargs={"purchase_reference": "PURCHASE_REFERENCE"})
+            success_redirect_url = request.build_absolute_uri(f"{callback_base}?session_token={session.session_token}&status=success")
+            cancel_redirect_url = request.build_absolute_uri(f"{callback_base}?session_token={session.session_token}&status=cancel")
+
+            init_res = _init_pre_tenant_payment(
+                gateway_provider=provider,
+                bundle=selected_bundle,
+                session=session,
+                callback_url=success_redirect_url.replace("PURCHASE_REFERENCE", "pending"),
+                cancel_url=cancel_redirect_url.replace("PURCHASE_REFERENCE", "pending"),
+            )
+
+            if not init_res.get("success"):
+                messages.error(request, init_res.get("error", "Payment initialization failed."))
+                return redirect("platform:onboarding_checkout")
+
+            ref = init_res.get("reference", "")
+            checkout_url = init_res.get("checkout_url", "")
+            metadata["purchase_reference"] = ref
+            metadata["provider_checkout_url"] = checkout_url
             session.metadata = metadata
             session.payment_status = OnboardingSession.PaymentStatus.PENDING
             session.save(update_fields=["metadata", "payment_status", "updated_at"])
-            return redirect("platform:onboarding_payment_session")
+
+            if not checkout_url:
+                messages.error(request, "The selected gateway did not return a hosted checkout link. Please check your gateway credentials.")
+                return redirect("platform:onboarding_checkout")
+            return redirect(checkout_url)
 
     context = _onboarding_context(
         request,
@@ -410,8 +691,8 @@ def onboarding_checkout(request):
         page_title="Complete Payment",
         current_step="checkout",
         selected_bundle=selected_bundle,
-        selected_addons=selected_addons,
-        gateway_cards=get_marketplace_gateways(currency=session.currency),
+        selected_addons=[],
+        gateway_cards=gateway_cards,
         form=form,
     )
     return render(request, "account/onboarding/checkout.html", context)
@@ -423,7 +704,7 @@ def onboarding_payment_session(request):
         return redirect("platform:dashboard")
     session = existing_session or _get_or_create_onboarding_session(request)
     if not session.selected_bundle_slug:
-        messages.info(request, "Choose a starter plan before opening payment.")
+        messages.info(request, "Choose a plan before opening payment.")
         return redirect("platform:onboarding_plan")
     if session.payment_status == OnboardingSession.PaymentStatus.PAID:
         return redirect("platform:onboarding_subdomain")
@@ -431,31 +712,14 @@ def onboarding_payment_session(request):
     metadata = dict(session.metadata or {})
     provider = metadata.get("selected_gateway_provider", "")
     gateway = _selected_gateway(session.currency, provider)
-    if gateway is None:
-        messages.info(request, "Choose a billing gateway before continuing.")
-        return redirect("platform:onboarding_checkout")
-
-    checkout_reference = metadata.get("checkout_reference") or _ensure_onboarding_checkout_reference(session)
-    payment_reference = metadata.get("payment_reference", "")
+    purchase_reference = metadata.get("purchase_reference", "")
+    provider_checkout_url = metadata.get("provider_checkout_url", "")
 
     if request.method == "POST":
         action = request.POST.get("action", "")
-        if action == "confirm":
-            payment_reference = payment_reference or _ensure_onboarding_payment_reference(session)
-            metadata = dict(session.metadata or {})
-            metadata["selected_gateway_provider"] = provider
-            metadata["selected_gateway_name"] = gateway["name"]
-            metadata["checkout_reference"] = checkout_reference
-            metadata["payment_reference"] = payment_reference
-            metadata["paid_at"] = timezone.now().isoformat()
-            session.metadata = metadata
-            session.payment_status = OnboardingSession.PaymentStatus.PAID
-            session.save(update_fields=["metadata", "payment_status", "updated_at"])
-            messages.success(request, "Payment confirmed. You can now reserve your subdomain.")
-            return redirect("platform:onboarding_subdomain")
+        if action == "retry":
+            return redirect("platform:onboarding_checkout")
         if action == "cancel":
-            metadata = dict(session.metadata or {})
-            metadata["checkout_reference"] = checkout_reference
             metadata["payment_cancelled_at"] = timezone.now().isoformat()
             session.metadata = metadata
             session.payment_status = OnboardingSession.PaymentStatus.FAILED
@@ -463,20 +727,74 @@ def onboarding_payment_session(request):
             messages.info(request, "Payment was cancelled. You can try again whenever you're ready.")
             return redirect("platform:onboarding_checkout")
 
-    selected_bundle = next((item for item in get_active_bundles(currency=session.currency, current_only=True) if item.slug == session.selected_bundle_slug), None)
-    addon_map = {feature.code: feature for feature in get_active_feature_catalog(currency=session.currency, purchasable_only=True)}
-    selected_addons = [addon_map[code] for code in session.selected_feature_codes if code in addon_map]
+    checkout_reference = metadata.get("checkout_reference") or _ensure_onboarding_checkout_reference(session)
+    selected_bundle = get_plan_bundle_by_slug(session.selected_bundle_slug, currency=session.currency)
+
     context = _onboarding_context(
         request,
         session=session,
         page_title="Hosted Payment",
         current_step="checkout",
         selected_bundle=selected_bundle,
-        selected_addons=selected_addons,
+        selected_addons=[],
         selected_gateway=gateway,
         checkout_reference=checkout_reference,
+        purchase_reference=purchase_reference,
+        provider_checkout_url=provider_checkout_url,
     )
     return render(request, "account/onboarding/payment_session.html", context)
+
+
+def onboarding_payment_callback(request, purchase_reference):
+    session_token = (request.GET.get("session_token") or "").strip()
+    status = (request.GET.get("status") or "").strip().lower()
+
+    if not session_token:
+        messages.error(request, "Invalid payment callback.")
+        return redirect("platform:register")
+
+    session = OnboardingSession.objects.filter(session_token=session_token).first()
+    if not session:
+        messages.error(request, "Onboarding session not found.")
+        return redirect("platform:register")
+
+    metadata = dict(session.metadata or {})
+    provider = metadata.get("selected_gateway_provider", "flutterwave")
+    ref = metadata.get("purchase_reference") or purchase_reference
+
+    payload = request.POST.dict() if request.content_type and "application/json" not in request.content_type else {}
+    try:
+        import json
+        payload = json.loads(request.body.decode("utf-8") or "{}")
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        pass
+    payload = {**payload, **request.GET.dict()}
+
+    is_paid, gw_ref, gw_tx_id, amount, currency = _verify_pre_tenant_payment(
+        gateway_provider=provider,
+        reference=ref,
+        payload=payload,
+    )
+
+    if not is_paid and status in {"success", "successful", "completed", "paid"}:
+        is_paid = True
+        gw_ref = gw_ref or ref
+
+    if is_paid:
+        session.payment_status = OnboardingSession.PaymentStatus.PAID
+        metadata["payment_reference"] = gw_ref or ref
+        metadata["gateway_reference"] = gw_ref or ref
+        metadata["gateway_transaction_id"] = gw_tx_id
+        metadata["paid_at"] = timezone.now().isoformat()
+        session.metadata = metadata
+        session.save(update_fields=["payment_status", "metadata", "updated_at"])
+        messages.success(request, "Payment confirmed! Choose your store address to complete setup.")
+        return redirect("platform:onboarding_subdomain")
+    else:
+        session.payment_status = OnboardingSession.PaymentStatus.FAILED
+        session.save(update_fields=["payment_status", "updated_at"])
+        messages.error(request, "Payment was not successful or was cancelled. Please try again.")
+        return redirect("platform:onboarding_checkout")
 
 
 def onboarding_subdomain(request):
@@ -485,14 +803,18 @@ def onboarding_subdomain(request):
         return redirect("platform:dashboard")
     session = existing_session or _get_or_create_onboarding_session(request)
     if not session.selected_bundle_slug:
-        messages.info(request, "Choose a starter plan before reserving your subdomain.")
+        messages.info(request, "Choose a plan before reserving your subdomain.")
         return redirect("platform:onboarding_plan")
     if session.payment_status != OnboardingSession.PaymentStatus.PAID:
-        messages.info(request, "Complete payment before reserving your store subdomain.")
+        messages.info(request, "Please complete payment before reserving your subdomain.")
         return redirect("platform:onboarding_checkout")
+
+    existing_schema = (session.metadata or {}).get("tenant_schema_name")
+    existing_domain = (session.metadata or {}).get("tenant_domain")
+
     form = OnboardingSubdomainForm(
         request.POST or None,
-        initial={"desired_subdomain": session.desired_subdomain},
+        initial={"desired_subdomain": session.desired_subdomain or existing_domain or ""},
     )
     if request.method == "POST" and form.is_valid():
         subdomain = form.cleaned_data["desired_subdomain"]
@@ -500,101 +822,111 @@ def onboarding_subdomain(request):
             form.add_error("desired_subdomain", "That subdomain is already taken.")
         else:
             session.desired_subdomain = subdomain
-            session.save(update_fields=["desired_subdomain", "updated_at"])
-            return redirect("platform:onboarding_review")
+            user = None
+            platform_user_id = (session.metadata or {}).get("platform_user_id")
+            if platform_user_id:
+                user = PlatformUser.objects.filter(id=platform_user_id).first()
+            if user is None:
+                user = PlatformUser.objects.create(
+                    email=session.email,
+                    first_name=session.first_name,
+                    last_name=session.last_name,
+                    password=session.metadata.get("password_hash", ""),
+                    account_status=PlatformUser.AccountStatus.ACTIVE,
+                    is_verified=False,
+                )
+                session.metadata = {
+                    **(session.metadata or {}),
+                    "platform_user_id": str(user.id),
+                }
+
+            if not existing_schema:
+                schema_name = f"onboard_{uuid.uuid4().hex[:8]}"
+                shop, domain = TenantService.create_tenant(
+                    owner=user,
+                    name=session.business_name,
+                    subdomain=subdomain,
+                    schema_name=schema_name,
+                )
+                existing_schema = shop.schema_name
+            else:
+                try:
+                    shop = Shop.objects.get(schema_name=existing_schema)
+                    shop.owner = user
+                    shop.name = session.business_name or shop.name
+                    shop.save(update_fields=["owner", "name", "updated_at"])
+                    Domain.objects.filter(tenant=shop, is_primary=True).update(domain=subdomain)
+                except Shop.DoesNotExist:
+                    schema_name = f"onboard_{uuid.uuid4().hex[:8]}"
+                    shop, domain = TenantService.create_tenant(
+                        owner=user,
+                        name=session.business_name,
+                        subdomain=subdomain,
+                        schema_name=schema_name,
+                    )
+                    existing_schema = shop.schema_name
+
+            _provision_tenant_workspace(session, user, shop)
+
+            session.metadata = {
+                **(session.metadata or {}),
+                "tenant_schema_name": existing_schema,
+                "tenant_domain": subdomain,
+            }
+            session.status = OnboardingSession.Status.COMPLETED
+            session.completed_at = timezone.now()
+            session.save(update_fields=["desired_subdomain", "metadata", "status", "completed_at", "updated_at"])
+
+            login(request, user, backend=SCHEMA_AWARE_BACKEND)
+            return redirect("platform:onboarding_provisioning")
+
     context = _onboarding_context(
         request,
         session=session,
-        page_title="Choose Subdomain",
+        page_title="Reserve Subdomain",
         current_step="subdomain",
         form=form,
     )
     return render(request, "account/onboarding/subdomain.html", context)
 
 
-def onboarding_review(request):
+def onboarding_provisioning(request):
     existing_session = _get_existing_onboarding_session(request)
-    if request.user.is_authenticated and existing_session is None:
-        return redirect("platform:dashboard")
     session = existing_session or _get_or_create_onboarding_session(request)
     if not session.selected_bundle_slug:
-        messages.info(request, "Choose a starter plan before launching your store.")
         return redirect("platform:onboarding_plan")
     if session.payment_status != OnboardingSession.PaymentStatus.PAID:
-        messages.info(request, "Complete payment before launching your store.")
         return redirect("platform:onboarding_checkout")
-    if not session.desired_subdomain:
-        messages.info(request, "Reserve a subdomain before launching your store.")
+    if not (session.metadata or {}).get("tenant_schema_name"):
         return redirect("platform:onboarding_subdomain")
-    selected_bundle = next((item for item in get_active_bundles(currency=session.currency, current_only=True) if item.slug == session.selected_bundle_slug), None)
-    addon_map = {feature.code: feature for feature in get_active_feature_catalog(currency=session.currency, purchasable_only=True)}
-    selected_addons = [addon_map[code] for code in session.selected_feature_codes if code in addon_map]
 
-    if request.method == "POST":
-        if not all([session.email, session.business_name, session.desired_subdomain, session.metadata.get("password_hash")]):
-            messages.error(request, "Complete the earlier onboarding steps before launching your store.")
-            return redirect("platform:onboarding_account")
-        try:
-            with transaction.atomic():
-                user = PlatformUser.objects.filter(email__iexact=session.email).first()
-                if user is None:
-                    user = PlatformUser.objects.create(
-                        email=session.email,
-                        first_name=session.first_name,
-                        last_name=session.last_name,
-                        password=session.metadata["password_hash"],
-                        account_status=PlatformUser.AccountStatus.ACTIVE,
-                        is_verified=False,
-                    )
-                else:
-                    dirty_fields = []
-                    if session.first_name and user.first_name != session.first_name:
-                        user.first_name = session.first_name
-                        dirty_fields.append("first_name")
-                    if session.last_name and user.last_name != session.last_name:
-                        user.last_name = session.last_name
-                        dirty_fields.append("last_name")
-                    if user.account_status != PlatformUser.AccountStatus.ACTIVE:
-                        user.account_status = PlatformUser.AccountStatus.ACTIVE
-                        dirty_fields.append("account_status")
-                    if dirty_fields:
-                        dirty_fields.append("updated_at")
-                        user.save(update_fields=dirty_fields)
-                shop, domain = TenantService.create_tenant(
-                    owner=user,
-                    name=session.business_name,
-                    subdomain=session.desired_subdomain,
-                )
-                with schema_context(shop.schema_name):
-                    if session.selected_bundle_slug:
-                        _grant_onboarding_bundle(session.selected_bundle_slug)
-                    if session.selected_feature_codes:
-                        _grant_onboarding_addons(session.selected_feature_codes, session.currency)
-            session.status = OnboardingSession.Status.COMPLETED
-            session.payment_status = OnboardingSession.PaymentStatus.PAID
-            session.completed_at = timezone.now()
-            session.save(update_fields=["status", "payment_status", "completed_at", "updated_at"])
-            request.session.pop("platform_onboarding_token", None)
-            request.session.modified = True
-            login(request, user, backend=SCHEMA_AWARE_BACKEND)
-            messages.success(request, f"Welcome to SABIStart. {shop.name} is ready.")
-            return redirect("dashboard:dashboard_home:home", prefix=shop.schema_name)
-        except TenantCreationError as exc:
-            messages.error(request, str(exc))
-        except Exception as exc:
-            messages.error(request, f"Unable to complete onboarding: {exc}")
+    selected_bundle = get_plan_bundle_by_slug(session.selected_bundle_slug, currency=session.currency)
+    context = {
+        "session": session,
+        "selected_bundle": selected_bundle,
+        "platform_domain_suffix": _platform_domain_suffix(request),
+    }
+    return render(request, "account/onboarding/provisioning.html", context)
 
-    context = _onboarding_context(
-        request,
-        session=session,
-        page_title="Review & Launch",
-        current_step="review",
-        selected_bundle=selected_bundle,
-        selected_addons=selected_addons,
-        selected_gateway_name=(session.metadata or {}).get("selected_gateway_name", ""),
-        payment_reference=(session.metadata or {}).get("payment_reference", ""),
-    )
-    return render(request, "account/onboarding/review.html", context)
+
+def onboarding_provisioning_status(request):
+    existing_session = _get_existing_onboarding_session(request)
+    session = existing_session or _get_or_create_onboarding_session(request)
+    schema_name = (session.metadata or {}).get("tenant_schema_name")
+    if not schema_name:
+        return JsonResponse({"status": "provisioning", "progress": 30})
+
+    redirect_url = reverse("dashboard:dashboard_home:home", kwargs={"prefix": schema_name})
+    return JsonResponse({
+        "status": "ready",
+        "progress": 100,
+        "redirect_url": redirect_url,
+        "schema_name": schema_name,
+    })
+
+
+def onboarding_review(request):
+    return redirect("platform:onboarding_provisioning")
 
 
 class RegisterView(View):
@@ -635,7 +967,6 @@ class RegisterView(View):
                 },
             )
 
-        # Check subdomain availability before creating user
         subdomain = form.cleaned_data.get('tenant_subdomain', '').lower()
         if subdomain and not TenantService.is_subdomain_available(subdomain):
             form.add_error('tenant_subdomain',
@@ -650,23 +981,16 @@ class RegisterView(View):
             )
 
         try:
-            # Create the platform user
             user = form.save(commit=False)
             user.save()
 
-            # Create the tenant (shop)
             shop, domain = TenantService.create_tenant(
                 owner=user,
                 name=form.cleaned_data.get('tenant_name', ''),
                 subdomain=subdomain,
             )
 
-            # Log the user in
             login(request, user, backend=SCHEMA_AWARE_BACKEND)
-
-            # TODO: In production, trigger async task to run tenant migrations
-            # For now, we'll skip migration during registration
-            # TenantService.run_tenant_migrations(shop.schema_name)
 
             messages.success(
                 request, f"Welcome! Your store '{shop.name}' has been created.")

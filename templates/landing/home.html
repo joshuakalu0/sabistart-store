@@ -184,83 +184,9 @@
   <div class="container mx-auto px-6">
     <div class="text-center max-w-2xl mx-auto mb-5">
       <h2 class="text-3xl font-extrabold">SabiStart Store Plans</h2>
-      <p class="text-gray-600">Online stores built to sell, not just look good.</p>
+      <p class="text-gray-600">Three clean packs for launch, growth, and full-stack commerce.</p>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-      <div class="bg-white rounded-2xl shadow p-6 flex flex-col">
-        <h3 class="text-xl font-bold mb-1">Startup Store</h3>
-        <p class="text-sm text-gray-600 mb-4">For new sellers starting small.</p>
-        <div class="text-2xl font-bold text-[color:var(--brand-primary)]">₦500 / Mo.</div>
-        <div class="text-sm text-gray-600 mb-4"><em>₦3500 one-time setup fee</em></div>
-        <hr class="mb-4 border-indigo-200" />
-        <ul class="text-sm text-gray-700 space-y-2 mb-6">
-          <li>• Up to 20 product listings</li>
-          <li>• Store name & logo</li>
-          <li>• Default store theme</li>
-          <li>• WhatsApp checkout</li>
-          <li>• Compliance tools</li>
-        </ul>
-        <a href="/platform/register/" class="mt-auto text-center py-3 rounded-xl btn-outline-brand font-semibold">Choose Plan</a>
-      </div>
-      <div class="bg-white rounded-2xl shadow p-6 flex flex-col border-2 border-[color:var(--brand-primary)]">
-        <span class="text-xs font-semibold text-[color:var(--brand-primary)] mb-2">MOST POPULAR</span>
-        <h3 class="text-xl font-bold mb-1">Pro Store</h3>
-        <p class="text-sm text-gray-600 mb-4">For growing online businesses.</p>
-        <div class="text-2xl font-bold text-[color:var(--brand-primary)]">₦999 / Mo.</div>
-        <div class="text-sm text-gray-600 mb-4"><em>₦7,000 one-time setup fee</em></div>
-        <hr class="mb-4 border-indigo-200" />
-        <ul class="text-sm text-gray-700 space-y-2 mb-6">
-          <li>• Up to 50 product listings</li>
-          <li>• Custom store colors</li>
-          <li>• .store domain</li>
-          <li>• WhatsApp Checkout</li>
-          <li>• Paystack integration</li>
-          <li>• Full customer lead access</li>
-          <li>• Compliance tools</li>
-          <li>• Limited customisation</li>
-          <li>• POS</li>
-        </ul>
-        <a href="/platform/register/" class="mt-auto text-center py-3 rounded-xl btn-primary font-semibold">Choose Plan</a>
-      </div>
-      <div class="bg-white rounded-2xl shadow p-6 flex flex-col">
-        <h3 class="text-xl font-bold mb-1">Brand Store</h3>
-        <p class="text-sm text-gray-600 mb-4">For serious brands & visibility.</p>
-        <div class="text-2xl font-bold text-[color:var(--brand-primary)]">₦1,499 / Mo.</div>
-        <div class="text-sm text-gray-600 mb-4"><em>₦7,000 one-time setup fee</em></div>
-        <hr class="mb-4 border-indigo-200" />
-        <ul class="text-sm text-gray-700 space-y-2 mb-6">
-          <li>• Up to 80 product listings</li>
-          <li>• Full branding</li>
-          <li>• .store domain</li>
-          <li>• Analytics</li>
-          <li>• Priority storefront design</li>
-          <li>• Contact details</li>
-          <li>• Paystack + WhatsApp checkout</li>
-          <li>• Admin Mobile App</li>
-          <li>• Compliance tools</li>
-          <li>• POS</li>
-        </ul>
-        <a href="/platform/register/" class="mt-auto text-center py-3 rounded-xl btn-outline-brand font-semibold">Choose Plan</a>
-      </div>
-      <div class="bg-white rounded-2xl shadow p-6 flex flex-col">
-        <h3 class="text-xl font-bold mb-1">Enterprise</h3>
-        <p class="text-sm text-gray-600 mb-4">For large scale operations.</p>
-        <div class="text-2xl font-bold text-[color:var(--brand-primary)]">Custom</div>
-        <div class="text-sm text-gray-600 mb-4"><em>Tailored to your business</em></div>
-        <hr class="mb-4 border-indigo-200" />
-        <ul class="text-sm text-gray-700 space-y-2 mb-6">
-          <li>• Unlimited product listings</li>
-          <li>• Full customization</li>
-          <li>• Dedicated infrastructure</li>
-          <li>• 24/7 premium support</li>
-          <li>• Custom integrations</li>
-          <li>• Admin Mobile App</li>
-          <li>• Compliance tools</li>
-          <li>• POS</li>
-        </ul>
-        <a href="{% url 'landing:contact' %}" class="mt-auto text-center py-3 rounded-xl btn-outline-brand font-semibold">Contact Sales</a>
-      </div>
-    </div>
+    {% include "landing/_plan_cards.html" with plan_groups=landing_plan_groups %}
   </div>
 </section>
 

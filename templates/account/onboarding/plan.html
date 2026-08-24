@@ -2,24 +2,116 @@
 {% block title %}Step 2 - SabiStart{% endblock %}
 {% block auth_content %}
   <div class="mb-8">
-    <span class="inline-block mb-3 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-[color:var(--brand-primary)]">Step 2 of 5</span>
-    <h1 class="text-2xl font-extrabold text-gray-900">Choose your starter plan</h1>
-    <p class="mt-2 text-sm text-gray-500">Plans come from the live marketplace catalog, so what you pick here lines up with the same entitlement system the platform uses everywhere else.</p>
+    <span class="inline-block mb-3 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-[color:var(--brand-primary)]">Step 2 of 4</span>
+    <h1 class="text-2xl font-extrabold text-gray-900">Choose your plan</h1>
+    <p class="mt-2 text-sm text-gray-500">Pick one of the three main packs. Extra modules can be purchased later inside your dashboard.</p>
   </div>
 
-  <form method="post" class="space-y-4">
+  <form method="post" class="space-y-6" data-plan-selector>
     {% csrf_token %}
-    <div>
-      <label for="{{ form.bundle_slug.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Plan</label>
-      {{ form.bundle_slug }}
+    {% if plan_groups %}
+      <div class="flex items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-gray-50 p-2">
+        <button type="button" class="plan-cycle-toggle flex-1 rounded-xl bg-white px-4 py-2 text-sm font-bold text-gray-900 shadow-sm" data-cycle="monthly">Monthly</button>
+        <button type="button" class="plan-cycle-toggle flex-1 rounded-xl px-4 py-2 text-sm font-bold text-gray-500" data-cycle="annual">Annual <span class="text-xs text-green-600">Save 2 months</span></button>
+      </div>
+
+      <div class="grid gap-5">
+        {% for group in plan_groups %}
+          <div class="rounded-3xl border bg-white p-5 transition {% if group.is_featured %}border-[color:var(--brand-primary)] shadow-lg shadow-indigo-100{% else %}border-gray-200{% endif %}">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                {% if group.is_featured %}
+                  <span class="mb-2 inline-flex rounded-full bg-indigo-50 px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-[color:var(--brand-primary)]">Most popular</span>
+                {% endif %}
+                <h3 class="text-xl font-extrabold text-gray-900">{{ group.name }}</h3>
+                <p class="mt-1 text-sm text-gray-500">{{ group.description }}</p>
+              </div>
+              <div class="text-right">
+                {% if group.monthly %}
+                  <div data-cycle-price="monthly">
+                    <p class="text-2xl font-black text-gray-900">{{ group.monthly.currency }} {{ group.monthly.price }}</p>
+                    <p class="text-xs font-semibold text-gray-500">per month</p>
+                  </div>
+                {% endif %}
+                {% if group.annual %}
+                  <div data-cycle-price="annual" class="hidden">
+                    <p class="text-2xl font-black text-gray-900">{{ group.annual.currency }} {{ group.annual.price }}</p>
+                    <p class="text-xs font-semibold text-gray-500">per year</p>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="mt-5 grid gap-3 sm:grid-cols-2">
+              {% if group.monthly %}
+                <label class="block cursor-pointer">
+                  <input type="radio" name="{{ form.bundle_slug.name }}" value="{{ group.monthly.slug }}" class="sr-only peer" {% if group.monthly.slug == form.initial.bundle_slug %}checked{% endif %} />
+                  <span class="block rounded-2xl border border-gray-200 p-4 text-sm font-bold text-gray-700 peer-checked:border-[color:var(--brand-primary)] peer-checked:bg-indigo-50 peer-checked:text-[color:var(--brand-primary)]">Monthly billing</span>
+                </label>
+              {% endif %}
+              {% if group.annual %}
+                <label class="block cursor-pointer">
+                  <input type="radio" name="{{ form.bundle_slug.name }}" value="{{ group.annual.slug }}" class="sr-only peer" {% if group.annual.slug == form.initial.bundle_slug %}checked{% endif %} />
+                  <span class="block rounded-2xl border border-gray-200 p-4 text-sm font-bold text-gray-700 peer-checked:border-[color:var(--brand-primary)] peer-checked:bg-indigo-50 peer-checked:text-[color:var(--brand-primary)]">Annual billing</span>
+                </label>
+              {% endif %}
+            </div>
+
+            <ul class="mt-5 grid gap-2 text-sm text-gray-600">
+              {% for feature in group.features %}
+                <li class="flex items-start gap-2">
+                  <span class="mt-0.5 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-xs font-bold text-green-700">&check;</span>
+                  <span>{{ feature }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endfor %}
+      </div>
+
+      {% if form.bundle_slug.errors %}
+        <div class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {{ form.bundle_slug.errors|join:", " }}
+        </div>
+      {% endif %}
+    {% else %}
+      <div class="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
+        No plans are available right now. Please seed the feature catalog or contact support.
+      </div>
+    {% endif %}
+
+    <div class="flex gap-3">
+      <a href="{% url 'platform:onboarding_account' %}" class="inline-flex flex-1 items-center justify-center rounded-xl border border-gray-200 px-5 py-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">Back</a>
+      <button type="submit" class="inline-flex flex-1 items-center justify-center rounded-xl btn-primary px-5 py-3 text-sm font-semibold" {% if not plan_groups %}disabled{% endif %}>
+        Continue to payment
+      </button>
     </div>
-    <div>
-      <label for="{{ form.addon_feature_codes.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Add-ons</label>
-      {{ form.addon_feature_codes }}
-      <p class="mt-1 text-xs text-gray-500">Optional features you want to enable from day one.</p>
-    </div>
-    <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl btn-primary px-5 py-3 text-sm font-semibold">
-      Continue to payment
-    </button>
   </form>
+
+  <script>
+    (function () {
+      const root = document.querySelector("[data-plan-selector]");
+      if (!root) return;
+      const buttons = root.querySelectorAll(".plan-cycle-toggle");
+      const setCycle = function (cycle) {
+        buttons.forEach(function (button) {
+          const active = button.dataset.cycle === cycle;
+          button.classList.toggle("bg-white", active);
+          button.classList.toggle("text-gray-900", active);
+          button.classList.toggle("shadow-sm", active);
+          button.classList.toggle("text-gray-500", !active);
+        });
+        root.querySelectorAll("[data-cycle-price]").forEach(function (node) {
+          node.classList.toggle("hidden", node.dataset.cyclePrice !== cycle);
+        });
+      };
+      buttons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          setCycle(button.dataset.cycle);
+        });
+      });
+      const checked = root.querySelector("input[name='{{ form.bundle_slug.name }}']:checked");
+      setCycle(checked && checked.value.indexOf("-annual") !== -1 ? "annual" : "monthly");
+    })();
+  </script>
 {% endblock %}

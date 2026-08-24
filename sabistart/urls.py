@@ -22,11 +22,13 @@ from django.views.static import serve
 from django.urls import re_path
 from dashboard.domain import views as domain_views
 from sabistart import deploy_status
+from sabistart import favicon
 from sabistart import health
 from sabistart.media_proxy import media_proxy
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("favicon.ico", favicon.favicon, name="favicon"),
     path("deployz/", deploy_status.deployz, name="deployz"),
     path("healthz/", health.healthz, name="healthz"),
     path("readyz/", health.readyz, name="readyz"),

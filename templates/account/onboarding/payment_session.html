@@ -2,48 +2,64 @@
 {% block title %}Payment - SabiStart{% endblock %}
 {% block auth_content %}
   <div class="mb-8">
-    <span class="inline-block mb-3 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-[color:var(--brand-primary)]">Step 3 of 5</span>
-    <h1 class="text-2xl font-extrabold text-gray-900">Hosted payment handoff</h1>
-    <p class="mt-2 text-sm text-gray-500">This page keeps the onboarding session resumable and records a real payment state before store creation.</p>
+    <span class="inline-block mb-3 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-[color:var(--brand-primary)]">Step 4 of 5</span>
+    <h1 class="text-2xl font-extrabold text-gray-900">Complete your payment</h1>
+    <p class="mt-2 text-sm text-gray-500">You will be redirected to our secure payment partner to complete your purchase.</p>
   </div>
 
   <div class="mb-8 rounded-2xl border border-gray-200 bg-gray-50 p-6 text-sm">
     <div class="flex items-center justify-between gap-4">
-      <span class="text-gray-500">Gateway</span>
-      <strong class="text-gray-900">{{ selected_gateway.name }}</strong>
+      <span class="text-gray-500">Plan</span>
+      <strong class="text-gray-900">{{ selected_bundle.name|cut:" Monthly"|cut:" Annual"|default:"No plan selected" }}</strong>
     </div>
     <div class="mt-4 flex items-center justify-between gap-4">
-      <span class="text-gray-500">Checkout Reference</span>
-      <strong class="font-mono text-gray-900">{{ checkout_reference }}</strong>
-    </div>
-    <div class="mt-4 flex items-center justify-between gap-4">
-      <span class="text-gray-500">Plan Total</span>
+      <span class="text-gray-500">Total</span>
       <strong class="text-gray-900">{{ onboarding_session.currency }} {{ onboarding_session.estimated_total }}</strong>
     </div>
-    <div class="mt-4 flex items-center justify-between gap-4">
-      <span class="text-gray-500">Plan</span>
-      <strong class="text-gray-900">{{ selected_bundle.name|default:"Starter plan" }}</strong>
-    </div>
+    {% if selected_gateway %}
+      <div class="mt-4 flex items-center justify-between gap-4">
+        <span class="text-gray-500">Payment method</span>
+        <strong class="text-gray-900">{{ selected_gateway.name }}</strong>
+      </div>
+    {% endif %}
   </div>
 
-  {% if selected_addons %}
-    <div class="mb-8 rounded-2xl border border-gray-200 bg-white p-6">
-      <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">Add-ons being charged now</p>
-      <div class="mt-4 flex flex-wrap gap-2">
-        {% for addon in selected_addons %}
-          <span class="inline-flex rounded-full bg-gray-100 px-3 py-2 text-sm font-medium text-gray-600">{{ addon.name }}</span>
-        {% endfor %}
+  {% if purchase_status == "completed" or onboarding_session.payment_status == "paid" %}
+    <div class="mb-8 rounded-2xl border border-green-200 bg-green-50 p-6 text-center">
+      <div class="text-4xl mb-2">&#10003;</div>
+      <h2 class="text-xl font-bold text-green-900">Payment confirmed</h2>
+      <p class="mt-2 text-sm text-green-700">Your payment has been received. Continue to set up your store.</p>
+      <a href="{% url 'platform:onboarding_subdomain' %}" class="mt-4 inline-flex items-center justify-center rounded-xl bg-green-600 px-5 py-3 text-sm font-semibold text-white hover:bg-green-700">Continue</a>
+    </div>
+  {% elif purchase_status == "failed" or onboarding_session.payment_status == "failed" %}
+    <div class="mb-8 rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
+      <div class="text-4xl mb-2">&#10007;</div>
+      <h2 class="text-xl font-bold text-red-900">Payment failed</h2>
+      <p class="mt-2 text-sm text-red-700">We could not process your payment. Please try again or choose a different payment method.</p>
+      <div class="mt-4 flex gap-3">
+        <a href="{% url 'platform:onboarding_checkout' %}" class="inline-flex flex-1 items-center justify-center rounded-xl border border-gray-200 px-5 py-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">Back to checkout</a>
       </div>
     </div>
+  {% else %}
+    <div class="mb-8 rounded-2xl border border-blue-200 bg-blue-50 p-6 text-center">
+      <div class="inline-block animate-spin rounded-full border-4 border-blue-600 border-t-transparent h-8 w-8 mb-3"></div>
+      <h2 class="text-xl font-bold text-blue-900">Redirecting to payment...</h2>
+      <p class="mt-2 text-sm text-blue-700">Please wait while we redirect you to complete your payment securely.</p>
+      {% if purchase_reference %}
+        <p class="mt-2 text-xs text-blue-600 font-mono">Reference: {{ purchase_reference }}</p>
+      {% endif %}
+      <div class="mt-4">
+        {% if provider_checkout_url %}
+          <a href="{{ provider_checkout_url }}" class="inline-flex items-center justify-center rounded-xl btn-primary px-5 py-3 text-sm font-semibold">Continue to secure payment</a>
+        {% else %}
+          <a href="{% url 'platform:onboarding_checkout' %}" class="inline-flex items-center justify-center rounded-xl border border-gray-200 px-5 py-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">Choose different payment method</a>
+        {% endif %}
+      </div>
+    </div>
+    <script>
+      setTimeout(function() {
+        window.location.href = "{% if provider_checkout_url %}{{ provider_checkout_url|escapejs }}{% else %}{% url 'platform:onboarding_checkout' %}{% endif %}";
+      }, 5000);
+    </script>
   {% endif %}
-
-  <form method="post" class="space-y-3">
-    {% csrf_token %}
-    <button type="submit" name="action" value="confirm" class="inline-flex w-full items-center justify-center rounded-xl btn-primary px-5 py-3 text-sm font-semibold">
-      Confirm payment
-    </button>
-    <button type="submit" name="action" value="cancel" class="inline-flex w-full items-center justify-center rounded-xl border border-gray-200 px-5 py-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">
-      Cancel payment
-    </button>
-  </form>
 {% endblock %}
