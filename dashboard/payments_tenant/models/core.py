@@ -206,7 +206,12 @@ class TenantGatewayMode(TimestampedModel):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     payment_profile = models.ForeignKey(TenantPaymentProfile, on_delete=models.CASCADE, related_name="gateway_modes")
-    gateway = models.ForeignKey(PaymentGatewayDefinition, on_delete=models.PROTECT, related_name="tenant_modes")
+    gateway = models.ForeignKey(
+        PaymentGatewayDefinition,
+        on_delete=models.DO_NOTHING,
+        db_constraint=False,
+        related_name="tenant_modes",
+    )
     mode = models.CharField(_("Payment Mode"), max_length=10, choices=PaymentMode.choices, default=PaymentMode.PLATFORM, db_index=True)
     status = models.CharField(_("Status"), max_length=20, choices=ActivationStatus.choices, default=ActivationStatus.INACTIVE, db_index=True)
     is_default = models.BooleanField(_("Default Gateway"), default=False)
@@ -214,7 +219,8 @@ class TenantGatewayMode(TimestampedModel):
         PlatformGatewayCredential,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.DO_NOTHING,
+        db_constraint=False,
         related_name="tenant_gateway_modes",
     )
     platform_subaccount_code = models.CharField(_("Tenant Subaccount Code on Platform Account"), max_length=255, blank=True)

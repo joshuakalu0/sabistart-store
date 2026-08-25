@@ -272,7 +272,8 @@ class GiftCard(MixIdAndTimeModel):
         settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.DO_NOTHING,
+        db_constraint=False,
         related_name="issued_gift_cards",
         verbose_name=_("Issued By (Staff)"),
     )

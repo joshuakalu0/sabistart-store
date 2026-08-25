@@ -1,3 +1,4 @@
+import ipaddress
 import logging
 from types import SimpleNamespace
 
@@ -10,6 +11,14 @@ from django_tenants.middleware.main import TenantMainMiddleware
 logger = logging.getLogger("dashboard.domain.middleware")
 
 CACHE_TTL = getattr(settings, "DOMAIN_RESOLUTION_CACHE_TTL", 300)
+
+
+def _is_ip_address(host: str) -> bool:
+    try:
+        ipaddress.ip_address(host)
+        return True
+    except ValueError:
+        return False
 
 
 class CustomDomainMiddleware(TenantMainMiddleware):
@@ -29,18 +38,17 @@ class CustomDomainMiddleware(TenantMainMiddleware):
         hostname = self._get_hostname(request)
         request.hostname = hostname
 
-        try:
-            return super().process_request(request)
-        except Http404:
-            pass
-
         platform_cname = getattr(settings, "PLATFORM_CNAME", "localhost").lower().strip()
+        platform_hosts = [h.lower().strip() for h in getattr(settings, "PLATFORM_HOSTS", [])]
         normalized_host = hostname.lower().strip()
         is_platform_host = (
-            normalized_host in {"localhost", "127.0.0.1"}
-            or normalized_host == platform_cname
+            normalized_host in {"localhost", "127.0.0.1", "0.0.0.0", "[::1]", "testserver"}
+            or _is_ip_address(normalized_host)
+            or (platform_cname and normalized_host == platform_cname)
             or (platform_cname and normalized_host == f"www.{platform_cname}")
+            or normalized_host in platform_hosts
         )
+
         if is_platform_host:
             from django.db import connection
             from django_tenants.utils import get_public_schema_name, get_tenant_model
@@ -52,6 +60,11 @@ class CustomDomainMiddleware(TenantMainMiddleware):
             request.urlconf = getattr(settings, "PUBLIC_SCHEMA_URLCONF", None)
             self.setup_url_routing(request, force_public=True)
             return None
+
+        try:
+            return super().process_request(request)
+        except Http404:
+            pass
 
         cached = self._redis_get(hostname)
         if cached:
@@ -146,8 +159,12 @@ class CustomDomainMiddleware(TenantMainMiddleware):
         return self._set_tenant(request, tenant)
 
     def _get_hostname(self, request):
-        host = request.get_host().lower().strip()
-        return host.split(":", 1)[0]
+        try:
+            host = request.get_host().lower().strip()
+            return host.split(":", 1)[0]
+        except Exception:
+            raw = request.META.get("HTTP_HOST", "") or request.META.get("SERVER_NAME", "localhost")
+            return raw.lower().strip().split(":", 1)[0]
 
     def _redis_get(self, hostname):
         try:

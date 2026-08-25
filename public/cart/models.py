@@ -775,7 +775,8 @@ class Order(MixIdAndTimeModel, MoneyMixin):
         settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.DO_NOTHING,
+        db_constraint=False,
         related_name="cancelled_orders",
         verbose_name=_("Cancelled By"),
     )
@@ -1378,7 +1379,8 @@ class OrderStatusHistory(IduuidModel):
         settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.DO_NOTHING,
+        db_constraint=False,
         related_name="order_status_changes",
         verbose_name=_("Changed By"),
     )
@@ -1437,7 +1439,8 @@ class OrderNote(MixIdAndTimeModel):
         settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.DO_NOTHING,
+        db_constraint=False,
         related_name="order_notes",
         verbose_name=_("Author"),
     )
@@ -1494,7 +1497,8 @@ class OrderTag(MixIdAndTimeModel):
         settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.DO_NOTHING,
+        db_constraint=False,
         related_name="added_order_tags",
     )
 
@@ -1773,7 +1777,8 @@ class Fulfillment(MixIdAndTimeModel):
         settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.DO_NOTHING,
+        db_constraint=False,
         related_name="created_fulfillments",
         verbose_name=_("Created By"),
     )
@@ -2194,7 +2199,8 @@ class Return(MixIdAndTimeModel):
         settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.DO_NOTHING,
+        db_constraint=False,
         related_name="reviewed_returns",
         verbose_name=_("Reviewed By"),
     )
@@ -2378,7 +2384,8 @@ class ReturnEvent(IduuidModel):
         settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.DO_NOTHING,
+        db_constraint=False,
         related_name="return_events",
     )
     is_customer_visible = models.BooleanField(
@@ -2587,7 +2594,8 @@ class Refund(MixIdAndTimeModel):
         settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.DO_NOTHING,
+        db_constraint=False,
         related_name="created_refunds",
         verbose_name=_("Created By"),
         help_text=_("Null = customer-initiated or automated."),
@@ -2596,7 +2604,8 @@ class Refund(MixIdAndTimeModel):
         settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.DO_NOTHING,
+        db_constraint=False,
         related_name="processed_refunds",
         verbose_name=_("Processed By"),
     )

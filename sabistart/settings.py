@@ -41,7 +41,8 @@ def env_int(name: str, default: int) -> int:
     try:
         return int(raw_value)
     except ValueError as exc:
-        raise ImproperlyConfigured(f"Environment variable {name} must be an integer.") from exc
+        raise ImproperlyConfigured(
+            f"Environment variable {name} must be an integer.") from exc
 
 
 def env_list(name: str, default=None):
@@ -99,6 +100,7 @@ def _discover_theme_static_dirs():
             static_dirs.append(candidate)
     return static_dirs
 
+
 DEFAULT_SECRET_KEY = "django-insecure-(g49vd#cf5e$0r748s)nd8trwnm7mu9rh@2mw-&a2&+)0d#t6^"
 SECRET_KEY = env("DJANGO_SECRET_KEY", DEFAULT_SECRET_KEY)
 DEBUG = env_bool("DJANGO_DEBUG", default=not IS_VERCEL)
@@ -117,7 +119,8 @@ if IS_VERCEL and ".vercel.app" not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append(".vercel.app")
 
 if not DEBUG and SECRET_KEY == DEFAULT_SECRET_KEY:
-    raise ImproperlyConfigured("Set DJANGO_SECRET_KEY before running in production.")
+    raise ImproperlyConfigured(
+        "Set DJANGO_SECRET_KEY before running in production.")
 
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
 for host in (env("VERCEL_URL", "").strip(), env("PUBLIC_VERCEL_URL", "").strip()):
@@ -241,8 +244,10 @@ DATABASE_ROUTERS = (
     "django_tenants.routers.TenantSyncRouter",
 )
 
-pooled_database_url = env("DATABASE_URL") or env("POSTGRES_URL") or env("POSTGRES_PRISMA_URL")
-unpooled_database_url = env("DATABASE_URL_UNPOOLED") or env("DATABASE_URL_DIRECT")
+pooled_database_url = env("DATABASE_URL") or env(
+    "POSTGRES_URL") or env("POSTGRES_PRISMA_URL")
+unpooled_database_url = env(
+    "DATABASE_URL_UNPOOLED") or env("DATABASE_URL_DIRECT")
 
 if _is_migration_command() and unpooled_database_url:
     database_url = unpooled_database_url
@@ -258,7 +263,8 @@ if _is_migration_command() and _is_neon_pooler_url(database_url) and not unpoole
 
 if database_url:
     if dj_database_url is None:
-        raise ImproperlyConfigured("Install dj-database-url to use DATABASE_URL or POSTGRES_URL based configuration.")
+        raise ImproperlyConfigured(
+            "Install dj-database-url to use DATABASE_URL or POSTGRES_URL based configuration.")
     DATABASES = {
         "default": dj_database_url.parse(
             database_url,
@@ -286,7 +292,8 @@ if db_ssl_mode:
     DATABASES["default"]["OPTIONS"]["sslmode"] = db_ssl_mode
 
 if DATABASES["default"]["ENGINE"] != "django_tenants.postgresql_backend":
-    raise ImproperlyConfigured("This project requires the django-tenants PostgreSQL backend.")
+    raise ImproperlyConfigured(
+        "This project requires the django-tenants PostgreSQL backend.")
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -313,11 +320,14 @@ USE_TZ = True
 STATIC_ROOT = env_path("DJANGO_STATIC_ROOT", BASE_DIR / "staticfiles")
 STATIC_URL = env("DJANGO_STATIC_URL", "/static/")
 STATICFILES_DIRS = [BASE_DIR / "static", * _discover_theme_static_dirs()]
-MULTITENANT_RELATIVE_STATIC_ROOT = ""
+MULTITENANT_RELATIVE_STATIC_ROOT = "%s"
+
+REWRITE_STATIC_URLS = True
 WHITENOISE_AUTOREFRESH = DEBUG
 WHITENOISE_USE_FINDERS = DEBUG
 
-MEDIA_ROOT = env_path("DJANGO_MEDIA_ROOT", Path("/tmp/sabistart-media") if IS_VERCEL else BASE_DIR / "media")
+MEDIA_ROOT = env_path("DJANGO_MEDIA_ROOT", Path(
+    "/tmp/sabistart-media") if IS_VERCEL else BASE_DIR / "media")
 MEDIA_URL = env("DJANGO_MEDIA_URL", "/media/")
 
 default_storage_backend = env("DJANGO_DEFAULT_FILE_STORAGE", "")
@@ -332,7 +342,8 @@ if (
     and default_storage_backend == "sabistart.storage_backends.VercelBlobStorage"
     and not env("BLOB_READ_WRITE_TOKEN")
 ):
-    raise ImproperlyConfigured("BLOB_READ_WRITE_TOKEN is required when using Vercel Blob storage on Vercel.")
+    raise ImproperlyConfigured(
+        "BLOB_READ_WRITE_TOKEN is required when using Vercel Blob storage on Vercel.")
 
 STORAGES = {
     "default": {
@@ -360,21 +371,28 @@ else:
     PLATFORM_CNAME = configured_platform_cname or "localhost"
 SUBDOMAIN_SUFFIX = env("SUBDOMAIN_SUFFIX", "")
 DOMAIN_RESOLUTION_CACHE_TTL = env_int("DOMAIN_RESOLUTION_CACHE_TTL", 300)
-DOMAIN_SIMULATE_INFRA = env_bool("DOMAIN_SIMULATE_INFRA", default=DEBUG and not IS_VERCEL)
+DOMAIN_SIMULATE_INFRA = env_bool(
+    "DOMAIN_SIMULATE_INFRA", default=DEBUG and not IS_VERCEL)
 DEFAULT_TENANT_SCHEMA = env("DEFAULT_TENANT_SCHEMA", "sho")
 
-USE_X_FORWARDED_HOST = env_bool("DJANGO_USE_X_FORWARDED_HOST", default=not DEBUG)
-USE_X_FORWARDED_PORT = env_bool("DJANGO_USE_X_FORWARDED_PORT", default=not DEBUG)
+USE_X_FORWARDED_HOST = env_bool(
+    "DJANGO_USE_X_FORWARDED_HOST", default=not DEBUG)
+USE_X_FORWARDED_PORT = env_bool(
+    "DJANGO_USE_X_FORWARDED_PORT", default=not DEBUG)
 if env_bool("DJANGO_TRUST_X_FORWARDED_PROTO", default=not DEBUG):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", default=not DEBUG)
-SESSION_COOKIE_SECURE = env_bool("DJANGO_SESSION_COOKIE_SECURE", default=not DEBUG)
+SESSION_COOKIE_SECURE = env_bool(
+    "DJANGO_SESSION_COOKIE_SECURE", default=not DEBUG)
 CSRF_COOKIE_SECURE = env_bool("DJANGO_CSRF_COOKIE_SECURE", default=not DEBUG)
-SECURE_HSTS_SECONDS = env_int("DJANGO_SECURE_HSTS_SECONDS", 31536000 if not DEBUG else 0)
-SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", default=not DEBUG)
+SECURE_HSTS_SECONDS = env_int(
+    "DJANGO_SECURE_HSTS_SECONDS", 31536000 if not DEBUG else 0)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool(
+    "DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", default=not DEBUG)
 SECURE_HSTS_PRELOAD = env_bool("DJANGO_SECURE_HSTS_PRELOAD", default=not DEBUG)
-SECURE_CONTENT_TYPE_NOSNIFF = env_bool("DJANGO_SECURE_CONTENT_TYPE_NOSNIFF", default=True)
+SECURE_CONTENT_TYPE_NOSNIFF = env_bool(
+    "DJANGO_SECURE_CONTENT_TYPE_NOSNIFF", default=True)
 SECURE_REFERRER_POLICY = env("DJANGO_SECURE_REFERRER_POLICY", "same-origin")
 X_FRAME_OPTIONS = env("DJANGO_X_FRAME_OPTIONS", "SAMEORIGIN")
 
@@ -383,7 +401,8 @@ SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", DEFAULT_FROM_EMAIL)
 
 log_to_file = env_bool("DJANGO_LOG_TO_FILE", default=not IS_VERCEL)
 LOG_TO_FILE = log_to_file
-LOG_DIR = env_path("DJANGO_LOG_DIR", Path("/tmp/logs") if (IS_VERCEL or IS_RENDER) else BASE_DIR / "logs")
+LOG_DIR = env_path("DJANGO_LOG_DIR", Path("/tmp/logs")
+                   if (IS_VERCEL or IS_RENDER) else BASE_DIR / "logs")
 
 log_handlers = ["console"]
 handlers = {

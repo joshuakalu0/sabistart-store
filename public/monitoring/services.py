@@ -52,55 +52,59 @@ def is_probable_bot(user_agent: str) -> bool:
     return any(marker in normalized for marker in markers)
 
 
-def ensure_visitor_session(request):
-    session_key = request.session.session_key or ""
-    schema_name = getattr(connection, "schema_name", "public")
-    user_identifier = ""
-    if getattr(request.user, "is_authenticated", False):
-        user_identifier = str(getattr(request.user, "pk", "")) or getattr(request.user, "email", "") or ""
+from django.db.models import Avg, Count, Max, F
 
-    defaults = {
-        "schema_name": schema_name,
-        "source": classify_request_source(request.path),
-        "user_identifier": user_identifier,
-        "ip_address": get_client_ip(request) or None,
-        "user_agent": request.META.get("HTTP_USER_AGENT", "")[:1000],
-        "referrer": request.META.get("HTTP_REFERER", "")[:500],
-        "landing_path": request.path[:500],
-        "last_path": request.path[:500],
-        "is_bot": is_probable_bot(request.META.get("HTTP_USER_AGENT", "")),
-        "last_seen_at": timezone.now(),
-    }
-    visitor_session, created = VisitorSession.objects.get_or_create(
-        session_key=session_key or f"anon:{schema_name}",
-        schema_name=schema_name,
-        defaults=defaults,
-    )
-    if not created:
-        visitor_session.source = defaults["source"]
-        visitor_session.user_identifier = user_identifier or visitor_session.user_identifier
-        visitor_session.ip_address = defaults["ip_address"] or visitor_session.ip_address
-        visitor_session.user_agent = defaults["user_agent"] or visitor_session.user_agent
-        visitor_session.referrer = defaults["referrer"] or visitor_session.referrer
-        visitor_session.last_path = request.path[:500]
-        visitor_session.last_seen_at = timezone.now()
-        visitor_session.visit_count = visitor_session.visit_count + 1
-        visitor_session.save(
-            update_fields=[
-                "source",
-                "user_identifier",
-                "ip_address",
-                "user_agent",
-                "referrer",
-                "last_path",
-                "last_seen_at",
-                "visit_count",
-            ]
+
+def ensure_visitor_session(request):
+    try:
+        session_key = request.session.session_key or ""
+        schema_name = getattr(connection, "schema_name", "public")
+        user_identifier = ""
+        user = getattr(request, "user", None)
+        if user and getattr(user, "is_authenticated", False):
+            user_identifier = str(getattr(user, "pk", "")) or getattr(user, "email", "") or ""
+
+        ip_addr = get_client_ip(request) or None
+        defaults = {
+            "schema_name": schema_name,
+            "source": classify_request_source(request.path),
+            "user_identifier": user_identifier,
+            "ip_address": ip_addr,
+            "user_agent": request.META.get("HTTP_USER_AGENT", "")[:1000],
+            "referrer": request.META.get("HTTP_REFERER", "")[:500],
+            "landing_path": request.path[:500],
+            "last_path": request.path[:500],
+            "is_bot": is_probable_bot(request.META.get("HTTP_USER_AGENT", "")),
+            "last_seen_at": timezone.now(),
+            "visit_count": 1,
+        }
+
+        lookup_key = session_key or f"anon:{schema_name}:{ip_addr or 'unknown'}"
+        visitor_session = (
+            VisitorSession.objects.filter(session_key=lookup_key, schema_name=schema_name)
+            .order_by("-last_seen_at")
+            .first()
         )
-    else:
-        visitor_session.visit_count = 1
-        visitor_session.save(update_fields=["visit_count"])
-    return visitor_session
+        if visitor_session:
+            VisitorSession.objects.filter(pk=visitor_session.pk).update(
+                source=defaults["source"],
+                user_identifier=user_identifier or visitor_session.user_identifier,
+                ip_address=ip_addr or visitor_session.ip_address,
+                user_agent=defaults["user_agent"] or visitor_session.user_agent,
+                referrer=defaults["referrer"] or visitor_session.referrer,
+                last_path=request.path[:500],
+                last_seen_at=timezone.now(),
+                visit_count=F("visit_count") + 1,
+            )
+            return visitor_session
+        else:
+            return VisitorSession.objects.create(
+                session_key=lookup_key,
+                **defaults,
+            )
+    except Exception as exc:
+        logger.debug("ensure_visitor_session non-fatal error: %s", exc)
+        return None
 
 
 def begin_request_timer(request):
