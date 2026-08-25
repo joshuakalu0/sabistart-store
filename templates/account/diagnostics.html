@@ -1,0 +1,277 @@
+{% extends "account/_platform_base.html" %}
+{% block page_intro %}
+  <p class="mt-2 text-sm text-slate-500">Run live checks on all platform services — payments, email, messaging, database, storage and environment.</p>
+{% endblock %}
+{% block page_actions %}
+  <button id="btn-run-all"
+    class="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition disabled:opacity-60">
+    <span class="material-symbols-outlined text-[18px]" id="run-all-icon">play_arrow</span>
+    <span id="run-all-label">Run All Tests</span>
+  </button>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6" id="diag-root">
+
+  {% csrf_token %}
+
+  {# Summary bar #}
+  <div id="summary-bar" class="hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="flex flex-wrap items-center gap-4 text-sm font-medium">
+      <span class="text-slate-500">Last run:</span>
+      <span id="summary-time" class="text-slate-700"></span>
+      <span class="ml-auto flex items-center gap-3">
+        <span class="flex items-center gap-1 text-emerald-600"><span class="material-symbols-outlined text-[16px]">check_circle</span><span id="count-ok">0</span> OK</span>
+        <span class="flex items-center gap-1 text-amber-500"><span class="material-symbols-outlined text-[16px]">warning</span><span id="count-warn">0</span> Warning</span>
+        <span class="flex items-center gap-1 text-red-500"><span class="material-symbols-outlined text-[16px]">cancel</span><span id="count-err">0</span> Error</span>
+      </span>
+    </div>
+  </div>
+
+  {# Sections #}
+  {% for section in sections %}
+  <div class="rounded-[1.75rem] border border-slate-200 bg-white shadow-sm overflow-hidden"
+       id="section-card-{{ section.key }}" data-section="{{ section.key }}">
+
+    {# Section header #}
+    <div class="flex items-center justify-between gap-4 border-b border-slate-100 px-6 py-5">
+      <div class="flex items-center gap-3">
+        <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100">
+          <span class="material-symbols-outlined text-[20px] text-slate-600">{{ section.icon }}</span>
+        </span>
+        <div>
+          <h2 class="font-bold text-slate-900 leading-tight">{{ section.label }}</h2>
+          <p class="text-xs text-slate-500 mt-0.5">{{ section.description }}</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="badge-{{ section.key }}"
+          class="hidden items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold">
+        </span>
+        <button onclick="runSection('{{ section.key }}')"
+          id="btn-{{ section.key }}"
+          class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 hover:border-slate-300 hover:text-slate-900 transition disabled:opacity-50">
+          <span class="material-symbols-outlined text-[15px]">play_arrow</span>
+          Run
+        </button>
+      </div>
+    </div>
+
+    {# Results table #}
+    <div id="table-{{ section.key }}" class="overflow-x-auto">
+      {# Placeholder state #}
+      <div id="placeholder-{{ section.key }}" class="flex items-center gap-3 px-6 py-8 text-sm text-slate-400">
+        <span class="material-symbols-outlined text-[18px]">pending</span>
+        Click <strong class="text-slate-600 mx-1">Run</strong> to test this section.
+      </div>
+      {# Loading state #}
+      <div id="loading-{{ section.key }}" class="hidden flex items-center gap-3 px-6 py-8 text-sm text-slate-500">
+        <svg class="animate-spin h-4 w-4 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+        </svg>
+        Running checks…
+      </div>
+      {# Results #}
+      <table id="results-{{ section.key }}" class="hidden min-w-full divide-y divide-slate-100 text-sm">
+        <thead class="bg-slate-50">
+          <tr class="text-left text-xs uppercase tracking-[0.2em] text-slate-400">
+            <th class="px-6 py-3 font-semibold w-2/5">Check</th>
+            <th class="px-4 py-3 font-semibold">Status</th>
+            <th class="px-4 py-3 font-semibold">Message</th>
+            <th class="px-4 py-3 font-semibold text-right">Latency</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-{{ section.key }}" class="divide-y divide-slate-100"></tbody>
+      </table>
+      {# Detail panel #}
+      <div id="detail-{{ section.key }}" class="hidden"></div>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+
+{# Detail modal #}
+<div id="detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+  <div class="relative w-full max-w-2xl rounded-3xl border border-slate-200 bg-white shadow-2xl overflow-hidden">
+    <div class="flex items-center justify-between gap-3 border-b border-slate-100 px-6 py-4">
+      <div>
+        <p id="modal-label" class="font-bold text-slate-900"></p>
+        <p id="modal-message" class="text-xs text-slate-500 mt-0.5"></p>
+      </div>
+      <button onclick="closeModal()" class="rounded-xl p-2 hover:bg-slate-100 text-slate-400 hover:text-slate-700">
+        <span class="material-symbols-outlined text-[20px]">close</span>
+      </button>
+    </div>
+    <pre id="modal-detail" class="overflow-auto max-h-96 p-6 text-xs text-slate-600 bg-slate-50 font-mono whitespace-pre-wrap break-all"></pre>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const RUN_URL = "{{ diagnostics_run_url }}";
+const CSRF = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+const STATUS_CLASSES = {
+  ok:      'bg-emerald-50 text-emerald-700 border border-emerald-200',
+  warning: 'bg-amber-50  text-amber-700  border border-amber-200',
+  error:   'bg-red-50    text-red-600    border border-red-200',
+  unknown: 'bg-slate-100 text-slate-500  border border-slate-200',
+};
+const STATUS_ICONS = {
+  ok:      'check_circle',
+  warning: 'warning',
+  error:   'cancel',
+  unknown: 'help',
+};
+const SECTION_BADGE_CLASSES = {
+  ok:      'bg-emerald-50 text-emerald-700',
+  warning: 'bg-amber-50  text-amber-700',
+  error:   'bg-red-50    text-red-600',
+  unknown: 'bg-slate-100 text-slate-500',
+};
+
+let globalCounts = {ok: 0, warning: 0, error: 0};
+
+function setLoading(key, on) {
+  document.getElementById(`placeholder-${key}`).classList.toggle('hidden', true);
+  document.getElementById(`loading-${key}`).classList.toggle('hidden', !on);
+  document.getElementById(`results-${key}`).classList.toggle('hidden', on);
+  document.getElementById(`btn-${key}`).disabled = on;
+}
+
+function renderChecks(key, checks) {
+  const tbody = document.getElementById(`tbody-${key}`);
+  tbody.innerHTML = '';
+  checks.forEach(c => {
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-slate-50 transition';
+    const hasDetail = c.detail && c.detail.trim().length > 0;
+    tr.innerHTML = `
+      <td class="px-6 py-3 font-medium text-slate-700">${escHtml(c.label)}</td>
+      <td class="px-4 py-3">
+        <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_CLASSES[c.status] || STATUS_CLASSES.unknown}">
+          <span class="material-symbols-outlined text-[13px]">${STATUS_ICONS[c.status] || 'help'}</span>
+          ${c.status.toUpperCase()}
+        </span>
+      </td>
+      <td class="px-4 py-3 text-slate-600 max-w-xs truncate" title="${escHtml(c.message)}">${escHtml(c.message)}</td>
+      <td class="px-4 py-3 text-right text-xs text-slate-400 whitespace-nowrap">
+        ${c.latency_ms}ms
+        ${hasDetail ? `<button onclick='showDetail(${JSON.stringify(c.label)}, ${JSON.stringify(c.message)}, ${JSON.stringify(c.detail)})'
+          class="ml-2 rounded-lg border border-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-500 hover:border-slate-400 hover:text-slate-800">Detail</button>` : ''}
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById(`results-${key}`).classList.remove('hidden');
+}
+
+function updateSectionBadge(key, overall) {
+  const badge = document.getElementById(`badge-${key}`);
+  badge.className = `inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${SECTION_BADGE_CLASSES[overall] || SECTION_BADGE_CLASSES.unknown}`;
+  badge.innerHTML = `<span class="material-symbols-outlined text-[13px]">${STATUS_ICONS[overall] || 'help'}</span>${overall.toUpperCase()}`;
+  badge.classList.remove('hidden');
+}
+
+async function runSection(key) {
+  setLoading(key, true);
+  try {
+    const res = await fetch(RUN_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': CSRF},
+      body: JSON.stringify({section: key}),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      renderChecks(key, data.checks);
+      updateSectionBadge(key, data.overall);
+    } else {
+      showError(key, data.error || 'Unknown error');
+    }
+  } catch(e) {
+    showError(key, `Network error: ${e.message}`);
+  } finally {
+    setLoading(key, false);
+  }
+}
+
+async function runAll() {
+  const btn = document.getElementById('btn-run-all');
+  const icon = document.getElementById('run-all-icon');
+  const label = document.getElementById('run-all-label');
+  btn.disabled = true;
+  icon.innerHTML = '<svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>';
+  label.textContent = 'Running…';
+  globalCounts = {ok: 0, warning: 0, error: 0};
+
+  try {
+    const res = await fetch(RUN_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': CSRF},
+      body: JSON.stringify({section: 'all'}),
+    });
+    const data = await res.json();
+    if (data.ok && data.sections) {
+      data.sections.forEach(section => {
+        renderChecks(section.key, section.checks);
+        updateSectionBadge(section.key, section.overall);
+        section.checks.forEach(c => {
+          if (c.status === 'ok') globalCounts.ok++;
+          else if (c.status === 'warning') globalCounts.warning++;
+          else if (c.status === 'error') globalCounts.error++;
+        });
+      });
+      showSummary();
+    }
+  } catch(e) {
+    console.error('Run all failed:', e);
+  } finally {
+    btn.disabled = false;
+    icon.innerHTML = 'play_arrow';
+    label.textContent = 'Run All Tests';
+  }
+}
+
+function showSummary() {
+  document.getElementById('count-ok').textContent = globalCounts.ok;
+  document.getElementById('count-warn').textContent = globalCounts.warning;
+  document.getElementById('count-err').textContent = globalCounts.error;
+  document.getElementById('summary-time').textContent = new Date().toLocaleTimeString();
+  document.getElementById('summary-bar').classList.remove('hidden');
+}
+
+function showError(key, msg) {
+  const tbody = document.getElementById(`tbody-${key}`);
+  tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-sm text-red-600">
+    <span class="material-symbols-outlined text-[16px] align-middle mr-1">error</span>${escHtml(msg)}
+  </td></tr>`;
+  document.getElementById(`results-${key}`).classList.remove('hidden');
+}
+
+function showDetail(label, message, detail) {
+  document.getElementById('modal-label').textContent = label;
+  document.getElementById('modal-message').textContent = message;
+  document.getElementById('modal-detail').textContent = detail;
+  document.getElementById('detail-modal').classList.remove('hidden');
+  document.getElementById('detail-modal').classList.add('flex');
+}
+
+function closeModal() {
+  document.getElementById('detail-modal').classList.add('hidden');
+  document.getElementById('detail-modal').classList.remove('flex');
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.getElementById('btn-run-all').addEventListener('click', runAll);
+document.getElementById('detail-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+{% endblock %}

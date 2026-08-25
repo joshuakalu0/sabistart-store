@@ -9,6 +9,8 @@ from django.urls import path
 from system.account import views
 from system.account.dashboard_views import (
     PlatformDashboardView,
+    PlatformDiagnosticsRunView,
+    PlatformDiagnosticsView,
     PlatformStoreDetailView,
     PlatformStoresView,
 )
@@ -43,4 +45,8 @@ urlpatterns = [
     # AJAX
     path('register/check-subdomain/', views.check_subdomain, name='check_subdomain'),
     path('check-subdomain/', views.check_subdomain, name='legacy_check_subdomain'),
+
+    # Diagnostics
+    path('diagnostics/', PlatformDiagnosticsView.as_view(), name='diagnostics'),
+    path('diagnostics/run/', PlatformDiagnosticsRunView.as_view(), name='diagnostics_run'),
 ]

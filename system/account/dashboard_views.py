@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
+import json
+
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Count
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import View
+from django.views.decorators.csrf import csrf_protect
+from django.utils.decorators import method_decorator
 
 from sabistart.navigation import build_platform_navigation
 from dashboard.analytics.services import build_platform_dashboard_bundle, bundle_to_json
@@ -228,3 +233,70 @@ class PlatformStoreDetailView(PlatformStaffRequiredMixin, View):
             setup_warnings=sections["warnings"],
         )
         return render(request, self.template_name, context)
+
+
+class PlatformDiagnosticsView(PlatformStaffRequiredMixin, View):
+    """Platform service diagnostics page — super admin only."""
+
+    template_name = "account/diagnostics.html"
+
+    def get(self, request):
+        from system.diagnostics.services import SECTIONS
+        # Build skeleton sections for initial page render (checks run client-side via AJAX)
+        skeleton_sections = [
+            {
+                "key": key,
+                "label": meta["label"],
+                "icon": meta["icon"],
+                "description": meta["description"],
+                "overall": "unknown",
+                "checks": [],
+            }
+            for key, meta in SECTIONS.items()
+        ]
+        context = {
+            "page_title": "Service Diagnostics",
+            "active_platform_nav": "platform_diagnostics",
+            "platform_navigation": build_platform_navigation("platform_diagnostics"),
+            "sections": skeleton_sections,
+            "diagnostics_run_url": reverse("platform:diagnostics_run"),
+        }
+        return render(request, self.template_name, context)
+
+
+@method_decorator(csrf_protect, name="dispatch")
+class PlatformDiagnosticsRunView(PlatformStaffRequiredMixin, View):
+    """AJAX endpoint — runs diagnostic checks and returns JSON."""
+
+    def post(self, request):
+        from system.diagnostics.services import run_section, run_all_diagnostics, SECTIONS
+        try:
+            body = json.loads(request.body or b"{}")
+        except (json.JSONDecodeError, ValueError):
+            body = {}
+
+        section_key = body.get("section", "").strip()
+
+        if section_key == "all":
+            sections = run_all_diagnostics()
+            return JsonResponse({"ok": True, "sections": sections})
+
+        if section_key and section_key in SECTIONS:
+            checks = run_section(section_key)
+            statuses = [c["status"] for c in checks]
+            if "error" in statuses:
+                overall = "error"
+            elif "warning" in statuses:
+                overall = "warning"
+            elif all(s == "ok" for s in statuses):
+                overall = "ok"
+            else:
+                overall = "unknown"
+            return JsonResponse({
+                "ok": True,
+                "section": section_key,
+                "overall": overall,
+                "checks": checks,
+            })
+
+        return JsonResponse({"ok": False, "error": f"Unknown section: '{section_key}'"}, status=400)

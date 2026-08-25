@@ -493,9 +493,20 @@ def _verify_stripe(intent, payload: dict) -> HostedCheckoutVerificationResult:
     )
 
 
+DEFAULT_HTTP_USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+)
+
+
 def _json_request(method: str, url: str, *, headers: dict[str, str] | None = None, json_body: dict | None = None) -> dict:
     data = None
-    request_headers = dict(headers or {})
+    request_headers = {
+        "User-Agent": DEFAULT_HTTP_USER_AGENT,
+        "Accept": "application/json",
+    }
+    if headers:
+        request_headers.update(headers)
     if json_body is not None:
         data = json.dumps(json_body).encode("utf-8")
         request_headers.setdefault("Content-Type", "application/json")
@@ -513,7 +524,12 @@ def _json_request(method: str, url: str, *, headers: dict[str, str] | None = Non
 
 def _form_request(method: str, url: str, *, headers: dict[str, str] | None = None, form_body: dict[str, Any] | None = None) -> dict:
     data = None
-    request_headers = dict(headers or {})
+    request_headers = {
+        "User-Agent": DEFAULT_HTTP_USER_AGENT,
+        "Accept": "application/json",
+    }
+    if headers:
+        request_headers.update(headers)
     if form_body:
         encoded = urllib.parse.urlencode(form_body, doseq=True)
         data = encoded.encode("utf-8")
@@ -536,6 +552,13 @@ def _decode_error_body(body: str, *, default_message: str) -> dict:
     try:
         return json.loads(body)
     except json.JSONDecodeError:
+        if "<html" in body.lower() or "<!doctype" in body.lower():
+            if "1010" in body:
+                return {
+                    "status": False,
+                    "message": "Gateway request blocked by Cloudflare security filter (Error 1010: Access Denied).",
+                }
+            return {"status": False, "message": default_message}
         return {"status": False, "message": body or default_message}
 
 
