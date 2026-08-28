@@ -448,9 +448,16 @@ CELERY_BROKER_URL = env_first("CELERY_BROKER_URL", "REDIS_URL", default="redis:/
 CELERY_RESULT_BACKEND = env_first("CELERY_RESULT_BACKEND", "CELERY_BROKER_URL", "REDIS_URL", default=CELERY_BROKER_URL)
 
 # SSL configuration for Upstash / secure Redis brokers (rediss://)
-if CELERY_BROKER_URL.startswith("rediss://"):
-    CELERY_REDIS_BACKEND_USE_SSL = {"ssl_cert_reqs": None}
-    CELERY_BROKER_USE_SSL = {"ssl_cert_reqs": None}
+if CELERY_BROKER_URL and CELERY_BROKER_URL.startswith("rediss://"):
+    if "ssl_cert_reqs" not in CELERY_BROKER_URL:
+        CELERY_BROKER_URL += ("&" if "?" in CELERY_BROKER_URL else "?") + "ssl_cert_reqs=none"
+    CELERY_BROKER_USE_SSL = {"ssl_cert_reqs": "none"}
+
+if CELERY_RESULT_BACKEND and CELERY_RESULT_BACKEND.startswith("rediss://"):
+    if "ssl_cert_reqs" not in CELERY_RESULT_BACKEND:
+        CELERY_RESULT_BACKEND += ("&" if "?" in CELERY_RESULT_BACKEND else "?") + "ssl_cert_reqs=none"
+    CELERY_REDIS_BACKEND_USE_SSL = {"ssl_cert_reqs": "none"}
+
 
 # Production Task & Serialization settings
 CELERY_ACCEPT_CONTENT = ["json"]
