@@ -33,9 +33,9 @@ urlpatterns = [
 
     # User Management
     path('users/', PlatformUsersView.as_view(), name='users'),
-    path('users/<uuid:user_id>/', PlatformUserDetailView.as_view(), name='user_detail'),
-    path('users/<uuid:user_id>/delete/', PlatformUserDeleteView.as_view(), name='user_delete'),
-    path('users/<uuid:user_id>/status/', PlatformUserStatusToggleView.as_view(), name='user_status_toggle'),
+    path('users/<str:user_id>/', PlatformUserDetailView.as_view(), name='user_detail'),
+    path('users/<str:user_id>/delete/', PlatformUserDeleteView.as_view(), name='user_delete'),
+    path('users/<str:user_id>/status/', PlatformUserStatusToggleView.as_view(), name='user_status_toggle'),
 
     # Provisioning & Migration Logs
     path('provisioning/', PlatformProvisioningLogsView.as_view(), name='provisioning_logs'),

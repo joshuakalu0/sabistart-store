@@ -179,7 +179,7 @@
               </td>
 
               <td class="px-6 py-4 text-xs text-slate-500">
-                <p><strong class="text-slate-700">Created:</strong> {{ s.created_on|date:"M j, Y H:i" }}</p>
+                <p><strong class="text-slate-700">Created:</strong> {{ s.created_on|date:"M j, Y" }}</p>
                 {% if s.provisioned_at %}
                   <p class="text-emerald-600 font-medium"><strong class="text-slate-700">Done:</strong> {{ s.provisioned_at|date:"M j, Y H:i" }}</p>
                 {% endif %}
