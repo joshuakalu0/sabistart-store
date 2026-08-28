@@ -822,73 +822,90 @@ def onboarding_subdomain(request):
             form.add_error("desired_subdomain", "That subdomain is already taken.")
         else:
             session.desired_subdomain = subdomain
-            user = None
-            platform_user_id = (session.metadata or {}).get("platform_user_id")
-            if platform_user_id:
-                user = PlatformUser.objects.filter(id=platform_user_id).first()
-            if user is None:
-                user = PlatformUser.objects.create(
-                    email=session.email,
-                    first_name=session.first_name,
-                    last_name=session.last_name,
-                    password=session.metadata.get("password_hash", ""),
-                    account_status=PlatformUser.AccountStatus.ACTIVE,
-                    is_verified=False,
-                )
+            try:
+                user = None
+                platform_user_id = (session.metadata or {}).get("platform_user_id")
+                if platform_user_id:
+                    user = PlatformUser.objects.filter(id=platform_user_id).first()
+                if user is None and session.email:
+                    user = PlatformUser.objects.filter(email__iexact=session.email).first()
+
+                if user is None:
+                    user = PlatformUser.objects.create(
+                        email=session.email,
+                        first_name=session.first_name,
+                        last_name=session.last_name,
+                        password=(session.metadata or {}).get("password_hash", ""),
+                        account_status=PlatformUser.AccountStatus.ACTIVE,
+                        is_verified=False,
+                    )
+                else:
+                    if user.account_status != PlatformUser.AccountStatus.ACTIVE:
+                        user.account_status = PlatformUser.AccountStatus.ACTIVE
+                        user.save(update_fields=["account_status"])
+
                 session.metadata = {
                     **(session.metadata or {}),
                     "platform_user_id": str(user.id),
                 }
 
-            if not existing_schema:
-                schema_name = f"onboard_{uuid.uuid4().hex[:8]}"
-                shop, domain = TenantService.create_tenant(
-                    owner=user,
-                    name=session.business_name,
-                    subdomain=subdomain,
-                    schema_name=schema_name,
-                    session=session,
-                    enqueue_async=True,
-                )
-                existing_schema = shop.schema_name
-            else:
-                try:
-                    shop = Shop.objects.get(schema_name=existing_schema)
-                    shop.owner = user
-                    shop.name = session.business_name or shop.name
-                    shop.save(update_fields=["owner", "name"])
-                    Domain.objects.filter(tenant=shop, is_primary=True).update(domain=subdomain)
-                    if shop.provisioning_status != Shop.ProvisioningStatus.READY:
-                        from system.account.tasks import provision_tenant_schema_task
-                        try:
-                            provision_tenant_schema_task.delay(
-                                schema_name=shop.schema_name,
-                                session_id=str(session.id),
-                            )
-                        except Exception:
-                            pass
-                except Shop.DoesNotExist:
+                if not existing_schema:
                     schema_name = f"onboard_{uuid.uuid4().hex[:8]}"
                     shop, domain = TenantService.create_tenant(
                         owner=user,
-                        name=session.business_name,
+                        name=session.business_name or f"{user.first_name}'s Store",
                         subdomain=subdomain,
                         schema_name=schema_name,
                         session=session,
                         enqueue_async=True,
                     )
                     existing_schema = shop.schema_name
+                else:
+                    try:
+                        shop = Shop.objects.get(schema_name=existing_schema)
+                        shop.owner = user
+                        shop.name = session.business_name or shop.name
+                        shop.save(update_fields=["owner", "name"])
+                        Domain.objects.filter(tenant=shop, is_primary=True).update(domain=subdomain)
+                        if shop.provisioning_status != Shop.ProvisioningStatus.READY:
+                            from system.account.tasks import provision_tenant_schema_task
+                            try:
+                                provision_tenant_schema_task.delay(
+                                    schema_name=shop.schema_name,
+                                    session_id=str(session.id),
+                                )
+                            except Exception as e:
+                                import logging
+                                logging.getLogger(__name__).warning("Could not delay task: %s", e)
+                    except Shop.DoesNotExist:
+                        schema_name = f"onboard_{uuid.uuid4().hex[:8]}"
+                        shop, domain = TenantService.create_tenant(
+                            owner=user,
+                            name=session.business_name or f"{user.first_name}'s Store",
+                            subdomain=subdomain,
+                            schema_name=schema_name,
+                            session=session,
+                            enqueue_async=True,
+                        )
+                        existing_schema = shop.schema_name
 
-            session.metadata = {
-                **(session.metadata or {}),
-                "tenant_schema_name": existing_schema,
-                "tenant_domain": subdomain,
-            }
-            session.status = OnboardingSession.Status.READY
-            session.save(update_fields=["desired_subdomain", "metadata", "status", "updated_at"])
+                session.metadata = {
+                    **(session.metadata or {}),
+                    "tenant_schema_name": existing_schema,
+                    "tenant_domain": subdomain,
+                }
+                session.status = OnboardingSession.Status.READY
+                session.save(update_fields=["desired_subdomain", "metadata", "status", "updated_at"])
 
-            login(request, user, backend=SCHEMA_AWARE_BACKEND)
-            return redirect("platform:onboarding_provisioning")
+                login(request, user, backend=SCHEMA_AWARE_BACKEND)
+                return redirect("platform:onboarding_provisioning")
+
+            except TenantCreationError as e:
+                form.add_error("desired_subdomain", str(e))
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).exception("Subdomain setup error: %s", e)
+                messages.error(request, f"An error occurred while setting up your store: {str(e)}")
 
     context = _onboarding_context(
         request,
