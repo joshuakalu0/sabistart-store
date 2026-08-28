@@ -21,7 +21,7 @@ class Command(BaseCommand):
         count = options["count"]
         users = list(
             PlatformUser.objects.filter(is_superuser=False, is_staff=False)
-            .order_by("-date_joined")[:count]
+            .order_by("-created_at")[:count]
         )
 
         if not users:
