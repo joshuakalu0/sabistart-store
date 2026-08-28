@@ -157,9 +157,10 @@
                       <span class="h-2 w-2 rounded-full bg-rose-500"></span> Failed
                     </span>
                     {% if s.provisioning_error %}
+                      <div id="error-trace-{{ s.schema_name }}" class="hidden">{{ s.provisioning_error }}</div>
                       <button
                         type="button"
-                        onclick="viewErrorModal('{{ s.name|escapejs }}', '{{ s.schema_name|escapejs }}', `{{ s.provisioning_error|escapejs }}`)"
+                        onclick="viewErrorModal('{{ s.name|escapejs }}', '{{ s.schema_name|escapejs }}')"
                         class="rounded-lg border border-rose-200 px-2 py-0.5 text-[11px] font-bold text-rose-600 hover:bg-rose-50"
                       >
                         View Trace
@@ -200,7 +201,7 @@
 
                   {% if s.provisioning_status == 'ready' %}
                     <a
-                      href="{% url 'dashboard:dashboard_home:home' s.schema_name %}"
+                      href="/dashboard/{{ s.schema_name }}/"
                       class="rounded-xl bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition"
                     >
                       Dashboard
@@ -291,9 +292,11 @@
   </div>
 
   <script>
-    function viewErrorModal(storeName, schemaName, errorTrace) {
+    function viewErrorModal(storeName, schemaName) {
       document.getElementById("errorModalSubtitle").textContent = storeName + " (" + schemaName + ")";
-      document.getElementById("errorModalContent").textContent = errorTrace || "No traceback captured.";
+      const traceElem = document.getElementById("error-trace-" + schemaName);
+      const errorTrace = traceElem ? traceElem.textContent : "No traceback captured.";
+      document.getElementById("errorModalContent").textContent = errorTrace;
       const modal = document.getElementById("errorModal");
       modal.classList.remove("hidden");
       modal.classList.add("flex");

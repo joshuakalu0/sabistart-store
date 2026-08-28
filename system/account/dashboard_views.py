@@ -465,26 +465,38 @@ class PlatformProvisioningLogsView(PlatformStaffRequiredMixin, View):
     def get(self, request):
         from system.core.models import Shop
         from django.db import connection
+        import logging
 
+        logger = logging.getLogger(__name__)
         status_filter = request.GET.get("status", "").strip().lower()
-        shops_qs = Shop.objects.select_related("owner").prefetch_related("domains").order_by("-created_on")
 
-        if status_filter and status_filter in dict(Shop.ProvisioningStatus.choices):
-            shops_qs = shops_qs.filter(provisioning_status=status_filter)
+        try:
+            shops_qs = Shop.objects.select_related("owner").prefetch_related("domains").order_by("-created_on")
+            if status_filter and status_filter in dict(Shop.ProvisioningStatus.choices):
+                shops_qs = shops_qs.filter(provisioning_status=status_filter)
 
-        total_shops = Shop.objects.count()
-        ready_shops = Shop.objects.filter(provisioning_status=Shop.ProvisioningStatus.READY).count()
-        in_progress_shops = Shop.objects.filter(provisioning_status=Shop.ProvisioningStatus.IN_PROGRESS).count()
-        failed_shops = Shop.objects.filter(provisioning_status=Shop.ProvisioningStatus.FAILED).count()
-        pending_shops = Shop.objects.filter(provisioning_status=Shop.ProvisioningStatus.PENDING).count()
+            total_shops = Shop.objects.count()
+            ready_shops = Shop.objects.filter(provisioning_status=Shop.ProvisioningStatus.READY).count()
+            in_progress_shops = Shop.objects.filter(provisioning_status=Shop.ProvisioningStatus.IN_PROGRESS).count()
+            failed_shops = Shop.objects.filter(provisioning_status=Shop.ProvisioningStatus.FAILED).count()
+            pending_shops = Shop.objects.filter(provisioning_status=Shop.ProvisioningStatus.PENDING).count()
+        except Exception as e:
+            logger.exception("Error loading shop provisioning list: %s", e)
+            shops_qs = []
+            total_shops = ready_shops = in_progress_shops = failed_shops = pending_shops = 0
 
-        # Find orphaned schemas in Postgres
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE 'onboard_%';")
-            dangling_schemas = [row[0] for row in cursor.fetchall()]
+        # Safely find orphaned schemas in Postgres
+        orphaned_schemas = []
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE 'onboard_%';")
+                dangling_schemas = [row[0] for row in cursor.fetchall()]
 
-        active_schemas = set(Shop.objects.values_list("schema_name", flat=True))
-        orphaned_schemas = [s for s in dangling_schemas if s not in active_schemas]
+            active_schemas = set(Shop.objects.values_list("schema_name", flat=True))
+            orphaned_schemas = [s for s in dangling_schemas if s not in active_schemas]
+        except Exception as e:
+            logger.warning("Could not inspect information_schema.schemata: %s", e)
+            orphaned_schemas = []
 
         context = {
             "page_title": "Store Provisioning & Migration Logs",
