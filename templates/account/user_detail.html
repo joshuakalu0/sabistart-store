@@ -1,0 +1,240 @@
+{% extends "account/_platform_base.html" %}
+{% block page_intro %}
+  <p class="mt-2 text-sm text-slate-500">Inspect user credentials, security status, owned shops, and session lifecycle.</p>
+{% endblock %}
+
+{% block page_actions %}
+  <a href="{% url 'platform:users' %}" class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition">
+    <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+    <span>Back to Users</span>
+  </a>
+{% endblock %}
+
+{% block content %}
+  <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+    <!-- User Profile Card -->
+    <div class="space-y-6 lg:col-span-1">
+      <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center gap-4">
+          <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-900 text-xl font-extrabold text-white">
+            {{ target_user.get_initials|default:"U" }}
+          </div>
+          <div class="min-w-0">
+            <h3 class="font-extrabold text-slate-950 truncate">{{ target_user.get_full_name|default:target_user.email }}</h3>
+            <p class="text-xs font-mono text-slate-500 truncate">{{ target_user.email }}</p>
+          </div>
+        </div>
+
+        <div class="mt-6 space-y-3 divide-y divide-slate-100 text-sm">
+          <div class="flex items-center justify-between pt-3">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Account Status</span>
+            {% if target_user.account_status == 'ACTIVE' %}
+              <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">Active</span>
+            {% elif target_user.account_status == 'SUSPENDED' %}
+              <span class="rounded-full bg-rose-50 px-2.5 py-1 text-xs font-bold text-rose-700">Suspended</span>
+            {% else %}
+              <span class="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700">{{ target_user.account_status }}</span>
+            {% endif %}
+          </div>
+
+          <div class="flex items-center justify-between pt-3">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Role</span>
+            {% if target_user.is_superuser %}
+              <span class="font-bold text-purple-700">Superadmin</span>
+            {% elif target_user.is_staff or target_user.is_platform_admin %}
+              <span class="font-bold text-blue-700">Staff</span>
+            {% else %}
+              <span class="text-slate-700">Merchant</span>
+            {% endif %}
+          </div>
+
+          <div class="flex items-center justify-between pt-3">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Email Verified</span>
+            <span class="font-semibold {% if target_user.is_email_verified %}text-emerald-600{% else %}text-amber-600{% endif %}">
+              {{ target_user.is_email_verified|yesno:"Yes,No" }}
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between pt-3">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">2FA Enabled</span>
+            <span class="font-semibold text-slate-700">{{ target_user.is_2fa_enabled|yesno:"Yes,No" }}</span>
+          </div>
+
+          <div class="flex items-center justify-between pt-3">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Joined</span>
+            <span class="font-medium text-slate-700">{{ target_user.created_at|date:"M j, Y H:i" }}</span>
+          </div>
+
+          <div class="flex items-center justify-between pt-3">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Last Login</span>
+            <span class="font-medium text-slate-700">{{ target_user.last_login|date:"M j, Y H:i"|default:"Never" }}</span>
+          </div>
+        </div>
+
+        {% if request.user.id != target_user.id %}
+          <div class="mt-6 pt-6 border-t border-slate-100 flex flex-col gap-2">
+            <form method="post" action="{% url 'platform:user_status_toggle' target_user.id %}">
+              {% csrf_token %}
+              {% if target_user.account_status == 'ACTIVE' %}
+                <button type="submit" class="w-full rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-xs font-semibold text-amber-700 hover:bg-amber-100">
+                  Suspend User Account
+                </button>
+              {% else %}
+                <button type="submit" class="w-full rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100">
+                  Activate User Account
+                </button>
+              {% endif %}
+            </form>
+
+            <button
+              type="button"
+              onclick="openDeleteModal('{{ target_user.id }}', '{{ target_user.email|escapejs }}', {{ shops.count }})"
+              class="w-full rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-xs font-semibold text-rose-700 hover:bg-rose-100"
+            >
+              Delete User & Drop All Schemas
+            </button>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Owned Shops and Sessions -->
+    <div class="space-y-6 lg:col-span-2">
+      <!-- Owned Stores -->
+      <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h4 class="text-base font-bold text-slate-950">Owned Stores & Database Schemas</h4>
+        <p class="mt-1 text-xs text-slate-500">Stores created by this account and their dedicated schemas.</p>
+
+        <div class="mt-4 divide-y divide-slate-100">
+          {% for s in shops %}
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-slate-900">{{ s.name }}</span>
+                  <span class="rounded-lg bg-slate-100 px-2 py-0.5 font-mono text-[11px] text-slate-600">{{ s.schema_name }}</span>
+                  {% if s.provisioning_status == 'ready' %}
+                    <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">Provisioned</span>
+                  {% elif s.provisioning_status == 'failed' %}
+                    <span class="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-700">Failed</span>
+                  {% else %}
+                    <span class="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">In Progress</span>
+                  {% endif %}
+                </div>
+                <p class="mt-1 text-xs text-slate-400">Created: {{ s.created_on|date:"M j, Y" }}</p>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <a href="{% url 'platform:store_detail' s.schema_name %}" class="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                  Platform Detail
+                </a>
+                <a href="{% url 'dashboard:dashboard_home:home' s.schema_name %}" class="rounded-xl bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700">
+                  Open Store
+                </a>
+              </div>
+            </div>
+          {% empty %}
+            <p class="py-6 text-center text-xs text-slate-400">This user does not own any stores yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Onboarding Sessions -->
+      <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h4 class="text-base font-bold text-slate-950">Onboarding Sessions</h4>
+        <p class="mt-1 text-xs text-slate-500">Recent onboarding attempts and checkout sessions.</p>
+
+        <div class="mt-4 divide-y divide-slate-100 text-xs">
+          {% for ses in sessions %}
+            <div class="flex items-center justify-between py-2.5">
+              <div>
+                <span class="font-semibold text-slate-800">{{ ses.business_name|default:"Unnamed" }}</span>
+                <span class="font-mono text-slate-400">({{ ses.desired_subdomain|default:"no-subdomain" }})</span>
+                <span class="ml-2 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] uppercase font-bold text-slate-600">{{ ses.status }}</span>
+              </div>
+              <span class="text-slate-400">{{ ses.created_at|date:"M j, H:i" }}</span>
+            </div>
+          {% empty %}
+            <p class="py-4 text-center text-slate-400">No onboarding sessions recorded.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Login Audit Logs -->
+      <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h4 class="text-base font-bold text-slate-950">Login Audit History</h4>
+        <p class="mt-1 text-xs text-slate-500">Recent authentication events.</p>
+
+        <div class="mt-4 divide-y divide-slate-100 text-xs">
+          {% for log in audit_logs %}
+            <div class="flex items-center justify-between py-2">
+              <div class="flex items-center gap-2">
+                <span class="rounded px-1.5 py-0.5 font-bold {% if log.status == 'success' %}bg-emerald-50 text-emerald-700{% else %}bg-rose-50 text-rose-700{% endif %}">
+                  {{ log.status|upper }}
+                </span>
+                <span class="text-slate-600 font-mono">{{ log.ip_address|default:"127.0.0.1" }}</span>
+              </div>
+              <span class="text-slate-400">{{ log.created_at|date:"M j, Y H:i" }}</span>
+            </div>
+          {% empty %}
+            <p class="py-4 text-center text-slate-400">No login audit events recorded.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+    <div class="relative w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
+      <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-600">
+        <span class="material-symbols-outlined text-[28px]">warning</span>
+      </div>
+
+      <h3 class="text-xl font-extrabold text-slate-950">Delete Platform User</h3>
+      <p class="mt-2 text-sm leading-6 text-slate-600">
+        Are you sure you want to permanently delete <strong id="deleteUserEmail" class="text-slate-900"></strong>?
+      </p>
+
+      <div class="mt-4 rounded-2xl border border-rose-100 bg-rose-50/70 p-4 text-xs text-rose-800 space-y-1">
+        <p class="font-bold">⚠️ Irreversible actions that will occur:</p>
+        <p>• Completely drops all PostgreSQL tenant schemas (<span id="deleteStoreCount"></span> stores) with <code class="font-mono">CASCADE</code>.</p>
+        <p>• Deletes all shop records, custom domains, and onboarding sessions.</p>
+        <p>• Deletes the platform user account permanently.</p>
+      </div>
+
+      <form id="deleteForm" method="post" action="" class="mt-6 flex items-center justify-end gap-3">
+        {% csrf_token %}
+        <button
+          type="button"
+          onclick="closeDeleteModal()"
+          class="rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="rounded-xl bg-rose-600 px-5 py-2 text-xs font-semibold text-white shadow-md shadow-rose-500/20 hover:bg-rose-700"
+        >
+          Yes, Delete User & Drop Schemas
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openDeleteModal(userId, userEmail, storeCount) {
+      document.getElementById("deleteUserEmail").textContent = userEmail;
+      document.getElementById("deleteStoreCount").textContent = storeCount;
+      document.getElementById("deleteForm").action = "/platform/users/" + userId + "/delete/";
+      const modal = document.getElementById("deleteModal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeDeleteModal() {
+      const modal = document.getElementById("deleteModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+  </script>
+{% endblock %}

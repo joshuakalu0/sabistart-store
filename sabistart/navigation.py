@@ -9,6 +9,8 @@ PLATFORM_NAVIGATION = (
         "items": (
             {"key": "platform_dashboard", "name": "Dashboard", "icon": "dashboard", "route": "platform:dashboard"},
             {"key": "platform_stores", "name": "Stores", "icon": "storefront", "route": "platform:stores"},
+            {"key": "platform_users", "name": "Users", "icon": "group", "route": "platform:users"},
+            {"key": "platform_provisioning", "name": "Provisioning Logs", "icon": "terminal", "route": "platform:provisioning_logs"},
             {"key": "platform_themes", "name": "Themes", "icon": "palette", "route": "platform_themes:home"},
             {"key": "platform_features", "name": "Feature Marketplace", "icon": "store", "route": "platform_features:home"},
             {"key": "platform_payments", "name": "Payments", "icon": "payments", "route": "platform_payments:home"},

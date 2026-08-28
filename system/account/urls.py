@@ -13,6 +13,13 @@ from system.account.dashboard_views import (
     PlatformDiagnosticsView,
     PlatformStoreDetailView,
     PlatformStoresView,
+    PlatformUsersView,
+    PlatformUserDetailView,
+    PlatformUserDeleteView,
+    PlatformUserStatusToggleView,
+    PlatformProvisioningLogsView,
+    PlatformProvisioningRetryView,
+    PlatformProvisioningDropSchemaView,
 )
 
 app_name = 'account'
@@ -23,6 +30,17 @@ urlpatterns = [
     path('dashboard/', PlatformDashboardView.as_view(), name='dashboard'),
     path('stores/', PlatformStoresView.as_view(), name='stores'),
     path('stores/<str:schema_name>/', PlatformStoreDetailView.as_view(), name='store_detail'),
+
+    # User Management
+    path('users/', PlatformUsersView.as_view(), name='users'),
+    path('users/<uuid:user_id>/', PlatformUserDetailView.as_view(), name='user_detail'),
+    path('users/<uuid:user_id>/delete/', PlatformUserDeleteView.as_view(), name='user_delete'),
+    path('users/<uuid:user_id>/status/', PlatformUserStatusToggleView.as_view(), name='user_status_toggle'),
+
+    # Provisioning & Migration Logs
+    path('provisioning/', PlatformProvisioningLogsView.as_view(), name='provisioning_logs'),
+    path('provisioning/retry/<str:schema_name>/', PlatformProvisioningRetryView.as_view(), name='provisioning_retry'),
+    path('provisioning/drop-schema/<str:schema_name>/', PlatformProvisioningDropSchemaView.as_view(), name='provisioning_drop_schema'),
 
     # Authentication
     path('register/', views.onboarding_start, name='register'),

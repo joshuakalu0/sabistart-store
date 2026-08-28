@@ -300,3 +300,255 @@ class PlatformDiagnosticsRunView(PlatformStaffRequiredMixin, View):
             })
 
         return JsonResponse({"ok": False, "error": f"Unknown section: '{section_key}'"}, status=400)
+
+
+# =============================================================================
+# USER MANAGEMENT VIEWS
+# =============================================================================
+
+class PlatformUsersView(PlatformStaffRequiredMixin, View):
+    """Platform users directory and account management."""
+
+    template_name = "account/users.html"
+
+    def get(self, request):
+        from system.account.models import PlatformUser
+        from django.db.models import Q
+
+        q = request.GET.get("q", "").strip()
+        status_filter = request.GET.get("status", "").strip().upper()
+
+        users_qs = (
+            PlatformUser.objects.prefetch_related("owned_shops", "owned_shops__domains")
+            .order_by("-created_at")
+        )
+
+        if q:
+            users_qs = users_qs.filter(
+                Q(email__icontains=q)
+                | Q(first_name__icontains=q)
+                | Q(last_name__icontains=q)
+            )
+
+        if status_filter and status_filter in dict(PlatformUser.AccountStatus.choices):
+            users_qs = users_qs.filter(account_status=status_filter)
+
+        total_users = PlatformUser.objects.count()
+        active_users = PlatformUser.objects.filter(account_status=PlatformUser.AccountStatus.ACTIVE).count()
+        pending_users = PlatformUser.objects.filter(account_status=PlatformUser.AccountStatus.PENDING).count()
+        suspended_users = PlatformUser.objects.filter(account_status=PlatformUser.AccountStatus.SUSPENDED).count()
+
+        context = {
+            "page_title": "User Management",
+            "active_platform_nav": "platform_users",
+            "platform_navigation": build_platform_navigation("platform_users"),
+            "users": users_qs,
+            "q": q,
+            "status_filter": status_filter,
+            "stats": {
+                "total": total_users,
+                "active": active_users,
+                "pending": pending_users,
+                "suspended": suspended_users,
+            },
+        }
+        return render(request, self.template_name, context)
+
+
+class PlatformUserDetailView(PlatformStaffRequiredMixin, View):
+    """Detailed inspector for a single platform user."""
+
+    template_name = "account/user_detail.html"
+
+    def get(self, request, user_id):
+        from system.account.models import PlatformUser, OnboardingSession, PlatformLoginAuditLog
+        user = get_object_or_404(PlatformUser, id=user_id)
+        shops = user.owned_shops.prefetch_related("domains").order_by("-created_on")
+        sessions = OnboardingSession.objects.filter(email__iexact=user.email).order_by("-created_at")[:10]
+        audit_logs = PlatformLoginAuditLog.objects.filter(user=user).order_by("-created_at")[:20]
+
+        context = {
+            "page_title": f"User: {user.get_full_name() or user.email}",
+            "active_platform_nav": "platform_users",
+            "platform_navigation": build_platform_navigation("platform_users"),
+            "target_user": user,
+            "shops": shops,
+            "sessions": sessions,
+            "audit_logs": audit_logs,
+        }
+        return render(request, self.template_name, context)
+
+
+@method_decorator(csrf_protect, name="dispatch")
+class PlatformUserDeleteView(PlatformStaffRequiredMixin, View):
+    """
+    Safely deletes a PlatformUser and completely drops all associated
+    PostgreSQL schemas (CASCADE), tenant shops, domains, and onboarding sessions.
+    """
+
+    def post(self, request, user_id):
+        from system.account.models import PlatformUser, OnboardingSession
+        from system.core.models import Shop, Domain
+        from django.db import connection
+        from django.contrib import messages
+        from django.shortcuts import redirect
+
+        user = get_object_or_404(PlatformUser, id=user_id)
+
+        # Safety check: prevent superadmins from deleting their own current session
+        if request.user.id == user.id:
+            messages.error(request, "You cannot delete your own logged-in account.")
+            return redirect("platform:users")
+
+        user_email = user.email
+        shops = list(Shop.objects.filter(owner=user))
+        dropped_schemas = []
+
+        for shop in shops:
+            schema = shop.schema_name
+            if schema and schema not in ("public", "shared", "information_schema", "pg_catalog"):
+                with connection.cursor() as cursor:
+                    cursor.execute(f'DROP SCHEMA IF EXISTS "{schema}" CASCADE;')
+                dropped_schemas.append(schema)
+
+            Domain.objects.filter(tenant=shop).delete()
+            shop.delete()
+
+        # Clean up related onboarding sessions
+        OnboardingSession.objects.filter(email__iexact=user_email).delete()
+
+        # Delete the user
+        user.delete()
+
+        msg = f"User '{user_email}' deleted successfully."
+        if dropped_schemas:
+            msg += f" Dropped {len(dropped_schemas)} schema(s): {', '.join(dropped_schemas)}."
+        messages.success(request, msg)
+
+        return redirect("platform:users")
+
+
+@method_decorator(csrf_protect, name="dispatch")
+class PlatformUserStatusToggleView(PlatformStaffRequiredMixin, View):
+    """Toggle a platform user's account status (Active <-> Suspended)."""
+
+    def post(self, request, user_id):
+        from system.account.models import PlatformUser
+        from django.contrib import messages
+        from django.shortcuts import redirect
+
+        user = get_object_or_404(PlatformUser, id=user_id)
+        if request.user.id == user.id:
+            messages.error(request, "You cannot change the status of your own logged-in account.")
+            return redirect("platform:users")
+
+        if user.account_status == PlatformUser.AccountStatus.ACTIVE:
+            user.account_status = PlatformUser.AccountStatus.SUSPENDED
+            messages.warning(request, f"User '{user.email}' has been suspended.")
+        else:
+            user.account_status = PlatformUser.AccountStatus.ACTIVE
+            messages.success(request, f"User '{user.email}' has been activated.")
+
+        user.save(update_fields=["account_status", "updated_at"])
+        return redirect(request.META.get("HTTP_REFERER") or "platform:users")
+
+
+# =============================================================================
+# PROVISIONING & CELERY MIGRATION LOG VIEWS
+# =============================================================================
+
+class PlatformProvisioningLogsView(PlatformStaffRequiredMixin, View):
+    """Live Celery tenant provisioning dashboard & migration logs."""
+
+    template_name = "account/provisioning_logs.html"
+
+    def get(self, request):
+        from system.core.models import Shop
+        from django.db import connection
+
+        status_filter = request.GET.get("status", "").strip().lower()
+        shops_qs = Shop.objects.select_related("owner").prefetch_related("domains").order_by("-created_on")
+
+        if status_filter and status_filter in dict(Shop.ProvisioningStatus.choices):
+            shops_qs = shops_qs.filter(provisioning_status=status_filter)
+
+        total_shops = Shop.objects.count()
+        ready_shops = Shop.objects.filter(provisioning_status=Shop.ProvisioningStatus.READY).count()
+        in_progress_shops = Shop.objects.filter(provisioning_status=Shop.ProvisioningStatus.IN_PROGRESS).count()
+        failed_shops = Shop.objects.filter(provisioning_status=Shop.ProvisioningStatus.FAILED).count()
+        pending_shops = Shop.objects.filter(provisioning_status=Shop.ProvisioningStatus.PENDING).count()
+
+        # Find orphaned schemas in Postgres
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE 'onboard_%';")
+            dangling_schemas = [row[0] for row in cursor.fetchall()]
+
+        active_schemas = set(Shop.objects.values_list("schema_name", flat=True))
+        orphaned_schemas = [s for s in dangling_schemas if s not in active_schemas]
+
+        context = {
+            "page_title": "Store Provisioning & Migration Logs",
+            "active_platform_nav": "platform_provisioning",
+            "platform_navigation": build_platform_navigation("platform_provisioning"),
+            "shops": shops_qs,
+            "status_filter": status_filter,
+            "orphaned_schemas": orphaned_schemas,
+            "stats": {
+                "total": total_shops,
+                "ready": ready_shops,
+                "in_progress": in_progress_shops,
+                "failed": failed_shops,
+                "pending": pending_shops,
+                "orphaned": len(orphaned_schemas),
+            },
+        }
+        return render(request, self.template_name, context)
+
+
+@method_decorator(csrf_protect, name="dispatch")
+class PlatformProvisioningRetryView(PlatformStaffRequiredMixin, View):
+    """Retry Celery async provisioning and tenant migrations for a shop."""
+
+    def post(self, request, schema_name):
+        from system.core.models import Shop
+        from system.account.tasks import provision_tenant_schema_task
+        from django.contrib import messages
+        from django.shortcuts import redirect
+
+        shop = get_object_or_404(Shop, schema_name=schema_name)
+        shop.provisioning_status = Shop.ProvisioningStatus.PENDING
+        shop.provisioning_error = ""
+        shop.save(update_fields=["provisioning_status", "provisioning_error"])
+
+        try:
+            provision_tenant_schema_task.delay(schema_name=shop.schema_name)
+            messages.success(request, f"Provisioning task enqueued for store '{shop.name}' ({shop.schema_name}). Check logs for progress.")
+        except Exception as e:
+            messages.error(request, f"Failed to enqueue task: {str(e)}")
+
+        return redirect("platform:provisioning_logs")
+
+
+@method_decorator(csrf_protect, name="dispatch")
+class PlatformProvisioningDropSchemaView(PlatformStaffRequiredMixin, View):
+    """Drop an orphaned PostgreSQL schema from the database."""
+
+    def post(self, request, schema_name):
+        from django.db import connection
+        from django.contrib import messages
+        from django.shortcuts import redirect
+
+        schema_name = schema_name.strip().lower()
+        if schema_name in ("public", "shared", "information_schema", "pg_catalog"):
+            messages.error(request, f"Cannot drop protected system schema '{schema_name}'.")
+            return redirect("platform:provisioning_logs")
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(f'DROP SCHEMA IF EXISTS "{schema_name}" CASCADE;')
+            messages.success(request, f"Orphaned schema '{schema_name}' was dropped successfully.")
+        except Exception as e:
+            messages.error(request, f"Error dropping schema '{schema_name}': {str(e)}")
+
+        return redirect("platform:provisioning_logs")
+
