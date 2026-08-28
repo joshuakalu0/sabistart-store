@@ -1050,6 +1050,7 @@ class RegisterView(View):
 
         except TenantCreationError as e:
             messages.error(request, str(e))
+            form.add_error(None, str(e))
             return render(
                 request,
                 self.template_name,
@@ -1060,6 +1061,7 @@ class RegisterView(View):
             )
         except Exception as e:
             messages.error(request, f"An error occurred: {str(e)}")
+            form.add_error(None, f"An error occurred: {str(e)}")
             return render(
                 request,
                 self.template_name,
@@ -1101,6 +1103,7 @@ class LoginView(View):
             if not user.can_login:
                 messages.error(request,
                                "Your account is not active. Please contact support.")
+                form.add_error(None, "Your account is not active. Please contact support.")
                 return render(request, self.template_name, {'form': form})
 
             login(request, user)
@@ -1132,6 +1135,7 @@ class LoginView(View):
         else:
             messages.error(request,
                            "Invalid email or password. Please try again.")
+            form.add_error(None, "Invalid email or password. Please try again.")
             return render(request, self.template_name, {'form': form})
 
 

@@ -71,25 +71,46 @@
               {% endfor %}
             {% endif %}
 
-            {% if form.errors %}
-              <div class="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                Invalid email or password. Please try again.
+            {% if form.non_field_errors %}
+              <div class="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 space-y-1">
+                {% for error in form.non_field_errors %}
+                  <div class="flex items-center gap-2">
+                    <i class="bi bi-exclamation-circle-fill text-rose-500 flex-shrink-0"></i>
+                    <span>{{ error }}</span>
+                  </div>
+                {% endfor %}
               </div>
             {% endif %}
 
-            <form method="post" class="space-y-4">
+            <form method="post" class="space-y-4" novalidate>
               {% csrf_token %}
               <div>
-                <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input type="email" name="email" class="auth-input" id="id_email" required autofocus>
+                <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Email address</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                  {% for error in form.email.errors %}
+                    <p class="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-rose-600">
+                      <i class="bi bi-x-circle-fill"></i>
+                      <span>{{ error }}</span>
+                    </p>
+                  {% endfor %}
+                {% endif %}
               </div>
               <div>
                 <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                <input type="password" name="password" class="auth-input" id="id_password" required>
+                {{ form.password }}
+                {% if form.password.errors %}
+                  {% for error in form.password.errors %}
+                    <p class="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-rose-600">
+                      <i class="bi bi-x-circle-fill"></i>
+                      <span>{{ error }}</span>
+                    </p>
+                  {% endfor %}
+                {% endif %}
               </div>
               <div class="flex items-center justify-between">
-                <label class="flex items-center gap-2 text-sm text-gray-600">
-                  <input type="checkbox" name="remember_me" class="accent-[#4f46e5] rounded" id="id_remember_me">
+                <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                  {{ form.remember_me }}
                   <span>Remember me</span>
                 </label>
                 <a href="{% url 'tenant:password_reset' %}" class="text-sm font-medium text-[color:var(--brand-primary)] hover:text-[color:var(--brand-primary-hover)]">Forgot password?</a>
