@@ -94,6 +94,19 @@ def _get_existing_onboarding_session(request) -> OnboardingSession | None:
             request.session["platform_onboarding_token"] = session.session_token
             request.session.modified = True
             return session
+
+        user_id = str(getattr(request.user, "id", ""))
+        if user_id:
+            session = (
+                OnboardingSession.objects.filter(metadata__platform_user_id=user_id)
+                .exclude(status__in=[OnboardingSession.Status.COMPLETED, OnboardingSession.Status.CANCELLED])
+                .order_by("-updated_at")
+                .first()
+            )
+            if session:
+                request.session["platform_onboarding_token"] = session.session_token
+                request.session.modified = True
+                return session
     return None
 
 
@@ -898,6 +911,8 @@ def onboarding_subdomain(request):
                 session.save(update_fields=["desired_subdomain", "metadata", "status", "updated_at"])
 
                 login(request, user, backend=SCHEMA_AWARE_BACKEND)
+                request.session["platform_onboarding_token"] = session.session_token
+                request.session.modified = True
                 return redirect("platform:onboarding_provisioning")
 
             except TenantCreationError as e:
@@ -920,14 +935,26 @@ def onboarding_subdomain(request):
 def onboarding_provisioning(request):
     existing_session = _get_existing_onboarding_session(request)
     session = existing_session or _get_or_create_onboarding_session(request)
-    if not session.selected_bundle_slug:
+    schema_name = (session.metadata or {}).get("tenant_schema_name")
+
+    if not schema_name and getattr(request.user, "is_authenticated", False):
+        shop = Shop.objects.filter(owner=request.user).order_by("-created_on").first()
+        if shop:
+            schema_name = shop.schema_name
+            session.metadata = {**(session.metadata or {}), "tenant_schema_name": schema_name}
+            session.save(update_fields=["metadata", "updated_at"])
+
+    if not session.selected_bundle_slug and not schema_name:
         return redirect("platform:onboarding_plan")
-    if session.payment_status != OnboardingSession.PaymentStatus.PAID:
+    if session.payment_status != OnboardingSession.PaymentStatus.PAID and not schema_name:
         return redirect("platform:onboarding_checkout")
-    if not (session.metadata or {}).get("tenant_schema_name"):
+    if not schema_name:
         return redirect("platform:onboarding_subdomain")
 
-    selected_bundle = get_plan_bundle_by_slug(session.selected_bundle_slug, currency=session.currency)
+    selected_bundle = None
+    if session.selected_bundle_slug:
+        selected_bundle = get_plan_bundle_by_slug(session.selected_bundle_slug, currency=session.currency)
+
     context = {
         "session": session,
         "selected_bundle": selected_bundle,
@@ -940,6 +967,12 @@ def onboarding_provisioning_status(request):
     existing_session = _get_existing_onboarding_session(request)
     session = existing_session or _get_or_create_onboarding_session(request)
     schema_name = (session.metadata or {}).get("tenant_schema_name")
+
+    if not schema_name and getattr(request.user, "is_authenticated", False):
+        shop = Shop.objects.filter(owner=request.user).order_by("-created_on").first()
+        if shop:
+            schema_name = shop.schema_name
+
     if not schema_name:
         return JsonResponse({"status": "provisioning", "progress": 25})
 
@@ -961,7 +994,7 @@ def onboarding_provisioning_status(request):
             "progress": 100,
             "error": shop.provisioning_error or "Store setup encountered an issue. Please contact support.",
             "schema_name": schema_name,
-        }, status=500)
+        })
     elif shop.provisioning_status == Shop.ProvisioningStatus.IN_PROGRESS:
         return JsonResponse({
             "status": "in_progress",

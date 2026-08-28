@@ -44,6 +44,15 @@
 
   <script>
     (function () {
+      const form = document.querySelector("form");
+      const submitBtn = form ? form.querySelector("button[type='submit']") : null;
+      if (form && submitBtn) {
+        form.addEventListener("submit", function (e) {
+          submitBtn.innerHTML = '<span class="inline-flex items-center gap-2"><svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Initializing your store...</span>';
+          submitBtn.classList.add("opacity-75", "pointer-events-none");
+        });
+      }
+
       const input = document.getElementById("id_desired_subdomain");
       const statusBox = document.getElementById("subdomain-status");
       if (!input || !statusBox) return;
