@@ -12,8 +12,10 @@ logger = logging.getLogger("sabistart.celery.provisioning")
 @shared_task(
     bind=True,
     name="system.account.tasks.provision_tenant_schema_task",
-    max_retries=2,
-    default_retry_delay=15,
+    max_retries=1,
+    default_retry_delay=30,
+    soft_time_limit=1800,  # 30 minutes for tenant schema migrations
+    time_limit=2400,       # 40 minutes hard limit
 )
 def provision_tenant_schema_task(
     self,

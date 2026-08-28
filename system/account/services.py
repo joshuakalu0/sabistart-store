@@ -115,17 +115,17 @@ class TenantService:
         from django.core.management import call_command
         from django.db import connection
 
-        shop = Shop.objects.filter(schema_name=schema_name).first()
-        if shop:
-            shop.create_schema(check_if_exists=True, sync_schema=True)
-        else:
-            call_command(
-                'migrate_schemas',
-                tenant=True,
-                schema_name=schema_name,
-                interactive=False,
-                verbosity=0,
-            )
+        schema_name = schema_name.strip().lower()
+        with connection.cursor() as cursor:
+            cursor.execute(f'CREATE SCHEMA IF NOT EXISTS "{schema_name}";')
+
+        call_command(
+            'migrate_schemas',
+            tenant=True,
+            schema_name=schema_name,
+            interactive=False,
+            verbosity=0,
+        )
 
     @staticmethod
     def provision_tenant_entitlements(session, shop: Shop) -> None:
