@@ -440,3 +440,53 @@ LOGGING = {
         "level": env("DJANGO_LOG_LEVEL", "INFO"),
     },
 }
+
+# -----------------------------------------------------------------------------
+# Celery Configuration (Managed Redis / Upstash with SSL & 1GB RAM Safety)
+# -----------------------------------------------------------------------------
+CELERY_BROKER_URL = env_first("CELERY_BROKER_URL", "REDIS_URL", default="redis://127.0.0.1:6379/0")
+CELERY_RESULT_BACKEND = env_first("CELERY_RESULT_BACKEND", "CELERY_BROKER_URL", "REDIS_URL", default=CELERY_BROKER_URL)
+
+# SSL configuration for Upstash / secure Redis brokers (rediss://)
+if CELERY_BROKER_URL.startswith("rediss://"):
+    CELERY_REDIS_BACKEND_USE_SSL = {"ssl_cert_reqs": None}
+    CELERY_BROKER_USE_SSL = {"ssl_cert_reqs": None}
+
+# Production Task & Serialization settings
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_ENABLE_UTC = True
+
+# Worker & Memory Safety Flags (Optimized for 1 vCPU, 1GB RAM VM)
+CELERY_WORKER_PREFETCH_MULTIPLIER = env_int("CELERY_WORKER_PREFETCH_MULTIPLIER", 1)
+CELERY_TASK_ACKS_LATE = env_bool("CELERY_TASK_ACKS_LATE", default=True)
+CELERY_TASK_REJECT_ON_WORKER_LOST = env_bool("CELERY_TASK_REJECT_ON_WORKER_LOST", default=True)
+CELERY_TASK_TIME_LIMIT = env_int("CELERY_TASK_TIME_LIMIT", 600)  # 10 min hard limit for schema migrations
+CELERY_TASK_SOFT_TIME_LIMIT = env_int("CELERY_TASK_SOFT_TIME_LIMIT", 540)  # 9 min soft limit
+CELERY_WORKER_DISABLE_RATE_LIMITS = True
+CELERY_WORKER_MAX_TASKS_PER_CHILD = env_int("CELERY_WORKER_MAX_TASKS_PER_CHILD", 10)
+CELERY_WORKER_MAX_MEMORY_PER_CHILD = env_int("CELERY_WORKER_MAX_MEMORY_PER_CHILD", 200000)  # 200MB max per child
+CELERY_TASK_DEFAULT_QUEUE = "default"
+
+# -----------------------------------------------------------------------------
+# Cache Configuration (Uses Upstash / Remote Redis if provided, LocMem fallback)
+# -----------------------------------------------------------------------------
+REDIS_CACHE_URL = env_first("REDIS_URL", "CELERY_BROKER_URL", default="")
+if REDIS_CACHE_URL and (REDIS_CACHE_URL.startswith("redis://") or REDIS_CACHE_URL.startswith("rediss://")):
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": REDIS_CACHE_URL,
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "sabistart-default-cache",
+        }
+    }
+
+

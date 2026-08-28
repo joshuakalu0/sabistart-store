@@ -26,7 +26,16 @@ import secrets
 from django.conf import settings
 
 
+from django.utils.translation import gettext_lazy as _
+
+
 class Shop(TenantMixin):
+    class ProvisioningStatus(models.TextChoices):
+        PENDING = "pending", _("Pending")
+        IN_PROGRESS = "in_progress", _("In Progress")
+        READY = "ready", _("Ready")
+        FAILED = "failed", _("Failed")
+
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -36,8 +45,27 @@ class Shop(TenantMixin):
     name = models.CharField(max_length=100)
     created_on = models.DateField(auto_now_add=True)
 
-    # default true, schema will be automatically created and synced when it is saved
-    auto_create_schema = True
+    # Set to False to decouple schema creation & migrations from synchronous HTTP request/response cycle.
+    # Provisioning is handled asynchronously via Celery (or explicit service calls).
+    auto_create_schema = False
+
+    provisioning_status = models.CharField(
+        max_length=20,
+        choices=ProvisioningStatus.choices,
+        default=ProvisioningStatus.PENDING,
+        db_index=True,
+        verbose_name=_("Provisioning Status"),
+    )
+    provisioning_error = models.TextField(
+        blank=True,
+        default="",
+        verbose_name=_("Provisioning Error Trace"),
+    )
+    provisioned_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_("Provisioned At"),
+    )
 
     def __str__(self):
         return self.name

@@ -847,6 +847,8 @@ def onboarding_subdomain(request):
                     name=session.business_name,
                     subdomain=subdomain,
                     schema_name=schema_name,
+                    session=session,
+                    enqueue_async=True,
                 )
                 existing_schema = shop.schema_name
             else:
@@ -854,8 +856,17 @@ def onboarding_subdomain(request):
                     shop = Shop.objects.get(schema_name=existing_schema)
                     shop.owner = user
                     shop.name = session.business_name or shop.name
-                    shop.save(update_fields=["owner", "name", "updated_at"])
+                    shop.save(update_fields=["owner", "name"])
                     Domain.objects.filter(tenant=shop, is_primary=True).update(domain=subdomain)
+                    if shop.provisioning_status != Shop.ProvisioningStatus.READY:
+                        from system.account.tasks import provision_tenant_schema_task
+                        try:
+                            provision_tenant_schema_task.delay(
+                                schema_name=shop.schema_name,
+                                session_id=str(session.id),
+                            )
+                        except Exception:
+                            pass
                 except Shop.DoesNotExist:
                     schema_name = f"onboard_{uuid.uuid4().hex[:8]}"
                     shop, domain = TenantService.create_tenant(
@@ -863,19 +874,18 @@ def onboarding_subdomain(request):
                         name=session.business_name,
                         subdomain=subdomain,
                         schema_name=schema_name,
+                        session=session,
+                        enqueue_async=True,
                     )
                     existing_schema = shop.schema_name
-
-            _provision_tenant_workspace(session, user, shop)
 
             session.metadata = {
                 **(session.metadata or {}),
                 "tenant_schema_name": existing_schema,
                 "tenant_domain": subdomain,
             }
-            session.status = OnboardingSession.Status.COMPLETED
-            session.completed_at = timezone.now()
-            session.save(update_fields=["desired_subdomain", "metadata", "status", "completed_at", "updated_at"])
+            session.status = OnboardingSession.Status.READY
+            session.save(update_fields=["desired_subdomain", "metadata", "status", "updated_at"])
 
             login(request, user, backend=SCHEMA_AWARE_BACKEND)
             return redirect("platform:onboarding_provisioning")
@@ -914,15 +924,39 @@ def onboarding_provisioning_status(request):
     session = existing_session or _get_or_create_onboarding_session(request)
     schema_name = (session.metadata or {}).get("tenant_schema_name")
     if not schema_name:
+        return JsonResponse({"status": "provisioning", "progress": 25})
+
+    shop = Shop.objects.filter(schema_name=schema_name).first()
+    if not shop:
         return JsonResponse({"status": "provisioning", "progress": 30})
 
-    redirect_url = reverse("dashboard:dashboard_home:home", kwargs={"prefix": schema_name})
-    return JsonResponse({
-        "status": "ready",
-        "progress": 100,
-        "redirect_url": redirect_url,
-        "schema_name": schema_name,
-    })
+    if shop.provisioning_status == Shop.ProvisioningStatus.READY:
+        redirect_url = reverse("dashboard:dashboard_home:home", kwargs={"prefix": schema_name})
+        return JsonResponse({
+            "status": "ready",
+            "progress": 100,
+            "redirect_url": redirect_url,
+            "schema_name": schema_name,
+        })
+    elif shop.provisioning_status == Shop.ProvisioningStatus.FAILED:
+        return JsonResponse({
+            "status": "failed",
+            "progress": 100,
+            "error": shop.provisioning_error or "Store setup encountered an issue. Please contact support.",
+            "schema_name": schema_name,
+        }, status=500)
+    elif shop.provisioning_status == Shop.ProvisioningStatus.IN_PROGRESS:
+        return JsonResponse({
+            "status": "in_progress",
+            "progress": 65,
+            "schema_name": schema_name,
+        })
+    else:  # PENDING
+        return JsonResponse({
+            "status": "provisioning",
+            "progress": 35,
+            "schema_name": schema_name,
+        })
 
 
 def onboarding_review(request):
@@ -935,9 +969,9 @@ class RegisterView(View):
 
     On successful registration:
     1. Creates the PlatformUser
-    2. Creates the tenant (Shop) with the specified subdomain
-    3. Creates the default Domain
-    4. Logs the user in
+    2. Creates the tenant (Shop) in public schema
+    3. Enqueues async Celery task for schema creation & migrations
+    4. Logs the user in and redirects immediately
     """
 
     template_name = 'account/register.html'
@@ -988,12 +1022,13 @@ class RegisterView(View):
                 owner=user,
                 name=form.cleaned_data.get('tenant_name', ''),
                 subdomain=subdomain,
+                enqueue_async=True,
             )
 
             login(request, user, backend=SCHEMA_AWARE_BACKEND)
 
             messages.success(
-                request, f"Welcome! Your store '{shop.name}' has been created.")
+                request, f"Welcome! Your store '{shop.name}' is being initialized.")
             return redirect('platform:dashboard')
 
         except TenantCreationError as e:

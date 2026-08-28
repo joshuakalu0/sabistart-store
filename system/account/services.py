@@ -36,15 +36,20 @@ class TenantService:
         name: str,
         subdomain: str,
         schema_name: str = "",
+        session=None,
+        enqueue_async: bool = True,
     ) -> tuple[Shop, Domain]:
         """
-        Create a new tenant (shop) for a platform user.
+        Create a new tenant (shop) for a platform user in the public schema,
+        then enqueue schema creation and tenant migrations asynchronously.
 
         Args:
             owner: The PlatformUser who will own this shop
             name: Display name for the shop
             subdomain: The subdomain part of the shop URL
             schema_name: Optional schema name (defaults to subdomain)
+            session: Optional OnboardingSession model instance
+            enqueue_async: Whether to trigger the Celery provisioning task
 
         Returns:
             tuple of (Shop, Domain)
@@ -52,8 +57,8 @@ class TenantService:
         Raises:
             TenantCreationError: If creation fails
         """
-        subdomain = subdomain.lower()
-        schema_name = (schema_name or "").strip() or subdomain
+        subdomain = subdomain.lower().strip()
+        schema_name = (schema_name or "").strip().lower() or subdomain
 
         if Domain.objects.filter(domain__iexact=subdomain).exists():
             raise TenantCreationError(
@@ -67,22 +72,42 @@ class TenantService:
                     owner=owner,
                     name=name,
                     schema_name=schema_name,
+                    provisioning_status=Shop.ProvisioningStatus.PENDING,
+                    provisioning_error="",
                 )
                 domain = Domain.objects.create(
                     domain=subdomain,
                     tenant=shop,
                     is_primary=True,
                 )
-                return shop, domain
+
+            if enqueue_async:
+                from system.account.tasks import provision_tenant_schema_task
+                session_id = str(session.id) if session else None
+                try:
+                    provision_tenant_schema_task.delay(
+                        schema_name=shop.schema_name,
+                        session_id=session_id,
+                    )
+                except Exception as exc:
+                    # In local dev or if broker is temporarily unavailable, log warning
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.warning(
+                        "Celery broker unavailable to enqueue provisioning task for %s: %s",
+                        shop.schema_name,
+                        exc,
+                    )
+
+            return shop, domain
         except Exception as e:
             raise TenantCreationError(f"Failed to create tenant: {str(e)}")
 
     @staticmethod
     def run_tenant_migrations(schema_name: str) -> None:
         """
-        Run all tenant migrations for a specific schema.
-
-        This should be called after creating a new tenant schema.
+        Create the PostgreSQL schema and run all tenant migrations.
+        Executed inside the Celery worker process.
 
         Args:
             schema_name: The tenant's schema name
@@ -90,25 +115,76 @@ class TenantService:
         from django.core.management import call_command
         from django.db import connection
 
-        # Save the current schema
-        original_schema = connection.schema_name
-
-        try:
-            # Set the tenant schema
-            connection.set_tenant_schema(schema_name)
-
-            # Run migrations for tenant apps
-            # Note: In production, this might be done via Celery/async
-            # to avoid blocking the request
+        shop = Shop.objects.filter(schema_name=schema_name).first()
+        if shop:
+            shop.create_schema(check_if_exists=True, sync_schema=True)
+        else:
             call_command(
-                'migrate',
+                'migrate_schemas',
+                tenant=True,
                 schema_name=schema_name,
-                run_syncdb=True,
+                interactive=False,
                 verbosity=0,
             )
-        finally:
-            # Restore the original schema
-            connection.set_tenant_schema(original_schema)
+
+    @staticmethod
+    def provision_tenant_entitlements(session, shop: Shop) -> None:
+        """
+        Grants plan bundle features and add-ons within the tenant's schema context.
+        """
+        from django_tenants.utils import schema_context
+        from dashboard.feature_marketplace.services import (
+            get_plan_bundle_by_slug,
+            get_active_feature_catalog,
+            grant_manual_entitlement,
+        )
+        from system.feature_marketplace.models import FeaturePrice, FeatureType
+
+        with schema_context(shop.schema_name):
+            # 1. Plan bundle
+            bundle_slug = getattr(session, "selected_bundle_slug", "")
+            currency = getattr(session, "currency", "NGN")
+            if bundle_slug:
+                bundle = get_plan_bundle_by_slug(bundle_slug, currency=currency)
+                if bundle:
+                    for item in bundle.items.select_related("feature").order_by("sort_order"):
+                        grant_manual_entitlement(
+                            feature=item.feature,
+                            quantity=item.quantity_override or 1,
+                            note="Granted during platform onboarding.",
+                            billing_cycle=bundle.billing_cycle,
+                            currency=bundle.currency,
+                        )
+
+            # 2. Add-on features
+            addon_codes = getattr(session, "selected_feature_codes", []) or []
+            if addon_codes:
+                feature_map = {
+                    feature.code: feature
+                    for feature in get_active_feature_catalog(currency=currency, purchasable_only=True)
+                }
+                for code in addon_codes:
+                    feature = feature_map.get(code)
+                    if not feature:
+                        continue
+                    price = (
+                        FeaturePrice.objects.filter(feature=feature, currency=currency, is_active=True)
+                        .order_by("amount")
+                        .first()
+                    )
+                    quantity = 1
+                    if price and feature.feature_type == FeatureType.LIMIT:
+                        quantity = price.limit_increment or feature.default_limit_value or 1
+                    elif price and feature.feature_type == FeatureType.USAGE:
+                        quantity = price.credits_included or feature.default_usage_value or 1
+                    grant_manual_entitlement(
+                        feature=feature,
+                        quantity=quantity,
+                        note="Granted during platform onboarding.",
+                        billing_cycle=price.billing_cycle if price else "perpetual",
+                        currency=currency,
+                    )
+
 
     @staticmethod
     def get_tenant_for_subdomain(subdomain: str) -> Shop | None:
