@@ -38,12 +38,10 @@ class Command(BaseCommand):
         if partial:
             users = list(
                 PlatformUser.objects.filter(email__icontains=identifier)
-                | PlatformUser.objects.filter(username__icontains=identifier)
             )
         else:
             users = list(
                 PlatformUser.objects.filter(email__iexact=identifier)
-                | PlatformUser.objects.filter(username__iexact=identifier)
             )
 
         if not users:
