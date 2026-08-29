@@ -203,9 +203,29 @@ def _apply_chunk(schema_name: str, migrations: List[Tuple[str, str]]) -> None:
         _set_schema(schema_name)
         executor.loader.build_graph()
         if (app_label, migration_name) in executor.loader.applied_migrations:
+            logger.info("[ChunkedRunner][%s] Skipping already-applied %s.%s", schema_name, app_label, migration_name)
             continue
         logger.info("[ChunkedRunner][%s] Applying migration %s.%s...", schema_name, app_label, migration_name)
-        executor.migrate([(app_label, migration_name)])
+        try:
+            executor.migrate([(app_label, migration_name)])
+        except Exception as exc:
+            err_str = str(exc).lower()
+            # DDL already applied (column/table/index exists) but migration not recorded
+            # — fake-record it and continue so the runner isn't permanently blocked
+            if any(phrase in err_str for phrase in (
+                "already exists", "duplicate column", "duplicate table",
+                "already exists", "duplizierter schlüssel",
+            )):
+                logger.warning(
+                    "[ChunkedRunner][%s] DDL for %s.%s already in DB (%s) — faking as applied.",
+                    schema_name, app_label, migration_name, type(exc).__name__,
+                )
+                _set_schema(schema_name)
+                from django.db.migrations.recorder import MigrationRecorder
+                recorder = MigrationRecorder(connection)
+                recorder.record_applied(app_label, migration_name)
+            else:
+                raise
         logger.info("[ChunkedRunner][%s] ✓ Applied %s.%s", schema_name, app_label, migration_name)
 
 

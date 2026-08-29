@@ -142,13 +142,13 @@ def get_applied_tenant_migrations(schema_name: str) -> Set[Tuple[str, str]]:
 
     try:
         with connection.cursor() as cursor:
-            # Verify schema and table existence
+            # Verify the django_migrations table exists in the tenant schema
             cursor.execute(
                 """
-                SELECT app, name
-                FROM information_schema.tables t
-                JOIN information_schema.schemata s ON s.schema_name = t.table_schema
-                WHERE t.table_schema = %s AND t.table_name = 'django_migrations';
+                SELECT 1
+                FROM information_schema.tables
+                WHERE table_schema = %s AND table_name = 'django_migrations'
+                LIMIT 1;
                 """,
                 [schema_name],
             )
@@ -159,7 +159,7 @@ def get_applied_tenant_migrations(schema_name: str) -> Set[Tuple[str, str]]:
             rows = cursor.fetchall()
             return {(row[0], row[1]) for row in rows}
     except Exception as exc:
-        logger.debug("[schema_inspector] Could not query applied migrations for %s: %s", schema_name, exc)
+        logger.warning("[schema_inspector] Could not query applied migrations for %s: %s", schema_name, exc)
         return set()
 
 
