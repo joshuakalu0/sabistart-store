@@ -539,3 +539,16 @@ SESSION_COOKIE_DOMAIN = env("SESSION_COOKIE_DOMAIN", default=None)
 CSRF_COOKIE_DOMAIN = env("CSRF_COOKIE_DOMAIN", default=SESSION_COOKIE_DOMAIN)
 SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", default=not DEBUG)
+
+# -----------------------------------------------------------------------------
+# Migration Worker Microservice
+# -----------------------------------------------------------------------------
+# URL of the external Migration Worker node (Railway / VPS).
+# Leave blank to run migrations in a local background daemon thread instead.
+MIGRATION_WORKER_URL = env("MIGRATION_WORKER_URL", default="")
+# Shared HMAC secret used to authenticate requests between main server and worker.
+MIGRATION_WORKER_SECRET = env("MIGRATION_WORKER_SECRET", default=SECRET_KEY)
+# Base URL the worker should POST its webhook callback to (main server public URL).
+# Defaults to PLATFORM_CNAME if not explicitly set.
+MIGRATION_WEBHOOK_URL = env("MIGRATION_WEBHOOK_URL", default="")
+

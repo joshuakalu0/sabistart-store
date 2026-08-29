@@ -21,6 +21,11 @@ from system.account.dashboard_views import (
     PlatformProvisioningRetryView,
     PlatformProvisioningDropSchemaView,
 )
+from system.account.worker_views import (
+    worker_migrate_endpoint,
+    tenant_migration_webhook_callback,
+)
+from system.account.api_views import tenant_status_api
 
 app_name = 'account'
 

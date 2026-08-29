@@ -1018,6 +1018,16 @@ def onboarding_provisioning(request):
     except Exception as kill_err:
         logger.debug("[Provisioning] Could not kill previous process for '%s': %s", schema_name, kill_err)
 
+    # Dispatch migration job to Worker Microservice / background thread
+    shop = Shop.objects.filter(schema_name=schema_name).first()
+    if shop and shop.provisioning_status != Shop.ProvisioningStatus.READY:
+        from system.account.worker_client import dispatch_migration_to_worker
+        owner_user = request.user if getattr(request.user, "is_authenticated", False) else shop.owner
+        try:
+            dispatch_migration_to_worker(shop, user=owner_user, session=session)
+        except Exception as dispatch_err:
+            logger.warning("[Provisioning] Could not dispatch to worker: %s", dispatch_err)
+
     selected_bundle = None
 
     if session.selected_bundle_slug:
@@ -1080,53 +1090,71 @@ def onboarding_provisioning_status(request):
             "schema_name": schema_name,
         })
 
-    # ── Dual-Engine Migration Runner (Celery + Silent Stall Watchdog + Local Fallback) ──
-    from system.account.watchdog import execute_tenant_migrations_with_watchdog
+    # ── Non-Blocking Migration Worker & Background Thread Status Check ──
+    from system.account.worker_client import get_worker_progress, dispatch_migration_to_worker
 
-    poll_budget = getattr(settings, "TENANT_PROVISIONING_POLL_BUDGET", 6)
-    advance_result: dict = {}
+    # Ensure worker is actively running
+    owner_user = request.user if getattr(request.user, "is_authenticated", False) else shop.owner
     try:
-        advance_result = execute_tenant_migrations_with_watchdog(
-            schema_name,
-            time_budget=poll_budget,
-            max_chunks=1,
-            session_id=str(session.id) if session else None,
-            source="poll_endpoint",
-        )
-    except Exception as advance_err:
-        logger.warning("[Provisioning] Dual-Engine chunked pass failed for '%s': %s", schema_name, advance_err)
+        dispatch_migration_to_worker(shop, user=owner_user, session=session)
+    except Exception:
+        pass
 
+    worker_progress = get_worker_progress(schema_name)
+    if worker_progress:
+        w_status = worker_progress.get("status", "RUNNING")
+        pct = int(worker_progress.get("progress_percentage", 10))
+        applied = int(worker_progress.get("applied_count", 0))
+        total = int(worker_progress.get("total_migrations", 34))
+        step_msg = worker_progress.get("current_step", "Configuring application models...")
+        engine = worker_progress.get("engine", "worker")
 
-    shop.refresh_from_db()
+        if w_status == "COMPLETED" or pct >= 100:
+            shop.refresh_from_db()
+            if shop.provisioning_status != Shop.ProvisioningStatus.READY:
+                shop.provisioning_status = Shop.ProvisioningStatus.READY
+                shop.provisioned_at = timezone.now()
+                shop.provisioning_error = ""
+                shop.save(update_fields=["provisioning_status", "provisioned_at", "provisioning_error"])
+                try:
+                    from system.account.sso import ensure_tenant_admin_user
+                    ensure_tenant_admin_user(shop, owner_user)
+                except Exception:
+                    pass
 
-    if advance_result.get("is_ready"):
-        redirect_url = get_tenant_subdomain_redirect_url(shop, request=request, user=request.user)
+            redirect_url = get_tenant_subdomain_redirect_url(shop, request=request, user=request.user)
+            return JsonResponse({
+                "status": "ready",
+                "progress": 100,
+                "redirect_url": redirect_url,
+                "schema_name": schema_name,
+                "applied_count": total,
+                "total_migrations": total,
+                "engine": engine,
+            })
+
+        if w_status == "FAILED":
+            return JsonResponse({
+                "status": "failed",
+                "progress": 100,
+                "error": worker_progress.get("error") or "Migration failed. Please retry.",
+                "schema_name": schema_name,
+                "engine": engine,
+            })
+
         return JsonResponse({
-            "status": "ready",
-            "progress": 100,
-            "redirect_url": redirect_url,
+            "status": "provisioning",
+            "progress": max(10, min(95, pct)),
             "schema_name": schema_name,
-            "engine": advance_result.get("engine", "local"),
+            "stage_message": step_msg,
+            "applied_count": applied,
+            "total_migrations": total,
+            "engine": engine,
         })
 
-    if advance_result.get("failed") or (
-        shop.provisioning_status == Shop.ProvisioningStatus.FAILED and advance_result.get("cooldown")
-    ):
-        return JsonResponse({
-            "status": "failed",
-            "progress": 100,
-            "error": (
-                advance_result.get("error")
-                or shop.provisioning_error
-                or "Store setup encountered an issue. Please contact support."
-            ),
-            "schema_name": schema_name,
-            "engine": advance_result.get("engine", "local"),
-        })
-
-    # ── Real Migration Status Inspection ──────────────────────────────────────
+    # ── Fallback to lightweight DB status inspection if no Redis state yet ──
     from system.account.schema_inspector import get_tenant_migration_status
-    mig_status = get_tenant_migration_status(schema_name, use_cache=False)
+    mig_status = get_tenant_migration_status(schema_name, use_cache=True)
 
     if mig_status.get("is_ready") is True:
         if shop.provisioning_status != Shop.ProvisioningStatus.READY:
@@ -1141,52 +1169,23 @@ def onboarding_provisioning_status(request):
             "progress": 100,
             "redirect_url": redirect_url,
             "schema_name": schema_name,
-            "applied_count": mig_status.get("total_migrations", 54),
-            "total_migrations": mig_status.get("total_migrations", 54),
-            "engine": advance_result.get("engine", "local"),
+            "applied_count": mig_status.get("total_migrations", 34),
+            "total_migrations": mig_status.get("total_migrations", 34),
         })
 
-
-    # Progress is calculated directly from applied migrations
-    calc_progress = max(10, mig_status.get("progress_percent", 35))
-    current_stage = mig_status.get("current_stage")
-
-    # Extract current migration name from provisioning_error progress message
-    # Format: "Stage N/8: Name (pct% — applied/total applied) ▶ app_label"
-    current_migration = ""
-    error_msg = shop.provisioning_error or ""
-    if "▶" in error_msg:
-        try:
-            current_migration = error_msg.split("▶")[-1].strip()
-        except Exception:
-            pass
-
-    system_health = None
-    if advance_result.get("run") and advance_result["run"].get("system_health"):
-        system_health = advance_result["run"]["system_health"]
-    else:
-        try:
-            from system.account.throttler import default_throttler
-            cpu, ram = default_throttler.get_metrics()
-            system_health = {
-                "cpu_percent": round(cpu, 1),
-                "ram_percent": round(ram, 1),
-                "status": default_throttler.assess_status(cpu, ram),
-            }
-        except Exception:
-            pass
+    calc_progress = max(10, mig_status.get("progress_percent", 15))
+    current_stage = mig_status.get("current_stage") or {}
 
     return JsonResponse({
-        "status": "in_progress" if shop.provisioning_status == Shop.ProvisioningStatus.IN_PROGRESS else "provisioning",
+        "status": "provisioning",
         "progress": calc_progress,
         "schema_name": schema_name,
         "stage": current_stage,
-        "stage_message": error_msg.split("(")[0].strip() if error_msg else (current_stage.get("name") if current_stage else "Provisioning tables..."),
-        "current_migration": current_migration,
+        "stage_message": f"Stage {current_stage.get('stage', '')}: {current_stage.get('name', 'Setting up database...')}",
         "applied_count": mig_status.get("applied_count", 0),
-        "total_migrations": mig_status.get("total_migrations", 54),
-        "system_health": system_health,
+        "total_migrations": mig_status.get("total_migrations", 34),
     })
+
 
 
 
