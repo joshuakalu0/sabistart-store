@@ -44,6 +44,14 @@ def provision_tenant_schema_task(
         task_id, schema_name, session_id,
     )
 
+    from django.db import connection
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute('SET search_path = "public";')
+    except Exception:
+        pass
+    connection.set_schema_to_public()
+
     shop = Shop.objects.filter(schema_name=schema_name).first()
     if not shop:
         err_msg = f"Shop record for schema '{schema_name}' was not found."
@@ -52,7 +60,7 @@ def provision_tenant_schema_task(
 
     # Mark as In-Progress
     shop.provisioning_status = Shop.ProvisioningStatus.IN_PROGRESS
-    shop.provisioning_error = "Starting micro-chunked migrations..."
+    shop.provisioning_error = "Starting tenant migrations..."
     shop.save(update_fields=["provisioning_status", "provisioning_error"])
 
     session = None
@@ -65,8 +73,9 @@ def provision_tenant_schema_task(
         stage_name = stage_info.get("name", "Migrating")
         stage_num = stage_info.get("stage", 1)
         mig_detail = f" ▶ {current_app}" if current_app else ""
-        progress_msg = f"Stage {stage_num}/8: {stage_name} ({pct}% — {applied}/{total} applied){mig_detail}"
+        progress_msg = f"Stage {stage_num}/7: {stage_name} ({pct}% — {applied}/{total} applied){mig_detail}"
         try:
+            connection.set_schema_to_public()
             Shop.objects.filter(schema_name=schema_name).update(provisioning_error=progress_msg)
         except Exception:
             pass

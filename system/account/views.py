@@ -1077,57 +1077,44 @@ def onboarding_provisioning_status(request):
             "schema_name": schema_name,
         })
 
-    # ── Stale task detection ──────────────────────────────────────────────────
-    # If the shop has been stuck in PENDING or IN_PROGRESS for more than 12 minutes,
-    # the Celery worker likely crashed or the task was lost. Auto-retry.
-    STALE_MINUTES = 12
-    # Use provisioned_at as a sentinel — but since it's only set on success,
-    # we rely on the shop's created_on date + a session-stored start timestamp.
-    # We track "provisioning_started_at" in session metadata.
+    # ── Auto-start & Stale task detection ──────────────────────────────────────
+    # If the shop is PENDING or stuck with 0 progress for > 30 seconds, auto-queue task
+    STALE_SECONDS = 30
     metadata = dict(session.metadata or {})
     provisioning_started_at_str = metadata.get("provisioning_started_at")
 
     now = timezone.now()
 
-    if provisioning_started_at_str:
+    should_kickstart = False
+    if shop.provisioning_status == Shop.ProvisioningStatus.PENDING:
+        should_kickstart = True
+    elif provisioning_started_at_str:
         try:
             from django.utils.dateparse import parse_datetime
             started_at = parse_datetime(provisioning_started_at_str)
-            if started_at and (now - started_at) > timedelta(minutes=STALE_MINUTES):
-                # Task is stale — auto retry
-                logger.warning(
-                    "[Provisioning] Schema '%s' stuck in %s for >%d min. Auto-retrying Celery task.",
-                    schema_name, shop.provisioning_status, STALE_MINUTES,
-                )
-                try:
-                    from system.account.tasks import provision_tenant_schema_task
-                    shop.provisioning_status = Shop.ProvisioningStatus.PENDING
-                    shop.provisioning_error = ""
-                    shop.save(update_fields=["provisioning_status", "provisioning_error"])
-                    provision_tenant_schema_task.delay(
-                        schema_name=schema_name,
-                        session_id=str(session.id) if session else None,
-                    )
-                    # Reset the start timestamp
-                    metadata["provisioning_started_at"] = now.isoformat()
-                    session.metadata = metadata
-                    session.save(update_fields=["metadata", "updated_at"])
-                    return JsonResponse({
-                        "status": "retrying",
-                        "progress": 20,
-                        "message": "Task was lost — re-queuing your store setup. Hang tight!",
-                        "schema_name": schema_name,
-                    })
-                except Exception as retry_err:
-                    logger.exception("[Provisioning] Auto-retry failed for schema '%s': %s", schema_name, retry_err)
-                    return JsonResponse({
-                        "status": "stale",
-                        "progress": 50,
-                        "message": "Setup is taking longer than expected. Please wait or contact support.",
-                        "schema_name": schema_name,
-                    })
+            if started_at and (now - started_at) > timedelta(seconds=STALE_SECONDS):
+                should_kickstart = True
         except Exception:
             pass
+
+    if should_kickstart:
+        try:
+            from system.account.tasks import provision_tenant_schema_task
+            shop.provisioning_status = Shop.ProvisioningStatus.IN_PROGRESS
+            shop.provisioning_error = "Starting tenant migrations..."
+            shop.save(update_fields=["provisioning_status", "provisioning_error"])
+            provision_tenant_schema_task.delay(
+                schema_name=schema_name,
+                session_id=str(session.id) if session else None,
+            )
+            metadata["provisioning_started_at"] = now.isoformat()
+            session.metadata = metadata
+            try:
+                session.save(update_fields=["metadata", "updated_at"])
+            except Exception:
+                pass
+        except Exception as kickstart_err:
+            logger.warning("[Provisioning] Kickstart failed for '%s': %s", schema_name, kickstart_err)
     else:
         # First time we see a non-ready status — record when we started waiting
         metadata["provisioning_started_at"] = now.isoformat()
