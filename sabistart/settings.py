@@ -517,4 +517,24 @@ else:
         }
     }
 
+# -----------------------------------------------------------------------------
+# Dual-Engine Migration Settings & Silent Stall Watchdog
+# -----------------------------------------------------------------------------
+# Feature toggle: Enable Celery for tenant migrations (with automatic local fallback)
+ENABLE_CELERY_MIGRATIONS = env_bool("ENABLE_CELERY_MIGRATIONS", default=False)
+# Watchdog timeout: Max seconds without a chunk progress heartbeat before revoking Celery and falling back to local runner
+CELERY_MIGRATION_STALL_TIMEOUT = env_int("CELERY_MIGRATION_STALL_TIMEOUT", 40)
+# Backoff timeout for local CPU/RAM throttler
+TENANT_MIGRATION_BACKOFF_TIMEOUT = env_int("TENANT_MIGRATION_BACKOFF_TIMEOUT", 15)
 
+# -----------------------------------------------------------------------------
+# Load Balancer & Cross-Subdomain Session Settings
+# -----------------------------------------------------------------------------
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+
+SESSION_COOKIE_DOMAIN = env("SESSION_COOKIE_DOMAIN", default=None)
+CSRF_COOKIE_DOMAIN = env("CSRF_COOKIE_DOMAIN", default=SESSION_COOKIE_DOMAIN)
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", default=not DEBUG)

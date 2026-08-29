@@ -13,10 +13,11 @@ from public.userauth import views, profile_views
 app_name = 'tenant'
 
 urlpatterns = [
-    # Authentication (existing)
+    # Authentication
     path('register/', views.tenant_register_view, name='register'),
     path('login/', views.tenant_login_view, name='login'),
     path('logout/', views.tenant_logout_view, name='logout'),
+    path('auth/sso/', views.tenant_sso_login_view, name='sso_login'),
     
     # Extended Auth Flows
     path('verify-email/', profile_views.verify_email_view, name='verify_email'),

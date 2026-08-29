@@ -74,6 +74,46 @@ def tenant_login_view(request):
     )
 
 
+def tenant_sso_login_view(request):
+    """
+    Consumes a secure, single-use SSO ticket to automatically authenticate
+    the tenant owner on their custom subdomain without re-prompting for credentials.
+    """
+    ticket = request.GET.get("ticket", "").strip()
+    next_url = request.GET.get("next", "")
+
+    if not ticket:
+        return redirect("tenant:login")
+
+    from django.db import connection
+    current_schema = getattr(connection, "schema_name", "public")
+    if current_schema == "public" and hasattr(request, "tenant") and request.tenant:
+        current_schema = getattr(request.tenant, "schema_name", "public")
+
+    from system.account.sso import consume_tenant_sso_ticket
+    payload = consume_tenant_sso_ticket(ticket, current_schema)
+
+    if not payload:
+        messages.error(request, "Your single-sign-on session has expired or is invalid. Please sign in.")
+        return redirect("tenant:login")
+
+    from public.userauth.models import TenantUser
+    email = payload.get("email", "").lower().strip()
+    tenant_user = TenantUser.objects.filter(email__iexact=email).first()
+
+    if not tenant_user:
+        messages.error(request, "Tenant account not found. Please sign in.")
+        return redirect("tenant:login")
+
+    login(request, tenant_user, backend=SCHEMA_AWARE_BACKEND)
+    get_or_create_cart(request)
+    messages.success(request, f"Welcome to your store workspace, {tenant_user.get_short_name()}!")
+
+    if next_url:
+        return redirect(next_url)
+    return redirect(f"/dashboard/{current_schema}/")
+
+
 def tenant_logout_view(request):
     logout(request)
     messages.success(request, "You have been logged out.")
@@ -82,3 +122,4 @@ def tenant_logout_view(request):
 
 def tenant_account_view(request):
     return redirect("tenant:account_overview")
+

@@ -1055,8 +1055,10 @@ def onboarding_provisioning_status(request):
     if not shop:
         return JsonResponse({"status": "provisioning", "progress": 30})
 
+    from system.account.sso import get_tenant_subdomain_redirect_url
+
     if shop.provisioning_status == Shop.ProvisioningStatus.READY:
-        redirect_url = reverse("dashboard:dashboard_home:home", kwargs={"prefix": schema_name})
+        redirect_url = get_tenant_subdomain_redirect_url(shop, request=request, user=request.user)
         return JsonResponse({
             "status": "ready",
             "progress": 100,
@@ -1064,35 +1066,31 @@ def onboarding_provisioning_status(request):
             "schema_name": schema_name,
         })
 
-    # ── Celery-free self-healing: advance migrations inline, time-budgeted ──
-    # Every poll applies a bounded slice of the remaining migration chunks
-    # (each migration commits individually; the DB connection is released
-    # between chunks). Failures record a checkpoint and resume from the last
-    # successful migration file on a later poll. FAILED tenants are resumed
-    # here too, subject to a short failure cooldown.
-    from system.account.migration_runner import advance_tenant_provisioning
+    # ── Dual-Engine Migration Runner (Celery + Silent Stall Watchdog + Local Fallback) ──
+    from system.account.watchdog import execute_tenant_migrations_with_watchdog
 
     poll_budget = getattr(settings, "TENANT_PROVISIONING_POLL_BUDGET", 6)
     advance_result: dict = {}
     try:
-        advance_result = advance_tenant_provisioning(
+        advance_result = execute_tenant_migrations_with_watchdog(
             schema_name,
             time_budget=poll_budget,
             session_id=str(session.id) if session else None,
             source="poll_endpoint",
         )
     except Exception as advance_err:
-        logger.warning("[Provisioning] Chunked pass failed for '%s': %s", schema_name, advance_err)
+        logger.warning("[Provisioning] Dual-Engine chunked pass failed for '%s': %s", schema_name, advance_err)
 
     shop.refresh_from_db()
 
     if advance_result.get("is_ready"):
-        redirect_url = reverse("dashboard:dashboard_home:home", kwargs={"prefix": schema_name})
+        redirect_url = get_tenant_subdomain_redirect_url(shop, request=request, user=request.user)
         return JsonResponse({
             "status": "ready",
             "progress": 100,
             "redirect_url": redirect_url,
             "schema_name": schema_name,
+            "engine": advance_result.get("engine", "local"),
         })
 
     if advance_result.get("failed") or (
@@ -1107,6 +1105,7 @@ def onboarding_provisioning_status(request):
                 or "Store setup encountered an issue. Please contact support."
             ),
             "schema_name": schema_name,
+            "engine": advance_result.get("engine", "local"),
         })
 
     # ── Real Migration Status Inspection ──────────────────────────────────────
@@ -1120,7 +1119,7 @@ def onboarding_provisioning_status(request):
             shop.provisioning_error = ""
             shop.save(update_fields=["provisioning_status", "provisioned_at", "provisioning_error"])
 
-        redirect_url = reverse("dashboard:dashboard_home:home", kwargs={"prefix": schema_name})
+        redirect_url = get_tenant_subdomain_redirect_url(shop, request=request, user=request.user)
         return JsonResponse({
             "status": "ready",
             "progress": 100,
@@ -1128,7 +1127,9 @@ def onboarding_provisioning_status(request):
             "schema_name": schema_name,
             "applied_count": mig_status.get("total_migrations", 54),
             "total_migrations": mig_status.get("total_migrations", 54),
+            "engine": advance_result.get("engine", "local"),
         })
+
 
     # Progress is calculated directly from applied migrations
     calc_progress = max(10, mig_status.get("progress_percent", 35))

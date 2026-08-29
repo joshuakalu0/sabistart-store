@@ -529,9 +529,17 @@ def advance_tenant_provisioning(
                 except Exception:
                     logger.debug("[ChunkedRunner] Could not finalize onboarding session.", exc_info=True)
 
+            if shop and shop.owner:
+                try:
+                    from system.account.sso import ensure_tenant_admin_user
+                    ensure_tenant_admin_user(shop, shop.owner)
+                except Exception as admin_err:
+                    logger.warning("[ChunkedRunner] Could not provision tenant admin user for '%s': %s", schema_name, admin_err)
+
             logger.info("[ChunkedRunner] Tenant '%s' is fully provisioned (source=%s).", schema_name, source)
             outcome["is_ready"] = True
             return outcome
+
 
         # ── Budget exhausted: tenant stays IN_PROGRESS for the next pass ────
         logger.info(
