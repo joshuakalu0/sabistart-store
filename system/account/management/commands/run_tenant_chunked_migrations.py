@@ -41,8 +41,9 @@ class Command(BaseCommand):
             "--chunk-size",
             type=int,
             default=None,
-            help="Max migrations per chunk (default: TENANT_PROVISIONING_CHUNK_SIZE setting or 4).",
+            help="Max migrations per chunk (default: TENANT_PROVISIONING_CHUNK_SIZE setting or 1).",
         )
+
         parser.add_argument(
             "--max-chunks",
             type=int,

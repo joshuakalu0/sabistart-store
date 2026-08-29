@@ -85,8 +85,15 @@ def run_chunked_tenant_migrations_celery_task(
         current_chunk="Initializing",
     )
 
-    from system.account.migration_runner import advance_tenant_provisioning
-    from system.account.throttler import default_throttler
+    def celery_per_migration_callback(stage_info: Dict[str, Any], applied: int, total: int, detail: str = "") -> None:
+        record_watchdog_heartbeat(
+            schema_name,
+            task_id,
+            status="RUNNING",
+            applied_count=applied,
+            total_migrations=total,
+            current_chunk=detail,
+        )
 
     try:
         result = advance_tenant_provisioning(
@@ -97,7 +104,9 @@ def run_chunked_tenant_migrations_celery_task(
             session_id=session_id,
             source="celery_worker",
             throttler=default_throttler,
+            progress_callback=celery_per_migration_callback,
         )
+
 
 
         final_status = "COMPLETED" if result.get("is_ready") else ("FAILED" if result.get("failed") else "RUNNING")

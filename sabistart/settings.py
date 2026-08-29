@@ -450,8 +450,9 @@ LOGGING = {
 #   - TenantProvisioningGuardMiddleware        (on-login self-healing)
 #   - the provisioning waiting-screen poll endpoint
 # -----------------------------------------------------------------------------
-# Max migrations applied per chunk (each migration commits individually).
-TENANT_PROVISIONING_CHUNK_SIZE = env_int("TENANT_PROVISIONING_CHUNK_SIZE", 4)
+# Max migrations applied per chunk (1 = migration-by-migration discrete execution).
+TENANT_PROVISIONING_CHUNK_SIZE = env_int("TENANT_PROVISIONING_CHUNK_SIZE", 1)
+
 # Seconds of migration work allowed inline per guarded request (login self-heal).
 TENANT_PROVISIONING_HEAL_BUDGET = env_int("TENANT_PROVISIONING_HEAL_BUDGET", 8)
 # Seconds of migration work allowed per waiting-screen status poll.

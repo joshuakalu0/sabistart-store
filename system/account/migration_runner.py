@@ -376,15 +376,12 @@ def run_chunked_tenant_migrations(
 # High-level provisioning step (lock + status + entitlements + READY flag)
 # -----------------------------------------------------------------------------
 def _shop_progress_writer(schema_name: str) -> ProgressCallback:
-    """Persists live stage progress on Shop.provisioning_error (same format the poll UI parses)."""
+    """Persists live migration progress on Shop.provisioning_error (e.g. Migration 1/54: userauth.0001_initial)."""
     from system.core.models import Shop
 
     def callback(stage_info: Dict[str, Any], applied: int, total: int, detail: str = "") -> None:
         pct = int((applied / total) * 100) if total > 0 else 0
-        stage_num = stage_info.get("stage", "?")
-        msg = f"Stage {stage_num}/7: {stage_info.get('name', 'Migrating')} ({pct}% — {applied}/{total} applied)"
-        if detail:
-            msg += f" ▶ {detail}"
+        msg = f"Migration {applied}/{total} ({pct}%): {detail}"
         try:
             connection.set_schema_to_public()
             Shop.objects.filter(schema_name=schema_name).update(provisioning_error=msg[:2900])
@@ -403,19 +400,12 @@ def advance_tenant_provisioning(
     session_id: Optional[str] = None,
     source: str = "unknown",
     throttler: Optional[AdaptiveThrottler] = None,
+    progress_callback: Optional[ProgressCallback] = None,
 ) -> Dict[str, Any]:
     """
     Advances a tenant toward READY by applying a bounded slice of pending
-    migration chunks. Safe to call concurrently (cache lock) and repeatedly
-    (each call resumes from the last applied migration file).
-
-    Used by:
-    - ``TenantProvisioningGuardMiddleware`` (on-login self-healing)
-    - the provisioning status polling endpoint (waiting screen)
-    - the platform admin retry action
-
-    Returns:
-        dict with keys: is_ready, failed, locked, cooldown, error, run.
+    migration chunks (1 migration by 1 migration by default).
+    Safe to call concurrently (cache lock) and repeatedly.
     """
     schema_name = (schema_name or "").strip().lower()
     outcome: Dict[str, Any] = {
@@ -448,10 +438,17 @@ def advance_tenant_provisioning(
         outcome["error"] = shop.provisioning_error if shop else ""
         return outcome
 
-    # Always claim the lock for this invocation. LOCK_TTL=25s means any process
-    # that isn't actively renewing the lock will have already expired — so force=True
-    # is safe and prevents stale locks from blocking new attempts indefinitely.
+    # Always claim the lock for this invocation.
     acquire_migration_lock(schema_name, force=True)
+
+    shop_cb = _shop_progress_writer(schema_name)
+    def combined_callback(stage_info: Dict[str, Any], applied: int, total: int, detail: str = "") -> None:
+        shop_cb(stage_info, applied, total, detail)
+        if progress_callback is not None:
+            try:
+                progress_callback(stage_info, applied, total, detail)
+            except Exception:
+                logger.debug("[ChunkedRunner] Custom progress callback error (ignored).", exc_info=True)
 
     try:
         if shop and shop.provisioning_status != Shop.ProvisioningStatus.IN_PROGRESS:
@@ -464,10 +461,11 @@ def advance_tenant_provisioning(
             chunk_size=chunk_size,
             max_chunks=max_chunks,
             time_budget=time_budget,
-            progress_callback=_shop_progress_writer(schema_name),
+            progress_callback=combined_callback,
             throttler=throttler,
         )
         outcome["run"] = run
+
 
         # ── Failure: record checkpoint so retries resume from this file ─────
         if run["failed_at"]:

@@ -247,11 +247,12 @@ def invalidate_tenant_ready_cache(schema_name: str) -> None:
     cache.delete(f"{CACHE_PREFIX}:{schema_name}")
 
 
-def plan_micro_chunks(schema_name: str, max_chunk_size: int = 5) -> List[Dict[str, Any]]:
+def plan_micro_chunks(schema_name: str, max_chunk_size: int = 1) -> List[Dict[str, Any]]:
     """
-    Partitions all pending migrations for a schema into micro-batches
-    of maximum `max_chunk_size` migrations, grouped by stage when possible.
+    Partitions all pending migrations for a schema into discrete micro-batches
+    of maximum `max_chunk_size` migrations (default: 1 migration per chunk).
     """
+
     status = get_tenant_migration_status(schema_name, use_cache=False)
     pending = status["pending_migrations"]
     if not pending:
