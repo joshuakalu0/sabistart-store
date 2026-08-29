@@ -1089,11 +1089,13 @@ def onboarding_provisioning_status(request):
         advance_result = execute_tenant_migrations_with_watchdog(
             schema_name,
             time_budget=poll_budget,
+            max_chunks=1,
             session_id=str(session.id) if session else None,
             source="poll_endpoint",
         )
     except Exception as advance_err:
         logger.warning("[Provisioning] Dual-Engine chunked pass failed for '%s': %s", schema_name, advance_err)
+
 
     shop.refresh_from_db()
 
