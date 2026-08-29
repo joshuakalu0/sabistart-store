@@ -12,8 +12,8 @@ logger = logging.getLogger("sabistart.celery.provisioning")
 @shared_task(
     bind=True,
     name="system.account.tasks.provision_tenant_schema_task",
-    max_retries=1,
-    default_retry_delay=30,
+    max_retries=2,
+    default_retry_delay=15,
     soft_time_limit=1800,  # 30 minutes for tenant schema migrations
     time_limit=2400,       # 40 minutes hard limit
 )
@@ -23,21 +23,25 @@ def provision_tenant_schema_task(
     session_id: str | None = None,
 ) -> dict:
     """
-    Celery task to asynchronously provision a tenant schema:
-    1. Runs database schema creation and all tenant app migrations
+    Celery task to asynchronously provision a tenant schema in micro-batches:
+    1. Runs micro-chunked schema migrations with memory recycling & live stage tracking
     2. Provisions initial store settings & plan entitlements (within tenant schema context)
-    3. Updates Shop & OnboardingSession provisioning statuses and records metrics
+    3. Updates Shop & OnboardingSession provisioning statuses and invalidates caches
     """
+    import gc
     from system.account.models import OnboardingSession
     from system.account.services import TenantService
+    from system.account.schema_inspector import (
+        get_tenant_migration_status,
+        invalidate_tenant_ready_cache,
+    )
     from system.core.models import Shop
 
     task_id = self.request.id or "sync"
+    schema_name = schema_name.strip().lower()
     logger.info(
-        "[Celery Task %s] Starting async provisioning for tenant schema '%s' (session_id=%s)",
-        task_id,
-        schema_name,
-        session_id,
+        "[Celery Task %s] Starting micro-chunked provisioning for tenant '%s' (session_id=%s)",
+        task_id, schema_name, session_id,
     )
 
     shop = Shop.objects.filter(schema_name=schema_name).first()
@@ -48,30 +52,44 @@ def provision_tenant_schema_task(
 
     # Mark as In-Progress
     shop.provisioning_status = Shop.ProvisioningStatus.IN_PROGRESS
-    shop.provisioning_error = ""
+    shop.provisioning_error = "Starting micro-chunked migrations..."
     shop.save(update_fields=["provisioning_status", "provisioning_error"])
 
     session = None
     if session_id:
         session = OnboardingSession.objects.filter(id=session_id).first()
 
+    # Define progress callback to record live stage in Shop model
+    def on_stage_progress(stage_info: dict, applied: int, total: int):
+        pct = int((applied / total) * 100) if total > 0 else 0
+        stage_name = stage_info.get("name", "Migrating")
+        stage_num = stage_info.get("stage", 1)
+        progress_msg = f"Stage {stage_num}/8: {stage_name} ({pct}% complete - {applied}/{total} applied)"
+        try:
+            Shop.objects.filter(schema_name=schema_name).update(provisioning_error=progress_msg)
+        except Exception:
+            pass
+
     try:
-        # Step 1: Run tenant migrations & schema creation
-        logger.info("[Celery Task %s] Running migrations for schema '%s'...", task_id, schema_name)
-        TenantService.run_tenant_migrations(schema_name)
-        logger.info("[Celery Task %s] Migrations completed for schema '%s'.", task_id, schema_name)
+        # Step 1: Run micro-chunked tenant migrations
+        logger.info("[Celery Task %s] Running micro-chunked migrations for '%s'...", task_id, schema_name)
+        status = TenantService.run_tenant_migrations(schema_name, progress_callback=on_stage_progress)
+        logger.info("[Celery Task %s] Migrations finished for '%s'. Status: %s", task_id, schema_name, status)
 
         # Step 2: Provision entitlements & onboarding settings if session provided
         if session:
-            logger.info("[Celery Task %s] Provisioning entitlements for schema '%s'...", task_id, schema_name)
+            logger.info("[Celery Task %s] Provisioning entitlements for '%s'...", task_id, schema_name)
             TenantService.provision_tenant_entitlements(session, shop)
-            logger.info("[Celery Task %s] Entitlements provisioned for schema '%s'.", task_id, schema_name)
+            logger.info("[Celery Task %s] Entitlements provisioned for '%s'.", task_id, schema_name)
 
         # Step 3: Update Shop to Ready
         shop.provisioning_status = Shop.ProvisioningStatus.READY
         shop.provisioning_error = ""
         shop.provisioned_at = timezone.now()
         shop.save(update_fields=["provisioning_status", "provisioning_error", "provisioned_at"])
+
+        # Invalidate cache so middleware immediately recognizes tenant as ready
+        invalidate_tenant_ready_cache(schema_name)
 
         # Step 4: Update OnboardingSession if present
         if session:
@@ -84,15 +102,16 @@ def provision_tenant_schema_task(
             session.metadata = metadata
             session.save(update_fields=["status", "completed_at", "metadata", "updated_at"])
 
-        logger.info("[Celery Task %s] Provisioning finished successfully for schema '%s'.", task_id, schema_name)
+        logger.info("[Celery Task %s] Provisioning SUCCESS for '%s'.", task_id, schema_name)
+        gc.collect()
         return {"success": True, "schema_name": schema_name, "status": "ready"}
 
     except Exception as exc:
         err_msg = f"{type(exc).__name__}: {str(exc)}"
         stack_trace = traceback.format_exc()
-        logger.exception("[Celery Task %s] Provisioning FAILED for schema '%s': %s", task_id, schema_name, err_msg)
+        logger.exception("[Celery Task %s] Provisioning FAILED for '%s': %s", task_id, schema_name, err_msg)
 
-        # Mark Shop as Failed with detailed trace for debugging
+        # Mark Shop as Failed with trace for debugging
         shop.provisioning_status = Shop.ProvisioningStatus.FAILED
         shop.provisioning_error = f"{err_msg}\n\nTraceback:\n{stack_trace}"[:3000]
         shop.save(update_fields=["provisioning_status", "provisioning_error"])
@@ -104,5 +123,6 @@ def provision_tenant_schema_task(
             session.metadata = metadata
             session.save(update_fields=["metadata", "updated_at"])
 
-        # Re-raise so Celery logs and tracks task failure state
+        gc.collect()
+        # Re-raise so Celery tracks task state
         raise exc

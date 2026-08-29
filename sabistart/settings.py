@@ -208,6 +208,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "system.account.middleware.TenantProvisioningGuardMiddleware",
     "public.monitoring.middleware.VisitorMonitoringMiddleware",
     # "dashboard.settings.middleware.CurrentUserMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -467,6 +468,7 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_ENABLE_UTC = True
 
 # Worker & Memory Safety Flags (Optimized for 1 vCPU, 1GB RAM VM)
+CELERY_WORKER_CONCURRENCY = env_int("CELERY_WORKER_CONCURRENCY", 2)
 CELERY_WORKER_PREFETCH_MULTIPLIER = env_int("CELERY_WORKER_PREFETCH_MULTIPLIER", 1)
 CELERY_TASK_ACKS_LATE = env_bool("CELERY_TASK_ACKS_LATE", default=True)
 CELERY_TASK_REJECT_ON_WORKER_LOST = env_bool("CELERY_TASK_REJECT_ON_WORKER_LOST", default=True)
@@ -474,7 +476,7 @@ CELERY_TASK_TIME_LIMIT = env_int("CELERY_TASK_TIME_LIMIT", 1800)  # 30 min hard 
 CELERY_TASK_SOFT_TIME_LIMIT = env_int("CELERY_TASK_SOFT_TIME_LIMIT", 1500)  # 25 min soft limit
 CELERY_WORKER_DISABLE_RATE_LIMITS = True
 CELERY_WORKER_MAX_TASKS_PER_CHILD = env_int("CELERY_WORKER_MAX_TASKS_PER_CHILD", 10)
-CELERY_WORKER_MAX_MEMORY_PER_CHILD = env_int("CELERY_WORKER_MAX_MEMORY_PER_CHILD", 200000)  # 200MB max per child
+CELERY_WORKER_MAX_MEMORY_PER_CHILD = env_int("CELERY_WORKER_MAX_MEMORY_PER_CHILD", 150000)  # 150MB max per child
 CELERY_TASK_DEFAULT_QUEUE = "default"
 
 # -----------------------------------------------------------------------------

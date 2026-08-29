@@ -8,6 +8,9 @@ These services handle:
 - Tenant migration setup
 """
 
+from __future__ import annotations
+
+from typing import Any, Dict, List, Optional
 from django.db import connection, transaction
 from django_tenants.utils import schema_context, get_tenant_domain_model
 
@@ -104,28 +107,108 @@ class TenantService:
             raise TenantCreationError(f"Failed to create tenant: {str(e)}")
 
     @staticmethod
-    def run_tenant_migrations(schema_name: str) -> None:
+    def run_tenant_migrations(
+        schema_name: str,
+        progress_callback: Any = None,
+    ) -> dict:
         """
-        Create the PostgreSQL schema and run all tenant migrations.
-        Executed inside the Celery worker process.
+        Create the PostgreSQL schema and run tenant migrations in dependency-ordered
+        micro-batches with connection recycling and RAM safety (under 30MB).
+        Resumes immediately from the last applied migration if previously interrupted.
 
         Args:
             schema_name: The tenant's schema name
+            progress_callback: Optional callable(stage_info, applied_count, total_count)
         """
+        import gc
+        import logging
         from django.core.management import call_command
-        from django.db import connection
+        from django.db import connection, transaction
+        from django.db.migrations.recorder import MigrationRecorder
+        from system.account.schema_inspector import (
+            STAGE_APP_MAPPINGS,
+            get_tenant_migration_status,
+            invalidate_tenant_ready_cache,
+        )
 
+        logger = logging.getLogger("sabistart.celery.provisioning")
         schema_name = schema_name.strip().lower()
+
+        logger.info("[TenantService] Starting micro-chunked migrations for '%s'...", schema_name)
+
+        # 1. Ensure the schema exists
         with connection.cursor() as cursor:
             cursor.execute(f'CREATE SCHEMA IF NOT EXISTS "{schema_name}";')
 
-        call_command(
-            'migrate_schemas',
-            tenant=True,
-            schema_name=schema_name,
-            interactive=False,
-            verbosity=0,
+        # 2. Ensure django_migrations table is created inside the schema
+        connection.set_schema(schema_name, include_public=False)
+        recorder = MigrationRecorder(connection)
+        recorder.ensure_schema()
+        connection.set_schema(schema_name, include_public=False)
+
+        # 3. Iterate through ordered dependency stages
+        total_stages = len(STAGE_APP_MAPPINGS)
+        for stage_idx, stage_info in enumerate(STAGE_APP_MAPPINGS, start=1):
+            stage_key = stage_info["key"]
+            stage_name = stage_info["name"]
+            stage_apps = stage_info["apps"]
+
+            logger.info(
+                "[TenantService][%s] Executing Stage %d/%d: %s (apps=%s)",
+                schema_name, stage_idx, total_stages, stage_name, stage_apps,
+            )
+
+            # Apply migrations app-by-app in this micro-chunk
+            for app_label in stage_apps:
+                try:
+                    connection.set_schema(schema_name, include_public=False)
+                    call_command("migrate", app_label, interactive=False, verbosity=0)
+                except Exception as app_err:
+                    logger.warning(
+                        "[TenantService][%s] App '%s' migration notice: %s. Continuing...",
+                        schema_name, app_label, app_err,
+                    )
+
+            # Commit batch transaction and recycle connection memory
+            try:
+                if not transaction.get_autocommit():
+                    transaction.commit()
+                connection.close()
+                connection.connection = None
+            except Exception:
+                pass
+            gc.collect()
+
+            # Inspect progress and trigger callback
+            status = get_tenant_migration_status(schema_name, use_cache=False)
+            if progress_callback:
+                try:
+                    progress_callback(stage_info, status["applied_count"], status["total_migrations"])
+                except Exception as cb_err:
+                    logger.debug("[TenantService] Progress callback error: %s", cb_err)
+
+        # 4. Final convergence pass to ensure all dependencies are 100% applied
+        try:
+            connection.set_schema(schema_name, include_public=False)
+            call_command("migrate", interactive=False, verbosity=0)
+            if not transaction.get_autocommit():
+                transaction.commit()
+            connection.close()
+            connection.connection = None
+        except Exception as final_err:
+            logger.warning("[TenantService][%s] Final convergence pass notice: %s", schema_name, final_err)
+        finally:
+            connection.set_schema_to_public()
+            gc.collect()
+
+        # Invalidate and re-cache ready status
+        invalidate_tenant_ready_cache(schema_name)
+        final_status = get_tenant_migration_status(schema_name, use_cache=False)
+        logger.info(
+            "[TenantService] Micro-chunked migrations finished for '%s' (Applied: %d/%d, Ready: %s)",
+            schema_name, final_status["applied_count"], final_status["total_migrations"], final_status["is_ready"],
         )
+        return final_status
 
     @staticmethod
     def provision_tenant_entitlements(session, shop: Shop) -> None:

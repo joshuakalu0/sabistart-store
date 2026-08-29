@@ -964,6 +964,12 @@ def onboarding_provisioning(request):
 
 
 def onboarding_provisioning_status(request):
+    import logging
+    from django.utils import timezone
+    from datetime import timedelta
+
+    logger = logging.getLogger(__name__)
+
     existing_session = _get_existing_onboarding_session(request)
     session = existing_session or _get_or_create_onboarding_session(request)
     schema_name = (session.metadata or {}).get("tenant_schema_name")
@@ -988,6 +994,7 @@ def onboarding_provisioning_status(request):
             "redirect_url": redirect_url,
             "schema_name": schema_name,
         })
+
     elif shop.provisioning_status == Shop.ProvisioningStatus.FAILED:
         return JsonResponse({
             "status": "failed",
@@ -995,18 +1002,101 @@ def onboarding_provisioning_status(request):
             "error": shop.provisioning_error or "Store setup encountered an issue. Please contact support.",
             "schema_name": schema_name,
         })
-    elif shop.provisioning_status == Shop.ProvisioningStatus.IN_PROGRESS:
+
+    # ── Stale task detection ──────────────────────────────────────────────────
+    # If the shop has been stuck in PENDING or IN_PROGRESS for more than 12 minutes,
+    # the Celery worker likely crashed or the task was lost. Auto-retry.
+    STALE_MINUTES = 12
+    # Use provisioned_at as a sentinel — but since it's only set on success,
+    # we rely on the shop's created_on date + a session-stored start timestamp.
+    # We track "provisioning_started_at" in session metadata.
+    metadata = dict(session.metadata or {})
+    provisioning_started_at_str = metadata.get("provisioning_started_at")
+
+    now = timezone.now()
+
+    if provisioning_started_at_str:
+        try:
+            from django.utils.dateparse import parse_datetime
+            started_at = parse_datetime(provisioning_started_at_str)
+            if started_at and (now - started_at) > timedelta(minutes=STALE_MINUTES):
+                # Task is stale — auto retry
+                logger.warning(
+                    "[Provisioning] Schema '%s' stuck in %s for >%d min. Auto-retrying Celery task.",
+                    schema_name, shop.provisioning_status, STALE_MINUTES,
+                )
+                try:
+                    from system.account.tasks import provision_tenant_schema_task
+                    shop.provisioning_status = Shop.ProvisioningStatus.PENDING
+                    shop.provisioning_error = ""
+                    shop.save(update_fields=["provisioning_status", "provisioning_error"])
+                    provision_tenant_schema_task.delay(
+                        schema_name=schema_name,
+                        session_id=str(session.id) if session else None,
+                    )
+                    # Reset the start timestamp
+                    metadata["provisioning_started_at"] = now.isoformat()
+                    session.metadata = metadata
+                    session.save(update_fields=["metadata", "updated_at"])
+                    return JsonResponse({
+                        "status": "retrying",
+                        "progress": 20,
+                        "message": "Task was lost — re-queuing your store setup. Hang tight!",
+                        "schema_name": schema_name,
+                    })
+                except Exception as retry_err:
+                    logger.exception("[Provisioning] Auto-retry failed for schema '%s': %s", schema_name, retry_err)
+                    return JsonResponse({
+                        "status": "stale",
+                        "progress": 50,
+                        "message": "Setup is taking longer than expected. Please wait or contact support.",
+                        "schema_name": schema_name,
+                    })
+        except Exception:
+            pass
+    else:
+        # First time we see a non-ready status — record when we started waiting
+        metadata["provisioning_started_at"] = now.isoformat()
+        session.metadata = metadata
+        try:
+            session.save(update_fields=["metadata", "updated_at"])
+        except Exception:
+            pass
+
+    # ── Real Migration Status Inspection ──────────────────────────────────────
+    from system.account.schema_inspector import get_tenant_migration_status
+    mig_status = get_tenant_migration_status(schema_name, use_cache=False)
+
+    if mig_status.get("is_ready") is True:
+        if shop.provisioning_status != Shop.ProvisioningStatus.READY:
+            shop.provisioning_status = Shop.ProvisioningStatus.READY
+            shop.provisioned_at = timezone.now()
+            shop.provisioning_error = ""
+            shop.save(update_fields=["provisioning_status", "provisioned_at", "provisioning_error"])
+
+        redirect_url = reverse("dashboard:dashboard_home:home", kwargs={"prefix": schema_name})
         return JsonResponse({
-            "status": "in_progress",
-            "progress": 65,
+            "status": "ready",
+            "progress": 100,
+            "redirect_url": redirect_url,
             "schema_name": schema_name,
+            "applied_count": mig_status.get("total_migrations", 54),
+            "total_migrations": mig_status.get("total_migrations", 54),
         })
-    else:  # PENDING
-        return JsonResponse({
-            "status": "provisioning",
-            "progress": 35,
-            "schema_name": schema_name,
-        })
+
+    # Progress is calculated directly from applied migrations
+    calc_progress = max(10, mig_status.get("progress_percent", 35))
+    current_stage = mig_status.get("current_stage")
+
+    return JsonResponse({
+        "status": "in_progress" if shop.provisioning_status == Shop.ProvisioningStatus.IN_PROGRESS else "provisioning",
+        "progress": calc_progress,
+        "schema_name": schema_name,
+        "stage": current_stage,
+        "stage_message": shop.provisioning_error or (current_stage.get("name") if current_stage else "Provisioning tables..."),
+        "applied_count": mig_status.get("applied_count", 0),
+        "total_migrations": mig_status.get("total_migrations", 54),
+    })
 
 
 def onboarding_review(request):

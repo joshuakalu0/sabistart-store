@@ -243,9 +243,8 @@
         const progressPercent = document.getElementById("progress-percent");
         const progressStatusText = document.getElementById("progress-status-text");
 
-        let currentProgress = 35;
-        let pollCount = 0;
         let isRedirecting = false;
+        let pollCount = 0;
 
         function updateStepUI(stepId, labelId, isComplete, labelText) {
           const row = document.getElementById(stepId);
@@ -279,9 +278,9 @@
           })
           .then(res => res.json())
           .then(data => {
-            if (data.status === "ready" || data.status === "completed") {
+            if (data.status === "ready" || data.progress === 100) {
               isRedirecting = true;
-              // Animate sequence to 100%
+              // Animate all steps to 100%
               updateStepUI("step-db", "step-db-label", true, "Complete");
               updateStepUI("step-plan", "step-plan-label", true, "Complete");
               updateStepUI("step-subdomain", "step-subdomain-label", true, "Complete");
@@ -292,31 +291,39 @@
 
               setTimeout(() => {
                 window.location.href = data.redirect_url || "{% url 'platform:dashboard' %}";
-              }, 1200);
+              }, 1000);
             } else if (data.status === "failed") {
               progressBar.classList.remove("bg-blue-600");
               progressBar.classList.add("bg-rose-500");
               progressBar.style.width = "100%";
               progressPercent.textContent = "Issue detected";
-              progressStatusText.textContent = data.error || "Setup encountered a temporary delay. Please refresh or contact support.";
+              progressStatusText.textContent = data.error || "Setup encountered a temporary delay. Please refresh or check dashboard.";
               progressStatusText.className = "text-rose-600 font-semibold";
             } else {
-              // Provisioning / in_progress / pending
-              currentProgress = Math.min(85, currentProgress + 15);
-              progressBar.style.width = currentProgress + "%";
-              progressPercent.textContent = currentProgress + "%";
+              // In progress with micro-chunk stats from server
+              const progress = Math.max(15, Math.min(95, data.progress || 35));
+              progressBar.style.width = progress + "%";
+              progressPercent.textContent = progress + "%";
 
-              if (pollCount === 1) {
-                updateStepUI("step-db", "step-db-label", false, "Creating tables...");
-                progressStatusText.textContent = "Building dedicated database schema...";
-              } else if (pollCount === 2) {
+              if (data.stage && data.stage.name) {
+                progressStatusText.textContent = `Stage ${data.stage.stage}/8: ${data.stage.name}`;
+              } else if (data.stage_message) {
+                progressStatusText.textContent = data.stage_message;
+              } else {
+                progressStatusText.textContent = "Applying database schemas in micro-batches...";
+              }
+
+              // Update milestone checkboxes
+              if (progress >= 30) {
+                updateStepUI("step-db", "step-db-label", false, "Applying tables...");
+              }
+              if (progress >= 70) {
                 updateStepUI("step-db", "step-db-label", true, "Complete");
                 updateStepUI("step-plan", "step-plan-label", false, "Activating...");
-                progressStatusText.textContent = "Activating subscription features & addons...";
-              } else {
+              }
+              if (progress >= 90) {
                 updateStepUI("step-plan", "step-plan-label", true, "Complete");
                 updateStepUI("step-subdomain", "step-subdomain-label", false, "Configuring...");
-                progressStatusText.textContent = "Finalizing dashboard permissions...";
               }
 
               setTimeout(poll, 1500);
@@ -324,12 +331,12 @@
           })
           .catch(err => {
             console.error("Polling status error:", err);
-            setTimeout(poll, 2000);
+            setTimeout(poll, 2500);
           });
         }
 
-        // Start polling after 800ms
-        setTimeout(poll, 800);
+        // Start polling after 600ms
+        setTimeout(poll, 600);
       })();
     </script>
   </body>
