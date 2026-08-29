@@ -179,11 +179,11 @@ class TenantService:
         Grants plan bundle features and add-ons within the tenant's schema context.
         """
         from django_tenants.utils import schema_context
-        from dashboard.feature_marketplace.services import (
+        from system.feature_marketplace.services import (
             get_plan_bundle_by_slug,
             get_active_feature_catalog,
-            grant_manual_entitlement,
         )
+        from dashboard.feature_marketplace.services import grant_manual_entitlement
         from system.feature_marketplace.models import FeaturePrice, FeatureType
 
         with schema_context(shop.schema_name):
