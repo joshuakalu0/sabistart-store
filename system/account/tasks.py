@@ -28,7 +28,7 @@ WATCHDOG_TTL = 600  # 10 minutes max for state key
 def record_watchdog_heartbeat(
     schema_name: str,
     task_id: str,
-    *,,
+    *,
     status: str = "RUNNING",
     applied_count: int = 0,
     total_migrations: int = 54,
@@ -54,10 +54,11 @@ def record_watchdog_heartbeat(
 
 
 
-Ashared_task(bind=True, name="system.account.tasks.run_chunked_tenant_migrations_celery_task")
+@shared_task(bind=True, name="system.account.tasks.run_chunked_tenant_migrations_celery_task")
 def run_chunked_tenant_migrations_celery_task(
     self,
     schema_name: str,
+
     *,
     chunk_size: Optional[int] = None,
     max_chunks: Optional[int] = None,
@@ -116,6 +117,7 @@ def run_chunked_tenant_migrations_celery_task(
             schema_name,
             task_id,
             status="FAILED",
-            error=f"{type(exc).__name__s: {exc}",
+            error=f"{type(exc).__name__}: {exc}",
         )
         raise
+
