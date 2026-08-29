@@ -123,16 +123,19 @@ class TenantService:
     def run_tenant_migrations(
         schema_name: str,
         progress_callback: Any = None,
+        throttler: Any = None,
     ) -> dict:
         """
         Create the PostgreSQL schema and run tenant migrations as dependency-
-        ordered micro-chunks (Celery-free). Each migration commits in its own
-        transaction and the DB connection is recycled between chunks, so a
-        1GB RAM instance is never overwhelmed by a monolithic migrate run.
+        ordered micro-chunks (Celery-free) with adaptive CPU and RAM throttling.
+        Each migration commits in its own transaction and the DB connection is
+        recycled between chunks, so a 1GB RAM instance is never overwhelmed by a
+        monolithic migrate run.
 
         Args:
             schema_name: The tenant's schema name
             progress_callback: Optional callback for status reporting
+            throttler: Optional AdaptiveThrottler instance
         """
         import logging
         from system.account.migration_runner import (
@@ -152,6 +155,7 @@ class TenantService:
         result = run_chunked_tenant_migrations(
             schema_name,
             progress_callback=progress_callback,
+            throttler=throttler,
         )
 
         if result["failed_at"]:
@@ -160,6 +164,7 @@ class TenantService:
             raise ChunkedMigrationError(
                 f"Chunk failed at {checkpoint['app']}.{checkpoint['migration']}: {checkpoint['error']}"
             )
+
 
         # Invalidate and cache ready status
         invalidate_tenant_ready_cache(schema_name)

@@ -1144,6 +1144,21 @@ def onboarding_provisioning_status(request):
         except Exception:
             pass
 
+    system_health = None
+    if advance_result.get("run") and advance_result["run"].get("system_health"):
+        system_health = advance_result["run"]["system_health"]
+    else:
+        try:
+            from system.account.throttler import default_throttler
+            cpu, ram = default_throttler.get_metrics()
+            system_health = {
+                "cpu_percent": round(cpu, 1),
+                "ram_percent": round(ram, 1),
+                "status": default_throttler.assess_status(cpu, ram),
+            }
+        except Exception:
+            pass
+
     return JsonResponse({
         "status": "in_progress" if shop.provisioning_status == Shop.ProvisioningStatus.IN_PROGRESS else "provisioning",
         "progress": calc_progress,
@@ -1153,7 +1168,9 @@ def onboarding_provisioning_status(request):
         "current_migration": current_migration,
         "applied_count": mig_status.get("applied_count", 0),
         "total_migrations": mig_status.get("total_migrations", 54),
+        "system_health": system_health,
     })
+
 
 
 def onboarding_review(request):

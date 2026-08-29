@@ -40,6 +40,7 @@ from system.account.schema_inspector import (
     invalidate_tenant_ready_cache,
     plan_micro_chunks,
 )
+from system.account.throttler import AdaptiveThrottler, SystemHealthReport, default_throttler
 
 logger = logging.getLogger("sabistart.provisioning.chunked")
 
@@ -236,10 +237,11 @@ def run_chunked_tenant_migrations(
     max_chunks: Optional[int] = None,
     time_budget: Optional[float] = None,
     progress_callback: Optional[ProgressCallback] = None,
+    throttler: Optional[AdaptiveThrottler] = None,
 ) -> Dict[str, Any]:
     """
     Applies all (or a bounded number of) pending tenant migrations in
-    dependency-ordered micro-chunks.
+    dependency-ordered micro-chunks with dynamic CPU & RAM throttling.
 
     Args:
         schema_name: Target tenant schema.
@@ -248,14 +250,17 @@ def run_chunked_tenant_migrations(
         time_budget: Stop cleanly after this many seconds (None = no limit).
             Stopping only ever happens *between* chunks, so state is consistent.
         progress_callback: ``callback(stage_info, applied_total, total, detail)``.
+        throttler: Optional custom AdaptiveThrottler instance.
 
     Returns:
         dict with keys: completed, chunks_applied, migrations_applied,
-        remaining, failed_at, stopped_reason.
+        remaining, failed_at, stopped_reason, system_health.
     """
     schema_name = schema_name.strip().lower()
     if chunk_size is None:
         chunk_size = getattr(settings, "TENANT_PROVISIONING_CHUNK_SIZE", 4)
+
+    active_throttler = throttler if throttler is not None else default_throttler
 
     result: Dict[str, Any] = {
         "schema_name": schema_name,
@@ -265,6 +270,7 @@ def run_chunked_tenant_migrations(
         "remaining": 0,
         "failed_at": None,
         "stopped_reason": None,
+        "system_health": None,
     }
 
     _ensure_schema_exists(schema_name)
@@ -292,11 +298,29 @@ def run_chunked_tenant_migrations(
                 result["stopped_reason"] = "time_budget"
                 break
 
+            # ── Adaptive CPU & RAM Throttling Check ────────────────────────
+            backoff_timeout = getattr(settings, "TENANT_MIGRATION_BACKOFF_TIMEOUT", 10.0)
+            health_report: SystemHealthReport = active_throttler.throttle_before_chunk(
+                max_backoff_seconds=float(backoff_timeout),
+                custom_logger=logger,
+            )
+            result["system_health"] = health_report.to_dict()
+
+            if not health_report.is_safe_to_proceed:
+                logger.warning(
+                    "[ChunkedRunner][%s] Pausing chunk execution due to critical system load (CPU %.1f%%, RAM %.1f%%).",
+                    schema_name, health_report.cpu_percent, health_report.ram_percent,
+                )
+                result["stopped_reason"] = "cpu_throttled_critical"
+                break
+
             stage_info = _stage_info_for_app(chunk["migrations"][0][0])
             chunk_detail = ", ".join(f"{app}.{name}" for app, name in chunk["migrations"])
             logger.info(
-                "[ChunkedRunner][%s] Chunk %d/%d (stage %s): applying %s",
-                schema_name, index + 1, len(chunks), stage_info.get("key"), chunk_detail,
+                "[ChunkedRunner][%s] Chunk %d/%d (stage %s) [CPU: %.1f%% | RAM: %.1f%% -> %s]: applying %s",
+                schema_name, index + 1, len(chunks), stage_info.get("key"),
+                health_report.cpu_percent, health_report.ram_percent, health_report.status,
+                chunk_detail,
             )
 
             try:
@@ -378,6 +402,7 @@ def advance_tenant_provisioning(
     chunk_size: Optional[int] = None,
     session_id: Optional[str] = None,
     source: str = "unknown",
+    throttler: Optional[AdaptiveThrottler] = None,
 ) -> Dict[str, Any]:
     """
     Advances a tenant toward READY by applying a bounded slice of pending
@@ -440,6 +465,7 @@ def advance_tenant_provisioning(
             max_chunks=max_chunks,
             time_budget=time_budget,
             progress_callback=_shop_progress_writer(schema_name),
+            throttler=throttler,
         )
         outcome["run"] = run
 

@@ -77,6 +77,42 @@ class Command(BaseCommand):
             default=False,
             help="Force override and clear any existing migration lock on the target schema(s).",
         )
+        parser.add_argument(
+            "--no-throttle",
+            action="store_true",
+            default=False,
+            help="Disable adaptive CPU and RAM throttling.",
+        )
+        parser.add_argument(
+            "--cpu-safe",
+            type=float,
+            default=65.0,
+            help="CPU safe threshold (percentage, default: 65.0). Below this runs without delay.",
+        )
+        parser.add_argument(
+            "--cpu-warning",
+            type=float,
+            default=82.0,
+            help="CPU warning threshold (percentage, default: 82.0). Above this injects adaptive sleep.",
+        )
+        parser.add_argument(
+            "--cpu-critical",
+            type=float,
+            default=85.0,
+            help="CPU critical threshold (percentage, default: 85.0). Above this enters backoff loop.",
+        )
+        parser.add_argument(
+            "--ram-critical",
+            type=float,
+            default=85.0,
+            help="RAM critical threshold (percentage, default: 85.0). Above this enters backoff loop.",
+        )
+        parser.add_argument(
+            "--backoff-timeout",
+            type=float,
+            default=15.0,
+            help="Maximum seconds to wait in backoff loop when system is under critical load (default: 15.0).",
+        )
 
     def handle(self, *args, **options):
         from system.account.migration_runner import (
@@ -84,7 +120,16 @@ class Command(BaseCommand):
             release_migration_lock,
             run_chunked_tenant_migrations,
         )
+        from system.account.throttler import AdaptiveThrottler
         from system.core.models import Shop
+
+        throttler = AdaptiveThrottler(
+            cpu_safe_limit=options["cpu_safe"],
+            cpu_warning_limit=options["cpu_warning"],
+            cpu_critical_limit=options["cpu_critical"],
+            ram_critical_limit=options["ram_critical"],
+            enabled=not options["no_throttle"],
+        )
 
         schemas = [s.strip().lower() for s in options["schema"] if s.strip()]
         force_mode = options.get("force", False) or bool(schemas)
@@ -98,12 +143,15 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS("Nothing to do — every tenant is fully migrated."))
             return
 
+        throttle_mode = "OFF" if options["no_throttle"] else f"ON (Safe <{options['cpu_safe']}%, Warn <{options['cpu_warning']}%, Crit >{options['cpu_critical']}%)"
+
         self.stdout.write(
             f"Migrating {len(schemas)} tenant schema(s) in micro-chunks "
             f"(chunk_size={options['chunk_size'] or 'default'}, "
             f"max_chunks={options['max_chunks'] or 'unlimited'}, "
             f"time_budget={options['time_budget'] or 'none'}s, "
-            f"force={force_mode})..."
+            f"force={force_mode}, "
+            f"throttling={throttle_mode})..."
         )
 
         max_passes = None if options["loop"] else 1
@@ -117,6 +165,11 @@ class Command(BaseCommand):
             unfinished = []
             for schema_name in schemas:
                 self.stdout.write(f"\n▶ {schema_name}")
+
+                # Check host metrics
+                cpu, ram = throttler.get_metrics()
+                status_label = throttler.assess_status(cpu, ram)
+                self.stdout.write(f"  System Health: CPU {cpu:.1f}% | RAM {ram:.1f}% [{status_label}]")
 
                 # Acquire migration lock (with force override if targeting specific schema)
                 if not acquire_migration_lock(schema_name, force=force_mode):
@@ -132,6 +185,7 @@ class Command(BaseCommand):
                         chunk_size=options["chunk_size"],
                         max_chunks=options["max_chunks"],
                         time_budget=options["time_budget"],
+                        throttler=throttler,
                     )
                 finally:
                     release_migration_lock(schema_name)
