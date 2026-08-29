@@ -44,7 +44,34 @@ def revoke_celery_task(task_id: str) -> None:
         logger.debug("[Watchdog] Could not revoke Celery task %s: %s", task_id, exc)
 
 
+def kill_existing_migration_process(schema_name: str) -> None:
+    """
+    Kills any existing Celery task, clears stale locks, and resets watchdog state
+    when a user refreshes or re-enters an unfinished migration page.
+    """
+    schema_name = (schema_name or "").strip().lower()
+    if not schema_name:
+        return
+
+    from system.account.migration_runner import clear_failure_cooldown, release_migration_lock
+
+    watchdog = get_celery_watchdog_state(schema_name)
+    if watchdog:
+        task_id = watchdog.get("task_id", "")
+        if task_id:
+            revoke_celery_task(task_id)
+        try:
+            cache.delete(f"{WATCHDOG_KEY_PREFIX}:{schema_name}")
+        except Exception:
+            pass
+
+    release_migration_lock(schema_name)
+    clear_failure_cooldown(schema_name)
+    logger.info("[Watchdog] User refresh/reconnect: killed existing migration processes and reset state for '%s'.", schema_name)
+
+
 def execute_tenant_migrations_with_watchdog(
+
     schema_name: str,
     *,
     time_budget: Optional[float] = None,

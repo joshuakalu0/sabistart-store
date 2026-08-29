@@ -1001,11 +1001,15 @@ def onboarding_provisioning(request):
     if not schema_name:
         return redirect("platform:onboarding_subdomain")
 
-    # Celery-free flow: no heavy work happens here. The status polling
-    # endpoint below advances migrations in time-budgeted micro-chunks each
-    # time the waiting screen polls it.
+    # On page visit or refresh, kill any old/stale Celery process or lock so a clean run begins
+    try:
+        from system.account.watchdog import kill_existing_migration_process
+        kill_existing_migration_process(schema_name)
+    except Exception as kill_err:
+        logger.debug("[Provisioning] Could not kill previous process for '%s': %s", schema_name, kill_err)
 
     selected_bundle = None
+
     if session.selected_bundle_slug:
         selected_bundle = get_plan_bundle_by_slug(session.selected_bundle_slug, currency=session.currency)
 
