@@ -86,60 +86,117 @@ def execute_tenant_migrations_with_watchdog(
     watchdog = get_celery_watchdog_state(schema_name)
     now = time.time()
 
-    if watchdog and watchdog.get("status") == "RUNNING":
+    if watchdog:
+        status = watchdog.get("status")
+        task_id = watchdog.get("task_id", "")
         last_heartbeat = float(watchdog.get("last_heartbeat_at", now))
-        elapsed_since_heartbeat = now - last_heartbeat
+        elapsed = now - last_heartbeat
 
-        if elapsed_since_heartbeat > stall_timeout:
-            # Silent Hang Detected!
-            task_id = watchdog.get("task_id", "")
-            logger.warning(
-                "[Watchdog] Celery execution STALLED for '%s' (no heartbeat for %.1fs > %.1fs). Revoking task %s and triggering automatic local fallback.",
-                schema_name, elapsed_since_heartbeat, stall_timeout, task_id,
-            )
-            revoke_celery_task(task_id)
-            watchdog["status"] = "STALLED"
-            try:
-                cache.set(f"{WATCHDOG_KEY_PREFIX}:{schema_name}", watchdog, timeout=600)
-            except Exception:
-                pass
+        # ── Sub-case A: Task is DISPATCHED but worker hasn't picked it up in 12s ──
+        if status == "DISPATCHED":
+            if elapsed > 12.0:
+                logger.warning(
+                    "[Watchdog] Celery worker did not pick up task %s for '%s' after %.1fs (Celery worker offline or busy). Triggering automatic local fallback.",
+                    task_id, schema_name, elapsed,
+                )
+                revoke_celery_task(task_id)
+                watchdog["status"] = "FALLBACK"
+                try:
+                    cache.set(f"{WATCHDOG_KEY_PREFIX}:{schema_name}", watchdog, timeout=600)
+                except Exception:
+                    pass
 
-            # Seamless fallback to local CPU-aware runner
+                result = advance_tenant_provisioning(
+                    schema_name,
+                    time_budget=time_budget,
+                    max_chunks=max_chunks,
+                    chunk_size=chunk_size,
+                    session_id=session_id,
+                    source="celery_offline_fallback",
+                )
+                result["engine"] = "celery_offline_fallback"
+                result["worker_offline"] = True
+                return result
+            else:
+                # Still within 12s pickup grace period — do NOT dispatch duplicate tasks!
+                return {
+                    "schema_name": schema_name,
+                    "is_ready": False,
+                    "engine": "celery_waiting_pickup",
+                    "task_id": task_id,
+                    "watchdog": watchdog,
+                }
+
+        # ── Sub-case B: Task is RUNNING in Celery ─────────────────────────────
+        elif status == "RUNNING":
+            if elapsed > stall_timeout:
+                logger.warning(
+                    "[Watchdog] Celery execution STALLED for '%s' (no heartbeat for %.1fs > %.1fs). Revoking task %s and triggering automatic local fallback.",
+                    schema_name, elapsed, stall_timeout, task_id,
+                )
+                revoke_celery_task(task_id)
+                watchdog["status"] = "STALLED"
+                try:
+                    cache.set(f"{WATCHDOG_KEY_PREFIX}:{schema_name}", watchdog, timeout=600)
+                except Exception:
+                    pass
+
+                result = advance_tenant_provisioning(
+                    schema_name,
+                    time_budget=time_budget,
+                    max_chunks=max_chunks,
+                    chunk_size=chunk_size,
+                    session_id=session_id,
+                    source="celery_stall_fallback",
+                )
+                result["engine"] = "celery_stall_fallback"
+                result["stall_detected"] = True
+                return result
+            else:
+                from system.account.schema_inspector import get_tenant_migration_status
+                mig_status = get_tenant_migration_status(schema_name, use_cache=False)
+                return {
+                    "schema_name": schema_name,
+                    "is_ready": mig_status["is_ready"],
+                    "failed": False,
+                    "locked": False,
+                    "cooldown": False,
+                    "error": "",
+                    "engine": "celery_active",
+                    "watchdog": watchdog,
+                }
+
+        # ── Sub-case C: Already in FALLBACK or STALLED mode ────────────────────
+        elif status in {"FALLBACK", "STALLED"}:
             result = advance_tenant_provisioning(
                 schema_name,
                 time_budget=time_budget,
                 max_chunks=max_chunks,
                 chunk_size=chunk_size,
                 session_id=session_id,
-                source="celery_stall_fallback",
+                source="local_fallback_resume",
             )
-            result["engine"] = "celery_stall_fallback"
-            result["stall_detected"] = True
+            result["engine"] = "local_fallback_resume"
             return result
-        else:
-            # Celery is actively running with recent heartbeat
-            from system.account.schema_inspector import get_tenant_migration_status
-            status = get_tenant_migration_status(schema_name, use_cache=False)
-            return {
-                "schema_name": schema_name,
-                "is_ready": status["is_ready"],
-                "failed": False,
-                "locked": False,
-                "cooldown": False,
-                "error": "",
-                "engine": "celery_active",
-                "watchdog": watchdog,
-            }
 
-    # No active Celery task — attempt to dispatch
+    # No active Celery task — dispatch once and record state in Redis
     try:
-        from system.account.tasks import run_chunked_tenant_migrations_celery_task
+        from system.account.tasks import (
+            record_watchdog_heartbeat,
+            run_chunked_tenant_migrations_celery_task,
+        )
         async_result = run_chunked_tenant_migrations_celery_task.delay(
             schema_name,
             chunk_size=chunk_size,
             max_chunks=max_chunks,
             time_budget=time_budget,
             session_id=session_id,
+        )
+        record_watchdog_heartbeat(
+            schema_name=schema_name,
+            task_id=async_result.id,
+            status="DISPATCHED",
+            current_chunk="Dispatched to Celery queue",
         )
         logger.info("[Watchdog] Dispatched Celery migration task for '%s' (task_id=%s)", schema_name, async_result.id)
         return {
@@ -149,7 +206,6 @@ def execute_tenant_migrations_with_watchdog(
             "task_id": async_result.id,
         }
     except Exception as dispatch_err:
-        # Broker down or Celery error — fall back to local runner immediately
         logger.warning("[Watchdog] Celery dispatch failed for '%s' (%s) — falling back to local engine.", schema_name, dispatch_err)
         result = advance_tenant_provisioning(
             schema_name,
@@ -161,3 +217,4 @@ def execute_tenant_migrations_with_watchdog(
         )
         result["engine"] = "celery_broker_fallback"
         return result
+
