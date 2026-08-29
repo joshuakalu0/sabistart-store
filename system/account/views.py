@@ -971,6 +971,14 @@ def onboarding_subdomain(request):
 
 
 def onboarding_provisioning(request):
+    from django.db import connection
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute('SET search_path = "public";')
+    except Exception:
+        pass
+    connection.set_schema_to_public()
+
     # Allow both signup-flow (session) and login-flow (?schema=) to use this page
     schema_from_param = request.GET.get("schema", "").strip().lower()
     next_url = request.GET.get("next", "")
@@ -1038,6 +1046,14 @@ def onboarding_provisioning_status(request):
     import logging
     from django.utils import timezone
     from datetime import timedelta
+    from django.db import connection
+
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute('SET search_path = "public";')
+    except Exception:
+        pass
+    connection.set_schema_to_public()
 
     logger = logging.getLogger(__name__)
 

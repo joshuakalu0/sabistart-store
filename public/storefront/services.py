@@ -103,7 +103,6 @@ def get_tenant_key(request) -> str:
         or "default"
     )
 
-
 def get_shop_id(request) -> str:
     tenant = getattr(request, "tenant", None)
     return str(
@@ -124,6 +123,8 @@ def tenant_session_key(request, suffix: str) -> str:
 
 
 def ensure_request_session(request) -> None:
+    if not hasattr(request, "session") or request.session is None:
+        return
     if not request.session.session_key:
         request.session.create()
 

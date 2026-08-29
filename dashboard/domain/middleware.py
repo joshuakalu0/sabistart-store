@@ -35,6 +35,14 @@ class CustomDomainMiddleware(TenantMainMiddleware):
     """
 
     def process_request(self, request):
+        from django.db import connection
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute('SET search_path = "public";')
+        except Exception:
+            pass
+        connection.set_schema_to_public()
+
         hostname = self._get_hostname(request)
         request.hostname = hostname
 
