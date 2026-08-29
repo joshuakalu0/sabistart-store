@@ -163,15 +163,19 @@ def _onboarding_context(request, *, session: OnboardingSession, page_title: str,
 
 def _resume_onboarding_url(session: OnboardingSession) -> str:
     metadata = session.metadata or {}
+    schema_name = metadata.get("tenant_schema_name")
+    if schema_name:
+        return f"{reverse('platform:onboarding_provisioning')}?schema={schema_name}"
     if not session.email or not session.business_name or not metadata.get("password_hash"):
         return reverse("platform:onboarding_account")
     if not session.selected_bundle_slug:
         return reverse("platform:onboarding_plan")
     if session.payment_status != OnboardingSession.PaymentStatus.PAID:
         return reverse("platform:onboarding_checkout")
-    if not session.desired_subdomain or not metadata.get("tenant_schema_name"):
+    if not session.desired_subdomain:
         return reverse("platform:onboarding_subdomain")
-    return reverse("platform:onboarding_provisioning")
+    return reverse("platform:onboarding_subdomain")
+
 
 
 def _onboarding_progress(current_step: str):
@@ -496,10 +500,10 @@ def _grant_onboarding_addons(feature_codes: list[str], currency: str = "NGN"):
 
 def _get_post_auth_redirect_url(user, request=None) -> str:
     """
-    Determines the appropriate landing page for a user after authentication or onboarding:
+    Determines the appropriate landing page for a user after authentication:
     - Superusers / Platform Staff -> /platform/dashboard/
-    - Merchants with an existing store -> /dashboard/<schema_name>/
-    - Users with incomplete onboarding -> Resume onboarding step
+    - Merchants with an existing store -> /dashboard/<schema_name>/ (or provisioning page if not ready)
+    - Users with incomplete onboarding -> Resume specific onboarding step
     - New users with no store -> /platform/register/
     """
     if not user or not getattr(user, "is_authenticated", False):
@@ -508,7 +512,19 @@ def _get_post_auth_redirect_url(user, request=None) -> str:
     if user.is_superuser or user.is_staff or getattr(user, "is_platform_admin", False):
         return reverse("platform:dashboard")
 
-    # Incomplete onboarding
+    # 1. Check Owned Stores First!
+    try:
+        from system.core.models import Shop
+        shop = Shop.objects.filter(owner=user).order_by("-created_on").first()
+        if shop:
+            if shop.provisioning_status != Shop.ProvisioningStatus.READY:
+                return f"{reverse('platform:onboarding_provisioning')}?schema={shop.schema_name}"
+            from system.account.sso import get_tenant_subdomain_redirect_url
+            return get_tenant_subdomain_redirect_url(shop, request=request, user=user)
+    except Exception as exc:
+        logger.debug("[Auth] Could not resolve shop redirect for %s: %s", getattr(user, "email", ""), exc)
+
+    # 2. Incomplete onboarding session
     try:
         resume_session = (
             OnboardingSession.objects.filter(email__iexact=user.email)
@@ -518,18 +534,11 @@ def _get_post_auth_redirect_url(user, request=None) -> str:
         )
         if resume_session:
             return _resume_onboarding_url(resume_session)
-    except Exception:
-        pass
-
-    # Owned store
-    try:
-        shop = user.owned_shops.order_by("-created_on").first() if hasattr(user, "owned_shops") else None
-        if shop:
-            return reverse("dashboard:dashboard_home:home", kwargs={"prefix": shop.schema_name})
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("[Auth] Could not resolve resume session for %s: %s", getattr(user, "email", ""), exc)
 
     return reverse("platform:register")
+
 
 
 def onboarding_start(request):
@@ -942,7 +951,8 @@ def onboarding_subdomain(request):
                 login(request, user, backend=SCHEMA_AWARE_BACKEND)
                 request.session["platform_onboarding_token"] = session.session_token
                 request.session.modified = True
-                return redirect("platform:onboarding_provisioning")
+                return redirect(f"{reverse('platform:onboarding_provisioning')}?schema={existing_schema}")
+
 
             except TenantCreationError as e:
                 form.add_error("desired_subdomain", str(e))
