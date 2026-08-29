@@ -83,7 +83,14 @@ class MarketplacePaymentResolutionResult:
 
 def get_active_feature_catalog(currency: str = "NGN", *, purchasable_only: bool = False):
     cache_key = f"feature_catalog:{currency}:{purchasable_only}"
-    cached = cache.get(cache_key)
+    try:
+        cached = cache.get(cache_key)
+    except Exception:
+        cached = None
+        try:
+            cache.delete(cache_key)
+        except Exception:
+            pass
     if cached is not None:
         return cached
     now = timezone.now()
@@ -98,13 +105,26 @@ def get_active_feature_catalog(currency: str = "NGN", *, purchasable_only: bool 
     qs = FeatureDefinition.objects.filter(**filters).select_related("category").prefetch_related(
         Prefetch("prices", queryset=price_qs.order_by("billing_cycle", "amount"))
     ).order_by("display_order", "name")
-    cache.set(cache_key, qs, 300)
-    return qs
+    result = list(qs)
+    try:
+        cache.set(cache_key, result, 300)
+    except Exception:
+        pass
+    return result
+
 
 
 def get_active_bundles(currency: str = "NGN", *, current_only: bool = False):
     cache_key = f"active_bundles:{currency}:{current_only}"
-    cached = cache.get(cache_key)
+    try:
+        cached = cache.get(cache_key)
+    except Exception:
+        # Stale or incompatible pickle (e.g. from a previous Django version) — treat as miss
+        cached = None
+        try:
+            cache.delete(cache_key)
+        except Exception:
+            pass
     if cached is not None:
         return cached
     qs = FeatureBundle.objects.filter(
@@ -119,8 +139,14 @@ def get_active_bundles(currency: str = "NGN", *, current_only: bool = False):
             Q(valid_until__isnull=True) | Q(valid_until__gte=now)
         )
     qs = qs.prefetch_related("items__feature").order_by("display_order", "name")
-    cache.set(cache_key, qs, 300)
-    return qs
+    # Evaluate to a list so we never pickle a lazy QuerySet (which breaks across Django versions)
+    result = list(qs)
+    try:
+        cache.set(cache_key, result, 300)
+    except Exception:
+        pass
+    return result
+
 
 
 def get_plan_bundles(currency: str = "NGN", *, current_only: bool = True):
