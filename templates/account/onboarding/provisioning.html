@@ -226,6 +226,8 @@
             <div class="h-2 w-full overflow-hidden rounded-full bg-slate-100">
               <div id="progress-bar" class="h-full rounded-full bg-blue-600 transition-all duration-700 ease-out" style="width: 45%;"></div>
             </div>
+            <!-- Live migration detail — shows exact migration file being applied -->
+            <p id="mig-detail-text" class="mt-2 text-[11px] text-slate-400 font-mono truncate"></p>
           </div>
 
           <p class="mt-6 text-center text-xs text-slate-400">
@@ -238,19 +240,36 @@
     <!-- Polling & Live Status Script -->
     <script>
       (function() {
-        const pollUrl = "{% url 'platform:onboarding_provisioning_status' %}";
-        const progressBar = document.getElementById("progress-bar");
-        const progressPercent = document.getElementById("progress-percent");
+        // ── Configuration ──────────────────────────────────────────────────
+        // In login-flow, ?schema= is passed; in signup-flow schema_name from context
+        const schemaName = "{{ schema_name|default:'' }}";
+        const nextUrl    = "{{ next_url|default:'' }}";
+
+        // Build poll URL: always pass schema param so the endpoint can resolve
+        const pollBase = "{% url 'platform:onboarding_provisioning_status' %}";
+        const pollUrl  = schemaName
+          ? pollBase + "?schema=" + encodeURIComponent(schemaName)
+          : pollBase;
+
+        const progressBar        = document.getElementById("progress-bar");
+        const progressPercent    = document.getElementById("progress-percent");
         const progressStatusText = document.getElementById("progress-status-text");
+        const migDetailText      = document.getElementById("mig-detail-text");
 
         let isRedirecting = false;
         let pollCount = 0;
+
+        function setProgress(pct, text, detail) {
+          progressBar.style.width = pct + "%";
+          progressPercent.textContent = pct + "%";
+          if (text) progressStatusText.textContent = text;
+          if (migDetailText && detail !== undefined) migDetailText.textContent = detail;
+        }
 
         function updateStepUI(stepId, labelId, isComplete, labelText) {
           const row = document.getElementById(stepId);
           const label = document.getElementById(labelId);
           if (!row || !label) return;
-
           const iconContainer = row.querySelector("span:first-child");
           if (isComplete) {
             iconContainer.className = "flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600";
@@ -280,43 +299,46 @@
           .then(data => {
             if (data.status === "ready" || data.progress === 100) {
               isRedirecting = true;
-              // Animate all steps to 100%
               updateStepUI("step-db", "step-db-label", true, "Complete");
               updateStepUI("step-plan", "step-plan-label", true, "Complete");
               updateStepUI("step-subdomain", "step-subdomain-label", true, "Complete");
-              
-              progressBar.style.width = "100%";
-              progressPercent.textContent = "100%";
-              progressStatusText.textContent = "Store ready! Launching your workspace...";
+
+              setProgress(100, "Store ready! Launching your workspace...", "All migrations applied ✓");
 
               setTimeout(() => {
-                window.location.href = data.redirect_url || "{% url 'platform:dashboard' %}";
+                // Login-flow: go back to the page they were trying to reach, or their dashboard
+                const dest = nextUrl || data.redirect_url || "{% url 'platform:dashboard' %}";
+                window.location.href = dest;
               }, 1000);
+
             } else if (data.status === "failed") {
-              progressBar.classList.remove("bg-blue-600");
-              progressBar.classList.add("bg-rose-500");
-              progressBar.style.width = "100%";
-              progressPercent.textContent = "Issue detected";
-              progressStatusText.textContent = data.error || "Setup encountered a temporary delay. Please refresh or check dashboard.";
+              progressBar.classList.replace("bg-blue-600", "bg-rose-500");
+              setProgress(100, data.error || "Setup hit an issue. Please refresh.", "Contact support if this persists.");
               progressStatusText.className = "text-rose-600 font-semibold";
             } else {
-              // In progress with micro-chunk stats from server
+              // In-progress — show live migration detail
               const progress = Math.max(15, Math.min(95, data.progress || 35));
-              progressBar.style.width = progress + "%";
-              progressPercent.textContent = progress + "%";
+              const applied  = data.applied_count || 0;
+              const total    = data.total_migrations || 54;
 
+              // Stage label
+              let stageText = "Applying database migrations...";
               if (data.stage && data.stage.name) {
-                progressStatusText.textContent = `Stage ${data.stage.stage}/8: ${data.stage.name}`;
+                stageText = `Stage ${data.stage.stage}/8: ${data.stage.name}`;
               } else if (data.stage_message) {
-                progressStatusText.textContent = data.stage_message;
-              } else {
-                progressStatusText.textContent = "Applying database schemas in micro-batches...";
+                stageText = data.stage_message;
               }
 
-              // Update milestone checkboxes
-              if (progress >= 30) {
-                updateStepUI("step-db", "step-db-label", false, "Applying tables...");
+              // Migration detail — show exactly which migration file is running
+              let detail = `${applied} / ${total} migrations applied`;
+              if (data.current_migration) {
+                detail = `▶ ${data.current_migration}  (${applied}/${total})`;
               }
+
+              setProgress(progress, stageText, detail);
+
+              // Update milestone steps
+              if (progress >= 30) updateStepUI("step-db", "step-db-label", false, `Applying… (${applied}/${total})`);
               if (progress >= 70) {
                 updateStepUI("step-db", "step-db-label", true, "Complete");
                 updateStepUI("step-plan", "step-plan-label", false, "Activating...");
@@ -341,3 +363,4 @@
     </script>
   </body>
 </html>
+

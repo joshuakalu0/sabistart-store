@@ -60,11 +60,12 @@ def provision_tenant_schema_task(
         session = OnboardingSession.objects.filter(id=session_id).first()
 
     # Define progress callback to record live stage in Shop model
-    def on_stage_progress(stage_info: dict, applied: int, total: int):
+    def on_stage_progress(stage_info: dict, applied: int, total: int, current_app: str = ""):
         pct = int((applied / total) * 100) if total > 0 else 0
         stage_name = stage_info.get("name", "Migrating")
         stage_num = stage_info.get("stage", 1)
-        progress_msg = f"Stage {stage_num}/8: {stage_name} ({pct}% complete - {applied}/{total} applied)"
+        mig_detail = f" ▶ {current_app}" if current_app else ""
+        progress_msg = f"Stage {stage_num}/8: {stage_name} ({pct}% — {applied}/{total} applied){mig_detail}"
         try:
             Shop.objects.filter(schema_name=schema_name).update(provisioning_error=progress_msg)
         except Exception:

@@ -971,23 +971,52 @@ def onboarding_subdomain(request):
 
 
 def onboarding_provisioning(request):
+    # Allow both signup-flow (session) and login-flow (?schema=) to use this page
+    schema_from_param = request.GET.get("schema", "").strip().lower()
+    next_url = request.GET.get("next", "")
+
     existing_session = _get_existing_onboarding_session(request)
     session = existing_session or _get_or_create_onboarding_session(request)
-    schema_name = (session.metadata or {}).get("tenant_schema_name")
+    schema_name = schema_from_param or (session.metadata or {}).get("tenant_schema_name")
 
+    # Try finding schema from authenticated user's shop
     if not schema_name and getattr(request.user, "is_authenticated", False):
         shop = Shop.objects.filter(owner=request.user).order_by("-created_on").first()
         if shop:
             schema_name = shop.schema_name
             session.metadata = {**(session.metadata or {}), "tenant_schema_name": schema_name}
-            session.save(update_fields=["metadata", "updated_at"])
+            try:
+                session.save(update_fields=["metadata", "updated_at"])
+            except Exception:
+                pass
 
-    if not session.selected_bundle_slug and not schema_name:
-        return redirect("platform:onboarding_plan")
-    if session.payment_status != OnboardingSession.PaymentStatus.PAID and not schema_name:
-        return redirect("platform:onboarding_checkout")
+    # For login-flow users coming via middleware redirect: skip payment checks
+    login_flow = bool(schema_from_param)
+
+    if not login_flow:
+        if not session.selected_bundle_slug and not schema_name:
+            return redirect("platform:onboarding_plan")
+        if session.payment_status != OnboardingSession.PaymentStatus.PAID and not schema_name:
+            return redirect("platform:onboarding_checkout")
+
     if not schema_name:
         return redirect("platform:onboarding_subdomain")
+
+    # Auto-trigger self-healing for login-flow users with pending migrations
+    if login_flow:
+        try:
+            shop_obj = Shop.objects.filter(schema_name=schema_name).first()
+            if shop_obj and shop_obj.provisioning_status in {
+                Shop.ProvisioningStatus.PENDING,
+                Shop.ProvisioningStatus.FAILED,
+            }:
+                from system.account.tasks import provision_tenant_schema_task
+                shop_obj.provisioning_status = Shop.ProvisioningStatus.IN_PROGRESS
+                shop_obj.provisioning_error = "Resuming migrations from login..."
+                shop_obj.save(update_fields=["provisioning_status", "provisioning_error"])
+                provision_tenant_schema_task.delay(schema_name=schema_name)
+        except Exception:
+            pass
 
     selected_bundle = None
     if session.selected_bundle_slug:
@@ -997,6 +1026,10 @@ def onboarding_provisioning(request):
         "session": session,
         "selected_bundle": selected_bundle,
         "platform_domain_suffix": _platform_domain_suffix(request),
+        # Extra context for login-flow
+        "schema_name": schema_name,
+        "login_flow": login_flow,
+        "next_url": next_url,
     }
     return render(request, "account/onboarding/provisioning.html", context)
 
@@ -1008,9 +1041,12 @@ def onboarding_provisioning_status(request):
 
     logger = logging.getLogger(__name__)
 
+    # Accept ?schema= from login-flow (middleware redirect) OR from session (signup-flow)
+    schema_from_param = request.GET.get("schema", "").strip().lower()
+
     existing_session = _get_existing_onboarding_session(request)
     session = existing_session or _get_or_create_onboarding_session(request)
-    schema_name = (session.metadata or {}).get("tenant_schema_name")
+    schema_name = schema_from_param or (session.metadata or {}).get("tenant_schema_name")
 
     if not schema_name and getattr(request.user, "is_authenticated", False):
         shop = Shop.objects.filter(owner=request.user).order_by("-created_on").first()
@@ -1126,12 +1162,23 @@ def onboarding_provisioning_status(request):
     calc_progress = max(10, mig_status.get("progress_percent", 35))
     current_stage = mig_status.get("current_stage")
 
+    # Extract current migration name from provisioning_error progress message
+    # Format: "Stage N/8: Name (pct% — applied/total applied) ▶ app_label"
+    current_migration = ""
+    error_msg = shop.provisioning_error or ""
+    if "▶" in error_msg:
+        try:
+            current_migration = error_msg.split("▶")[-1].strip()
+        except Exception:
+            pass
+
     return JsonResponse({
         "status": "in_progress" if shop.provisioning_status == Shop.ProvisioningStatus.IN_PROGRESS else "provisioning",
         "progress": calc_progress,
         "schema_name": schema_name,
         "stage": current_stage,
-        "stage_message": shop.provisioning_error or (current_stage.get("name") if current_stage else "Provisioning tables..."),
+        "stage_message": error_msg.split("(")[0].strip() if error_msg else (current_stage.get("name") if current_stage else "Provisioning tables..."),
+        "current_migration": current_migration,
         "applied_count": mig_status.get("applied_count", 0),
         "total_migrations": mig_status.get("total_migrations", 54),
     })

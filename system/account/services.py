@@ -161,25 +161,47 @@ class TenantService:
             # Apply migrations app-by-app in this micro-chunk
             for app_label in stage_apps:
                 try:
+                    # Always reset to schema before each call — call_command may drift
+                    connection.ensure_connection()
                     connection.set_schema(schema_name, include_public=False)
+
+                    # Update progress with current app being migrated
+                    if progress_callback:
+                        try:
+                            status_now = get_tenant_migration_status(schema_name, use_cache=False)
+                            progress_callback(
+                                stage_info,
+                                status_now["applied_count"],
+                                status_now["total_migrations"],
+                                current_app=app_label,
+                            )
+                        except Exception:
+                            pass
+
                     call_command("migrate", app_label, interactive=False, verbosity=0)
+
+                    # Commit and recycle after each app to keep memory low
+                    try:
+                        if not transaction.get_autocommit():
+                            transaction.commit()
+                    except Exception:
+                        pass
+
                 except Exception as app_err:
                     logger.warning(
                         "[TenantService][%s] App '%s' migration notice: %s. Continuing...",
                         schema_name, app_label, app_err,
                     )
 
-            # Commit batch transaction and recycle connection memory
+            # Recycle connection between stages
             try:
-                if not transaction.get_autocommit():
-                    transaction.commit()
                 connection.close()
                 connection.connection = None
             except Exception:
                 pass
             gc.collect()
 
-            # Inspect progress and trigger callback
+            # Stage-complete progress callback
             status = get_tenant_migration_status(schema_name, use_cache=False)
             if progress_callback:
                 try:
@@ -189,6 +211,7 @@ class TenantService:
 
         # 4. Final convergence pass to ensure all dependencies are 100% applied
         try:
+            connection.ensure_connection()
             connection.set_schema(schema_name, include_public=False)
             call_command("migrate", interactive=False, verbosity=0)
             if not transaction.get_autocommit():

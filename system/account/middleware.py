@@ -135,13 +135,9 @@ class TenantProvisioningGuardMiddleware:
                 "message": "Store workspace database setup is finishing in the background.",
             }, status=503)
 
-        context = {
-            "schema_name": schema_name,
-            "shop_name": shop.name if shop else schema_name,
-            "status": status,
-            "progress_percent": status.get("progress_percent", 35),
-            "current_stage": status.get("current_stage"),
-            "poll_url": reverse("platform:onboarding_provisioning_status"),
-            "target_url": path,
-        }
-        return render(request, "account/tenant_provisioning_interstitial.html", context, status=200)
+        # Redirect to the unified provisioning waiting page (same UI as signup flow)
+        from django.http import HttpResponseRedirect
+        from urllib.parse import urlencode
+        provisioning_url = reverse("platform:onboarding_provisioning")
+        params = urlencode({"schema": schema_name, "next": path})
+        return HttpResponseRedirect(f"{provisioning_url}?{params}")
