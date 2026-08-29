@@ -477,7 +477,7 @@ class PlatformUserStatusToggleView(PlatformStaffRequiredMixin, View):
 # =============================================================================
 
 class PlatformProvisioningLogsView(PlatformStaffRequiredMixin, View):
-    """Live Celery tenant provisioning dashboard & migration logs."""
+    """Live tenant provisioning dashboard & migration logs (Celery-free chunked flow)."""
 
     template_name = "account/provisioning_logs.html"
 
@@ -499,10 +499,11 @@ class PlatformProvisioningLogsView(PlatformStaffRequiredMixin, View):
             in_progress_shops = Shop.objects.filter(provisioning_status=Shop.ProvisioningStatus.IN_PROGRESS).count()
             failed_shops = Shop.objects.filter(provisioning_status=Shop.ProvisioningStatus.FAILED).count()
             pending_shops = Shop.objects.filter(provisioning_status=Shop.ProvisioningStatus.PENDING).count()
+            provisioning_shops = Shop.objects.filter(provisioning_status=Shop.ProvisioningStatus.PROVISIONING).count()
         except Exception as e:
             logger.exception("Error loading shop provisioning list: %s", e)
             shops_qs = []
-            total_shops = ready_shops = in_progress_shops = failed_shops = pending_shops = 0
+            total_shops = ready_shops = in_progress_shops = failed_shops = pending_shops = provisioning_shops = 0
 
         # Safely find orphaned schemas in Postgres
         orphaned_schemas = []
@@ -530,6 +531,7 @@ class PlatformProvisioningLogsView(PlatformStaffRequiredMixin, View):
                 "in_progress": in_progress_shops,
                 "failed": failed_shops,
                 "pending": pending_shops,
+                "provisioning": provisioning_shops,
                 "orphaned": len(orphaned_schemas),
             },
         }
@@ -538,24 +540,43 @@ class PlatformProvisioningLogsView(PlatformStaffRequiredMixin, View):
 
 @method_decorator(csrf_protect, name="dispatch")
 class PlatformProvisioningRetryView(PlatformStaffRequiredMixin, View):
-    """Retry Celery async provisioning and tenant migrations for a shop."""
+    """Retry tenant provisioning (Celery-free): runs a time-budgeted pass of
+    chunked migrations inline; any remainder completes via the login guard,
+    the waiting-screen poll, or `manage.py run_tenant_chunked_migrations`."""
 
     def post(self, request, schema_name):
+        from django.conf import settings
         from system.core.models import Shop
-        from system.account.tasks import provision_tenant_schema_task
+        from system.account.migration_runner import advance_tenant_provisioning
         from django.contrib import messages
         from django.shortcuts import redirect
 
         shop = get_object_or_404(Shop, schema_name=schema_name)
-        shop.provisioning_status = Shop.ProvisioningStatus.PENDING
+        shop.provisioning_status = Shop.ProvisioningStatus.PROVISIONING
         shop.provisioning_error = ""
         shop.save(update_fields=["provisioning_status", "provisioning_error"])
 
+        budget = getattr(settings, "TENANT_PROVISIONING_ADMIN_RETRY_BUDGET", 20)
         try:
-            provision_tenant_schema_task.delay(schema_name=shop.schema_name)
-            messages.success(request, f"Provisioning task enqueued for store '{shop.name}' ({shop.schema_name}). Check logs for progress.")
+            result = advance_tenant_provisioning(
+                shop.schema_name,
+                time_budget=budget,
+                source="admin_retry",
+            )
+            if result.get("is_ready"):
+                messages.success(request, f"Store '{shop.name}' ({shop.schema_name}) is fully provisioned.")
+            elif result.get("failed"):
+                messages.error(request, f"Provisioning failed (checkpoint recorded): {result.get('error', '')[:400]}")
+            else:
+                messages.success(
+                    request,
+                    f"Chunked migrations advanced for '{shop.name}' ({shop.schema_name}). "
+                    "Remaining chunks will complete via the login guard / waiting screen, "
+                    "or run `manage.py run_tenant_chunked_migrations --schema "
+                    f"{shop.schema_name}` to finish from the CLI.",
+                )
         except Exception as e:
-            messages.error(request, f"Failed to enqueue task: {str(e)}")
+            messages.error(request, f"Failed to run chunked migrations: {str(e)}")
 
         return redirect("platform:provisioning_logs")
 

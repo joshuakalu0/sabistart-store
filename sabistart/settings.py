@@ -443,6 +443,25 @@ LOGGING = {
 }
 
 # -----------------------------------------------------------------------------
+# Celery-free Chunked Tenant Provisioning (1GB RAM safety)
+# Tenant migrations never run via Celery or inside registration requests.
+# They are applied in dependency-ordered micro-chunks by:
+#   - manage.py run_tenant_chunked_migrations  (CLI)
+#   - TenantProvisioningGuardMiddleware        (on-login self-healing)
+#   - the provisioning waiting-screen poll endpoint
+# -----------------------------------------------------------------------------
+# Max migrations applied per chunk (each migration commits individually).
+TENANT_PROVISIONING_CHUNK_SIZE = env_int("TENANT_PROVISIONING_CHUNK_SIZE", 4)
+# Seconds of migration work allowed inline per guarded request (login self-heal).
+TENANT_PROVISIONING_HEAL_BUDGET = env_int("TENANT_PROVISIONING_HEAL_BUDGET", 8)
+# Seconds of migration work allowed per waiting-screen status poll.
+TENANT_PROVISIONING_POLL_BUDGET = env_int("TENANT_PROVISIONING_POLL_BUDGET", 6)
+# Seconds of migration work allowed per platform-admin retry action.
+TENANT_PROVISIONING_ADMIN_RETRY_BUDGET = env_int("TENANT_PROVISIONING_ADMIN_RETRY_BUDGET", 20)
+# Cooldown before a failed chunk is retried automatically (prevents retry storms).
+TENANT_PROVISIONING_FAIL_COOLDOWN = env_int("TENANT_PROVISIONING_FAIL_COOLDOWN", 60)
+
+# -----------------------------------------------------------------------------
 # Celery Configuration (Managed Redis / Upstash with SSL & 1GB RAM Safety)
 # -----------------------------------------------------------------------------
 CELERY_BROKER_URL = env_first("CELERY_BROKER_URL", "REDIS_URL", default="redis://127.0.0.1:6379/0")

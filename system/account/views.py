@@ -908,7 +908,6 @@ def onboarding_subdomain(request):
                         subdomain=subdomain,
                         schema_name=schema_name,
                         session=session,
-                        enqueue_async=True,
                     )
                     existing_schema = shop.schema_name
                 else:
@@ -918,16 +917,9 @@ def onboarding_subdomain(request):
                         shop.name = session.business_name or shop.name
                         shop.save(update_fields=["owner", "name"])
                         Domain.objects.filter(tenant=shop, is_primary=True).update(domain=subdomain)
-                        if shop.provisioning_status != Shop.ProvisioningStatus.READY:
-                            from system.account.tasks import provision_tenant_schema_task
-                            try:
-                                provision_tenant_schema_task.delay(
-                                    schema_name=shop.schema_name,
-                                    session_id=str(session.id),
-                                )
-                            except Exception as e:
-                                import logging
-                                logging.getLogger(__name__).warning("Could not delay task: %s", e)
+                        # Celery-free: remaining migrations are applied lazily in
+                        # micro-chunks by the provisioning poll endpoint and the
+                        # login guard middleware — nothing runs in this request.
                     except Shop.DoesNotExist:
                         schema_name = f"onboard_{uuid.uuid4().hex[:8]}"
                         shop, domain = TenantService.create_tenant(
@@ -936,7 +928,6 @@ def onboarding_subdomain(request):
                             subdomain=subdomain,
                             schema_name=schema_name,
                             session=session,
-                            enqueue_async=True,
                         )
                         existing_schema = shop.schema_name
 
@@ -1010,21 +1001,9 @@ def onboarding_provisioning(request):
     if not schema_name:
         return redirect("platform:onboarding_subdomain")
 
-    # Auto-trigger self-healing for login-flow users with pending migrations
-    if login_flow:
-        try:
-            shop_obj = Shop.objects.filter(schema_name=schema_name).first()
-            if shop_obj and shop_obj.provisioning_status in {
-                Shop.ProvisioningStatus.PENDING,
-                Shop.ProvisioningStatus.FAILED,
-            }:
-                from system.account.tasks import provision_tenant_schema_task
-                shop_obj.provisioning_status = Shop.ProvisioningStatus.IN_PROGRESS
-                shop_obj.provisioning_error = "Resuming migrations from login..."
-                shop_obj.save(update_fields=["provisioning_status", "provisioning_error"])
-                provision_tenant_schema_task.delay(schema_name=schema_name)
-        except Exception:
-            pass
+    # Celery-free flow: no heavy work happens here. The status polling
+    # endpoint below advances migrations in time-budgeted micro-chunks each
+    # time the waiting screen polls it.
 
     selected_bundle = None
     if session.selected_bundle_slug:
@@ -1085,60 +1064,50 @@ def onboarding_provisioning_status(request):
             "schema_name": schema_name,
         })
 
-    elif shop.provisioning_status == Shop.ProvisioningStatus.FAILED:
+    # ── Celery-free self-healing: advance migrations inline, time-budgeted ──
+    # Every poll applies a bounded slice of the remaining migration chunks
+    # (each migration commits individually; the DB connection is released
+    # between chunks). Failures record a checkpoint and resume from the last
+    # successful migration file on a later poll. FAILED tenants are resumed
+    # here too, subject to a short failure cooldown.
+    from system.account.migration_runner import advance_tenant_provisioning
+
+    poll_budget = getattr(settings, "TENANT_PROVISIONING_POLL_BUDGET", 6)
+    advance_result: dict = {}
+    try:
+        advance_result = advance_tenant_provisioning(
+            schema_name,
+            time_budget=poll_budget,
+            session_id=str(session.id) if session else None,
+            source="poll_endpoint",
+        )
+    except Exception as advance_err:
+        logger.warning("[Provisioning] Chunked pass failed for '%s': %s", schema_name, advance_err)
+
+    shop.refresh_from_db()
+
+    if advance_result.get("is_ready"):
+        redirect_url = reverse("dashboard:dashboard_home:home", kwargs={"prefix": schema_name})
         return JsonResponse({
-            "status": "failed",
+            "status": "ready",
             "progress": 100,
-            "error": shop.provisioning_error or "Store setup encountered an issue. Please contact support.",
+            "redirect_url": redirect_url,
             "schema_name": schema_name,
         })
 
-    # ── Auto-start & Stale task detection ──────────────────────────────────────
-    # If the shop is PENDING or stuck with 0 progress for > 30 seconds, auto-queue task
-    STALE_SECONDS = 30
-    metadata = dict(session.metadata or {})
-    provisioning_started_at_str = metadata.get("provisioning_started_at")
-
-    now = timezone.now()
-
-    should_kickstart = False
-    if shop.provisioning_status == Shop.ProvisioningStatus.PENDING:
-        should_kickstart = True
-    elif provisioning_started_at_str:
-        try:
-            from django.utils.dateparse import parse_datetime
-            started_at = parse_datetime(provisioning_started_at_str)
-            if started_at and (now - started_at) > timedelta(seconds=STALE_SECONDS):
-                should_kickstart = True
-        except Exception:
-            pass
-
-    if should_kickstart:
-        try:
-            from system.account.tasks import provision_tenant_schema_task
-            shop.provisioning_status = Shop.ProvisioningStatus.IN_PROGRESS
-            shop.provisioning_error = "Starting tenant migrations..."
-            shop.save(update_fields=["provisioning_status", "provisioning_error"])
-            provision_tenant_schema_task.delay(
-                schema_name=schema_name,
-                session_id=str(session.id) if session else None,
-            )
-            metadata["provisioning_started_at"] = now.isoformat()
-            session.metadata = metadata
-            try:
-                session.save(update_fields=["metadata", "updated_at"])
-            except Exception:
-                pass
-        except Exception as kickstart_err:
-            logger.warning("[Provisioning] Kickstart failed for '%s': %s", schema_name, kickstart_err)
-    else:
-        # First time we see a non-ready status — record when we started waiting
-        metadata["provisioning_started_at"] = now.isoformat()
-        session.metadata = metadata
-        try:
-            session.save(update_fields=["metadata", "updated_at"])
-        except Exception:
-            pass
+    if advance_result.get("failed") or (
+        shop.provisioning_status == Shop.ProvisioningStatus.FAILED and advance_result.get("cooldown")
+    ):
+        return JsonResponse({
+            "status": "failed",
+            "progress": 100,
+            "error": (
+                advance_result.get("error")
+                or shop.provisioning_error
+                or "Store setup encountered an issue. Please contact support."
+            ),
+            "schema_name": schema_name,
+        })
 
     # ── Real Migration Status Inspection ──────────────────────────────────────
     from system.account.schema_inspector import get_tenant_migration_status
@@ -1193,13 +1162,15 @@ def onboarding_review(request):
 
 class RegisterView(View):
     """
-    Platform user registration with automatic tenant creation.
+    Platform user registration with lightweight tenant creation (Celery-free).
 
     On successful registration:
     1. Creates the PlatformUser
-    2. Creates the tenant (Shop) in public schema
-    3. Enqueues async Celery task for schema creation & migrations
-    4. Logs the user in and redirects immediately
+    2. Creates the tenant (Shop) in public schema with STATUS = PROVISIONING
+       (only a cheap CREATE SCHEMA runs here — no migrations)
+    3. Logs the user in and redirects to the setup waiting screen, which
+       polls a lightweight status endpoint that advances migrations in
+       time-budgeted micro-chunks until the tenant is ready.
     """
 
     template_name = 'account/register.html'
@@ -1250,14 +1221,15 @@ class RegisterView(View):
                 owner=user,
                 name=form.cleaned_data.get('tenant_name', ''),
                 subdomain=subdomain,
-                enqueue_async=True,
             )
 
             login(request, user, backend=SCHEMA_AWARE_BACKEND)
 
             messages.success(
                 request, f"Welcome! Your store '{shop.name}' is being initialized.")
-            return redirect("dashboard:dashboard_home:home", prefix=shop.schema_name)
+            # Setup waiting screen — polls readiness and advances migrations
+            # lazily; no heavy work happens inside this registration request.
+            return redirect("platform:onboarding_provisioning")
 
         except TenantCreationError as e:
             messages.error(request, str(e))

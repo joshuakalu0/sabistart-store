@@ -1,14 +1,17 @@
 """
 system/account/middleware.py
 ============================
-Self-healing Tenant Provisioning & Migration Guard Middleware.
+Self-healing Tenant Provisioning & Migration Guard Middleware (Celery-free).
 
 Intercepts requests to unready/partially-migrated tenant workspaces.
 Instead of throwing 500 errors (relation does not exist) when a user logs in
-before Celery completes or after an interruption, this middleware:
+before provisioning completes or after an interruption, this middleware:
 1. Dynamically detects unapplied migrations using the schema inspector (0ms cache lookup).
-2. Automatically self-heals by triggering the chunked migration task in the background.
-3. Renders a sleek setup interstitial UI that live-polls and reloads once ready.
+2. Automatically self-heals by applying the remaining migration chunks inline,
+   in a strictly time-budgeted micro-chunk pass (no Celery, no threads).
+3. If the tenant becomes ready within the budget, the request proceeds
+   seamlessly; otherwise it renders a sleek setup interstitial UI that
+   live-polls (and keeps advancing) until ready.
 """
 
 from __future__ import annotations
@@ -34,7 +37,8 @@ DASHBOARD_PREFIX_RE = re.compile(r"^/dashboard/([^/]+)(?:/.*)?$")
 class TenantProvisioningGuardMiddleware:
     """
     Guards tenant requests against incomplete database migrations.
-    Provides automatic background healing and clean user-facing interstitial.
+    Provides automatic inline self-healing (time-budgeted chunked migrations)
+    and a clean user-facing interstitial while work remains.
     """
 
     def __init__(self, get_response):
@@ -95,28 +99,35 @@ class TenantProvisioningGuardMiddleware:
         if status.get("is_ready") is True:
             return self.get_response(request)
 
-        # ── Self-healing trigger ──────────────────────────────────────────────
-        # Schema has pending migrations. Check if task is already running or trigger it.
-        from system.core.models import Shop
-        shop = Shop.objects.filter(schema_name=schema_name).first()
-        if shop:
-            # If status is PENDING, FAILED, or stuck, automatically launch background chunk task
-            if shop.provisioning_status in {
-                Shop.ProvisioningStatus.PENDING,
-                Shop.ProvisioningStatus.FAILED,
-            }:
-                logger.info(
-                    "[ProvisioningGuard] Auto-triggering background self-healing for schema '%s'...",
-                    schema_name,
-                )
-                try:
-                    from system.account.tasks import provision_tenant_schema_task
-                    shop.provisioning_status = Shop.ProvisioningStatus.IN_PROGRESS
-                    shop.provisioning_error = "Self-healing: applying missing schema migrations..."
-                    shop.save(update_fields=["provisioning_status", "provisioning_error"])
-                    provision_tenant_schema_task.delay(schema_name=schema_name)
-                except Exception as task_err:
-                    logger.warning("[ProvisioningGuard] Could not launch async task: %s", task_err)
+        # ── On-login self-healing (Celery-free) ─────────────────────────────────
+        # Apply the remaining migration chunks inline, strictly time-budgeted.
+        # Each chunk commits individually and the run only stops between
+        # chunks, so the schema is always left in a consistent, resumable
+        # state. If the budget is exhausted, the interstitial below keeps
+        # advancing provisioning via its polling endpoint.
+        from system.account.migration_runner import advance_tenant_provisioning
+
+        heal_budget = getattr(settings, "TENANT_PROVISIONING_HEAL_BUDGET", 8)
+        heal_result: dict = {}
+        try:
+            heal_result = advance_tenant_provisioning(
+                schema_name,
+                time_budget=heal_budget,
+                source="login_guard",
+            )
+        except Exception as heal_err:
+            logger.warning(
+                "[ProvisioningGuard] Inline self-healing error for schema '%s': %s",
+                schema_name,
+                heal_err,
+            )
+
+        if heal_result.get("is_ready"):
+            # Healing finished within budget — let the request through seamlessly.
+            return self.get_response(request)
+
+        # Refresh status for the interstitial payload
+        status = get_tenant_migration_status(schema_name, use_cache=False)
 
         # ── Return Interstitial or JSON ───────────────────────────────────────
         is_ajax = (

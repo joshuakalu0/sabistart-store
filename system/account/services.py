@@ -4,8 +4,8 @@ system/account/services.py
 Business logic services for platform-level operations.
 
 These services handle:
-- Tenant creation (shop setup with schema, domain)
-- Tenant migration setup
+- Tenant creation (shop record + domain, saved as PROVISIONING — Celery-free)
+- Chunked tenant migration setup (no Celery; resumable micro-chunks)
 """
 
 from __future__ import annotations
@@ -40,11 +40,17 @@ class TenantService:
         subdomain: str,
         schema_name: str = "",
         session=None,
-        enqueue_async: bool = True,
     ) -> tuple[Shop, Domain]:
         """
-        Create a new tenant (shop) for a platform user in the public schema,
-        then enqueue schema creation and tenant migrations asynchronously.
+        Create a new tenant (shop) for a platform user in the public schema.
+
+        Celery-free lightweight registration:
+        - The tenant row is saved with STATUS = PROVISIONING.
+        - Only a cheap ``CREATE SCHEMA IF NOT EXISTS`` runs here; no migrations.
+        - Schema migrations are applied later in micro-chunks by the login
+          guard middleware, the provisioning poll endpoint, or
+          ``manage.py run_tenant_chunked_migrations`` — never inside this
+          registration request thread.
 
         Args:
             owner: The PlatformUser who will own this shop
@@ -52,7 +58,6 @@ class TenantService:
             subdomain: The subdomain part of the shop URL
             schema_name: Optional schema name (defaults to subdomain)
             session: Optional OnboardingSession model instance
-            enqueue_async: Whether to trigger the Celery provisioning task
 
         Returns:
             tuple of (Shop, Domain)
@@ -60,6 +65,9 @@ class TenantService:
         Raises:
             TenantCreationError: If creation fails
         """
+        import logging
+
+        logger = logging.getLogger(__name__)
         subdomain = subdomain.lower().strip()
         schema_name = (schema_name or "").strip().lower() or subdomain
 
@@ -75,7 +83,7 @@ class TenantService:
                     owner=owner,
                     name=name,
                     schema_name=schema_name,
-                    provisioning_status=Shop.ProvisioningStatus.PENDING,
+                    provisioning_status=Shop.ProvisioningStatus.PROVISIONING,
                     provisioning_error="",
                 )
                 domain = Domain.objects.create(
@@ -84,23 +92,28 @@ class TenantService:
                     is_primary=True,
                 )
 
-            if enqueue_async:
-                from system.account.tasks import provision_tenant_schema_task
-                session_id = str(session.id) if session else None
+            # Cheap DDL only — the empty schema is created here so readiness
+            # checks have something to inspect. Heavy migration work is
+            # deferred to the chunked runner.
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute(f'CREATE SCHEMA IF NOT EXISTS "{shop.schema_name}";')
+                connection.set_schema_to_public()
+            except Exception as schema_err:
+                logger.warning(
+                    "Could not pre-create schema for %s (chunked runner will retry): %s",
+                    shop.schema_name,
+                    schema_err,
+                )
+
+            if session:
                 try:
-                    provision_tenant_schema_task.delay(
-                        schema_name=shop.schema_name,
-                        session_id=session_id,
-                    )
-                except Exception as exc:
-                    # In local dev or if broker is temporarily unavailable, log warning
-                    import logging
-                    logger = logging.getLogger(__name__)
-                    logger.warning(
-                        "Celery broker unavailable to enqueue provisioning task for %s: %s",
-                        shop.schema_name,
-                        exc,
-                    )
+                    metadata = dict(session.metadata or {})
+                    metadata["tenant_schema_name"] = shop.schema_name
+                    session.metadata = metadata
+                    session.save(update_fields=["metadata", "updated_at"])
+                except Exception:
+                    pass
 
             return shop, domain
         except Exception as e:
@@ -112,49 +125,41 @@ class TenantService:
         progress_callback: Any = None,
     ) -> dict:
         """
-        Create the PostgreSQL schema and run tenant migrations using django-tenants
-        native migrate_schemas command with memory recycling.
+        Create the PostgreSQL schema and run tenant migrations as dependency-
+        ordered micro-chunks (Celery-free). Each migration commits in its own
+        transaction and the DB connection is recycled between chunks, so a
+        1GB RAM instance is never overwhelmed by a monolithic migrate run.
 
         Args:
             schema_name: The tenant's schema name
             progress_callback: Optional callback for status reporting
         """
-        import gc
         import logging
-        from django.core.management import call_command
-        from django.db import connection
+        from system.account.migration_runner import (
+            ChunkedMigrationError,
+            run_chunked_tenant_migrations,
+        )
         from system.account.schema_inspector import (
             get_tenant_migration_status,
             invalidate_tenant_ready_cache,
         )
 
-        logger = logging.getLogger("sabistart.celery.provisioning")
+        logger = logging.getLogger("sabistart.provisioning.chunked")
         schema_name = schema_name.strip().lower()
 
-        logger.info("[TenantService] Starting tenant migrations for '%s'...", schema_name)
+        logger.info("[TenantService] Starting chunked tenant migrations for '%s'...", schema_name)
 
-        # 1. Ensure the schema exists
-        with connection.cursor() as cursor:
-            cursor.execute(f'CREATE SCHEMA IF NOT EXISTS "{schema_name}";')
-        connection.set_schema_to_public()
+        result = run_chunked_tenant_migrations(
+            schema_name,
+            progress_callback=progress_callback,
+        )
 
-        # 2. Run django-tenants native migrate_schemas for this tenant schema
-        try:
-            logger.info("[TenantService][%s] Running migrate_schemas --tenant...", schema_name)
-            call_command(
-                "migrate_schemas",
-                tenant=True,
-                schema_name=schema_name,
-                interactive=False,
-                verbosity=0,
+        if result["failed_at"]:
+            checkpoint = result["failed_at"]
+            invalidate_tenant_ready_cache(schema_name)
+            raise ChunkedMigrationError(
+                f"Chunk failed at {checkpoint['app']}.{checkpoint['migration']}: {checkpoint['error']}"
             )
-            logger.info("[TenantService][%s] migrate_schemas completed successfully.", schema_name)
-        except Exception as exc:
-            logger.exception("[TenantService] Error running migrate_schemas for '%s': %s", schema_name, exc)
-            raise exc
-        finally:
-            connection.set_schema_to_public()
-            gc.collect()
 
         # Invalidate and cache ready status
         invalidate_tenant_ready_cache(schema_name)

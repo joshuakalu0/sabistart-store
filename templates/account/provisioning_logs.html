@@ -171,6 +171,10 @@
                   <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
                     <span class="material-symbols-outlined text-[14px] animate-spin">sync</span> In Progress
                   </span>
+                {% elif s.provisioning_status == 'provisioning' %}
+                  <span class="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700">
+                    <span class="h-2 w-2 rounded-full bg-violet-500 animate-pulse"></span> Provisioning
+                  </span>
                 {% else %}
                   <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
                     <span class="h-2 w-2 rounded-full bg-amber-500"></span> Pending
@@ -187,7 +191,7 @@
 
               <td class="px-6 py-4 text-right">
                 <div class="flex items-center justify-end gap-2">
-                  {% if s.provisioning_status == 'failed' or s.provisioning_status == 'pending' %}
+                  {% if s.provisioning_status == 'failed' or s.provisioning_status == 'pending' or s.provisioning_status == 'provisioning' %}
                     <form method="post" action="{% url 'platform:provisioning_retry' s.schema_name %}">
                       {% csrf_token %}
                       <button

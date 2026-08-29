@@ -32,6 +32,7 @@ from django.utils.translation import gettext_lazy as _
 class Shop(TenantMixin):
     class ProvisioningStatus(models.TextChoices):
         PENDING = "pending", _("Pending")
+        PROVISIONING = "provisioning", _("Provisioning")
         IN_PROGRESS = "in_progress", _("In Progress")
         READY = "ready", _("Ready")
         FAILED = "failed", _("Failed")
@@ -45,14 +46,18 @@ class Shop(TenantMixin):
     name = models.CharField(max_length=100)
     created_on = models.DateField(auto_now_add=True)
 
-    # Set to False to decouple schema creation & migrations from synchronous HTTP request/response cycle.
-    # Provisioning is handled asynchronously via Celery (or explicit service calls).
+    # Schema creation & migrations are fully decoupled from the HTTP request/response
+    # cycle (Celery-free). Tenant rows are saved as PROVISIONING at signup; migrations
+    # run later in micro-chunks via the login guard middleware, the provisioning poll
+    # endpoint, or `manage.py run_tenant_chunked_migrations`.
+    # NOTE: legacy rows may still carry 'pending' — both are treated as
+    # "not yet provisioned" by the guard and the chunked runner.
     auto_create_schema = False
 
     provisioning_status = models.CharField(
         max_length=20,
         choices=ProvisioningStatus.choices,
-        default=ProvisioningStatus.PENDING,
+        default=ProvisioningStatus.PROVISIONING,
         db_index=True,
         verbose_name=_("Provisioning Status"),
     )
