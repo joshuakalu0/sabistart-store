@@ -494,12 +494,50 @@ def _grant_onboarding_addons(feature_codes: list[str], currency: str = "NGN"):
         )
 
 
+def _get_post_auth_redirect_url(user, request=None) -> str:
+    """
+    Determines the appropriate landing page for a user after authentication or onboarding:
+    - Superusers / Platform Staff -> /platform/dashboard/
+    - Merchants with an existing store -> /dashboard/<schema_name>/
+    - Users with incomplete onboarding -> Resume onboarding step
+    - New users with no store -> /platform/register/
+    """
+    if not user or not getattr(user, "is_authenticated", False):
+        return reverse("platform:login")
+
+    if user.is_superuser or user.is_staff or getattr(user, "is_platform_admin", False):
+        return reverse("platform:dashboard")
+
+    # Incomplete onboarding
+    try:
+        resume_session = (
+            OnboardingSession.objects.filter(email__iexact=user.email)
+            .exclude(status__in=[OnboardingSession.Status.COMPLETED, OnboardingSession.Status.CANCELLED])
+            .order_by("-updated_at")
+            .first()
+        )
+        if resume_session:
+            return _resume_onboarding_url(resume_session)
+    except Exception:
+        pass
+
+    # Owned store
+    try:
+        shop = user.owned_shops.order_by("-created_on").first() if hasattr(user, "owned_shops") else None
+        if shop:
+            return reverse("dashboard:dashboard_home:home", kwargs={"prefix": shop.schema_name})
+    except Exception:
+        pass
+
+    return reverse("platform:register")
+
+
 def onboarding_start(request):
     if request.user.is_authenticated:
         existing_session = _get_existing_onboarding_session(request)
         if existing_session:
             return redirect(_resume_onboarding_url(existing_session))
-        return redirect("platform:dashboard")
+        return redirect(_get_post_auth_redirect_url(request.user, request))
     session = _get_or_create_onboarding_session(request)
     _remember_requested_plan(request, session)
     context = _onboarding_context(
@@ -514,7 +552,7 @@ def onboarding_start(request):
 def onboarding_account(request):
     existing_session = _get_existing_onboarding_session(request)
     if request.user.is_authenticated and existing_session is None:
-        return redirect("platform:dashboard")
+        return redirect(_get_post_auth_redirect_url(request.user, request))
     session = existing_session or _get_or_create_onboarding_session(request)
     initial = {
         "email": session.email,
@@ -582,7 +620,7 @@ def onboarding_account(request):
 def onboarding_plan(request):
     existing_session = _get_existing_onboarding_session(request)
     if request.user.is_authenticated and existing_session is None:
-        return redirect("platform:dashboard")
+        return redirect(_get_post_auth_redirect_url(request.user, request))
     session = existing_session or _get_or_create_onboarding_session(request)
     requested_plan = _remember_requested_plan(request, session)
     if not session.email or not (session.metadata or {}).get("password_hash"):
@@ -634,7 +672,7 @@ def onboarding_plan(request):
 def onboarding_checkout(request):
     existing_session = _get_existing_onboarding_session(request)
     if request.user.is_authenticated and existing_session is None:
-        return redirect("platform:dashboard")
+        return redirect(_get_post_auth_redirect_url(request.user, request))
     session = existing_session or _get_or_create_onboarding_session(request)
     if not session.selected_bundle_slug:
         messages.info(request, "Choose a plan before heading to payment.")
@@ -714,7 +752,7 @@ def onboarding_checkout(request):
 def onboarding_payment_session(request):
     existing_session = _get_existing_onboarding_session(request)
     if request.user.is_authenticated and existing_session is None:
-        return redirect("platform:dashboard")
+        return redirect(_get_post_auth_redirect_url(request.user, request))
     session = existing_session or _get_or_create_onboarding_session(request)
     if not session.selected_bundle_slug:
         messages.info(request, "Choose a plan before opening payment.")
@@ -813,7 +851,7 @@ def onboarding_payment_callback(request, purchase_reference):
 def onboarding_subdomain(request):
     existing_session = _get_existing_onboarding_session(request)
     if request.user.is_authenticated and existing_session is None:
-        return redirect("platform:dashboard")
+        return redirect(_get_post_auth_redirect_url(request.user, request))
     session = existing_session or _get_or_create_onboarding_session(request)
     if not session.selected_bundle_slug:
         messages.info(request, "Choose a plan before reserving your subdomain.")
@@ -1118,7 +1156,7 @@ class RegisterView(View):
 
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect('platform:dashboard')
+            return redirect(_get_post_auth_redirect_url(request.user, request))
         form = PlatformRegistrationForm()
         return render(
             request,
@@ -1169,7 +1207,7 @@ class RegisterView(View):
 
             messages.success(
                 request, f"Welcome! Your store '{shop.name}' is being initialized.")
-            return redirect('platform:dashboard')
+            return redirect("dashboard:dashboard_home:home", prefix=shop.schema_name)
 
         except TenantCreationError as e:
             messages.error(request, str(e))
@@ -1204,7 +1242,7 @@ class LoginView(View):
 
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect('platform:dashboard')
+            return redirect(_get_post_auth_redirect_url(request.user, request))
         form = PlatformLoginForm()
         return render(request, self.template_name, {'form': form})
 
@@ -1248,13 +1286,11 @@ class LoginView(View):
                 request.session["platform_onboarding_token"] = resume_session.session_token
                 request.session.modified = True
 
-            # Redirect to next parameter, onboarding resume, or dashboard
+            # Redirect to next parameter, onboarding resume, or user's target dashboard
             next_url = request.GET.get('next')
-            if next_url:
+            if next_url and next_url != reverse('platform:dashboard'):
                 return redirect(next_url)
-            if resume_session:
-                return redirect(_resume_onboarding_url(resume_session))
-            return redirect('platform:dashboard')
+            return redirect(_get_post_auth_redirect_url(user, request))
         else:
             messages.error(request,
                            "Invalid email or password. Please try again.")

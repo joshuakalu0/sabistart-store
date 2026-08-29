@@ -32,6 +32,25 @@ class PlatformStaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         return _is_platform_staff(self.request.user)
 
+    def handle_no_permission(self):
+        user = self.request.user
+        if not user.is_authenticated:
+            from django.contrib.auth.views import redirect_to_login
+            return redirect_to_login(
+                self.request.get_full_path(),
+                self.get_login_url(),
+                self.get_redirect_field_name(),
+            )
+
+        # Authenticated merchant/store owner attempted to access platform staff admin.
+        # Gracefully redirect them to their store dashboard.
+        from django.shortcuts import redirect
+        shop = user.owned_shops.order_by("-created_on").first() if hasattr(user, "owned_shops") else None
+        if shop:
+            return redirect("dashboard:dashboard_home:home", prefix=shop.schema_name)
+
+        return redirect("platform:register")
+
 
 def _base_shop_queryset():
     return Shop.objects.select_related("owner").annotate(domain_count=Count("domains")).order_by("-created_on")
