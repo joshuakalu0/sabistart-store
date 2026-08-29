@@ -23,60 +23,55 @@ logger = logging.getLogger(__name__)
 CACHE_TTL_READY = 3600  # 1 hour cache for ready tenant schemas
 CACHE_PREFIX = "tenant_ready_status"
 
-# Micro-chunk stage definitions in strict dependency order
+# Micro-chunk stage definitions — TENANT-ONLY apps in strict dependency order.
+# NOTE: contenttypes, auth, sessions, admin are in SHARED_APPS and are NOT included here.
+# They are already applied to the public schema by django-tenants and must not be re-run.
 STAGE_APP_MAPPINGS = [
     {
         "stage": 1,
-        "key": "stage_1_core_identity",
-        "name": "Core Django & Auth",
-        "description": "Base content types, platform permissions, and user auth structures.",
-        "apps": ["contenttypes", "auth"],
+        "key": "stage_1_user_auth",
+        "name": "Tenant User Auth",
+        "description": "Tenant staff authentication and user session structures.",
+        "apps": ["userauth"],
     },
     {
         "stage": 2,
-        "key": "stage_2_sessions_admin",
-        "name": "Sessions & Staff Auth",
-        "description": "Session tables, admin interface, and tenant staff authentication.",
-        "apps": ["sessions", "admin", "userauth"],
-    },
-    {
-        "stage": 3,
-        "key": "stage_3_catalog_core",
+        "key": "stage_2_catalog_core",
         "name": "Store Catalog & Products",
         "description": "Categories, product catalog, variants, and inventory tracking.",
         "apps": ["category", "product"],
     },
     {
-        "stage": 4,
-        "key": "stage_4_cart_storefront",
+        "stage": 3,
+        "key": "stage_3_cart_storefront",
         "name": "Cart & Storefront Operations",
-        "description": "Shopping carts, checkout models, and visitor monitoring.",
-        "apps": ["cart", "promotions", "search", "checkout", "shipping", "home", "content", "support", "legal", "i18n", "b2b", "monitoring"],
+        "description": "Shopping carts, checkout models, promotions, and visitor monitoring.",
+        "apps": ["cart", "promotions", "search", "checkout", "monitoring"],
     },
     {
-        "stage": 5,
-        "key": "stage_5_store_settings",
+        "stage": 4,
+        "key": "stage_4_store_settings",
         "name": "Store & Theme Settings",
         "description": "Storefront configuration, branding, and active theme settings.",
         "apps": ["store_settings", "categories_settings", "product_settings", "theme_manager"],
     },
     {
-        "stage": 6,
-        "key": "stage_6_notifications_pricing",
+        "stage": 5,
+        "key": "stage_5_notifications_pricing",
         "name": "Notifications & Multi-Currency",
         "description": "Notification delivery channels and multi-currency pricing engine.",
         "apps": ["notification", "pricing"],
     },
     {
-        "stage": 7,
-        "key": "stage_7_payments",
+        "stage": 6,
+        "key": "stage_6_payments",
         "name": "Tenant Payment Gateways",
         "description": "Tenant-specific payment modes, payouts, and transaction ledgers.",
         "apps": ["payments_tenant"],
     },
     {
-        "stage": 8,
-        "key": "stage_8_pos_features",
+        "stage": 7,
+        "key": "stage_7_pos_features",
         "name": "POS & Feature Marketplace",
         "description": "Point of Sale terminals, registers, and tenant feature entitlements.",
         "apps": ["pos", "feature_marketplace"],

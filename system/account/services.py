@@ -112,19 +112,22 @@ class TenantService:
         progress_callback: Any = None,
     ) -> dict:
         """
-        Create the PostgreSQL schema and run tenant migrations in dependency-ordered
-        micro-batches with connection recycling and RAM safety (under 30MB).
-        Resumes immediately from the last applied migration if previously interrupted.
+        Create the PostgreSQL schema and run tenant-ONLY migrations in dependency-ordered
+        micro-batches. Skips any app that lives in SHARED_APPS (like contenttypes/auth/sessions/admin)
+        since those are already applied to the public schema and should NOT be re-applied per tenant.
 
         Args:
             schema_name: The tenant's schema name
-            progress_callback: Optional callable(stage_info, applied_count, total_count)
+            progress_callback: Optional callable(stage_info, applied_count, total_count, current_app='')
         """
         import gc
         import logging
+        from django.conf import settings
+        from django.apps import apps as django_apps
         from django.core.management import call_command
         from django.db import connection, transaction
         from django.db.migrations.recorder import MigrationRecorder
+        from django_tenants.utils import schema_context
         from system.account.schema_inspector import (
             STAGE_APP_MAPPINGS,
             get_tenant_migration_status,
@@ -136,56 +139,88 @@ class TenantService:
 
         logger.info("[TenantService] Starting micro-chunked migrations for '%s'...", schema_name)
 
-        # 1. Ensure the schema exists
+        # ── Build the set of SHARED_APPS labels (these must NOT be migrated per-tenant) ─
+        shared_labels: set = set()
+        for app_path in getattr(settings, "SHARED_APPS", []):
+            try:
+                # Handle both "django.contrib.auth" and AppConfig paths
+                app_name = app_path.split(".")[-1] if "." in app_path else app_path
+                cfg = django_apps.get_app_config(app_name)
+                shared_labels.add(cfg.label)
+            except Exception:
+                shared_labels.add(app_path.split(".")[-1])
+
+        logger.info("[TenantService] SHARED_APPS labels (will skip in tenant schema): %s", shared_labels)
+
+        # ── 1. Ensure the schema exists ───────────────────────────────────────
         with connection.cursor() as cursor:
             cursor.execute(f'CREATE SCHEMA IF NOT EXISTS "{schema_name}";')
+        connection.set_schema_to_public()
 
-        # 2. Ensure django_migrations table is created inside the schema
-        connection.set_schema(schema_name, include_public=False)
-        recorder = MigrationRecorder(connection)
-        recorder.ensure_schema()
-        connection.set_schema(schema_name, include_public=False)
+        # ── 2. Ensure django_migrations table exists inside the schema ─────────
+        with schema_context(schema_name):
+            recorder = MigrationRecorder(connection)
+            recorder.ensure_schema()
 
-        # 3. Iterate through ordered dependency stages
+        connection.set_schema_to_public()
+        gc.collect()
+
+        # ── 3. Iterate through ordered dependency stages ───────────────────────
         total_stages = len(STAGE_APP_MAPPINGS)
         for stage_idx, stage_info in enumerate(STAGE_APP_MAPPINGS, start=1):
-            stage_key = stage_info["key"]
             stage_name = stage_info["name"]
             stage_apps = stage_info["apps"]
 
+            # Filter out any apps that are SHARED (contenttypes, auth, sessions, admin, etc.)
+            tenant_only_apps = [a for a in stage_apps if a not in shared_labels]
+
             logger.info(
-                "[TenantService][%s] Executing Stage %d/%d: %s (apps=%s)",
-                schema_name, stage_idx, total_stages, stage_name, stage_apps,
+                "[TenantService][%s] Stage %d/%d: %s — apps to migrate: %s (skipping shared: %s)",
+                schema_name, stage_idx, total_stages, stage_name,
+                tenant_only_apps,
+                [a for a in stage_apps if a in shared_labels],
             )
 
-            # Apply migrations app-by-app in this micro-chunk
-            for app_label in stage_apps:
-                try:
-                    # Always reset to schema before each call — call_command may drift
-                    connection.ensure_connection()
-                    connection.set_schema(schema_name, include_public=False)
+            if not tenant_only_apps:
+                logger.info(
+                    "[TenantService][%s] Stage %d all apps are SHARED — skipping.",
+                    schema_name, stage_idx,
+                )
+                # Fire progress callback even for skipped stages so UI keeps moving
+                if progress_callback:
+                    try:
+                        progress_callback(stage_info, 0, 1, current_app="(shared — skipped)")
+                    except Exception:
+                        pass
+                continue
 
-                    # Update progress with current app being migrated
+            # Apply migrations app-by-app inside a proper schema_context
+            for app_label in tenant_only_apps:
+                try:
+                    logger.info(
+                        "[TenantService][%s] Migrating app '%s'...", schema_name, app_label
+                    )
+
+                    # Notify callback — cheap (no disk scan)
                     if progress_callback:
                         try:
-                            status_now = get_tenant_migration_status(schema_name, use_cache=False)
-                            progress_callback(
-                                stage_info,
-                                status_now["applied_count"],
-                                status_now["total_migrations"],
-                                current_app=app_label,
-                            )
+                            progress_callback(stage_info, 0, 1, current_app=app_label)
                         except Exception:
                             pass
 
-                    call_command("migrate", app_label, interactive=False, verbosity=0)
+                    # Use schema_context — the correct django-tenants way
+                    with schema_context(schema_name):
+                        call_command(
+                            "migrate",
+                            app_label,
+                            interactive=False,
+                            verbosity=0,
+                            run_syncdb=False,
+                        )
 
-                    # Commit and recycle after each app to keep memory low
-                    try:
-                        if not transaction.get_autocommit():
-                            transaction.commit()
-                    except Exception:
-                        pass
+                    logger.info(
+                        "[TenantService][%s] App '%s' migrated OK.", schema_name, app_label
+                    )
 
                 except Exception as app_err:
                     logger.warning(
@@ -193,33 +228,34 @@ class TenantService:
                         schema_name, app_label, app_err,
                     )
 
-            # Recycle connection between stages
+            # Recycle connection memory between stages
             try:
-                connection.close()
-                connection.connection = None
+                connection.set_schema_to_public()
             except Exception:
                 pass
             gc.collect()
 
-            # Stage-complete progress callback
+            # Stage-complete progress — ONE status query per stage (not per app)
             status = get_tenant_migration_status(schema_name, use_cache=False)
             if progress_callback:
                 try:
-                    progress_callback(stage_info, status["applied_count"], status["total_migrations"])
+                    progress_callback(
+                        stage_info,
+                        status["applied_count"],
+                        status["total_migrations"],
+                    )
                 except Exception as cb_err:
                     logger.debug("[TenantService] Progress callback error: %s", cb_err)
 
-        # 4. Final convergence pass to ensure all dependencies are 100% applied
+        # ── 4. Final convergence pass ─────────────────────────────────────────
         try:
-            connection.ensure_connection()
-            connection.set_schema(schema_name, include_public=False)
-            call_command("migrate", interactive=False, verbosity=0)
-            if not transaction.get_autocommit():
-                transaction.commit()
-            connection.close()
-            connection.connection = None
+            logger.info("[TenantService][%s] Final convergence migrate --run-syncdb...", schema_name)
+            with schema_context(schema_name):
+                call_command("migrate", interactive=False, verbosity=0, run_syncdb=True)
         except Exception as final_err:
-            logger.warning("[TenantService][%s] Final convergence pass notice: %s", schema_name, final_err)
+            logger.warning(
+                "[TenantService][%s] Final convergence notice: %s", schema_name, final_err
+            )
         finally:
             connection.set_schema_to_public()
             gc.collect()
@@ -228,8 +264,11 @@ class TenantService:
         invalidate_tenant_ready_cache(schema_name)
         final_status = get_tenant_migration_status(schema_name, use_cache=False)
         logger.info(
-            "[TenantService] Micro-chunked migrations finished for '%s' (Applied: %d/%d, Ready: %s)",
-            schema_name, final_status["applied_count"], final_status["total_migrations"], final_status["is_ready"],
+            "[TenantService] Migrations done for '%s' — applied: %d/%d, ready: %s",
+            schema_name,
+            final_status["applied_count"],
+            final_status["total_migrations"],
+            final_status["is_ready"],
         )
         return final_status
 
