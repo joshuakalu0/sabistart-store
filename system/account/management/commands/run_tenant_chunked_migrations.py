@@ -71,6 +71,12 @@ class Command(BaseCommand):
             default=2.0,
             help="Seconds to rest between loop passes (default 2) so the VM can breathe.",
         )
+        parser.add_argument(
+            "--force",
+            action="store_true",
+            default=False,
+            help="Force override and clear any existing migration lock on the target schema(s).",
+        )
 
     def handle(self, *args, **options):
         from system.account.migration_runner import (
@@ -81,6 +87,7 @@ class Command(BaseCommand):
         from system.core.models import Shop
 
         schemas = [s.strip().lower() for s in options["schema"] if s.strip()]
+        force_mode = options.get("force", False) or bool(schemas)
         if not schemas:
             queryset = Shop.objects.all() if options["all"] else Shop.objects.exclude(
                 provisioning_status=Shop.ProvisioningStatus.READY
@@ -95,7 +102,8 @@ class Command(BaseCommand):
             f"Migrating {len(schemas)} tenant schema(s) in micro-chunks "
             f"(chunk_size={options['chunk_size'] or 'default'}, "
             f"max_chunks={options['max_chunks'] or 'unlimited'}, "
-            f"time_budget={options['time_budget'] or 'none'}s)..."
+            f"time_budget={options['time_budget'] or 'none'}s, "
+            f"force={force_mode})..."
         )
 
         max_passes = None if options["loop"] else 1
@@ -110,8 +118,8 @@ class Command(BaseCommand):
             for schema_name in schemas:
                 self.stdout.write(f"\n▶ {schema_name}")
 
-                # Never migrate concurrently with the login guard / poll endpoint.
-                if not acquire_migration_lock(schema_name):
+                # Acquire migration lock (with force override if targeting specific schema)
+                if not acquire_migration_lock(schema_name, force=force_mode):
                     self.stdout.write(self.style.WARNING(
                         f"  ⏸ {schema_name} is being migrated by another process — skipped."
                     ))

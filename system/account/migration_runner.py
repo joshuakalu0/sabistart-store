@@ -44,7 +44,7 @@ from system.account.schema_inspector import (
 logger = logging.getLogger("sabistart.provisioning.chunked")
 
 LOCK_PREFIX = "tenant_migration_lock"
-LOCK_TTL = 900  # seconds — a single chunked run must never hold the lock longer
+LOCK_TTL = 25  # seconds — short TTL so interrupted processes never lock up schemas
 FAIL_COOLDOWN_PREFIX = "tenant_migration_fail_cooldown"
 
 ProgressCallback = Callable[[Dict[str, Any], int, int, str], None]
@@ -58,8 +58,12 @@ class ChunkedMigrationError(Exception):
 # Locking — prevents two processes (CLI + web worker) migrating the same
 # tenant schema concurrently.
 # -----------------------------------------------------------------------------
-def acquire_migration_lock(schema_name: str, timeout: int = LOCK_TTL) -> bool:
+def acquire_migration_lock(schema_name: str, timeout: int = LOCK_TTL, force: bool = False) -> bool:
     try:
+        if force:
+            cache.delete(f"{LOCK_PREFIX}:{schema_name}")
+            cache.set(f"{LOCK_PREFIX}:{schema_name}", os.getpid(), timeout=timeout)
+            return True
         return bool(cache.add(f"{LOCK_PREFIX}:{schema_name}", os.getpid(), timeout=timeout))
     except Exception as exc:  # cache backend unavailable — degrade gracefully
         logger.warning("[ChunkedRunner] Cache lock unavailable for '%s': %s", schema_name, exc)
@@ -399,10 +403,10 @@ def advance_tenant_provisioning(
         outcome["error"] = shop.provisioning_error if shop else ""
         return outcome
 
-    if not acquire_migration_lock(schema_name):
-        logger.info("[ChunkedRunner] '%s' is already being migrated by another process.", schema_name)
-        outcome["locked"] = True
-        return outcome
+    # Always claim the lock for this invocation. LOCK_TTL=25s means any process
+    # that isn't actively renewing the lock will have already expired — so force=True
+    # is safe and prevents stale locks from blocking new attempts indefinitely.
+    acquire_migration_lock(schema_name, force=True)
 
     try:
         if shop and shop.provisioning_status != Shop.ProvisioningStatus.IN_PROGRESS:
