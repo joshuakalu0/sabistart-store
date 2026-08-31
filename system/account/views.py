@@ -161,20 +161,56 @@ def _onboarding_context(request, *, session: OnboardingSession, page_title: str,
     return context
 
 
-def _resume_onboarding_url(session: OnboardingSession) -> str:
+def _resume_onboarding_url(session: OnboardingSession, request=None) -> str:
     metadata = session.metadata or {}
     schema_name = metadata.get("tenant_schema_name")
     if schema_name:
+        try:
+            from system.core.models import Shop
+            shop = Shop.objects.filter(schema_name=schema_name).first()
+            if shop and shop.provisioning_status == Shop.ProvisioningStatus.READY:
+                from system.account.sso import get_tenant_subdomain_redirect_url
+                user = getattr(shop, "owner", None)
+                return get_tenant_subdomain_redirect_url(shop, request=request, user=user)
+        except Exception:
+            pass
         return f"{reverse('platform:onboarding_provisioning')}?schema={schema_name}"
-    if not session.email or not session.business_name or not metadata.get("password_hash"):
+
+    if session.email:
+        try:
+            from system.core.models import Shop
+            shop = Shop.objects.filter(owner__email__iexact=session.email).order_by("-created_on").first()
+            if shop:
+                if shop.provisioning_status == Shop.ProvisioningStatus.READY:
+                    from system.account.sso import get_tenant_subdomain_redirect_url
+                    return get_tenant_subdomain_redirect_url(shop, request=request, user=shop.owner)
+                return f"{reverse('platform:onboarding_provisioning')}?schema={shop.schema_name}"
+        except Exception:
+            pass
+
+
+    # Step 1: Account setup
+    if not session.email or not session.business_name or not (metadata.get("password_hash") or metadata.get("platform_user_id")):
         return reverse("platform:onboarding_account")
+
+    # Step 2: Plan selection
     if not session.selected_bundle_slug:
         return reverse("platform:onboarding_plan")
-    if session.payment_status != OnboardingSession.PaymentStatus.PAID:
+
+    # Step 3: Checkout / Payment (skip if plan is 0 price or payment is paid/skipped)
+    bundle = get_plan_bundle_by_slug(session.selected_bundle_slug, currency=session.currency)
+    is_free_plan = bundle and bundle.price == Decimal("0.00")
+    is_paid = str(session.payment_status or "").lower() in {"paid", "skipped"}
+    if not is_free_plan and not is_paid:
         return reverse("platform:onboarding_checkout")
+
+
+    # Step 4: Subdomain / Store setup
     if not session.desired_subdomain:
         return reverse("platform:onboarding_subdomain")
+
     return reverse("platform:onboarding_subdomain")
+
 
 
 
@@ -504,7 +540,7 @@ def _get_post_auth_redirect_url(user, request=None) -> str:
     - Superusers / Platform Staff -> /platform/dashboard/
     - Merchants with an existing store -> /dashboard/<schema_name>/ (or provisioning page if not ready)
     - Users with incomplete onboarding -> Resume specific onboarding step
-    - New users with no store -> /platform/register/
+    - New users with no store -> /platform/register/account/
     """
     if not user or not getattr(user, "is_authenticated", False):
         return reverse("platform:login")
@@ -532,12 +568,19 @@ def _get_post_auth_redirect_url(user, request=None) -> str:
             .order_by("-updated_at")
             .first()
         )
+        if not resume_session:
+            resume_session = (
+                OnboardingSession.objects.filter(metadata__platform_user_id=str(user.id))
+                .exclude(status__in=[OnboardingSession.Status.COMPLETED, OnboardingSession.Status.CANCELLED])
+                .order_by("-updated_at")
+                .first()
+            )
         if resume_session:
-            return _resume_onboarding_url(resume_session)
+            return _resume_onboarding_url(resume_session, request)
     except Exception as exc:
         logger.debug("[Auth] Could not resolve resume session for %s: %s", getattr(user, "email", ""), exc)
 
-    return reverse("platform:register")
+    return reverse("platform:onboarding_plan")
 
 
 
@@ -545,9 +588,14 @@ def onboarding_start(request):
     if request.user.is_authenticated:
         existing_session = _get_existing_onboarding_session(request)
         if existing_session:
-            return redirect(_resume_onboarding_url(existing_session))
+            return redirect(_resume_onboarding_url(existing_session, request))
         return redirect(_get_post_auth_redirect_url(request.user, request))
-    session = _get_or_create_onboarding_session(request)
+
+    session = _get_existing_onboarding_session(request)
+    if session and session.email and ((session.metadata or {}).get("password_hash") or (session.metadata or {}).get("platform_user_id")):
+        return redirect(_resume_onboarding_url(session, request))
+
+    session = session or _get_or_create_onboarding_session(request)
     _remember_requested_plan(request, session)
     context = _onboarding_context(
         request,
@@ -560,14 +608,30 @@ def onboarding_start(request):
 
 def onboarding_account(request):
     existing_session = _get_existing_onboarding_session(request)
-    if request.user.is_authenticated and existing_session is None:
-        return redirect(_get_post_auth_redirect_url(request.user, request))
+    if request.user.is_authenticated:
+        if existing_session:
+            # If user already completed account step, advance them to next incomplete step!
+            if existing_session.email and ((existing_session.metadata or {}).get("password_hash") or (existing_session.metadata or {}).get("platform_user_id")):
+                return redirect(_resume_onboarding_url(existing_session, request))
+        else:
+            return redirect(_get_post_auth_redirect_url(request.user, request))
+
     session = existing_session or _get_or_create_onboarding_session(request)
+
+    # If unauthenticated user already has email & credentials in this browser session, auto-login & advance!
+    if not request.user.is_authenticated and session.email and (session.metadata or {}).get("password_hash"):
+        user = PlatformUser.objects.filter(email__iexact=session.email).first()
+        if user:
+            login(request, user, backend=SCHEMA_AWARE_BACKEND)
+            request.session["platform_onboarding_token"] = session.session_token
+            request.session.modified = True
+            return redirect(_resume_onboarding_url(session, request))
+
     initial = {
-        "email": session.email,
-        "first_name": session.first_name,
-        "last_name": session.last_name,
-        "business_name": session.business_name,
+        "email": session.email or getattr(request.user, "email", ""),
+        "first_name": session.first_name or getattr(request.user, "first_name", ""),
+        "last_name": session.last_name or getattr(request.user, "last_name", ""),
+        "business_name": session.business_name or "",
     }
     form = OnboardingAccountForm(
         request.POST or None,
@@ -575,47 +639,62 @@ def onboarding_account(request):
         existing_email=getattr(request.user, "email", ""),
     )
     if request.method == "POST" and form.is_valid():
-        session.email = form.cleaned_data["email"]
-        session.first_name = form.cleaned_data["first_name"]
-        session.last_name = form.cleaned_data["last_name"]
-        session.business_name = form.cleaned_data["business_name"]
+        email = form.cleaned_data["email"].strip().lower()
+        first_name = form.cleaned_data["first_name"].strip()
+        last_name = form.cleaned_data["last_name"].strip()
+        business_name = form.cleaned_data["business_name"].strip()
+        password = form.cleaned_data["password1"]
+
+        user = PlatformUser.objects.filter(email__iexact=email).first()
+        if user is not None:
+            from system.core.models import Shop
+            existing_shop = Shop.objects.filter(owner=user).first()
+            if existing_shop and existing_shop.provisioning_status == Shop.ProvisioningStatus.READY:
+                # User has an active finished store
+                if user.check_password(password):
+                    login(request, user, backend=SCHEMA_AWARE_BACKEND)
+                    return redirect(_get_post_auth_redirect_url(user, request))
+                else:
+                    form.add_error("email", "An account with this email already exists with an active store. Please log in.")
+                    context = _onboarding_context(request, session=session, page_title="Create Account", current_step="account", form=form)
+                    return render(request, "account/onboarding/account.html", context)
+
+            # Incomplete onboarding account: update credentials and activate
+            user.set_password(password)
+            user.first_name = first_name or user.first_name
+            user.last_name = last_name or user.last_name
+            user.account_status = PlatformUser.AccountStatus.ACTIVE
+            user.is_active = True
+            user.save()
+        else:
+            user = PlatformUser.objects.create(
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+                password=make_password(password),
+                account_status=PlatformUser.AccountStatus.ACTIVE,
+                is_active=True,
+                is_verified=False,
+            )
+
+        session.email = email
+        session.first_name = first_name
+        session.last_name = last_name
+        session.business_name = business_name
         session.metadata = {
             **(session.metadata or {}),
-            "password_hash": make_password(form.cleaned_data["password1"]),
+            "password_hash": user.password,
+            "platform_user_id": str(user.id),
         }
         session.save(update_fields=["email", "first_name", "last_name", "business_name", "metadata", "updated_at"])
 
-        user = PlatformUser.objects.filter(email__iexact=session.email).first()
-        if user is None:
-            user = PlatformUser.objects.create(
-                email=session.email,
-                first_name=session.first_name,
-                last_name=session.last_name,
-                password=session.metadata["password_hash"],
-                account_status=PlatformUser.AccountStatus.PENDING,
-                is_verified=False,
-            )
-        else:
-            dirty_fields = []
-            if session.first_name and user.first_name != session.first_name:
-                user.first_name = session.first_name
-                dirty_fields.append("first_name")
-            if session.last_name and user.last_name != session.last_name:
-                user.last_name = session.last_name
-                dirty_fields.append("last_name")
-            if user.account_status != PlatformUser.AccountStatus.PENDING:
-                user.account_status = PlatformUser.AccountStatus.PENDING
-                dirty_fields.append("account_status")
-            if dirty_fields:
-                dirty_fields.append("updated_at")
-                user.save(update_fields=dirty_fields)
+        # Authenticate user immediately so they stay logged in across steps
+        login(request, user, backend=SCHEMA_AWARE_BACKEND)
+        request.session["platform_onboarding_token"] = session.session_token
+        request.session.modified = True
 
-        session.metadata = {
-            **(session.metadata or {}),
-            "platform_user_id": str(user.id),
-        }
-        session.save(update_fields=["metadata", "updated_at"])
-        return redirect("platform:onboarding_plan")
+        return redirect(_resume_onboarding_url(session, request))
+
     context = _onboarding_context(
         request,
         session=session,
@@ -628,8 +707,6 @@ def onboarding_account(request):
 
 def onboarding_plan(request):
     existing_session = _get_existing_onboarding_session(request)
-    if request.user.is_authenticated and existing_session is None:
-        return redirect(_get_post_auth_redirect_url(request.user, request))
     session = existing_session or _get_or_create_onboarding_session(request)
     requested_plan = _remember_requested_plan(request, session)
     if not session.email or not (session.metadata or {}).get("password_hash"):
@@ -661,10 +738,14 @@ def onboarding_plan(request):
             addon_codes=session.selected_feature_codes,
             currency=session.currency,
         )
-        session.payment_status = OnboardingSession.PaymentStatus.PENDING
+        bundle = get_plan_bundle_by_slug(session.selected_bundle_slug, currency=session.currency)
+        if bundle and bundle.price == Decimal("0.00"):
+            session.payment_status = OnboardingSession.PaymentStatus.PAID
+        else:
+            session.payment_status = OnboardingSession.PaymentStatus.PENDING
         session.status = OnboardingSession.Status.READY
         session.save(update_fields=["selected_bundle_slug", "selected_feature_codes", "estimated_total", "payment_status", "status", "updated_at"])
-        return redirect("platform:onboarding_checkout")
+        return redirect(_resume_onboarding_url(session, request))
     context = _onboarding_context(
         request,
         session=session,
@@ -679,6 +760,7 @@ def onboarding_plan(request):
 
 
 def onboarding_checkout(request):
+
     existing_session = _get_existing_onboarding_session(request)
     if request.user.is_authenticated and existing_session is None:
         return redirect(_get_post_auth_redirect_url(request.user, request))
@@ -1317,19 +1399,17 @@ class LoginView(View):
 
         if user is not None:
             if not user.can_login:
-                messages.error(request,
-                               "Your account is not active. Please contact support.")
+                messages.error(request, "Your account is not active. Please contact support.")
                 form.add_error(None, "Your account is not active. Please contact support.")
                 return render(request, self.template_name, {'form': form})
 
-            login(request, user)
+            login(request, user, backend=SCHEMA_AWARE_BACKEND)
 
             # Handle remember me
             if not form.cleaned_data.get('remember_me'):
                 request.session.set_expiry(0)  # Browser session only
 
-            messages.success(
-                request, f"Welcome back, {user.get_short_name()}!")
+            messages.success(request, f"Welcome back, {user.get_short_name()}!")
 
             resume_session = (
                 OnboardingSession.objects.filter(email__iexact=user.email)
@@ -1337,6 +1417,13 @@ class LoginView(View):
                 .order_by("-updated_at")
                 .first()
             )
+            if not resume_session:
+                resume_session = (
+                    OnboardingSession.objects.filter(metadata__platform_user_id=str(user.id))
+                    .exclude(status__in=[OnboardingSession.Status.COMPLETED, OnboardingSession.Status.CANCELLED])
+                    .order_by("-updated_at")
+                    .first()
+                )
             if resume_session:
                 request.session["platform_onboarding_token"] = resume_session.session_token
                 request.session.modified = True
@@ -1346,6 +1433,7 @@ class LoginView(View):
             if next_url and next_url != reverse('platform:dashboard'):
                 return redirect(next_url)
             return redirect(_get_post_auth_redirect_url(user, request))
+
         else:
             messages.error(request,
                            "Invalid email or password. Please try again.")

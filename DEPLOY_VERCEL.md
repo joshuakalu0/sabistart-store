@@ -39,3 +39,5 @@ Readiness check:
 ```bash
 python manage.py check_vercel_deployment --strict
 ```
+
+python manage.py delete_tenant_user deepflames22@gmail.com

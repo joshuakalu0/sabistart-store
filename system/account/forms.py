@@ -210,12 +210,11 @@ class OnboardingAccountForm(TailwindFormMixin, forms.Form):
         super().__init__(*args, **kwargs)
 
     def clean_email(self):
-        email = (self.cleaned_data.get("email") or "").lower()
-        if email and email == self.existing_email:
-            return email
-        if PlatformUser.objects.filter(email__iexact=email).exists():
-            raise ValidationError("An account with this email already exists.")
+        email = (self.cleaned_data.get("email") or "").strip().lower()
+        if not email:
+            raise ValidationError("Please enter your email address.")
         return email
+
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")

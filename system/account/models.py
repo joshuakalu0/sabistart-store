@@ -345,13 +345,16 @@ class PlatformUser(AbstractBaseUser, PermissionsMixin):
     @property
     def can_login(self) -> bool:
         """True if the user is allowed to authenticate."""
-        if self.account_status not in (
-            self.AccountStatus.ACTIVE,
+        if self.account_status in (
+            self.AccountStatus.INACTIVE,
+            self.AccountStatus.SUSPENDED,
+            self.AccountStatus.DELETED,
         ):
             return False
         if self.is_locked:
             return False
         return True
+
 
     # ── Security methods ──────────────────────────────────────
 
