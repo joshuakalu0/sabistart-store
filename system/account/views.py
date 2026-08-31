@@ -1164,7 +1164,11 @@ def onboarding_provisioning_status(request):
     from system.account.sso import get_tenant_subdomain_redirect_url
 
     if shop.provisioning_status == Shop.ProvisioningStatus.READY:
-        redirect_url = get_tenant_subdomain_redirect_url(shop, request=request, user=request.user)
+        try:
+            redirect_url = get_tenant_subdomain_redirect_url(shop, request=request, user=request.user)
+        except Exception as exc:
+            logger.warning("[Provisioning] Could not build SSO redirect URL: %s", exc)
+            redirect_url = f"/dashboard/{schema_name}/"
         return JsonResponse({
             "status": "ready",
             "progress": 100,
@@ -1204,7 +1208,11 @@ def onboarding_provisioning_status(request):
                 except Exception:
                     pass
 
-            redirect_url = get_tenant_subdomain_redirect_url(shop, request=request, user=request.user)
+            try:
+                redirect_url = get_tenant_subdomain_redirect_url(shop, request=request, user=request.user)
+            except Exception as exc:
+                logger.warning("[Provisioning] Could not build SSO redirect URL: %s", exc)
+                redirect_url = f"/dashboard/{schema_name}/"
             return JsonResponse({
                 "status": "ready",
                 "progress": 100,
@@ -1214,6 +1222,7 @@ def onboarding_provisioning_status(request):
                 "total_migrations": total,
                 "engine": engine,
             })
+
 
         if w_status == "FAILED":
             return JsonResponse({

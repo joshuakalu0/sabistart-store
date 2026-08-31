@@ -31,54 +31,62 @@ def ensure_tenant_admin_user(shop, user) -> Any:
     """
     Provisions or updates the PlatformUser owner as a full Admin / Superuser
     TenantUser inside the tenant's isolated schema.
+    Safely degrades and returns None if schema tables have not been migrated yet.
     """
     if not shop or not user:
         return None
 
-    from public.userauth.models import TenantUser
+    try:
+        from public.userauth.models import TenantUser
 
-    with schema_context(shop.schema_name):
-        email = (user.email or "").strip().lower()
-        tenant_user = TenantUser.objects.filter(email__iexact=email).first()
+        with schema_context(shop.schema_name):
+            email = (getattr(user, "email", "") or "").strip().lower()
+            if not email:
+                return None
+            tenant_user = TenantUser.objects.filter(email__iexact=email).first()
 
-        if not tenant_user:
-            # Create fresh superuser in tenant schema
-            tenant_user = TenantUser(
-                email=email,
-                first_name=getattr(user, "first_name", ""),
-                last_name=getattr(user, "last_name", ""),
-                phone=getattr(user, "phone", "") or "",
-                is_staff=True,
-                is_superuser=True,
-                user_type=TenantUser.UserType.STAFF,
-                account_status=TenantUser.AccountStatus.ACTIVE,
-                is_verified=True,
-                platform_user_id=str(user.id),
-            )
-            if hasattr(user, "password") and user.password:
-                tenant_user.password = user.password
+            if not tenant_user:
+                # Create fresh superuser in tenant schema
+                tenant_user = TenantUser(
+                    email=email,
+                    first_name=getattr(user, "first_name", "") or "",
+                    last_name=getattr(user, "last_name", "") or "",
+                    phone=getattr(user, "phone", "") or "",
+                    is_staff=True,
+                    is_superuser=True,
+                    user_type=TenantUser.UserType.STAFF,
+                    account_status=TenantUser.AccountStatus.ACTIVE,
+                    is_verified=True,
+                    platform_user_id=str(getattr(user, "id", "")),
+                )
+                if hasattr(user, "password") and user.password:
+                    tenant_user.password = user.password
+                else:
+                    tenant_user.set_unusable_password()
+                tenant_user.save()
+                logger.info("[SSO] Created tenant admin user '%s' in schema '%s'.", email, shop.schema_name)
             else:
-                tenant_user.set_unusable_password()
-            tenant_user.save()
-            logger.info("[SSO] Created tenant admin user '%s' in schema '%s'.", email, shop.schema_name)
-        else:
-            # Ensure staff and superuser permissions are active
-            updated = False
-            if not tenant_user.is_staff or not tenant_user.is_superuser:
-                tenant_user.is_staff = True
-                tenant_user.is_superuser = True
-                tenant_user.user_type = TenantUser.UserType.STAFF
-                tenant_user.account_status = TenantUser.AccountStatus.ACTIVE
-                tenant_user.is_verified = True
-                updated = True
-            if hasattr(user, "password") and user.password and tenant_user.password != user.password:
-                tenant_user.password = user.password
-                updated = True
-            if updated:
-                tenant_user.save(update_fields=["is_staff", "is_superuser", "user_type", "account_status", "is_verified", "password"])
-                logger.info("[SSO] Updated tenant admin user permissions for '%s' in schema '%s'.", email, shop.schema_name)
+                # Ensure staff and superuser permissions are active
+                updated = False
+                if not tenant_user.is_staff or not tenant_user.is_superuser:
+                    tenant_user.is_staff = True
+                    tenant_user.is_superuser = True
+                    tenant_user.user_type = TenantUser.UserType.STAFF
+                    tenant_user.account_status = TenantUser.AccountStatus.ACTIVE
+                    tenant_user.is_verified = True
+                    updated = True
+                if hasattr(user, "password") and user.password and tenant_user.password != user.password:
+                    tenant_user.password = user.password
+                    updated = True
+                if updated:
+                    tenant_user.save(update_fields=["is_staff", "is_superuser", "user_type", "account_status", "is_verified", "password"])
+                    logger.info("[SSO] Updated tenant admin user permissions for '%s' in schema '%s'.", email, shop.schema_name)
 
-        return tenant_user
+            return tenant_user
+    except Exception as exc:
+        logger.warning("[SSO] Could not ensure tenant admin user in schema '%s' (tables may still be migrating): %s", getattr(shop, "schema_name", ""), exc)
+        return None
+
 
 
 def generate_tenant_sso_ticket(shop, user) -> str:
@@ -148,8 +156,14 @@ def get_tenant_subdomain_redirect_url(
 
     ticket = ""
     if user and getattr(user, "is_authenticated", False):
-        ensure_tenant_admin_user(shop, user)
-        ticket = generate_tenant_sso_ticket(shop, user)
+        try:
+            ensure_tenant_admin_user(shop, user)
+        except Exception as exc:
+            logger.warning("[SSO] ensure_tenant_admin_user failed in get_tenant_subdomain_redirect_url: %s", exc)
+        try:
+            ticket = generate_tenant_sso_ticket(shop, user)
+        except Exception as exc:
+            logger.warning("[SSO] generate_tenant_sso_ticket failed: %s", exc)
 
     # Determine scheme and host
     protocol = "https"
@@ -167,11 +181,14 @@ def get_tenant_subdomain_redirect_url(
 
     port_suffix = ""
     if request:
-        host_header = request.get_host()
-        if ":" in host_header:
-            port = host_header.split(":")[-1]
-            if port not in ("80", "443"):
-                port_suffix = f":{port}"
+        try:
+            host_header = request.get_host()
+            if ":" in host_header:
+                port = host_header.split(":")[-1]
+                if port not in ("80", "443"):
+                    port_suffix = f":{port}"
+        except Exception:
+            pass
 
     base_url = f"{protocol}://{host}{port_suffix}"
 
@@ -183,3 +200,4 @@ def get_tenant_subdomain_redirect_url(
         return f"{base_url}/auth/sso/?{urlencode(params)}"
 
     return f"{base_url}{next_path or '/'}"
+
