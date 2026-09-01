@@ -111,6 +111,15 @@ def _ensure_schema_exists(schema_name: str) -> None:
     migration dependency resolver recognizes shared dependencies (like auth.0012, contenttypes.0002)
     as already satisfied, allowing tenant-only migrations to execute instantly.
     """
+    try:
+        if not connection.get_autocommit():
+            connection.rollback()
+    except Exception:
+        try:
+            connection.close()
+        except Exception:
+            pass
+
     with connection.cursor() as cursor:
         cursor.execute(f'CREATE SCHEMA IF NOT EXISTS "{schema_name}";')
         # Ensure django_migrations table exists in the tenant schema
@@ -140,6 +149,7 @@ def _ensure_schema_exists(schema_name: str) -> None:
             );
         """)
     connection.set_schema_to_public()
+
 
 
 def _set_schema(schema_name: str) -> None:
@@ -210,6 +220,11 @@ def _apply_chunk(schema_name: str, migrations: List[Tuple[str, str]]) -> None:
             _set_schema(schema_name)
             executor.migrate([(app_label, migration_name)])
         except Exception as exc:
+            try:
+                if not connection.get_autocommit():
+                    connection.rollback()
+            except Exception:
+                pass
             err_str = str(exc).lower()
             # DDL already applied (column/table/index exists) but migration not recorded
             # — fake-record it and continue so the runner isn't permanently blocked
@@ -228,6 +243,7 @@ def _apply_chunk(schema_name: str, migrations: List[Tuple[str, str]]) -> None:
             else:
                 raise
         logger.info("[ChunkedRunner][%s] ✓ Applied %s.%s", schema_name, app_label, migration_name)
+
 
 
 
@@ -511,6 +527,18 @@ def advance_tenant_provisioning(
                         schema_name, exc,
                     )
 
+            if shop and shop.owner:
+                try:
+                    from system.account.sso import ensure_tenant_admin_user, TenantSchemaNotReady
+                    ensure_tenant_admin_user(shop, shop.owner)
+                except TenantSchemaNotReady as admin_err:
+                    logger.warning("[ChunkedRunner] Tenant schema not ready for admin user '%s': %s", schema_name, admin_err)
+                    outcome["is_ready"] = False
+                    outcome["error"] = str(admin_err)
+                    return outcome
+                except Exception as admin_err:
+                    logger.warning("[ChunkedRunner] Could not provision tenant admin user for '%s': %s", schema_name, admin_err)
+
             _finalize_ready(shop)
             invalidate_tenant_ready_cache(schema_name)
 
@@ -527,13 +555,6 @@ def advance_tenant_provisioning(
                     session.save(update_fields=["status", "completed_at", "metadata", "updated_at"])
                 except Exception:
                     logger.debug("[ChunkedRunner] Could not finalize onboarding session.", exc_info=True)
-
-            if shop and shop.owner:
-                try:
-                    from system.account.sso import ensure_tenant_admin_user
-                    ensure_tenant_admin_user(shop, shop.owner)
-                except Exception as admin_err:
-                    logger.warning("[ChunkedRunner] Could not provision tenant admin user for '%s': %s", schema_name, admin_err)
 
             logger.info("[ChunkedRunner] Tenant '%s' is fully provisioned (source=%s).", schema_name, source)
             outcome["is_ready"] = True
