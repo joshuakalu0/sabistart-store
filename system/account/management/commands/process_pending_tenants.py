@@ -422,23 +422,8 @@ class Command(BaseCommand):
         # We do NOT pass --run-syncdb here; the chunked runner uses the
         # executor and we want consistent behaviour.
         #
-        # IMPORTANT: We must use the *absolute path* to manage.py so the
-        # subprocess works regardless of the cron job's working directory.
-        import django
-        manage_py = os.path.join(
-            os.path.dirname(django.__file__),  # fallback
-        )
-        # Best method: resolve manage.py relative to this file (it is always
-        # at the project root, 4 levels above this commands/ directory).
-        this_file = os.path.abspath(__file__)
-        # commands/  ->  management/  ->  account/  ->  system/  ->  project root
-        project_root = os.path.dirname(
-            os.path.dirname(os.path.dirname(os.path.dirname(this_file)))
-        )
-        manage_py_path = os.path.join(project_root, "manage.py")
-        if not os.path.isfile(manage_py_path):
-            # fallback: use the cwd (may work if cron cd's to project root)
-            manage_py_path = "manage.py"
+        from django.conf import settings
+        manage_py_path = str(settings.BASE_DIR / "manage.py")
 
         cmd = [
             subprocess_python,
@@ -462,11 +447,14 @@ class Command(BaseCommand):
         timeout: int,
     ) -> Tuple[bool, str, int]:
         """Run the migrate subprocess.  Returns (ok, stderr_text, returncode)."""
+        from django.conf import settings
+
         cmd = self._build_migrate_command(subprocess_python, schema_name, extra_migrate_args)
 
         # Make sure the subprocess inherits the venv on PATH and
-        # inherits the current working directory (where manage.py lives).
+        # runs in the project root directory (where manage.py lives).
         env = os.environ.copy()
+        project_cwd = str(settings.BASE_DIR)
 
         self.stdout.write(self.style.NOTICE(
             f"[CronProvision] [{schema_name}] $ {' '.join(cmd)}"
@@ -478,9 +466,10 @@ class Command(BaseCommand):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 env=env,
-                cwd=os.getcwd(),
+                cwd=project_cwd,
                 text=True,
             )
+
         except FileNotFoundError as exc:
             return False, f"Could not launch subprocess: {exc}", -1
         except Exception as exc:
