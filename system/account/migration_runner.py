@@ -112,13 +112,13 @@ def _ensure_schema_exists(schema_name: str) -> None:
     as already satisfied, allowing tenant-only migrations to execute instantly.
     """
     try:
-        if not connection.get_autocommit():
-            connection.rollback()
+        if connection.connection is not None:
+            if getattr(connection.connection, "closed", False):
+                connection.connection = None
+            elif not connection.get_autocommit():
+                connection.rollback()
     except Exception:
-        try:
-            connection.close()
-        except Exception:
-            pass
+        connection.connection = None
 
     with connection.cursor() as cursor:
         cursor.execute(f'CREATE SCHEMA IF NOT EXISTS "{schema_name}";')
@@ -151,9 +151,14 @@ def _ensure_schema_exists(schema_name: str) -> None:
     connection.set_schema_to_public()
 
 
-
 def _set_schema(schema_name: str) -> None:
     """Point the shared connection at a tenant schema (django-tenants aware)."""
+    try:
+        if connection.connection is not None and getattr(connection.connection, "closed", False):
+            connection.connection = None
+    except Exception:
+        connection.connection = None
+
     if hasattr(connection, "set_schema"):
         connection.set_schema(schema_name)
     else:  # pragma: no cover — fallback for plain backends
@@ -174,7 +179,9 @@ def _release_connection() -> None:
         connection.close()
     except Exception:
         pass
+    connection.connection = None
     gc.collect()
+
 
 
 def _stage_info_for_app(app_label: str) -> Dict[str, Any]:
