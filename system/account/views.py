@@ -72,6 +72,33 @@ RESERVED_SUBDOMAINS = {
 }
 
 
+def _sync_session_with_user(session: OnboardingSession, user) -> None:
+    """Synchronizes user details from an authenticated PlatformUser into the onboarding session."""
+    if not user or not getattr(user, "is_authenticated", False):
+        return
+    changed = False
+    if user.email and session.email != user.email.strip().lower():
+        session.email = user.email.strip().lower()
+        changed = True
+    if getattr(user, "first_name", "") and not session.first_name:
+        session.first_name = user.first_name
+        changed = True
+    if getattr(user, "last_name", "") and not session.last_name:
+        session.last_name = user.last_name
+        changed = True
+    metadata = dict(session.metadata or {})
+    user_id = str(getattr(user, "id", ""))
+    if user_id and metadata.get("platform_user_id") != user_id:
+        metadata["platform_user_id"] = user_id
+        changed = True
+    if getattr(user, "password", "") and metadata.get("password_hash") != user.password:
+        metadata["password_hash"] = user.password
+        changed = True
+    if changed:
+        session.metadata = metadata
+        session.save(update_fields=["email", "first_name", "last_name", "metadata", "updated_at"])
+
+
 def _get_existing_onboarding_session(request) -> OnboardingSession | None:
     token = request.session.get("platform_onboarding_token")
     if token:
@@ -81,6 +108,8 @@ def _get_existing_onboarding_session(request) -> OnboardingSession | None:
             .first()
         )
         if session:
+            if getattr(request.user, "is_authenticated", False):
+                _sync_session_with_user(session, request.user)
             return session
 
     if getattr(request.user, "is_authenticated", False) and getattr(request.user, "email", ""):
@@ -90,23 +119,20 @@ def _get_existing_onboarding_session(request) -> OnboardingSession | None:
             .order_by("-updated_at")
             .first()
         )
+        if not session:
+            user_id = str(getattr(request.user, "id", ""))
+            if user_id:
+                session = (
+                    OnboardingSession.objects.filter(metadata__platform_user_id=user_id)
+                    .exclude(status__in=[OnboardingSession.Status.COMPLETED, OnboardingSession.Status.CANCELLED])
+                    .order_by("-updated_at")
+                    .first()
+                )
         if session:
+            _sync_session_with_user(session, request.user)
             request.session["platform_onboarding_token"] = session.session_token
             request.session.modified = True
             return session
-
-        user_id = str(getattr(request.user, "id", ""))
-        if user_id:
-            session = (
-                OnboardingSession.objects.filter(metadata__platform_user_id=user_id)
-                .exclude(status__in=[OnboardingSession.Status.COMPLETED, OnboardingSession.Status.CANCELLED])
-                .order_by("-updated_at")
-                .first()
-            )
-            if session:
-                request.session["platform_onboarding_token"] = session.session_token
-                request.session.modified = True
-                return session
     return None
 
 
@@ -114,7 +140,18 @@ def _get_or_create_onboarding_session(request) -> OnboardingSession:
     session = _get_existing_onboarding_session(request)
     if session:
         return session
-    session = OnboardingSession.objects.create(session_token=secrets.token_urlsafe(24))
+    
+    is_auth = getattr(request.user, "is_authenticated", False)
+    session = OnboardingSession.objects.create(
+        session_token=secrets.token_urlsafe(24),
+        email=getattr(request.user, "email", "").strip().lower() if is_auth else "",
+        first_name=getattr(request.user, "first_name", "") if is_auth else "",
+        last_name=getattr(request.user, "last_name", "") if is_auth else "",
+        metadata={
+            "platform_user_id": str(request.user.id) if is_auth else "",
+            "password_hash": getattr(request.user, "password", "") if is_auth else "",
+        },
+    )
     request.session["platform_onboarding_token"] = session.session_token
     request.session.modified = True
     return session
@@ -188,9 +225,17 @@ def _resume_onboarding_url(session: OnboardingSession, request=None) -> str:
         except Exception:
             pass
 
-
-    # Step 1: Account setup
-    if not session.email or not session.business_name or not (metadata.get("password_hash") or metadata.get("platform_user_id")):
+    # Step 1: Account setup check
+    is_authenticated = bool(request and getattr(request.user, "is_authenticated", False))
+    has_account = bool(
+        session.email
+        and (
+            is_authenticated
+            or metadata.get("password_hash")
+            or metadata.get("platform_user_id")
+        )
+    )
+    if not has_account:
         return reverse("platform:onboarding_account")
 
     # Step 2: Plan selection
@@ -204,12 +249,12 @@ def _resume_onboarding_url(session: OnboardingSession, request=None) -> str:
     if not is_free_plan and not is_paid:
         return reverse("platform:onboarding_checkout")
 
-
     # Step 4: Subdomain / Store setup
     if not session.desired_subdomain:
         return reverse("platform:onboarding_subdomain")
 
     return reverse("platform:onboarding_subdomain")
+
 
 
 
@@ -609,12 +654,8 @@ def onboarding_start(request):
 def onboarding_account(request):
     existing_session = _get_existing_onboarding_session(request)
     if request.user.is_authenticated:
-        if existing_session:
-            # If user already completed account step, advance them to next incomplete step!
-            if existing_session.email and ((existing_session.metadata or {}).get("password_hash") or (existing_session.metadata or {}).get("platform_user_id")):
-                return redirect(_resume_onboarding_url(existing_session, request))
-        else:
-            return redirect(_get_post_auth_redirect_url(request.user, request))
+        session = existing_session or _get_or_create_onboarding_session(request)
+        return redirect(_resume_onboarding_url(session, request))
 
     session = existing_session or _get_or_create_onboarding_session(request)
 
@@ -709,9 +750,20 @@ def onboarding_plan(request):
     existing_session = _get_existing_onboarding_session(request)
     session = existing_session or _get_or_create_onboarding_session(request)
     requested_plan = _remember_requested_plan(request, session)
-    if not session.email or not (session.metadata or {}).get("password_hash"):
+
+    is_authenticated = bool(getattr(request.user, "is_authenticated", False))
+    has_account = bool(
+        session.email
+        and (
+            is_authenticated
+            or (session.metadata or {}).get("password_hash")
+            or (session.metadata or {}).get("platform_user_id")
+        )
+    )
+    if not has_account:
         messages.info(request, "Tell us about your business before selecting a plan.")
         return redirect("platform:onboarding_account")
+
     plan_groups = get_plan_groups(currency=session.currency, current_only=True)
     plan_bundles = get_plan_bundles(currency=session.currency, current_only=True)
     default_plan_slug = (
@@ -721,6 +773,7 @@ def onboarding_plan(request):
         or next((group["default_bundle"].slug for group in plan_groups if group["is_featured"]), "")
         or (plan_bundles[0].slug if plan_bundles else "")
     )
+
     form = OnboardingPlanForm(
         request.POST or None,
         bundle_choices=_bundle_choices(session.currency),
@@ -1093,23 +1146,13 @@ def onboarding_provisioning(request):
     if not schema_name:
         return redirect("platform:onboarding_subdomain")
 
-    # On page visit or refresh, kill any old/stale Celery process or lock so a clean run begins
-    try:
-        from system.account.watchdog import kill_existing_migration_process
-        kill_existing_migration_process(schema_name)
-    except Exception as kill_err:
-        logger.debug("[Provisioning] Could not kill previous process for '%s': %s", schema_name, kill_err)
-
-    # Dispatch migration job to Worker Microservice / background thread
-    shop = Shop.objects.filter(schema_name=schema_name).first()
-    if shop and shop.provisioning_status != Shop.ProvisioningStatus.READY:
-        from system.account.worker_client import dispatch_migration_to_worker
-        owner_user = request.user if getattr(request.user, "is_authenticated", False) else shop.owner
-        try:
-            dispatch_migration_to_worker(shop, user=owner_user, session=session)
-        except Exception as dispatch_err:
-            logger.warning("[Provisioning] Could not dispatch to worker: %s", dispatch_err)
-
+    # NOTE: Migration work is intentionally NOT dispatched from this view.
+    # The provisioning flow is fully cron-driven: a background OS process
+    # (the `process_pending_tenants` management command) runs every few
+    # minutes, finds tenants in `pending` / `provisioning` / `in_progress` /
+    # `failed` status, and migrates + finalises them in a separate process.
+    # This view's only job is to render the polling page and let the JSON
+    # status endpoint (below) report progress.
     selected_bundle = None
 
     if session.selected_bundle_slug:
@@ -1128,9 +1171,27 @@ def onboarding_provisioning(request):
 
 
 def onboarding_provisioning_status(request):
+    """
+    JSON status endpoint polled by the provisioning page.
+
+    CRON-DRIVEN PROVISIONING MODEL
+    ------------------------------
+    This endpoint is intentionally a pure read.  It does NOT dispatch to
+    any background worker, kill any process, or try to provision the
+    tenant admin user.  All migration + finalisation work is performed
+    by the OS-cron-scheduled management command
+    ``process_pending_tenants`` (see system/account/management/commands/
+    process_pending_tenants.py).
+
+    The poll just inspects ``Shop.provisioning_status`` and, when
+    pending, returns a progress curve derived from
+    ``get_tenant_migration_status()`` which reads the actual
+    ``django_migrations`` table in the tenant schema.  The frontend
+    keeps polling every 1.5-2.5 seconds; once the cron sweep flips the
+    row to ``READY`` we return the redirect URL and the page navigates
+    away.
+    """
     import logging
-    from django.utils import timezone
-    from datetime import timedelta
     from django.db import connection
 
     try:
@@ -1150,19 +1211,26 @@ def onboarding_provisioning_status(request):
     schema_name = schema_from_param or (session.metadata or {}).get("tenant_schema_name")
 
     if not schema_name and getattr(request.user, "is_authenticated", False):
-        shop = Shop.objects.filter(owner=request.user).order_by("-created_on").first()
-        if shop:
-            schema_name = shop.schema_name
+        try:
+            shop = Shop.objects.filter(owner=request.user).order_by("-created_on").first()
+            if shop:
+                schema_name = shop.schema_name
+        except Exception:
+            pass
 
     if not schema_name:
         return JsonResponse({"status": "provisioning", "progress": 25})
 
-    shop = Shop.objects.filter(schema_name=schema_name).first()
+    try:
+        shop = Shop.objects.filter(schema_name=schema_name).first()
+    except Exception:
+        shop = None
     if not shop:
         return JsonResponse({"status": "provisioning", "progress": 30})
 
     from system.account.sso import get_tenant_subdomain_redirect_url
 
+    # ── Fast path: shop row already says READY → redirect ────────────────
     if shop.provisioning_status == Shop.ProvisioningStatus.READY:
         try:
             redirect_url = get_tenant_subdomain_redirect_url(shop, request=request, user=request.user)
@@ -1174,107 +1242,64 @@ def onboarding_provisioning_status(request):
             "progress": 100,
             "redirect_url": redirect_url,
             "schema_name": schema_name,
+            "engine": "cron_sweep",
         })
 
-    # ── Non-Blocking Migration Worker & Background Thread Status Check ──
-    from system.account.worker_client import get_worker_progress, dispatch_migration_to_worker
-
-    # Ensure worker is actively running
-    owner_user = request.user if getattr(request.user, "is_authenticated", False) else shop.owner
-    try:
-        dispatch_migration_to_worker(shop, user=owner_user, session=session)
-    except Exception:
-        pass
-
-    worker_progress = get_worker_progress(schema_name)
-    if worker_progress:
-        w_status = worker_progress.get("status", "RUNNING")
-        pct = int(worker_progress.get("progress_percentage", 10))
-        applied = int(worker_progress.get("applied_count", 0))
-        total = int(worker_progress.get("total_migrations", 34))
-        step_msg = worker_progress.get("current_step", "Configuring application models...")
-        engine = worker_progress.get("engine", "worker")
-
-        if w_status == "COMPLETED" or pct >= 100:
-            shop.refresh_from_db()
-            if shop.provisioning_status != Shop.ProvisioningStatus.READY:
-                shop.provisioning_status = Shop.ProvisioningStatus.READY
-                shop.provisioned_at = timezone.now()
-                shop.provisioning_error = ""
-                shop.save(update_fields=["provisioning_status", "provisioned_at", "provisioning_error"])
-                try:
-                    from system.account.sso import ensure_tenant_admin_user
-                    ensure_tenant_admin_user(shop, owner_user)
-                except Exception:
-                    pass
-
-            try:
-                redirect_url = get_tenant_subdomain_redirect_url(shop, request=request, user=request.user)
-            except Exception as exc:
-                logger.warning("[Provisioning] Could not build SSO redirect URL: %s", exc)
-                redirect_url = f"/dashboard/{schema_name}/"
-            return JsonResponse({
-                "status": "ready",
-                "progress": 100,
-                "redirect_url": redirect_url,
-                "schema_name": schema_name,
-                "applied_count": total,
-                "total_migrations": total,
-                "engine": engine,
-            })
-
-
-        if w_status == "FAILED":
-            return JsonResponse({
-                "status": "failed",
-                "progress": 100,
-                "error": worker_progress.get("error") or "Migration failed. Please retry.",
-                "schema_name": schema_name,
-                "engine": engine,
-            })
-
+    # ── Failed: surface a clear error to the user ────────────────────────
+    if shop.provisioning_status == Shop.ProvisioningStatus.FAILED:
+        err = (shop.provisioning_error or "Migration failed. Please retry.").strip()
         return JsonResponse({
-            "status": "provisioning",
-            "progress": max(10, min(95, pct)),
-            "schema_name": schema_name,
-            "stage_message": step_msg,
-            "applied_count": applied,
-            "total_migrations": total,
-            "engine": engine,
-        })
-
-    # ── Fallback to lightweight DB status inspection if no Redis state yet ──
-    from system.account.schema_inspector import get_tenant_migration_status
-    mig_status = get_tenant_migration_status(schema_name, use_cache=True)
-
-    if mig_status.get("is_ready") is True:
-        if shop.provisioning_status != Shop.ProvisioningStatus.READY:
-            shop.provisioning_status = Shop.ProvisioningStatus.READY
-            shop.provisioned_at = timezone.now()
-            shop.provisioning_error = ""
-            shop.save(update_fields=["provisioning_status", "provisioned_at", "provisioning_error"])
-
-        redirect_url = get_tenant_subdomain_redirect_url(shop, request=request, user=request.user)
-        return JsonResponse({
-            "status": "ready",
+            "status": "failed",
             "progress": 100,
-            "redirect_url": redirect_url,
+            "error": err[:2000],
             "schema_name": schema_name,
-            "applied_count": mig_status.get("total_migrations", 34),
-            "total_migrations": mig_status.get("total_migrations", 34),
+            "stage_message": "Provisioning failed.",
+            "engine": "cron_sweep",
         })
 
-    calc_progress = max(10, mig_status.get("progress_percent", 15))
+    # ── Pending: report real DB progress (what the cron sweep is doing) ──
+    from system.account.schema_inspector import get_tenant_migration_status
+    try:
+        mig_status = get_tenant_migration_status(schema_name, use_cache=True)
+    except Exception as exc:
+        logger.warning("[Provisioning] schema_inspector failed for '%s': %s", schema_name, exc)
+        mig_status = {"is_ready": False, "progress_percent": 15, "applied_count": 0,
+                      "total_migrations": 0, "current_stage": None}
+
+    total = int(mig_status.get("total_migrations") or 0)
+    applied = int(mig_status.get("applied_count") or 0)
+    db_percent = int(mig_status.get("progress_percent") or 0)
     current_stage = mig_status.get("current_stage") or {}
+
+    # Stage message: use the cron-readable stage name from the inspector.
+    if current_stage:
+        stage_message = (
+            f"Stage {current_stage.get('stage', '')}: "
+            f"{current_stage.get('name', 'Setting up database...')}"
+        )
+    else:
+        stage_message = "Setting up database..."
+
+    # Status row tells us whether the cron sweep is even aware of this
+    # tenant yet.  If it's PENDING (just registered, no schema created
+    # at all yet) or PROVISIONING (schema created, no migrations yet)
+    # the message should reflect that.
+    if shop.provisioning_status == Shop.ProvisioningStatus.PENDING:
+        stage_message = "Waiting for the migration sweep to pick up your store..."
+    elif shop.provisioning_status == Shop.ProvisioningStatus.PROVISIONING:
+        stage_message = "Preparing your store..."
+    elif shop.provisioning_status == Shop.ProvisioningStatus.IN_PROGRESS and applied == 0:
+        stage_message = "Migration sweep is starting..."
 
     return JsonResponse({
         "status": "provisioning",
-        "progress": calc_progress,
+        "progress": max(10, min(95, db_percent)),
         "schema_name": schema_name,
         "stage": current_stage,
-        "stage_message": f"Stage {current_stage.get('stage', '')}: {current_stage.get('name', 'Setting up database...')}",
-        "applied_count": mig_status.get("applied_count", 0),
-        "total_migrations": mig_status.get("total_migrations", 34),
+        "stage_message": stage_message,
+        "applied_count": applied,
+        "total_migrations": total,
+        "engine": "cron_sweep",
     })
 
 
