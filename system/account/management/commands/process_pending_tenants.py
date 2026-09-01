@@ -357,10 +357,15 @@ class Command(BaseCommand):
                 f"[CronProvision] [{schema_name}] Migrate subprocess succeeded."
             ))
 
-            # 2) In-process: run the cheap finalisation step.  This
-            #    does the entitlement granting, admin-user creation, and
-            #    READY flip.  All of these are SELECT/INSERT-level work
-            #    inside the tenant schema; they do not blow RAM.
+            shop.refresh_from_db()
+            if shop.provisioning_status == Shop.ProvisioningStatus.READY:
+                clear_failure_cooldown(schema_name)
+                self.stdout.write(self.style.SUCCESS(
+                    f"[CronProvision] [{schema_name}] Finalised -- status is READY."
+                ))
+                return True
+
+            # 2) In-process fallback: run the cheap finalisation step if needed.
             from system.account.migration_runner import (
                 advance_tenant_provisioning,
                 clear_failure_cooldown,
@@ -377,6 +382,7 @@ class Command(BaseCommand):
                     f"[CronProvision] [{schema_name}] Finalised -- status is READY."
                 ))
                 return True
+
 
             if outcome.get("failed"):
                 self._mark_failed(
@@ -437,9 +443,10 @@ class Command(BaseCommand):
         cmd = [
             subprocess_python,
             manage_py_path,
-            "migrate",
+            "run_tenant_chunked_migrations",
             f"--schema={schema_name}",
-            "--noinput",
+            "--force",
+            "--no-throttle",
         ]
         if extra_migrate_args:
             cmd.extend(extra_migrate_args.split())
@@ -497,7 +504,7 @@ class Command(BaseCommand):
         tail = (stdout or "")[-2000:]
         if tail.strip():
             self.stdout.write(self.style.NOTICE(
-                f"[CronProvision] [{schema_name}] migrate stdout (tail):\n{tail}"
+                f"[CronProvision] [{schema_name}] output:\n{tail}"
             ))
 
         if proc.returncode == 0:
@@ -514,5 +521,6 @@ class Command(BaseCommand):
         shop.save(update_fields=["provisioning_status", "provisioning_error"])
         set_failure_cooldown(shop.schema_name)
         self.stdout.write(self.style.ERROR(
-            f"[CronProvision] [{shop.schema_name}] Marked FAILED. See provisioning_error for details."
+            f"[CronProvision] [{shop.schema_name}] Marked FAILED:\n{message}"
         ))
+
