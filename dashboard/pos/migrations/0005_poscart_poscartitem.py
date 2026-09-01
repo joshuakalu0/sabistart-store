@@ -24,9 +24,10 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("pos", "0004_posproduct_image"),
+        ("pos", "0004_5_repair_missing_pos_catalog_items"),
         ("userauth", "0001_initial"),
     ]
+
 
     operations = [
         migrations.CreateModel(
