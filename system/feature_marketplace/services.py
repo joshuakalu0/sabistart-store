@@ -113,13 +113,23 @@ def get_active_feature_catalog(currency: str = "NGN", *, purchasable_only: bool 
     return result
 
 
+def ensure_default_feature_catalog() -> None:
+    """Ensures the feature marketplace catalog and plan bundles exist in the database."""
+    from system.feature_marketplace.models import FeatureBundle
+    try:
+        if FeatureBundle.objects.filter(is_active=True).exists():
+            return
+        from django.core.management import call_command
+        call_command("seed_feature_catalog", profile="realistic-plus", verbosity=0)
+    except Exception as exc:
+        logger.debug("[FeatureMarketplace] Auto-seed error (ignored): %s", exc)
 
-def get_active_bundles(currency: str = "NGN", *, current_only: bool = False):
-    cache_key = f"active_bundles:{currency}:{current_only}"
+
+def get_active_bundles(currency: str = "NGN", *, current_only: bool = True):
+    cache_key = f"active_bundles_{currency}_{current_only}"
     try:
         cached = cache.get(cache_key)
     except Exception:
-        # Stale or incompatible pickle (e.g. from a previous Django version) — treat as miss
         cached = None
         try:
             cache.delete(cache_key)
@@ -127,10 +137,15 @@ def get_active_bundles(currency: str = "NGN", *, current_only: bool = False):
             pass
     if cached is not None:
         return cached
+
     qs = FeatureBundle.objects.filter(
         is_active=True,
         currency=currency,
     )
+    if not qs.exists():
+        ensure_default_feature_catalog()
+        qs = FeatureBundle.objects.filter(is_active=True, currency=currency)
+
     if current_only:
         now = timezone.now()
         qs = qs.filter(
@@ -139,14 +154,12 @@ def get_active_bundles(currency: str = "NGN", *, current_only: bool = False):
             Q(valid_until__isnull=True) | Q(valid_until__gte=now)
         )
     qs = qs.prefetch_related("items__feature").order_by("display_order", "name")
-    # Evaluate to a list so we never pickle a lazy QuerySet (which breaks across Django versions)
     result = list(qs)
     try:
         cache.set(cache_key, result, 300)
     except Exception:
         pass
     return result
-
 
 
 def get_plan_bundles(currency: str = "NGN", *, current_only: bool = True):
