@@ -22,6 +22,8 @@ THEMES_ROOT = BASE_DIR / "themes"
 IS_VERCEL = bool(os.getenv("VERCEL")) or bool(os.getenv("VERCEL_URL"))
 IS_RENDER = bool(os.getenv("RENDER"))
 
+DEFAULT_REDIS_URL = "redis://default:SkYC5kgCv2yVzKR2J6Kr2wSKxeUSoTlA@quill-button-authentic-13782.db.redis.io:17211"
+
 
 def env(name: str, default=None):
     return os.getenv(name, default)
@@ -465,8 +467,8 @@ TENANT_PROVISIONING_FAIL_COOLDOWN = env_int("TENANT_PROVISIONING_FAIL_COOLDOWN",
 # -----------------------------------------------------------------------------
 # Celery Configuration (Managed Redis / Upstash with SSL & 1GB RAM Safety)
 # -----------------------------------------------------------------------------
-CELERY_BROKER_URL = env_first("CELERY_BROKER_URL", "REDIS_URL", default="redis://127.0.0.1:6379/0")
-CELERY_RESULT_BACKEND = env_first("CELERY_RESULT_BACKEND", "CELERY_BROKER_URL", "REDIS_URL", default=CELERY_BROKER_URL)
+CELERY_BROKER_URL = env_first("CELERY_BROKER_URL", "REDIS_URL", default=DEFAULT_REDIS_URL)
+CELERY_RESULT_BACKEND = env_first("CELERY_RESULT_BACKEND", "CELERY_BROKER_URL", "REDIS_URL", default=DEFAULT_REDIS_URL)
 
 # SSL configuration for Upstash / secure Redis brokers (rediss://)
 if CELERY_BROKER_URL and CELERY_BROKER_URL.startswith("rediss://"):
@@ -502,7 +504,7 @@ CELERY_TASK_DEFAULT_QUEUE = "default"
 # -----------------------------------------------------------------------------
 # Cache Configuration (Uses Upstash / Remote Redis if provided, LocMem fallback)
 # -----------------------------------------------------------------------------
-REDIS_CACHE_URL = env_first("REDIS_URL", "CELERY_BROKER_URL", default="")
+REDIS_CACHE_URL = env_first("REDIS_URL", "CELERY_BROKER_URL", default=DEFAULT_REDIS_URL)
 if REDIS_CACHE_URL and (REDIS_CACHE_URL.startswith("redis://") or REDIS_CACHE_URL.startswith("rediss://")):
     CACHES = {
         "default": {
@@ -541,8 +543,17 @@ SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", default=not DEBUG)
 
 # -----------------------------------------------------------------------------
-# Migration Worker Microservice
+# Migration Runner Configuration
 # -----------------------------------------------------------------------------
+# Controls the primary migration execution engine:
+# - "cron"   : OS cron job owns ALL migrations. Gunicorn never runs DDL.
+#              Use this on shared/cPanel hosts to prevent OOM/timeout kills.
+#              Schedule `manage.py process_pending_tenants` in cPanel Cron Jobs.
+# - "redis"  : local background thread with Redis progress tracking
+# - "worker" : external migration worker microservice (Railway / VPS)
+# - "auto"   : remote worker if MIGRATION_WORKER_URL is set, else local Redis thread
+MIGRATION_RUNNER = env("MIGRATION_RUNNER", default="redis").lower()
+
 # URL of the external Migration Worker node (Railway / VPS).
 # Leave blank to run migrations in a local background daemon thread instead.
 MIGRATION_WORKER_URL = env("MIGRATION_WORKER_URL", default="")
@@ -551,4 +562,5 @@ MIGRATION_WORKER_SECRET = env("MIGRATION_WORKER_SECRET", default=SECRET_KEY)
 # Base URL the worker should POST its webhook callback to (main server public URL).
 # Defaults to PLATFORM_CNAME if not explicitly set.
 MIGRATION_WEBHOOK_URL = env("MIGRATION_WEBHOOK_URL", default="")
+
 

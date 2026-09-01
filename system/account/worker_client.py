@@ -1,4 +1,4 @@
-﻿"""
+"""
 system/account/worker_client.py
 ================================
 Migration Worker Client — dispatches tenant migrations to an external
@@ -178,12 +178,30 @@ def dispatch_migration_to_worker(
 ) -> Dict[str, Any]:
     """
     Dispatches tenant schema migrations to the appropriate engine:
-    1. External Migration Worker Microservice (if MIGRATION_WORKER_URL is set).
-    2. Background daemon thread on local server (safe fallback).
+    0. CRON mode: do nothing — the OS cron job owns all DDL. Return immediately.
+    1. Local background daemon thread with Redis progress tracking (DEFAULT).
+    2. External Migration Worker Microservice (if MIGRATION_RUNNER="worker").
+
+    Set MIGRATION_RUNNER in settings:
+    - "cron"   : no-op — migrations are handled by cron (process_pending_tenants)
+    - "redis"  : local background thread with Redis progress (default)
+    - "worker" : external migration worker microservice
+    - "auto"   : remote worker if MIGRATION_WORKER_URL is set, else local Redis thread
 
     Returns a dict summarising what was launched.
     """
     schema_name = getattr(shop, "schema_name", "") or ""
+
+    runner = getattr(settings, "MIGRATION_RUNNER", "redis").lower()
+
+    # ── Cron mode: the cron job is the only authority, never dispatch here ───
+    if runner == "cron":
+        logger.debug(
+            "[WorkerClient] MIGRATION_RUNNER=cron — skipping dispatch for '%s'. "
+            "Cron job (process_pending_tenants) handles all migrations.",
+            schema_name,
+        )
+        return {"dispatched": False, "reason": "cron_mode", "schema_name": schema_name}
 
     # Skip if already running or complete
     existing = get_worker_progress(schema_name)
@@ -194,16 +212,17 @@ def dispatch_migration_to_worker(
         )
         return {"dispatched": False, "reason": "already_running", "progress": existing}
 
-    worker_url = getattr(settings, "MIGRATION_WORKER_URL", "").rstrip("/")
-    worker_secret = getattr(settings, "MIGRATION_WORKER_SECRET", settings.SECRET_KEY)
+    # ── Remote worker path ────────────────────────────────────────────────
+    if runner == "worker" or (runner == "auto" and getattr(settings, "MIGRATION_WORKER_URL", "")):
+        worker_url = getattr(settings, "MIGRATION_WORKER_URL", "").rstrip("/")
+        worker_secret = getattr(settings, "MIGRATION_WORKER_SECRET", settings.SECRET_KEY)
+        if worker_url:
+            return _dispatch_to_remote_worker(
+                shop, user, session, chunk_size, worker_url, worker_secret,
+            )
 
-    if worker_url:
-        return _dispatch_to_remote_worker(
-            shop, user, session, chunk_size, worker_url, worker_secret,
-        )
-
-    # No remote worker configured — use background thread
-    logger.info("[WorkerClient] No MIGRATION_WORKER_URL set; using background thread for '%s'.", schema_name)
+    # ── Default: local background thread with Redis progress tracking ─────
+    logger.info("[WorkerClient] Using local Redis-backed migration thread for '%s'.", schema_name)
     _run_migrations_in_background(schema_name, chunk_size=chunk_size)
     return {"dispatched": True, "engine": "background_thread", "schema_name": schema_name}
 

@@ -99,34 +99,37 @@ class TenantProvisioningGuardMiddleware:
         if status.get("is_ready") is True:
             return self.get_response(request)
 
-        # ── On-login self-healing (Celery-free) ─────────────────────────────────
-        # Apply the remaining migration chunks inline, strictly time-budgeted.
-        # Each chunk commits individually and the run only stops between
-        # chunks, so the schema is always left in a consistent, resumable
-        # state. If the budget is exhausted, the interstitial below keeps
-        # advancing provisioning via its polling endpoint.
-        from system.account.migration_runner import advance_tenant_provisioning
-
-        heal_budget = getattr(settings, "TENANT_PROVISIONING_HEAL_BUDGET", 8)
+        # ── On-login self-healing (only when NOT in cron mode) ──────────────────
+        # In cron mode the OS cron job owns all DDL work.  Running
+        # advance_tenant_provisioning() inside a Gunicorn HTTP worker is what
+        # causes OOM / timeout kills, so we skip it entirely and just show
+        # the interstitial immediately.
+        migration_runner = getattr(settings, "MIGRATION_RUNNER", "redis").lower()
         heal_result: dict = {}
-        try:
-            heal_result = advance_tenant_provisioning(
-                schema_name,
-                time_budget=heal_budget,
-                source="login_guard",
-            )
-        except Exception as heal_err:
-            logger.warning(
-                "[ProvisioningGuard] Inline self-healing error for schema '%s': %s",
-                schema_name,
-                heal_err,
-            )
+
+        if migration_runner != "cron":
+            from system.account.migration_runner import advance_tenant_provisioning
+
+            heal_budget = getattr(settings, "TENANT_PROVISIONING_HEAL_BUDGET", 8)
+            try:
+                heal_result = advance_tenant_provisioning(
+                    schema_name,
+                    time_budget=heal_budget,
+                    source="login_guard",
+                )
+            except Exception as heal_err:
+                logger.warning(
+                    "[ProvisioningGuard] Inline self-healing error for schema '%s': %s",
+                    schema_name,
+                    heal_err,
+                )
 
         if heal_result.get("is_ready"):
             # Healing finished within budget — let the request through seamlessly.
             return self.get_response(request)
 
         # Refresh status for the interstitial payload
+
         status = get_tenant_migration_status(schema_name, use_cache=False)
 
         # ── Return Interstitial or JSON ───────────────────────────────────────
