@@ -36,7 +36,7 @@
       </div>
       <div id="subdomain-status" class="mt-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-500 hidden"></div>
     </div>
-    <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl btn-primary px-5 py-3 text-sm font-semibold">
+    <button type="submit" id="create-store-btn" class="inline-flex w-full items-center justify-center rounded-xl btn-primary px-5 py-3 text-sm font-semibold opacity-50 cursor-not-allowed" disabled>
       Create my store
     </button>
   </form>
@@ -50,6 +50,7 @@
         form.addEventListener("submit", function (e) {
           submitBtn.innerHTML = '<span class="inline-flex items-center gap-2"><svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Initializing your store...</span>';
           submitBtn.classList.add("opacity-75", "pointer-events-none");
+          submitBtn.disabled = true;
         });
       }
 
@@ -58,16 +59,29 @@
       if (!input || !statusBox) return;
 
       let timer = null;
+      let isAvailable = false;
       const setState = (message, kind) => {
         statusBox.classList.remove("hidden", "border-emerald-200", "bg-emerald-50", "text-emerald-700", "border-rose-200", "bg-rose-50", "text-rose-700", "border-gray-200", "bg-gray-50", "text-gray-500");
         if (kind === "success") {
           statusBox.classList.add("border-emerald-200", "bg-emerald-50", "text-emerald-700");
+          isAvailable = true;
         } else if (kind === "error") {
           statusBox.classList.add("border-rose-200", "bg-rose-50", "text-rose-700");
+          isAvailable = false;
         } else {
           statusBox.classList.add("border-gray-200", "bg-gray-50", "text-gray-500");
+          isAvailable = false;
         }
         statusBox.textContent = message;
+        if (submitBtn) {
+          if (isAvailable) {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+          } else {
+            submitBtn.disabled = true;
+            submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+          }
+        }
       };
 
       input.addEventListener("input", function () {
@@ -75,6 +89,11 @@
         clearTimeout(timer);
         if (!value) {
           statusBox.classList.add("hidden");
+          isAvailable = false;
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+          }
           return;
         }
         setState("Checking availability...", "neutral");

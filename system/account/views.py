@@ -1060,7 +1060,10 @@ def onboarding_subdomain(request):
                         shop.owner = user
                         shop.name = session.business_name or shop.name
                         shop.save(update_fields=["owner", "name"])
-                        Domain.objects.filter(tenant=shop, is_primary=True).update(domain=subdomain)
+                        from django.conf import settings
+                        platform_cname = getattr(settings, 'PLATFORM_CNAME', 'localhost').lower().strip().lstrip('.')
+                        full_domain = f"{subdomain}.{platform_cname}" if '.' not in subdomain else subdomain
+                        Domain.objects.filter(tenant=shop, is_primary=True).update(domain=full_domain)
                         # Celery-free: remaining migrations are applied lazily in
                         # micro-chunks by the provisioning poll endpoint and the
                         # login guard middleware — nothing runs in this request.
@@ -1232,11 +1235,22 @@ def onboarding_provisioning_status(request):
 
     # ── Fast path: shop row already says READY → redirect ────────────────
     if shop.provisioning_status == Shop.ProvisioningStatus.READY:
+        user = request.user if getattr(request.user, 'is_authenticated', False) else shop.owner
         try:
-            redirect_url = get_tenant_subdomain_redirect_url(shop, request=request, user=request.user)
+            redirect_url = get_tenant_subdomain_redirect_url(shop, request=request, user=user, next_path='/dashboard/')
         except Exception as exc:
             logger.warning("[Provisioning] Could not build SSO redirect URL: %s", exc)
-            redirect_url = f"/dashboard/{schema_name}/"
+            # Build a simple fallback URL manually
+            primary_domain = shop.domains.filter(is_primary=True).first()
+            domain_name = primary_domain.domain if primary_domain else schema_name
+            from django.conf import settings
+            platform_cname = getattr(settings, 'PLATFORM_CNAME', 'localhost').lower().strip()
+            if '.' not in domain_name:
+                host = f"{domain_name}.{platform_cname}"
+            else:
+                host = domain_name
+            protocol = 'https' if not settings.DEBUG else ('http' if not request.is_secure() else 'https')
+            redirect_url = f"{protocol}://{host}/dashboard/"
         return JsonResponse({
             "status": "ready",
             "progress": 100,

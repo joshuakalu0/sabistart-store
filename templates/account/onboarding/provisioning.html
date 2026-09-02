@@ -288,6 +288,11 @@
         function poll() {
           if (isRedirecting) return;
           pollCount++;
+          
+          if (pollCount > 150) {
+              progressStatusText.textContent = "Taking longer than expected. Please refresh the page.";
+              return;
+          }
 
           fetch(pollUrl, {
             headers: {
@@ -297,7 +302,7 @@
           })
           .then(res => res.json())
           .then(data => {
-            if (data.status === "ready" || data.progress === 100) {
+            if (data.status === "ready") {
               isRedirecting = true;
               updateStepUI("step-db", "step-db-label", true, "Complete");
               updateStepUI("step-plan", "step-plan-label", true, "Complete");

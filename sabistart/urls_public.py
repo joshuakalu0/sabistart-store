@@ -15,6 +15,7 @@ from sabistart import deploy_status
 from sabistart import favicon
 from sabistart import health
 from sabistart.media_proxy import media_proxy
+from system.account.worker_views import tenant_migration_webhook_callback
 
 # app_name = ''
 
@@ -36,6 +37,7 @@ urlpatterns = [
     path('account/', include('system.account.urls', namespace='tenant')),
     path('__monitoring/', include(('public.monitoring.urls', 'public.monitoring'), namespace='monitoring')),
     path('.well-known/acme-challenge/<str:token>/', domain_views.acme_challenge, name='acme_challenge'),
+    path('api/v1/tenants/migration-callback/', tenant_migration_webhook_callback, name='tenant_migration_callback'),
 ]
 
 if settings.STORAGES.get("default", {}).get("BACKEND") == "sabistart.storage_backends.VercelBlobStorage":

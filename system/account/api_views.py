@@ -21,9 +21,10 @@ Response contract:
 
 Design principles:
   - ZERO heavy DDL or migration execution in this view.
-  - Only reads Redis cache (written by worker_client.py or tasks.py).
-  - Falls back to DB-level schema_inspector for progress if no Redis data yet.
-  - Returns redirect_url only when is_completed=True (status READY).
+  - Reads the Shop row + schema_inspector (django_migrations table).
+  - Returns redirect_url only when status == "READY" (cron sweep done).
+  - All migration work is performed by the OS-cron-scheduled
+    process_pending_tenants management command.
 """
 
 from __future__ import annotations
@@ -43,12 +44,13 @@ def tenant_status_api(request, tenant_id=None):
     GET /api/v1/tenants/status/?schema=<schema>
     GET /api/v1/tenants/<tenant_id>/status/
 
-    Lightweight polling endpoint — reads Redis only, never touches the DB
-    migration tables in the hot path.
+    Lightweight polling endpoint.  Reads the Shop row plus the tenant
+    schema's django_migrations table -- both cheap, indexed reads.
+    This endpoint does NOT dispatch to any worker; provisioning is now
+    cron-driven via the process_pending_tenants management command.
     """
     from django.conf import settings
     from system.core.models import Shop
-    from system.account.worker_client import get_worker_progress
 
     # ── Resolve schema_name ────────────────────────────────────────────────
     schema_name = request.GET.get("schema", "").strip().lower()
@@ -98,74 +100,28 @@ def tenant_status_api(request, tenant_id=None):
             "is_completed": True,
             "redirect_url": redirect_url,
             "schema_name": schema_name,
+            "engine": "cron_sweep",
         })
 
-    # ── Read live progress from Redis (written by worker thread) ──────────
-    progress = get_worker_progress(schema_name)
-
-    if progress:
-        worker_status = progress.get("status", "RUNNING")
-        pct = int(progress.get("progress_percentage", 5))
-        applied = int(progress.get("applied_count", 0))
-        total = int(progress.get("total_migrations", 0))
-        current_step = progress.get("current_step", "Running migrations...")
-        engine = progress.get("engine", "background_thread")
-
-        if worker_status == "COMPLETED" or pct >= 100:
-            # Double-check DB status and update if needed
-            shop.refresh_from_db()
-            if shop.provisioning_status != Shop.ProvisioningStatus.READY:
-                from django.utils import timezone
-                from system.account.sso import ensure_tenant_admin_user
-                shop.provisioning_status = Shop.ProvisioningStatus.READY
-                shop.provisioned_at = timezone.now()
-                shop.provisioning_error = ""
-                shop.save(update_fields=["provisioning_status", "provisioned_at", "provisioning_error"])
-                try:
-                    ensure_tenant_admin_user(shop, shop.owner)
-                except Exception as exc:
-                    logger.warning("[API] Could not provision tenant admin: %s", exc)
-
-            redirect_url = _build_redirect_url(shop, request)
-            return JsonResponse({
-                "status": "READY",
-                "progress_percentage": 100,
-                "current_step": "Store is live! Redirecting...",
-                "is_completed": True,
-                "redirect_url": redirect_url,
-                "applied_count": applied,
-                "total_migrations": total,
-                "schema_name": schema_name,
-                "engine": engine,
-            })
-
-        if worker_status == "FAILED":
-            return JsonResponse({
-                "status": "FAILED",
-                "progress_percentage": pct,
-                "current_step": progress.get("error") or "Provisioning failed. Contact support.",
-                "is_completed": False,
-                "is_failed": True,
-                "redirect_url": None,
-                "schema_name": schema_name,
-                "engine": engine,
-            })
-
-        # Still RUNNING / DISPATCHED
+    # ── Failed: surface a clear error to the user ────────────────────────
+    if shop.provisioning_status == Shop.ProvisioningStatus.FAILED:
+        err = (shop.provisioning_error or "Provisioning failed. Please retry.").strip()
         return JsonResponse({
-            "status": "PROVISIONING",
-            "progress_percentage": max(5, pct),
-            "current_step": current_step,
+            "status": "FAILED",
+            "progress_percentage": 100,
+            "current_step": err[:500] or "Provisioning failed.",
             "is_completed": False,
+            "is_failed": True,
+            "error": err[:2000],
             "redirect_url": None,
-            "applied_count": applied,
-            "total_migrations": total,
             "schema_name": schema_name,
-            "engine": engine,
+            "engine": "cron_sweep",
         })
 
-    # ── No Redis data yet — fall back to DB schema_inspector ──────────────
-    # This is a lightweight DB read (only django_migrations table count).
+    # ── Pending: report real DB progress (what the cron sweep is doing) ──
+    # The endpoint is a pure read -- it does NOT dispatch to any worker
+    # and does NOT call ensure_tenant_admin_user.  All work is done by
+    # the OS-cron-scheduled `process_pending_tenants` management command.
     try:
         from system.account.schema_inspector import get_tenant_migration_status
         mig = get_tenant_migration_status(schema_name, use_cache=True)
@@ -173,9 +129,20 @@ def tenant_status_api(request, tenant_id=None):
         total = mig.get("total_migrations", 0)
         pct = int(mig.get("progress_percent", 5))
         current_stage = mig.get("current_stage") or {}
-        step = f"Stage {current_stage.get('stage', '')}:  {current_stage.get('name', 'Setting up database...')}"
+        if current_stage:
+            step = f"Stage {current_stage.get('stage', '')}:  {current_stage.get('name', 'Setting up database...')}"
+        else:
+            step = "Setting up database..."
     except Exception:
         applied, total, pct, step = 0, 0, 5, "Starting up..."
+
+    # Reflect the Shop row's current state in the user-facing step.
+    if shop.provisioning_status == Shop.ProvisioningStatus.PENDING:
+        step = "Waiting for the migration sweep to pick up your store..."
+    elif shop.provisioning_status == Shop.ProvisioningStatus.PROVISIONING:
+        step = "Preparing your store..."
+    elif shop.provisioning_status == Shop.ProvisioningStatus.IN_PROGRESS and applied == 0:
+        step = "Migration sweep is starting..."
 
     return JsonResponse({
         "status": "PROVISIONING",
@@ -186,6 +153,7 @@ def tenant_status_api(request, tenant_id=None):
         "applied_count": applied,
         "total_migrations": total,
         "schema_name": schema_name,
+        "engine": "cron_sweep",
     })
 
 

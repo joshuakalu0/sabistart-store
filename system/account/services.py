@@ -71,7 +71,11 @@ class TenantService:
         subdomain = subdomain.lower().strip()
         schema_name = (schema_name or "").strip().lower() or subdomain
 
-        if Domain.objects.filter(domain__iexact=subdomain).exists():
+        from django.conf import settings
+        platform_cname = getattr(settings, 'PLATFORM_CNAME', 'localhost').lower().strip().lstrip('.')
+        full_domain = f"{subdomain}.{platform_cname}" if '.' not in subdomain else subdomain
+
+        if Domain.objects.filter(domain__iexact=full_domain).exists() or Domain.objects.filter(domain__iexact=subdomain).exists():
             raise TenantCreationError(
                 f"The subdomain '{subdomain}' is already taken. "
                 "Please choose a different one."
@@ -87,7 +91,7 @@ class TenantService:
                     provisioning_error="",
                 )
                 domain = Domain.objects.create(
-                    domain=subdomain,
+                    domain=full_domain,
                     tenant=shop,
                     is_primary=True,
                 )
@@ -269,9 +273,14 @@ class TenantService:
         Returns:
             True if available, False if taken
         """
-        subdomain = subdomain.lower()
+        subdomain = subdomain.lower().strip()
         reserved = {'www', 'admin', 'mail', 'ftp', 'localhost', 'api',
                     'blog', 'shop', 'store', 'platform', 'public', 'private'}
         if subdomain in reserved:
             return False
-        return not Domain.objects.filter(domain=subdomain).exists()
+            
+        from django.conf import settings
+        platform_cname = getattr(settings, 'PLATFORM_CNAME', 'localhost').lower().strip().lstrip('.')
+        full_domain = f"{subdomain}.{platform_cname}" if '.' not in subdomain else subdomain
+            
+        return not Domain.objects.filter(domain=subdomain).exists() and not Domain.objects.filter(domain=full_domain).exists()

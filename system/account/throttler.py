@@ -202,7 +202,7 @@ class AdaptiveThrottler:
 
         # ── CRITICAL STATE (Back-off loop) ──────────────────────────────────────────────────────────────────
         log.warning(
-            "[Throttler] CRITICAL load detected (CPU 0.1f%%, RAM %0.1f%%) — entering backoff pause (max %0.1fs).",
+            "[Throttler] CRITICAL load detected (CPU %.1f%%, RAM %.1f%%) — entering backoff pause (max %.1fs).",
             cpu, ram, max_backoff_seconds,
         )
 
@@ -234,7 +234,7 @@ class AdaptiveThrottler:
                 )
             elif current_status == "WARNING":
                 log.info(
-                    "[Throttler] System dropped to WARNING after %0.1fs backoff (CPU 0.1f%%, RAM %0.1f%%) — proceeding.",
+                    "[Throttler] System dropped to WARNING after %.1fs backoff (CPU %.1f%%, RAM %.1f%%) — proceeding.",
                     total_waited, current_cpu, current_ram,
                 )
                 return SystemHealthReport(

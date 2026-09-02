@@ -305,15 +305,25 @@ def tenant_migration_webhook_callback(request):
         return JsonResponse({"error": "shop not found"}, status=404)
 
     if status == "COMPLETED":
+        admin_ok = _provision_tenant_admin(shop, owner_id, owner_email)
+        if not admin_ok:
+            from system.account.worker_client import clear_worker_progress
+            clear_worker_progress(schema_name)
+            shop.provisioning_status = Shop.ProvisioningStatus.IN_PROGRESS
+            shop.provisioning_error = "Tenant admin provisioning failed; retrying migrations."
+            shop.save(update_fields=["provisioning_status", "provisioning_error"])
+            return JsonResponse({
+                "ok": False,
+                "schema_name": schema_name,
+                "status": "RETRY",
+                "error": "Tenant admin provisioning failed; schema not fully ready.",
+            })
+
         shop.provisioning_status = Shop.ProvisioningStatus.READY
         shop.provisioned_at = timezone.now()
         shop.provisioning_error = ""
         shop.save(update_fields=["provisioning_status", "provisioned_at", "provisioning_error"])
 
-        # Provision tenant admin user
-        _provision_tenant_admin(shop, owner_id, owner_email)
-
-        # Mark progress as COMPLETED so polling endpoint returns redirect_url
         set_worker_progress(schema_name, {
             "status": "COMPLETED",
             "schema_name": schema_name,
@@ -343,9 +353,10 @@ def tenant_migration_webhook_callback(request):
     return JsonResponse({"ok": True, "schema_name": schema_name, "status": status})
 
 
-def _provision_tenant_admin(shop, owner_id: str, owner_email: str) -> None:
-    """Provisions the store owner as superuser in the tenant schema."""
+def _provision_tenant_admin(shop, owner_id: str, owner_email: str) -> bool:
+    """Provisions the store owner as superuser in the tenant schema. Returns True on success."""
     from system.account.models import PlatformUser
+    from system.account.sso import ensure_tenant_admin_user, TenantSchemaNotReady
 
     user = None
     if owner_id:
@@ -360,8 +371,12 @@ def _provision_tenant_admin(shop, owner_id: str, owner_email: str) -> None:
 
     if user:
         try:
-            from system.account.sso import ensure_tenant_admin_user
             ensure_tenant_admin_user(shop, user)
             logger.info("[WebhookCallback] Provisioned tenant admin for '%s'.", shop.schema_name)
+            return True
+        except TenantSchemaNotReady as exc:
+            logger.warning("[WebhookCallback] Tenant schema not ready for admin user '%s': %s", shop.schema_name, exc)
+            return False
         except Exception as exc:
             logger.warning("[WebhookCallback] Could not provision tenant admin: %s", exc)
+    return True

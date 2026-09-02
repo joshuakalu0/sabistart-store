@@ -63,7 +63,10 @@ class CustomDomainMiddleware(TenantMainMiddleware):
 
             connection.set_schema_to_public()
             public_schema_name = get_public_schema_name()
-            public_tenant = get_tenant_model().objects.filter(schema_name=public_schema_name).first()
+            try:
+                public_tenant = get_tenant_model().objects.filter(schema_name=public_schema_name).first()
+            except Exception:
+                public_tenant = None
             request.tenant = public_tenant or SimpleNamespace(schema_name=public_schema_name)
             request.urlconf = getattr(settings, "PUBLIC_SCHEMA_URLCONF", None)
             self.setup_url_routing(request, force_public=True)

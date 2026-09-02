@@ -11,6 +11,7 @@ from sabistart import health
 from sabistart.media_proxy import media_proxy
 from system.account.worker_views import worker_migrate_endpoint, tenant_migration_webhook_callback
 from system.account.api_views import tenant_status_api
+from system.account.tenant_sso_views import tenant_sso_login
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,6 +29,7 @@ urlpatterns = [
     path('api/v1/tenants/<str:tenant_id>/status/', tenant_status_api, name='tenant_status_by_id'),
     path('api/v1/tenants/migration-callback/', tenant_migration_webhook_callback, name='tenant_migration_callback'),
     path('api/v1/worker/migrate/', worker_migrate_endpoint, name='worker_migrate_endpoint'),
+    path('account/auth/sso/', tenant_sso_login, name='tenant_sso_login'),
     path('', include('public.storefront.urls')),
     path('dashboard/', include('dashboard.urls')),
 ]

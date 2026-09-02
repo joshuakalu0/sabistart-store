@@ -67,6 +67,13 @@ def kill_existing_migration_process(schema_name: str) -> None:
 
     release_migration_lock(schema_name)
     clear_failure_cooldown(schema_name)
+
+    try:
+        from system.account.worker_client import clear_worker_progress
+        clear_worker_progress(schema_name)
+    except Exception:
+        pass
+
     logger.info("[Watchdog] User refresh/reconnect: killed existing migration processes and reset state for '%s'.", schema_name)
 
 

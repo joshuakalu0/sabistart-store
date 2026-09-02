@@ -27,11 +27,15 @@ SSO_TICKET_PREFIX = "tenant_sso_ticket"
 SSO_TICKET_TTL = 300  # 5 minutes expiry
 
 
+class TenantSchemaNotReady(Exception):
+    """Raised when a tenant schema is not yet fully migrated."""
+
+
 def ensure_tenant_admin_user(shop, user) -> Any:
     """
     Provisions or updates the PlatformUser owner as a full Admin / Superuser
     TenantUser inside the tenant's isolated schema.
-    Safely degrades and returns None if schema tables have not been migrated yet.
+    Raises TenantSchemaNotReady if the schema tables have not been migrated yet.
     """
     if not shop or not user:
         return None
@@ -46,7 +50,6 @@ def ensure_tenant_admin_user(shop, user) -> Any:
             tenant_user = TenantUser.objects.filter(email__iexact=email).first()
 
             if not tenant_user:
-                # Create fresh superuser in tenant schema
                 tenant_user = TenantUser(
                     email=email,
                     first_name=getattr(user, "first_name", "") or "",
@@ -66,7 +69,6 @@ def ensure_tenant_admin_user(shop, user) -> Any:
                 tenant_user.save()
                 logger.info("[SSO] Created tenant admin user '%s' in schema '%s'.", email, shop.schema_name)
             else:
-                # Ensure staff and superuser permissions are active
                 updated = False
                 if not tenant_user.is_staff or not tenant_user.is_superuser:
                     tenant_user.is_staff = True
@@ -84,7 +86,14 @@ def ensure_tenant_admin_user(shop, user) -> Any:
 
             return tenant_user
     except Exception as exc:
-        logger.warning("[SSO] Could not ensure tenant admin user in schema '%s' (tables may still be migrating): %s", getattr(shop, "schema_name", ""), exc)
+        err = str(exc).lower()
+        if any(phrase in err for phrase in (
+            "relation", "does not exist", "no such table", "undefined table",
+        )):
+            raise TenantSchemaNotReady(
+                f"Tenant schema '{shop.schema_name}' tables are not ready yet: {exc}"
+            ) from exc
+        logger.warning("[SSO] Could not ensure tenant admin user in schema '%s': %s", getattr(shop, "schema_name", ""), exc)
         return None
 
 
@@ -158,6 +167,8 @@ def get_tenant_subdomain_redirect_url(
     if user and getattr(user, "is_authenticated", False):
         try:
             ensure_tenant_admin_user(shop, user)
+        except TenantSchemaNotReady:
+            raise
         except Exception as exc:
             logger.warning("[SSO] ensure_tenant_admin_user failed in get_tenant_subdomain_redirect_url: %s", exc)
         try:
@@ -194,10 +205,12 @@ def get_tenant_subdomain_redirect_url(
 
     if ticket:
         from urllib.parse import urlencode
-        params = {"ticket": ticket}
+        params = {'ticket': ticket}
+        if not next_path:
+            next_path = '/dashboard/'
         if next_path:
-            params["next"] = next_path
-        return f"{base_url}/auth/sso/?{urlencode(params)}"
+            params['next'] = next_path
+        return f"{base_url}/account/auth/sso/?{urlencode(params)}"
 
-    return f"{base_url}{next_path or '/'}"
+    return f"{base_url}{next_path or '/dashboard/'}"
 
