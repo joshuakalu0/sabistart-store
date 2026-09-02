@@ -36,13 +36,13 @@ logger = logging.getLogger(__name__)
 def _should_skip_storefront_context(request) -> bool:
     """
     Storefront context is tenant-only. Public-schema platform/admin requests and
-    internal dashboard routes do not need storefront cart/catalog tables.
+    internal dashboard/auth routes do not need storefront cart/catalog tables.
     """
     if getattr(connection, "schema_name", None) == "public":
         return True
 
     path = getattr(request, "path_info", "") or getattr(request, "path", "") or ""
-    return path.startswith(("/platform/", "/admin/", "/__monitoring/", "/dashboard/", "/account/auth/"))
+    return path.startswith(("/platform/", "/admin/", "/__monitoring/", "/dashboard/", "/account/"))
 
 
 def global_storefront_context(request):
@@ -56,12 +56,35 @@ def global_storefront_context(request):
         return context
 
     try:
-        site_settings = get_store_settings_cached(request)
+        site_settings = None
+        try:
+            site_settings = get_store_settings_cached(request)
+        except Exception:
+            pass
 
-        cart_summary = get_cart_summary(request)
-        wishlist_products = get_wishlist_products(request)
-        compare_products = get_compare_products(request)
-        recently_viewed = get_recently_viewed_products(request)
+        cart_summary = {"item_count": 0, "items": [], "subtotal": 0, "total": 0}
+        try:
+            cart_summary = get_cart_summary(request)
+        except Exception:
+            pass
+
+        wishlist_products = []
+        try:
+            wishlist_products = get_wishlist_products(request)
+        except Exception:
+            pass
+
+        compare_products = []
+        try:
+            compare_products = get_compare_products(request)
+        except Exception:
+            pass
+
+        recently_viewed = []
+        try:
+            recently_viewed = get_recently_viewed_products(request)
+        except Exception:
+            pass
 
         context["shop"] = get_shop_context(request)
         context["site_settings"] = site_settings
@@ -75,13 +98,13 @@ def global_storefront_context(request):
         context["account_navigation"] = get_account_navigation(request)
         context["social_platforms"] = get_social_platforms(request)
         context["cart_summary"] = cart_summary
-        context["cart_item_count"] = cart_summary["item_count"]
+        context["cart_item_count"] = cart_summary.get("item_count", 0)
         context["wishlist_count"] = len(wishlist_products)
         context["compare_count"] = len(compare_products)
         context["recently_viewed_count"] = len(recently_viewed)
         context["is_maintenance_mode"] = getattr(site_settings, "maintenance_mode", False) if site_settings else False
         context["current_currency"] = getattr(site_settings, "currency", "USD") if site_settings else "USD"
-        context["current_region"] = request.session.get("region_preference", "NG")
+        context["current_region"] = getattr(request, "session", {}).get("region_preference", "NG") if hasattr(request, "session") else "NG"
         context["active_flash_sale"] = get_active_flash_sale(request)
         context["active_discount_campaigns"] = get_active_discount_campaigns(request)
         context["featured_brands"] = get_featured_brands(request)
@@ -92,3 +115,4 @@ def global_storefront_context(request):
         logger.error("Error in global_storefront_context: %s", exc, exc_info=True)
 
     return context
+
