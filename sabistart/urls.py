@@ -30,9 +30,10 @@ urlpatterns = [
     path('api/v1/tenants/migration-callback/', tenant_migration_webhook_callback, name='tenant_migration_callback'),
     path('api/v1/worker/migrate/', worker_migrate_endpoint, name='worker_migrate_endpoint'),
     path('account/auth/sso/', tenant_sso_login, name='tenant_sso_login'),
-    path('', include('public.storefront.urls')),
     path('dashboard/', include('dashboard.urls')),
+    path('', include('public.storefront.urls')),
 ]
+
 
 using_vercel_blob_media = (
     settings.STORAGES.get('default', {}).get('BACKEND')

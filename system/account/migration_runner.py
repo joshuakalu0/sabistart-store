@@ -596,6 +596,7 @@ def _seed_tenant_defaults(schema_name: str) -> None:
     out-of-the-box without any manual configuration step.
 
     Covers:
+    0. Pending migrations — applies any missing tenant migrations (e.g. feature_marketplace).
     1. Default theme — acquires, installs, and activates the built-in default
        theme so the storefront renders immediately.
     2. Singleton settings — creates StoreSettings, HeaderSettings,
@@ -607,6 +608,17 @@ def _seed_tenant_defaults(schema_name: str) -> None:
 
     logger.info("[Seed] Seeding tenant defaults for schema '%s'.", schema_name)
 
+    # ── 0. Ensure any missing tenant migrations are applied ──────────────────
+    try:
+        from system.account.schema_inspector import get_tenant_migration_status
+        status = get_tenant_migration_status(schema_name, use_cache=False)
+        if not status.get("is_ready"):
+            pending_count = len(status.get("pending_migrations", []))
+            logger.info("[Seed] Applying %d pending migrations for '%s'...", pending_count, schema_name)
+            run_chunked_tenant_migrations(schema_name, chunk_size=10)
+    except Exception as exc:
+        logger.warning("[Seed] Pending migration check failed for '%s': %s", schema_name, exc)
+
     # ── 1. Default theme ─────────────────────────────────────────────────────
     try:
         from system.theme_marketplace.services import (
@@ -614,6 +626,7 @@ def _seed_tenant_defaults(schema_name: str) -> None:
             sync_theme_catalog,
             get_default_theme,
         )
+
         # Ensure the default theme record exists in the public catalogue.
         if get_default_theme() is None:
             sync_theme_catalog(actor=None, bootstrap_access=False)

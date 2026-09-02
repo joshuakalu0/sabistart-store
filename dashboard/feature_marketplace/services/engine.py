@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from functools import wraps
 
@@ -13,6 +14,9 @@ from django.utils import timezone
 from dashboard.feature_marketplace.integration_registry import RESOURCE_COUNTERS
 from dashboard.feature_marketplace.models import ResourceQuota, TenantEntitlement, UsageRecord
 from system.feature_marketplace.models import FeatureDefinition, FeatureType, TenantFeatureOverride
+
+logger = logging.getLogger(__name__)
+
 
 
 FEATURE_CACHE_TTL = 300
@@ -71,8 +75,9 @@ class FeatureEntitlementEngine:
     def _feature(self, feature_code: str) -> FeatureDefinition | None:
         try:
             return FeatureDefinition.objects.get(code=feature_code, is_active=True)
-        except FeatureDefinition.DoesNotExist:
+        except Exception:
             return None
+
 
     def _global_override(self, feature_code: str):
         key = self._key("global", feature_code)
@@ -100,17 +105,21 @@ class FeatureEntitlementEngine:
         if cached is not None:
             return cached
         now = timezone.now()
-        override = (
-            TenantFeatureOverride.objects.filter(
-                schema_name=self.schema_name,
-                feature__code=feature_code,
-                is_active=True,
+        try:
+            override = (
+                TenantFeatureOverride.objects.filter(
+                    schema_name=self.schema_name,
+                    feature__code=feature_code,
+                    is_active=True,
+                )
+                .filter(Q(effective_from__isnull=True) | Q(effective_from__lte=now))
+                .filter(Q(effective_until__isnull=True) | Q(effective_until__gte=now))
+                .order_by("-created_at")
+                .first()
             )
-            .filter(Q(effective_from__isnull=True) | Q(effective_from__lte=now))
-            .filter(Q(effective_until__isnull=True) | Q(effective_until__gte=now))
-            .order_by("-created_at")
-            .first()
-        )
+        except Exception as exc:
+            logger.debug("[FeatureEngine] Error querying TenantFeatureOverride for %s: %s", feature_code, exc)
+            override = None
         cache.set(key, override, FEATURE_CACHE_TTL)
         return override
 
@@ -141,12 +150,16 @@ class FeatureEntitlementEngine:
         if cached is not None:
             return cached
         now = timezone.now()
-        value = TenantEntitlement.objects.filter(
-            feature_code=feature_code,
-            feature_type=FeatureType.BOOLEAN,
-            status=TenantEntitlement.Status.ACTIVE,
-            boolean_value=True,
-        ).filter(Q(expires_at__isnull=True) | Q(expires_at__gt=now)).exists()
+        try:
+            value = TenantEntitlement.objects.filter(
+                feature_code=feature_code,
+                feature_type=FeatureType.BOOLEAN,
+                status=TenantEntitlement.Status.ACTIVE,
+                boolean_value=True,
+            ).filter(Q(expires_at__isnull=True) | Q(expires_at__gt=now)).exists()
+        except Exception as exc:
+            logger.debug("[FeatureEngine] Error checking boolean entitlement for %s: %s", feature_code, exc)
+            value = False
         if not value:
             value = feature.default_boolean_value
         cache.set(key, value, FEATURE_CACHE_TTL)
@@ -167,11 +180,15 @@ class FeatureEntitlementEngine:
         if cached is not None:
             return cached
         now = timezone.now()
-        total = TenantEntitlement.objects.filter(
-            feature_code=feature_code,
-            feature_type=FeatureType.LIMIT,
-            status=TenantEntitlement.Status.ACTIVE,
-        ).filter(Q(expires_at__isnull=True) | Q(expires_at__gt=now)).aggregate(total=Sum("limit_value"))["total"] or 0
+        try:
+            total = TenantEntitlement.objects.filter(
+                feature_code=feature_code,
+                feature_type=FeatureType.LIMIT,
+                status=TenantEntitlement.Status.ACTIVE,
+            ).filter(Q(expires_at__isnull=True) | Q(expires_at__gt=now)).aggregate(total=Sum("limit_value"))["total"] or 0
+        except Exception as exc:
+            logger.debug("[FeatureEngine] Error querying limit entitlement for %s: %s", feature_code, exc)
+            total = 0
         total += feature.default_limit_value
         cache.set(key, total, QUOTA_CACHE_TTL)
         return int(total)
@@ -191,15 +208,22 @@ class FeatureEntitlementEngine:
         if cached is not None:
             return cached
         now = timezone.now()
-        totals = TenantEntitlement.objects.filter(
-            feature_code=feature_code,
-            feature_type=FeatureType.USAGE,
-            status=TenantEntitlement.Status.ACTIVE,
-        ).filter(Q(expires_at__isnull=True) | Q(expires_at__gt=now)).aggregate(
-            granted=Sum("quantity_granted"),
-            used=Sum("quantity_used"),
-        )
-        remaining = feature.default_usage_value + max(0, (totals["granted"] or 0) - (totals["used"] or 0))
+        try:
+            totals = TenantEntitlement.objects.filter(
+                feature_code=feature_code,
+                feature_type=FeatureType.USAGE,
+                status=TenantEntitlement.Status.ACTIVE,
+            ).filter(Q(expires_at__isnull=True) | Q(expires_at__gt=now)).aggregate(
+                granted=Sum("quantity_granted"),
+                used=Sum("quantity_used"),
+            )
+            granted_val = totals["granted"] or 0
+            used_val = totals["used"] or 0
+        except Exception as exc:
+            logger.debug("[FeatureEngine] Error querying usage entitlement for %s: %s", feature_code, exc)
+            granted_val = 0
+            used_val = 0
+        remaining = feature.default_usage_value + max(0, granted_val - used_val)
         cache.set(key, remaining, QUOTA_CACHE_TTL)
         return int(remaining)
 
@@ -207,23 +231,33 @@ class FeatureEntitlementEngine:
         feature = self._feature(feature_code)
         if feature is None:
             return FeatureAccessSnapshot(feature_code=feature_code, feature_type="", active=False)
-        if feature.feature_type == FeatureType.LIMIT:
-            total = self.get_feature_limit(feature_code)
-            quota = ResourceQuota.objects.filter(resource_type=feature_code).first()
-            used = quota.used_quota if quota else 0
-            return FeatureAccessSnapshot(feature_code, feature.feature_type, total > 0, total, used, max(0, total - used))
-        if feature.feature_type == FeatureType.USAGE:
-            remaining = self.get_usage_remaining(feature_code)
-            return FeatureAccessSnapshot(feature_code, feature.feature_type, remaining > 0, remaining=remaining)
-        return FeatureAccessSnapshot(feature_code, feature.feature_type, self.has_feature(feature_code))
+        try:
+            if feature.feature_type == FeatureType.LIMIT:
+                total = self.get_feature_limit(feature_code)
+                try:
+                    quota = ResourceQuota.objects.filter(resource_type=feature_code).first()
+                    used = quota.used_quota if quota else 0
+                except Exception:
+                    used = 0
+                return FeatureAccessSnapshot(feature_code, feature.feature_type, total > 0, total, used, max(0, total - used))
+            if feature.feature_type == FeatureType.USAGE:
+                remaining = self.get_usage_remaining(feature_code)
+                return FeatureAccessSnapshot(feature_code, feature.feature_type, remaining > 0, remaining=remaining)
+            return FeatureAccessSnapshot(feature_code, feature.feature_type, self.has_feature(feature_code))
+        except Exception as exc:
+            logger.debug("[FeatureEngine] Error in get_usage_snapshot for %s: %s", feature_code, exc)
+            return FeatureAccessSnapshot(feature_code=feature_code, feature_type=getattr(feature, "feature_type", ""), active=True)
 
     def get_all_entitlements(self) -> dict[str, FeatureAccessSnapshot]:
         cached = cache.get(self._key("all"))
         if cached is not None:
             return cached
         payload = {}
-        for feature in FeatureDefinition.objects.filter(is_active=True).order_by("display_order", "name"):
-            payload[feature.code] = self.get_usage_snapshot(feature.code)
+        try:
+            for feature in FeatureDefinition.objects.filter(is_active=True).order_by("display_order", "name"):
+                payload[feature.code] = self.get_usage_snapshot(feature.code)
+        except Exception as exc:
+            logger.warning("[FeatureEngine] Error loading all feature definitions: %s", exc)
         cache.set(self._key("all"), payload, FEATURE_CACHE_TTL)
         return payload
 
@@ -231,16 +265,24 @@ class FeatureEntitlementEngine:
         total_quota = self.get_feature_limit(feature_code)
         counter = RESOURCE_COUNTERS.get(feature_code)
         used_quota = counter() if counter else 0
-        quota, _ = ResourceQuota.objects.update_or_create(
-            resource_type=feature_code,
-            defaults={"total_quota": total_quota, "used_quota": used_quota},
-        )
+        try:
+            quota, _ = ResourceQuota.objects.update_or_create(
+                resource_type=feature_code,
+                defaults={"total_quota": total_quota, "used_quota": used_quota},
+            )
+        except Exception as exc:
+            logger.warning("[FeatureEngine] Error updating ResourceQuota for %s: %s", feature_code, exc)
+            quota = ResourceQuota(resource_type=feature_code, total_quota=total_quota, used_quota=used_quota)
         self.invalidate_cache(feature_code)
         return quota
 
     def rebuild_all_quotas(self):
         for feature_code in RESOURCE_COUNTERS:
-            self.rebuild_quota(feature_code)
+            try:
+                self.rebuild_quota(feature_code)
+            except Exception:
+                pass
+
 
     @transaction.atomic
     def consume_feature_usage(self, feature_code: str, amount: int = 1, description: str = "", metadata: dict | None = None) -> bool:

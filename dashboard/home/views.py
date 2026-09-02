@@ -14,22 +14,44 @@ def dashboard_home(request, prefix):
     """Dashboard home page - requires valid prefix."""
     try:
         settings_obj = StoreSettings.objects.get_settings()
+        store_name = settings_obj.store_name if settings_obj else f"Store - {prefix}"
     except (ProgrammingError, OperationalError):
-        # Tenant schema migrations haven't completed yet — redirect to provisioning
-        return redirect(f"/platform/register/provisioning/?schema={prefix}&next=/dashboard/{prefix}/")
+        store_name = f"Store - {prefix}"
+    except Exception:
+        store_name = f"Store - {prefix}"
 
     engine = FeatureEntitlementEngine()
-    analytics_window = parse_analytics_window({"period": "30d"})
-    overview_bundle = build_overview_bundle(analytics_window)
+    try:
+        analytics_window = parse_analytics_window({"period": "30d"})
+        overview_bundle = build_overview_bundle(analytics_window)
+    except Exception:
+        overview_bundle = {}
+
+    try:
+        feature_access_map = engine.get_all_entitlements()
+    except Exception:
+        feature_access_map = {}
+
+    try:
+        bundle_json = bundle_to_json(overview_bundle)
+    except Exception:
+        bundle_json = "{}"
+
+    try:
+        sidebar = main_sidebar(prefix, 'dashboard')
+    except Exception:
+        sidebar = []
+
     context = {
         'prefix': prefix,
         'page_title': 'Dashboard',
         'active_menu': 'dashboard',
-        'sidebar': main_sidebar(prefix, 'dashboard'),
-        'store_name': settings_obj.store_name,
-        'feature_access_map': engine.get_all_entitlements(),
+        'sidebar': sidebar,
+        'store_name': store_name,
+        'feature_access_map': feature_access_map,
         'overview_bundle': overview_bundle,
-        'overview_bundle_json': bundle_to_json(overview_bundle),
+        'overview_bundle_json': bundle_json,
     }
     return render(request, 'dashboard/home/index.html', context)
+
 

@@ -79,32 +79,27 @@ STAGE_APP_MAPPINGS = [
 ]
 
 
+def _resolve_app_label(app_entry: str) -> str:
+    """Resolve an app string from SHARED_APPS or TENANT_APPS to its registered AppConfig label."""
+    for cfg in apps.get_app_configs():
+        if cfg.name == app_entry or f"{cfg.__module__}.{cfg.__class__.__name__}" == app_entry or cfg.label == app_entry:
+            return cfg.label
+    return app_entry.split(".")[-1]
+
+
 def get_tenant_app_labels() -> Set[str]:
     """
     Returns the set of Django app labels belonging exclusively to TENANT_APPS
     (excluding any app configured in SHARED_APPS).
     """
-    shared_labels: Set[str] = set()
-    for app_path in getattr(settings, "SHARED_APPS", []):
-        try:
-            app_name = app_path.split(".")[-1] if "." in app_path and not app_path.endswith("Config") else (app_path.split(".")[-3] if "apps." in app_path else app_path)
-            cfg = apps.get_app_config(app_name)
-            shared_labels.add(cfg.label)
-        except Exception:
-            shared_labels.add(app_path.split(".")[-1])
-
-    tenant_labels: Set[str] = set()
-    for app_path in getattr(settings, "TENANT_APPS", []):
-        try:
-            app_name = app_path.split(".")[-1] if "." in app_path and not app_path.endswith("Config") else (app_path.split(".")[-3] if "apps." in app_path else app_path)
-            cfg = apps.get_app_config(app_name)
-            if cfg.label not in shared_labels:
-                tenant_labels.add(cfg.label)
-        except Exception:
-            lbl = app_path.split(".")[-1]
-            if lbl not in shared_labels:
-                tenant_labels.add(lbl)
+    shared_labels = {_resolve_app_label(entry) for entry in getattr(settings, "SHARED_APPS", [])}
+    tenant_labels = {
+        _resolve_app_label(entry)
+        for entry in getattr(settings, "TENANT_APPS", [])
+        if _resolve_app_label(entry) not in shared_labels
+    }
     return tenant_labels
+
 
 
 def get_disk_tenant_migrations() -> List[Tuple[str, str]]:

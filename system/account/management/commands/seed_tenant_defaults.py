@@ -79,6 +79,7 @@ class Command(BaseCommand):
         )
 
         from system.theme_marketplace.services import has_active_theme_for_schema
+        from system.account.schema_inspector import get_tenant_migration_status
 
         seeded = 0
         skipped = 0
@@ -87,20 +88,22 @@ class Command(BaseCommand):
         for shop in shops:
             schema_name = shop.schema_name
             already_active = has_active_theme_for_schema(schema_name)
+            status = get_tenant_migration_status(schema_name, use_cache=False)
+            has_pending_migrations = not status.get("is_ready", False)
 
-            if already_active and not force:
+            if already_active and not has_pending_migrations and not force:
                 self.stdout.write(
-                    f"  ↳ {schema_name}: theme already active — skipping "
+                    f"  ↳ {schema_name}: theme active and migrations up-to-date — skipping "
                     f"(use --force to re-seed)."
                 )
                 skipped += 1
                 continue
 
-            self.stdout.write(f"  ↳ {schema_name}: seeding defaults...")
+            self.stdout.write(f"  ↳ {schema_name}: applying migrations & seeding defaults...")
 
             if dry_run:
                 self.stdout.write(
-                    self.style.SUCCESS(f"    [DRY-RUN] Would seed theme + settings.")
+                    self.style.SUCCESS(f"    [DRY-RUN] Would apply migrations + seed theme + settings.")
                 )
                 seeded += 1
                 continue
@@ -113,6 +116,7 @@ class Command(BaseCommand):
             except Exception as exc:
                 self.stdout.write(self.style.ERROR(f"    ✗ Failed: {exc}"))
                 failed += 1
+
 
         self.stdout.write("")
         self.stdout.write(
