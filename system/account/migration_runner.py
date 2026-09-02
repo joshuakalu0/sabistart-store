@@ -197,6 +197,54 @@ def _stage_info_for_app(app_label: str) -> Dict[str, Any]:
     }
 
 
+def _heal_tenant_migration_dependencies(schema_name: str) -> None:
+    """
+    Ensures that for every migration recorded in the tenant's django_migrations,
+    all of its prerequisite parent migrations are also recorded in django_migrations.
+    This heals broken migration states where child migrations were applied/faked
+    before their parent migrations were recorded.
+    """
+    from django.db.migrations.loader import MigrationLoader
+    from django.db.migrations.recorder import MigrationRecorder
+    from system.account.schema_inspector import get_tenant_app_labels
+
+    _set_schema(schema_name)
+    recorder = MigrationRecorder(connection)
+    try:
+        applied = recorder.applied_migrations()
+    except Exception:
+        return
+
+    if not applied:
+        return
+
+    try:
+        loader = MigrationLoader(connection, ignore_no_migrations=True)
+        loader.load_disk()
+        tenant_labels = get_tenant_app_labels()
+
+        to_record = []
+        for app_label, migration_name in list(applied):
+            if (app_label, migration_name) in loader.disk_migrations:
+                try:
+                    for parent in loader.graph.forwards_plan((app_label, migration_name)):
+                        if parent[0] in tenant_labels and parent not in applied and parent not in to_record:
+                            to_record.append(parent)
+                except Exception:
+                    pass
+
+        if to_record:
+            logger.info("[ChunkedRunner][%s] Healing %d missing prerequisite migration records...", schema_name, len(to_record))
+            for app_label, migration_name in to_record:
+                try:
+                    recorder.record_applied(app_label, migration_name)
+                    logger.info("[ChunkedRunner][%s] ✓ Healed parent migration record %s.%s", schema_name, app_label, migration_name)
+                except Exception as exc:
+                    logger.warning("[ChunkedRunner][%s] Could not record healed migration %s.%s: %s", schema_name, app_label, migration_name, exc)
+    except Exception as exc:
+        logger.debug("[ChunkedRunner][%s] Dependency healing error (ignored): %s", schema_name, exc)
+
+
 # -----------------------------------------------------------------------------
 # Core chunk executor
 # -----------------------------------------------------------------------------
@@ -210,9 +258,11 @@ def _apply_chunk(schema_name: str, migrations: List[Tuple[str, str]]) -> None:
     """
     from django.db.migrations.executor import MigrationExecutor
 
+    _heal_tenant_migration_dependencies(schema_name)
     _set_schema(schema_name)
     executor = MigrationExecutor(connection)
     executor.loader.build_graph()
+
 
     for app_label, migration_name in migrations:
         if (app_label, migration_name) not in executor.loader.disk_migrations:
@@ -298,8 +348,10 @@ def run_chunked_tenant_migrations(
     }
 
     _ensure_schema_exists(schema_name)
+    _heal_tenant_migration_dependencies(schema_name)
 
     chunks = plan_micro_chunks(schema_name, max_chunk_size=max(1, int(chunk_size)))
+
     if not chunks:
         result["completed"] = True
         result["stopped_reason"] = "already_up_to_date"

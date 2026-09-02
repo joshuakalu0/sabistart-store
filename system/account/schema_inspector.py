@@ -105,7 +105,7 @@ def get_tenant_app_labels() -> Set[str]:
 def get_disk_tenant_migrations() -> List[Tuple[str, str]]:
     """
     Returns all migrations defined on disk for tenant apps, ordered topologically
-    by dependency-safe stage priority. Does not require an active database connection.
+    by the true Django migration dependency graph. Does not require an active database connection.
     """
     from django.db.migrations.loader import MigrationLoader
 
@@ -113,17 +113,25 @@ def get_disk_tenant_migrations() -> List[Tuple[str, str]]:
     loader.load_disk()
 
     tenant_labels = get_tenant_app_labels()
-    tenant_migrations = [key for key in loader.disk_migrations.keys() if key[0] in tenant_labels]
+    tenant_leaves = [k for k in loader.graph.leaf_nodes() if k[0] in tenant_labels]
 
-    # Compute dependency priority mapping based on STAGE_APP_MAPPINGS
-    app_priority: Dict[str, int] = {}
-    priority_counter = 0
-    for stage_info in STAGE_APP_MAPPINGS:
-        for app in stage_info["apps"]:
-            app_priority[app] = priority_counter
-            priority_counter += 1
+    ordered_plan: List[Tuple[str, str]] = []
+    seen: Set[Tuple[str, str]] = set()
 
-    return sorted(tenant_migrations, key=lambda m: (app_priority.get(m[0], 999), m[0], m[1]))
+    for leaf in tenant_leaves:
+        for target in loader.graph.forwards_plan(leaf):
+            if target[0] in tenant_labels and target not in seen:
+                seen.add(target)
+                ordered_plan.append(target)
+
+    # In case any orphaned migration was not reachable from leaf nodes:
+    for key in loader.disk_migrations.keys():
+        if key[0] in tenant_labels and key not in seen:
+            seen.add(key)
+            ordered_plan.append(key)
+
+    return ordered_plan
+
 
 
 def get_applied_tenant_migrations(schema_name: str) -> Set[Tuple[str, str]]:
