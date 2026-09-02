@@ -1,10 +1,18 @@
 from django.urls import path, include
+from django.shortcuts import redirect
+
+
+def dashboard_root_redirect(request):
+    return redirect('/dashboard/admin/')
+
 
 app_name = 'dashboard'
 
 urlpatterns = [
+    path('', dashboard_root_redirect, name='root'),
     # Dynamic prefix pattern - validates against database
     path('<prefix>/', include([
+
         path('', include('dashboard.home.urls'), ),
         path('products/', include('dashboard.product_settings.urls')),
         # path('settings/', include('dashboard.settings.urls')),

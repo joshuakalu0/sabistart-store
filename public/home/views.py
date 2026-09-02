@@ -145,11 +145,16 @@ def custom_404_view(request, exception=None):
 
 
 def custom_500_view(request):
-    return render_info_page(
-        request,
-        title="Server Error",
-        body="The storefront hit an unexpected error while loading this page.",
-        status=500,
-        extra_context={"breadcrumbs": build_breadcrumbs(
-            ("Home", "/"), ("Server Error", ""))},
-    )
+    try:
+        return render_info_page(
+            request,
+            title="Server Error",
+            body="The storefront hit an unexpected error while loading this page.",
+            status=500,
+            extra_context={"breadcrumbs": build_breadcrumbs(
+                ("Home", "/"), ("Server Error", ""))},
+        )
+    except Exception:
+        from django.http import HttpResponse
+        return HttpResponse("<h1>500 - Server Error</h1><p>An unexpected error occurred. Please try again later.</p>", status=500)
+

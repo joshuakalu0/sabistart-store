@@ -6,8 +6,9 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('product', '0002_initial'),
+        ('product', '0002_5_repair_missing_product_variant_columns'),
     ]
+
 
     operations = [
         migrations.AddField(

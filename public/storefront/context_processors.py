@@ -35,14 +35,14 @@ logger = logging.getLogger(__name__)
 
 def _should_skip_storefront_context(request) -> bool:
     """
-    Storefront context is tenant-only. Public-schema platform/admin requests do
-    not have tenant storefront tables and should not attempt to load them.
+    Storefront context is tenant-only. Public-schema platform/admin requests and
+    internal dashboard routes do not need storefront cart/catalog tables.
     """
     if getattr(connection, "schema_name", None) == "public":
         return True
 
     path = getattr(request, "path_info", "") or getattr(request, "path", "") or ""
-    return path.startswith(("/platform/", "/admin/", "/__monitoring/"))
+    return path.startswith(("/platform/", "/admin/", "/__monitoring/", "/dashboard/", "/account/auth/"))
 
 
 def global_storefront_context(request):
@@ -57,6 +57,7 @@ def global_storefront_context(request):
 
     try:
         site_settings = get_store_settings_cached(request)
+
         cart_summary = get_cart_summary(request)
         wishlist_products = get_wishlist_products(request)
         compare_products = get_compare_products(request)
