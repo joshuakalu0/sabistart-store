@@ -360,10 +360,19 @@ class Command(BaseCommand):
             shop.refresh_from_db()
             if shop.provisioning_status == Shop.ProvisioningStatus.READY:
                 clear_failure_cooldown(schema_name)
+                # Seed theme + settings even when the subprocess finalised the shop.
+                try:
+                    from system.account.migration_runner import _seed_tenant_defaults
+                    _seed_tenant_defaults(schema_name)
+                except Exception as seed_exc:
+                    self.stdout.write(self.style.WARNING(
+                        f"[CronProvision] [{schema_name}] Seeding defaults failed (non-fatal): {seed_exc}"
+                    ))
                 self.stdout.write(self.style.SUCCESS(
                     f"[CronProvision] [{schema_name}] Finalised -- status is READY."
                 ))
                 return True
+
 
             # 2) In-process fallback: run the cheap finalisation step if needed.
             from system.account.migration_runner import (

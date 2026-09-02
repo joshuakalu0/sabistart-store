@@ -546,8 +546,18 @@ def advance_tenant_provisioning(
                 except Exception as admin_err:
                     logger.warning("[ChunkedRunner] Could not provision tenant admin user for '%s': %s", schema_name, admin_err)
 
+            # ── Seed default theme + singleton settings ───────────────────────
+            try:
+                _seed_tenant_defaults(schema_name)
+            except Exception as seed_exc:
+                logger.warning(
+                    "[ChunkedRunner] Tenant defaults seeding failed for '%s' (non-fatal): %s",
+                    schema_name, seed_exc,
+                )
+
             _finalize_ready(shop)
             invalidate_tenant_ready_cache(schema_name)
+
 
             if session:
                 try:
@@ -577,6 +587,206 @@ def advance_tenant_provisioning(
     finally:
         release_migration_lock(schema_name)
         _release_connection()
+
+
+def _seed_tenant_defaults(schema_name: str) -> None:
+    """
+    Run once after all tenant migrations complete to ensure the tenant schema
+    has every required default record so the storefront and dashboard work
+    out-of-the-box without any manual configuration step.
+
+    Covers:
+    1. Default theme — acquires, installs, and activates the built-in default
+       theme so the storefront renders immediately.
+    2. Singleton settings — creates StoreSettings, HeaderSettings,
+       FooterSettings, HomepageLayout, ProductDisplaySettings,
+       CheckoutSettings, SearchSettings, SocialMediaLinks, and the rest of
+       the singleton setting rows if they are missing.
+    """
+    from django_tenants.utils import schema_context
+
+    logger.info("[Seed] Seeding tenant defaults for schema '%s'.", schema_name)
+
+    # ── 1. Default theme ─────────────────────────────────────────────────────
+    try:
+        from system.theme_marketplace.services import (
+            bootstrap_default_theme_for_schemas,
+            sync_theme_catalog,
+            get_default_theme,
+        )
+        # Ensure the default theme record exists in the public catalogue.
+        if get_default_theme() is None:
+            sync_theme_catalog(actor=None, bootstrap_access=False)
+
+        result = bootstrap_default_theme_for_schemas([schema_name])
+        logger.info(
+            "[Seed] Theme bootstrap for '%s': activated=%d, already_active=%d, failed=%d",
+            schema_name,
+            result.get("activated", 0),
+            result.get("already_active", 0),
+            result.get("failed", 0),
+        )
+    except Exception as exc:
+        logger.warning("[Seed] Could not bootstrap default theme for '%s': %s", schema_name, exc)
+
+    # ── 2. Singleton settings ─────────────────────────────────────────────────
+    try:
+        with schema_context(schema_name):
+            _create_singleton_settings(schema_name)
+    except Exception as exc:
+        logger.warning("[Seed] Could not seed singleton settings for '%s': %s", schema_name, exc)
+
+
+def _create_singleton_settings(schema_name: str) -> None:
+    """Create all singleton settings records inside the active tenant schema context."""
+    try:
+        from dashboard.store_settings.models.store_settings import StoreSettings
+        if not StoreSettings.objects.exists():
+            StoreSettings.objects.create(
+                store_name=f"Store - {schema_name}",
+                contact_email="contact@example.com",
+            )
+            logger.info("[Seed] ✓ Created StoreSettings for '%s'", schema_name)
+    except Exception as exc:
+        logger.warning("[Seed] StoreSettings: %s", exc)
+
+    try:
+        from dashboard.store_settings.models.theme_settings import ThemeSettings
+        if not ThemeSettings.objects.exists():
+            ThemeSettings.objects.create(theme_name="Default Theme", is_active=True)
+            logger.info("[Seed] ✓ Created ThemeSettings for '%s'", schema_name)
+    except Exception as exc:
+        logger.warning("[Seed] ThemeSettings: %s", exc)
+
+    try:
+        from dashboard.store_settings.models.header_settings import HeaderSettings
+        if not HeaderSettings.objects.exists():
+            HeaderSettings.objects.create()
+            logger.info("[Seed] ✓ Created HeaderSettings for '%s'", schema_name)
+    except Exception as exc:
+        logger.warning("[Seed] HeaderSettings: %s", exc)
+
+    try:
+        from dashboard.store_settings.models.footer_settings import FooterSettings
+        if not FooterSettings.objects.exists():
+            FooterSettings.objects.create()
+            logger.info("[Seed] ✓ Created FooterSettings for '%s'", schema_name)
+    except Exception as exc:
+        logger.warning("[Seed] FooterSettings: %s", exc)
+
+    try:
+        from dashboard.store_settings.models.homepage_layout import HomepageLayout
+        if not HomepageLayout.objects.exists():
+            HomepageLayout.objects.create()
+            logger.info("[Seed] ✓ Created HomepageLayout for '%s'", schema_name)
+    except Exception as exc:
+        logger.warning("[Seed] HomepageLayout: %s", exc)
+
+    try:
+        from dashboard.store_settings.models.product_display_settings import ProductDisplaySettings
+        if not ProductDisplaySettings.objects.exists():
+            ProductDisplaySettings.objects.create()
+            logger.info("[Seed] ✓ Created ProductDisplaySettings for '%s'", schema_name)
+    except Exception as exc:
+        logger.warning("[Seed] ProductDisplaySettings: %s", exc)
+
+    try:
+        from dashboard.store_settings.models.product_page_settings import ProductPageSettings
+        if not ProductPageSettings.objects.exists():
+            ProductPageSettings.objects.create()
+            logger.info("[Seed] ✓ Created ProductPageSettings for '%s'", schema_name)
+    except Exception as exc:
+        logger.warning("[Seed] ProductPageSettings: %s", exc)
+
+    try:
+        from dashboard.store_settings.models.cart_settings import CartSettings
+        if not CartSettings.objects.exists():
+            CartSettings.objects.create()
+            logger.info("[Seed] ✓ Created CartSettings for '%s'", schema_name)
+    except Exception as exc:
+        logger.warning("[Seed] CartSettings: %s", exc)
+
+    try:
+        from dashboard.store_settings.models.checkout_settings import CheckoutSettings
+        if not CheckoutSettings.objects.exists():
+            CheckoutSettings.objects.create()
+            logger.info("[Seed] ✓ Created CheckoutSettings for '%s'", schema_name)
+    except Exception as exc:
+        logger.warning("[Seed] CheckoutSettings: %s", exc)
+
+    try:
+        from dashboard.store_settings.models.search_settings import SearchSettings
+        if not SearchSettings.objects.exists():
+            SearchSettings.objects.create()
+            logger.info("[Seed] ✓ Created SearchSettings for '%s'", schema_name)
+    except Exception as exc:
+        logger.warning("[Seed] SearchSettings: %s", exc)
+
+    try:
+        from dashboard.store_settings.models.email_template_settings import EmailTemplateSettings
+        if not EmailTemplateSettings.objects.exists():
+            EmailTemplateSettings.objects.create()
+            logger.info("[Seed] ✓ Created EmailTemplateSettings for '%s'", schema_name)
+    except Exception as exc:
+        logger.warning("[Seed] EmailTemplateSettings: %s", exc)
+
+    try:
+        from dashboard.store_settings.models.social_media_links import SocialMediaLinks
+        if not SocialMediaLinks.objects.exists():
+            SocialMediaLinks.objects.create()
+            logger.info("[Seed] ✓ Created SocialMediaLinks for '%s'", schema_name)
+    except Exception as exc:
+        logger.warning("[Seed] SocialMediaLinks: %s", exc)
+
+    try:
+        from dashboard.store_settings.models.notification_settings import NotificationSettings
+        if not NotificationSettings.objects.exists():
+            NotificationSettings.objects.create()
+            logger.info("[Seed] ✓ Created NotificationSettings for '%s'", schema_name)
+    except Exception as exc:
+        logger.warning("[Seed] NotificationSettings: %s", exc)
+
+    try:
+        from dashboard.store_settings.models.mobile_app_settings import MobileAppSettings
+        if not MobileAppSettings.objects.exists():
+            MobileAppSettings.objects.create(app_name=f"Store App - {schema_name}")
+            logger.info("[Seed] ✓ Created MobileAppSettings for '%s'", schema_name)
+    except Exception as exc:
+        logger.warning("[Seed] MobileAppSettings: %s", exc)
+
+    try:
+        from dashboard.store_settings.models.blog_settings import BlogSettings
+        if not BlogSettings.objects.exists():
+            BlogSettings.objects.create()
+            logger.info("[Seed] ✓ Created BlogSettings for '%s'", schema_name)
+    except Exception as exc:
+        logger.warning("[Seed] BlogSettings: %s", exc)
+
+    try:
+        from dashboard.store_settings.models.popup_settings import PopupSettings
+        if not PopupSettings.objects.exists():
+            PopupSettings.objects.create()
+            logger.info("[Seed] ✓ Created PopupSettings for '%s'", schema_name)
+    except Exception as exc:
+        logger.warning("[Seed] PopupSettings: %s", exc)
+
+    try:
+        from dashboard.store_settings.models.performance_settings import PerformanceSettings
+        if not PerformanceSettings.objects.exists():
+            PerformanceSettings.objects.create()
+            logger.info("[Seed] ✓ Created PerformanceSettings for '%s'", schema_name)
+    except Exception as exc:
+        logger.warning("[Seed] PerformanceSettings: %s", exc)
+
+    try:
+        from dashboard.store_settings.models.navigation import NavigationMenu
+        if not NavigationMenu.objects.filter(location="header").exists():
+            NavigationMenu.objects.create(name="Main Menu", location="header", is_active=True)
+            logger.info("[Seed] ✓ Created default navigation menu for '%s'", schema_name)
+    except Exception as exc:
+        logger.warning("[Seed] NavigationMenu: %s", exc)
+
+    logger.info("[Seed] ✅ Singleton settings seeding complete for '%s'.", schema_name)
 
 
 def _finalize_ready(shop) -> None:
