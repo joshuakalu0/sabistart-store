@@ -429,35 +429,44 @@ def get_top_categories(request, limit: int = 8):
     if cached is not None:
         return cached
 
-    categories = list(
-        Category.objects.filter(
-            is_active=True,
-            is_visible=True,
-            parent__isnull=True,
+    try:
+        categories = list(
+            Category.objects.filter(
+                is_active=True,
+                is_visible=True,
+                parent__isnull=True,
+            )
+            .order_by("-featured", "menu_order", "display_order", "name")[:limit]
         )
-        .order_by("-featured", "menu_order", "display_order", "name")[:limit]
-    )
-    cache.set(cache_key, categories, 300)
-    return categories
+        cache.set(cache_key, categories, 300)
+        return categories
+    except Exception as exc:
+        logger.warning("Unable to load top categories: %s", exc)
+        return []
 
 
 def _serialize_category_node(category: Category) -> dict[str, Any]:
-    return {
-        "id": str(category.id),
-        "name": category.name,
-        "slug": category.slug,
-        "url": safe_reverse("category:category_detail", category_slug=category.slug),
-        "description": category.description,
-        "icon": category.icon,
-        "image_url": category.image.url if category.image else "",
-        "children": [
+    try:
+        children = [
             _serialize_category_node(child)
             for child in category.children.filter(
                 is_active=True,
                 is_visible=True,
                 show_in_menu=True,
             ).order_by("menu_order", "display_order", "name")
-        ],
+        ]
+    except Exception:
+        children = []
+
+    return {
+        "id": str(category.id),
+        "name": getattr(category, "name", ""),
+        "slug": getattr(category, "slug", ""),
+        "url": safe_reverse("category:category_detail", category_slug=getattr(category, "slug", "")),
+        "description": getattr(category, "description", ""),
+        "icon": getattr(category, "icon", ""),
+        "image_url": category.image.url if getattr(category, "image", None) else "",
+        "children": children,
     }
 
 
@@ -467,17 +476,21 @@ def get_navigation_categories(request, limit: int = 8) -> list[dict[str, Any]]:
     if cached is not None:
         return cached
 
-    categories = list(
-        Category.objects.filter(
-            is_active=True,
-            is_visible=True,
-            show_in_menu=True,
-            parent__isnull=True,
-        ).order_by("menu_order", "display_order", "name")[:limit]
-    )
-    tree = [_serialize_category_node(category) for category in categories]
-    cache.set(cache_key, tree, 300)
-    return tree
+    try:
+        categories = list(
+            Category.objects.filter(
+                is_active=True,
+                is_visible=True,
+                show_in_menu=True,
+                parent__isnull=True,
+            ).order_by("menu_order", "display_order", "name")[:limit]
+        )
+        tree = [_serialize_category_node(category) for category in categories]
+        cache.set(cache_key, tree, 300)
+        return tree
+    except Exception as exc:
+        logger.warning("Unable to load navigation categories: %s", exc)
+        return []
 
 
 def get_navigation_links(request) -> list[dict[str, str]]:
@@ -510,58 +523,41 @@ def get_footer_link_groups(request) -> list[dict[str, Any]]:
         {
             "title": "Shop",
             "links": [
-                {"label": "Shop All", "url": safe_reverse(
-                    "category:shop_all")},
-                {"label": "New Arrivals", "url": safe_reverse(
-                    "category:new_arrivals")},
-                {"label": "Best Sellers", "url": safe_reverse(
-                    "category:best_sellers")},
+                {"label": "Shop All", "url": safe_reverse("category:shop_all")},
+                {"label": "New Arrivals", "url": safe_reverse("category:new_arrivals")},
+                {"label": "Best Sellers", "url": safe_reverse("category:best_sellers")},
                 {"label": "Deals", "url": safe_reverse("category:deals")},
-                {"label": "Gift Guide", "url": safe_reverse(
-                    "category:gift_guide")},
+                {"label": "Gift Guide", "url": safe_reverse("category:gift_guide")},
             ],
         },
         {
             "title": "Support",
             "links": [
-                {"label": "Help Center", "url": safe_reverse(
-                    "support:help_center")},
-                {"label": "Contact Us", "url": safe_reverse(
-                    "support:contact_us")},
-                {"label": "Delivery Info", "url": safe_reverse(
-                    "support:delivery_info")},
-                {"label": "Returns Policy", "url": safe_reverse(
-                    "support:returns_policy")},
-                {"label": "Warranty", "url": safe_reverse(
-                    "support:warranty_info")},
+                {"label": "Help Center", "url": safe_reverse("support:help_center")},
+                {"label": "Contact Us", "url": safe_reverse("support:contact_us")},
+                {"label": "Delivery Info", "url": safe_reverse("support:delivery_info")},
+                {"label": "Returns Policy", "url": safe_reverse("support:returns_policy")},
+                {"label": "Warranty", "url": safe_reverse("support:warranty_info")},
             ],
         },
         {
             "title": "Discover",
             "links": [
-                {"label": "Brands", "url": safe_reverse(
-                    "category:brands_directory")},
-                {"label": "Collections", "url": safe_reverse(
-                    "category:collections_list")},
+                {"label": "Brands", "url": safe_reverse("category:brands_directory")},
+                {"label": "Collections", "url": safe_reverse("category:collections_list")},
                 {"label": "Blog", "url": safe_reverse("content:blog_index")},
                 {"label": "Lookbook", "url": safe_reverse("content:lookbook")},
-                {"label": "Video Gallery", "url": safe_reverse(
-                    "content:video_gallery")},
+                {"label": "Video Gallery", "url": safe_reverse("content:video_gallery")},
             ],
         },
         {
             "title": "Legal",
             "links": [
-                {"label": "Privacy Policy", "url": safe_reverse(
-                    "legal:privacy_policy")},
-                {"label": "Terms of Service", "url": safe_reverse(
-                    "legal:terms_of_service")},
-                {"label": "Cookie Policy", "url": safe_reverse(
-                    "legal:cookie_policy")},
-                {"label": "Accessibility", "url": safe_reverse(
-                    "legal:accessibility")},
-                {"label": "Compliance", "url": safe_reverse(
-                    "legal:compliance")},
+                {"label": "Privacy Policy", "url": safe_reverse("legal:privacy_policy")},
+                {"label": "Terms of Service", "url": safe_reverse("legal:terms_of_service")},
+                {"label": "Cookie Policy", "url": safe_reverse("legal:cookie_policy")},
+                {"label": "Accessibility", "url": safe_reverse("legal:accessibility")},
+                {"label": "Compliance", "url": safe_reverse("legal:compliance")},
             ],
         },
     ]
@@ -569,6 +565,7 @@ def get_footer_link_groups(request) -> list[dict[str, Any]]:
 
 def get_account_navigation(request) -> list[dict[str, str]]:
     return [
+
         {"label": "Overview", "url": safe_reverse("tenant:account_overview")},
         {"label": "Orders", "url": safe_reverse("tenant:account_orders")},
         {"label": "Profile", "url": safe_reverse("tenant:profile_edit")},
@@ -688,13 +685,13 @@ def get_active_discount_campaigns(request, limit: int = 3) -> list[dict[str, Any
 def serialize_brand_card(brand: Brand) -> dict[str, Any]:
     return {
         "id": str(brand.id),
-        "name": brand.name,
-        "slug": brand.slug,
-        "description": brand.description or brand.story,
-        "story": brand.story,
-        "logo_url": brand.logo.url if brand.logo else "",
-        "banner_url": brand.banner.url if brand.banner else "",
-        "url": safe_reverse("category:brand_detail", brand_slug=brand.slug),
+        "name": getattr(brand, "name", ""),
+        "slug": getattr(brand, "slug", ""),
+        "description": getattr(brand, "description", "") or getattr(brand, "story", ""),
+        "story": getattr(brand, "story", ""),
+        "logo_url": brand.logo.url if getattr(brand, "logo", None) else "",
+        "banner_url": brand.banner.url if getattr(brand, "banner", None) else "",
+        "url": safe_reverse("category:brand_detail", brand_slug=getattr(brand, "slug", "")),
     }
 
 
@@ -704,12 +701,16 @@ def get_featured_brands(request, limit: int = 6) -> list[dict[str, Any]]:
     if cached is not None:
         return cached
 
-    brands = [
-        serialize_brand_card(brand)
-        for brand in Brand.objects.filter(is_active=True).order_by("-featured", "display_order", "name")[:limit]
-    ]
-    cache.set(cache_key, brands, 300)
-    return brands
+    try:
+        brands = [
+            serialize_brand_card(brand)
+            for brand in Brand.objects.filter(is_active=True).order_by("-featured", "display_order", "name")[:limit]
+        ]
+        cache.set(cache_key, brands, 300)
+        return brands
+    except Exception as exc:
+        logger.warning("Unable to load featured brands: %s", exc)
+        return []
 
 
 def get_storefront_announcement(request) -> str:
@@ -718,7 +719,7 @@ def get_storefront_announcement(request) -> str:
         return ""
     if getattr(settings_obj, "free_shipping_enabled", False) and getattr(settings_obj, "free_shipping_threshold", None):
         return f"Free delivery nationwide on orders above {format_money(settings_obj.free_shipping_threshold, settings_obj.currency)}"
-    return settings_obj.store_tagline or settings_obj.store_name
+    return getattr(settings_obj, "store_tagline", "") or getattr(settings_obj, "store_name", "")
 
 
 def get_service_highlights(request) -> list[dict[str, str]]:
@@ -728,7 +729,7 @@ def get_service_highlights(request) -> list[dict[str, str]]:
     currency = getattr(settings_obj, "currency", "USD")
     shipping_copy = (
         f"Orders above {format_money(settings_obj.free_shipping_threshold, currency)}"
-        if getattr(settings_obj, "free_shipping_enabled", False)
+        if getattr(settings_obj, "free_shipping_enabled", False) and getattr(settings_obj, "free_shipping_threshold", None)
         else f"Dispatch in about {getattr(settings_obj, 'processing_time_days', 2)} business days"
     )
     return [
@@ -738,7 +739,7 @@ def get_service_highlights(request) -> list[dict[str, str]]:
         {"icon": "replay", "title": "Flexible Returns",
             "body": "Clear return and refund support through the store support team."},
         {"icon": "headset_mic", "title": "Store Support",
-            "body": settings_obj.support_email or settings_obj.contact_email or settings_obj.phone or "Talk to the store team when you need help."},
+            "body": getattr(settings_obj, "support_email", "") or getattr(settings_obj, "contact_email", "") or getattr(settings_obj, "phone", "") or "Talk to the store team when you need help."},
     ]
 
 
@@ -750,15 +751,15 @@ def get_store_editorial_cards(request) -> list[dict[str, str]]:
     return [
         {
             "eyebrow": "Store Story",
-            "title": shop["tagline"] or f"Why {shop['name']} exists",
-            "body": shop["description"] or "A curated storefront experience tailored to the products and audience of this tenant.",
+            "title": shop.get("tagline") or f"Why {shop.get('name', 'Store')} exists",
+            "body": shop.get("description") or "A curated storefront experience tailored to the products and audience of this tenant.",
             "url": safe_reverse("content:blog_index"),
             "cta": "Read the story",
         },
         {
             "eyebrow": "Delivery & Support",
             "title": "Buying should feel easy",
-            "body": f"Questions, shipping updates, and post-purchase support flow through {settings_obj.support_email or settings_obj.contact_email or settings_obj.phone or 'the store support team'}.",
+            "body": f"Questions, shipping updates, and post-purchase support flow through {getattr(settings_obj, 'support_email', '') or getattr(settings_obj, 'contact_email', '') or getattr(settings_obj, 'phone', '') or 'the store support team'}.",
             "url": safe_reverse("support:help_center"),
             "cta": "Get support",
         },
@@ -782,15 +783,19 @@ def build_flash_sale_lookup(flash_sale) -> dict[str, Any]:
     if flash_sale is None or not hasattr(flash_sale, "items"):
         return lookup
 
-    for item in flash_sale.items.all():
-        if not getattr(item, "is_active", True) or item.is_sold_out_at_sale_price:
-            continue
-        if item.product_id:
-            lookup["product_items"][str(item.product_id)] = item
-            lookup["product_ids"].add(str(item.product_id))
-        if item.variant_id:
-            lookup["variant_items"][str(item.variant_id)] = item
-            lookup["product_ids"].add(str(item.variant.product_id))
+    try:
+        for item in flash_sale.items.all():
+            if not getattr(item, "is_active", True) or item.is_sold_out_at_sale_price:
+                continue
+            if item.product_id:
+                lookup["product_items"][str(item.product_id)] = item
+                lookup["product_ids"].add(str(item.product_id))
+            if item.variant_id:
+                lookup["variant_items"][str(item.variant_id)] = item
+                if getattr(item, "variant", None) and getattr(item.variant, "product_id", None):
+                    lookup["product_ids"].add(str(item.variant.product_id))
+    except Exception:
+        pass
     return lookup
 
 
@@ -2362,18 +2367,21 @@ def push_recently_viewed_product(request, product_id: str) -> None:
     ids.insert(0, product_id)
     _set_session_product_ids(request, "recently_viewed", ids[:12])
 
-
 def _resolve_session_products(request, key_suffix: str):
     ids = _get_session_product_ids(request, key_suffix)
     if not ids:
         return []
-    products = {
-        str(product.id): product
-        for product in annotate_product_pricing(get_listable_product_queryset()).filter(id__in=ids)
-    }
-    currency = getattr(get_store_settings_cached(request), "currency", "USD")
-    flash_sale_lookup = build_flash_sale_lookup(get_active_flash_sale(request))
-    return [serialize_product_card(products[product_id], currency, flash_sale_lookup=flash_sale_lookup) for product_id in ids if product_id in products]
+    try:
+        products = {
+            str(product.id): product
+            for product in annotate_product_pricing(get_listable_product_queryset()).filter(id__in=ids)
+        }
+        currency = getattr(get_store_settings_cached(request), "currency", "USD")
+        flash_sale_lookup = build_flash_sale_lookup(get_active_flash_sale(request))
+        return [serialize_product_card(products[product_id], currency, flash_sale_lookup=flash_sale_lookup) for product_id in ids if product_id in products]
+    except Exception as exc:
+        logger.warning("Unable to resolve session products for %s: %s", key_suffix, exc)
+        return []
 
 
 def get_wishlist_products(request):
