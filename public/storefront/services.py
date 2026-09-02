@@ -2240,21 +2240,32 @@ def apply_coupon_to_cart(cart: Cart, code: str) -> Cart:
 
 
 def get_cart_summary(request) -> dict[str, Any]:
-    cart = get_or_create_cart(request)
-    settings_obj = get_store_settings_cached(request)
-    currency = getattr(settings_obj, "currency",
-                       "USD") if settings_obj else "USD"
-    items = []
-    for item in cart.items.all():
-        image_url = item.product_image_url
-        if not image_url and item.variant and item.variant.product.images.exists():
-            primary_image = item.variant.product.images.order_by(
-                "-is_primary", "display_order").first()
-            image_url = primary_image.image.url if primary_image and primary_image.image else ""
-        items.append(
-            {
+    try:
+        cart = get_or_create_cart(request)
+        settings_obj = get_store_settings_cached(request)
+        currency = getattr(settings_obj, "currency", "USD") if settings_obj else "USD"
+        items = []
+        for item in cart.items.all():
+            image_url = item.product_image_url
+            try:
+                if not image_url and item.variant and item.variant.product.images.exists():
+                    primary_image = item.variant.product.images.order_by("-is_primary", "display_order").first()
+                    image_url = primary_image.image.url if primary_image and primary_image.image else ""
+            except Exception:
+                pass
+            product_name = item.product_title
+            product_url = "#"
+            try:
+                if not product_name and item.variant and hasattr(item.variant, "product"):
+                    product_name = item.variant.product.name
+                if item.variant and hasattr(item.variant, "product"):
+                    product_url = safe_reverse("product:product_detail", product_slug=item.variant.product.slug)
+            except Exception:
+                pass
+
+            items.append({
                 "id": str(item.id),
-                "product_name": item.product_title or item.variant.product.name,
+                "product_name": product_name,
                 "variant_name": item.variant_title,
                 "sku": item.sku,
                 "quantity": item.quantity,
@@ -2265,40 +2276,63 @@ def get_cart_summary(request) -> dict[str, Any]:
                 "line_total": quantize_money(item.line_total),
                 "line_total_display": format_money(item.line_total, currency),
                 "image_url": image_url,
-                "product_url": safe_reverse("product:product_detail", product_slug=item.variant.product.slug) if item.variant else "#",
+                "product_url": product_url,
+            })
+        discount_lines = [
+            {
+                "type": discount.discount_type,
+                "label": discount.description or discount.code or discount.discount_type.replace("_", " ").title(),
+                "amount": quantize_money(discount.amount),
+                "amount_display": format_money(discount.amount, currency),
+                "code": discount.code,
             }
-        )
-    discount_lines = [
-        {
-            "type": discount.discount_type,
-            "label": discount.description or discount.code or discount.discount_type.replace("_", " ").title(),
-            "amount": quantize_money(discount.amount),
-            "amount_display": format_money(discount.amount, currency),
-            "code": discount.code,
+            for discount in cart.discounts.all()
+        ]
+        return {
+            "id": str(cart.id),
+            "item_count": cart.item_count,
+            "items": items,
+            "discount_lines": discount_lines,
+            "subtotal": quantize_money(cart.subtotal),
+            "discount_total": quantize_money(cart.discount_total),
+            "shipping_total": quantize_money(cart.shipping_total),
+            "tax_total": quantize_money(cart.tax_total),
+            "grand_total": quantize_money(cart.grand_total),
+            "subtotal_display": format_money(cart.subtotal, currency),
+            "discount_total_display": format_money(cart.discount_total, currency),
+            "shipping_total_display": format_money(cart.shipping_total, currency),
+            "tax_total_display": format_money(cart.tax_total, currency),
+            "grand_total_display": format_money(cart.grand_total, currency),
+            "currency": currency,
+            "currency_symbol": get_currency_symbol(currency),
+            "discount_code": cart.discount_code,
+            "checkout_token": cart.checkout_token,
+            "is_empty": cart.is_empty,
         }
-        for discount in cart.discounts.all()
-    ]
-    return {
-        "id": str(cart.id),
-        "item_count": cart.item_count,
-        "items": items,
-        "discount_lines": discount_lines,
-        "subtotal": quantize_money(cart.subtotal),
-        "discount_total": quantize_money(cart.discount_total),
-        "shipping_total": quantize_money(cart.shipping_total),
-        "tax_total": quantize_money(cart.tax_total),
-        "grand_total": quantize_money(cart.grand_total),
-        "subtotal_display": format_money(cart.subtotal, currency),
-        "discount_total_display": format_money(cart.discount_total, currency),
-        "shipping_total_display": format_money(cart.shipping_total, currency),
-        "tax_total_display": format_money(cart.tax_total, currency),
-        "grand_total_display": format_money(cart.grand_total, currency),
-        "currency": currency,
-        "currency_symbol": get_currency_symbol(currency),
-        "discount_code": cart.discount_code,
-        "checkout_token": cart.checkout_token,
-        "is_empty": cart.is_empty,
-    }
+    except Exception as exc:
+        logger.warning("get_cart_summary fallback used: %s", exc)
+        currency = "USD"
+        return {
+            "id": "",
+            "item_count": 0,
+            "items": [],
+            "discount_lines": [],
+            "subtotal": Decimal("0.00"),
+            "discount_total": Decimal("0.00"),
+            "shipping_total": Decimal("0.00"),
+            "tax_total": Decimal("0.00"),
+            "grand_total": Decimal("0.00"),
+            "subtotal_display": format_money(Decimal("0.00"), currency),
+            "discount_total_display": format_money(Decimal("0.00"), currency),
+            "shipping_total_display": format_money(Decimal("0.00"), currency),
+            "tax_total_display": format_money(Decimal("0.00"), currency),
+            "grand_total_display": format_money(Decimal("0.00"), currency),
+            "currency": currency,
+            "currency_symbol": get_currency_symbol(currency),
+            "discount_code": "",
+            "checkout_token": "",
+            "is_empty": True,
+        }
 
 
 def _get_session_product_ids(request, key_suffix: str) -> list[str]:
