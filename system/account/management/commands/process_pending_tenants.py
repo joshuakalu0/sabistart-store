@@ -337,6 +337,16 @@ class Command(BaseCommand):
                 f"[CronProvision] [{schema_name}] Marked IN_PROGRESS. Spawning migrate subprocess..."
             ))
 
+            # 0) Pre-flight: repair "lying django_migrations" rows.
+            #    A previous chunked-runner fake-heal may have recorded a
+            #    migration as applied while its CREATE TABLE never
+            #    committed (e.g. pos.0002 / pos_catalog_items).  Plain
+            #    migrate will never re-run a recorded migration, so we
+            #    detect the mismatch here and un-apply the lying rows --
+            #    the subprocess then genuinely re-runs them and builds
+            #    the missing tables.
+            self._repair_lying_migration_records(shop, schema_name)
+
             # 1) Subprocess: run the actual DDL in a separate OS process.
             ok, stderr_text, returncode = self._run_migrate_subprocess(
                 subprocess_python=subprocess_python,
@@ -357,62 +367,34 @@ class Command(BaseCommand):
                 f"[CronProvision] [{schema_name}] Migrate subprocess succeeded."
             ))
 
-            shop.refresh_from_db()
-            if shop.provisioning_status == Shop.ProvisioningStatus.READY:
-                clear_failure_cooldown(schema_name)
-                # Seed theme + settings even when the subprocess finalised the shop.
-                try:
-                    from system.account.migration_runner import _seed_tenant_defaults
-                    _seed_tenant_defaults(schema_name)
-                except Exception as seed_exc:
-                    self.stdout.write(self.style.WARNING(
-                        f"[CronProvision] [{schema_name}] Seeding defaults failed (non-fatal): {seed_exc}"
-                    ))
-                self.stdout.write(self.style.SUCCESS(
-                    f"[CronProvision] [{schema_name}] Finalised -- status is READY."
-                ))
-                return True
-
-
-            # 2) In-process fallback: run the cheap finalisation step if needed.
-            from system.account.migration_runner import (
-                advance_tenant_provisioning,
-                clear_failure_cooldown,
-            )
-
-            outcome = advance_tenant_provisioning(
-                schema_name,
-                source="cron_sweep",
-            )
-
-            if outcome.get("is_ready"):
+            # 2) In-process: FINALISATION ONLY.  We never run migrations
+            #    in this (the cron parent) process -- that was the OOM
+            #    hazard and the double-runner race.  If the subprocess
+            #    left migrations pending, we leave the row IN_PROGRESS
+            #    and the next cron tick's subprocess continues the work.
+            final = self._finalise_if_complete(shop, schema_name)
+            if final == "ready":
                 clear_failure_cooldown(schema_name)
                 self.stdout.write(self.style.SUCCESS(
                     f"[CronProvision] [{schema_name}] Finalised -- status is READY."
                 ))
                 return True
-
-
-            if outcome.get("failed"):
-                self._mark_failed(
-                    shop,
-                    f"Finalisation failed for '{schema_name}': {outcome.get('error', '')[:2800]}",
-                )
+            if final == "failed":
                 return False
 
-            # Partial / cooldown / locked -- treat as transient.  Do
-            # NOT mark as FAILED; the next cron tick will pick it up.
+            # Still pending after the subprocess -- not an error; the
+            # next cron tick will run another migrate pass.
             self.stdout.write(self.style.WARNING(
-                f"[CronProvision] [{schema_name}] Finalisation did not complete "
-                f"(is_ready={outcome.get('is_ready')}, cooldown={outcome.get('cooldown')}, "
-                f"locked={outcome.get('locked')}). Will retry next tick."
+                f"[CronProvision] [{schema_name}] Migrations still pending after "
+                f"subprocess pass; will continue next cron tick."
             ))
             shop.refresh_from_db()
-            shop.provisioning_error = (
-                f"Partial: {outcome.get('error', '')[:800] or 'no error message; will retry next cron tick.'}"
-            )
-            shop.save(update_fields=["provisioning_error"])
-            return True  # not a hard failure -- next tick handles it
+            if shop.provisioning_status != Shop.ProvisioningStatus.FAILED:
+                shop.provisioning_error = (
+                    "Migrations partially applied; next cron tick will continue."
+                )
+                shop.save(update_fields=["provisioning_error"])
+            return True
 
         finally:
             release_migration_lock(schema_name)
@@ -420,27 +402,196 @@ class Command(BaseCommand):
     # ------------------------------------------------------------------ #
     # Helpers                                                            #
     # ------------------------------------------------------------------ #
+
+    # Critical tables each migration is expected to create.  When a table
+    # is missing but its owning migration is recorded as applied, that row
+    # is a lie left behind by the chunked runner's fake-heal path and must
+    # be un-applied so the migrate subprocess can re-run it.
+    LYING_MIGRATION_TABLES = {
+        ("pos", "0002_postransaction_authoritative_order_and_more"): "pos_catalog_items",
+        ("userauth", "0001_initial"): "tenant_users",
+    }
+
+    def _repair_lying_migration_records(self, shop, schema_name: str) -> None:
+        """Un-apply migration records whose tables do not actually exist."""
+        from django.db import connection
+        from django.db.migrations.recorder import MigrationRecorder
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(f'SET search_path = "{schema_name}", "public"')
+                recorder = MigrationRecorder(connection)
+                applied = set(recorder.applied_migrations())
+                if not applied:
+                    return
+
+                for (app_label, migration_name), table in self.LYING_MIGRATION_TABLES.items():
+                    if (app_label, migration_name) not in applied:
+                        continue
+                    cursor.execute(
+                        "SELECT 1 FROM information_schema.tables "
+                        "WHERE table_schema = %s AND table_name = %s",
+                        [schema_name, table],
+                    )
+                    if cursor.fetchone():
+                        continue  # table exists -- record is honest
+
+                    self.stdout.write(self.style.WARNING(
+                        f"[CronProvision] [{schema_name}] {app_label}.{migration_name} recorded "
+                        f"as applied but table '{table}' is missing -- un-applying so the "
+                        f"subprocess can rebuild it."
+                    ))
+                    recorder.record_unapplied(app_label, migration_name)
+                    logger.warning(
+                        "[CronProvision] Un-applied lying migration %s.%s for schema '%s' "
+                        "(table %s missing).",
+                        app_label, migration_name, schema_name, table,
+                    )
+        except Exception as exc:
+            # Pre-flight repair is best-effort; never block the subprocess.
+            self.stdout.write(self.style.WARNING(
+                f"[CronProvision] [{schema_name}] Pre-flight repair check failed "
+                f"(continuing anyway): {exc}"
+            ))
+        finally:
+            try:
+                connection.set_schema_to_public()
+            except Exception:
+                pass
+
+    def _finalise_if_complete(self, shop, schema_name: str) -> str:
+        """
+        Post-subprocess finalisation ONLY -- no migration execution.
+
+        Returns "ready", "failed", or "pending".
+        """
+        from django.db import connection
+        from system.account.schema_inspector import get_tenant_migration_status
+
+        # 1) Are migrations actually complete (real DB state)?
+        try:
+            mig_status = get_tenant_migration_status(schema_name, use_cache=False)
+        except Exception as exc:
+            self.stdout.write(self.style.WARNING(
+                f"[CronProvision] [{schema_name}] Could not inspect migration status: {exc}"
+            ))
+            return "pending"
+
+        if not mig_status.get("is_ready"):
+            return "pending"
+
+        shop.refresh_from_db()
+
+        # 2) Entitlements from the onboarding session.
+        try:
+            from system.account.models import OnboardingSession
+            from system.account.services import TenantService
+            session = (
+                OnboardingSession.objects.filter(metadata__tenant_schema_name=schema_name)
+                .exclude(status__in=[
+                    OnboardingSession.Status.COMPLETED,
+                    OnboardingSession.Status.CANCELLED,
+                ])
+                .order_by("-updated_at")
+                .first()
+            )
+            if session:
+                TenantService.provision_tenant_entitlements(session, shop)
+        except Exception as exc:
+            self.stdout.write(self.style.WARNING(
+                f"[CronProvision] [{schema_name}] Entitlement provisioning failed (non-fatal): {exc}"
+            ))
+
+        # 3) Tenant admin user.
+        try:
+            from system.account.sso import ensure_tenant_admin_user, TenantSchemaNotReady
+            ensure_tenant_admin_user(shop, shop.owner)
+        except TenantSchemaNotReady as exc:
+            # The table set is still incomplete even though the recorder
+            # claims readiness -- un-apply the lying rows and retry next tick.
+            self.stdout.write(self.style.WARNING(
+                f"[CronProvision] [{schema_name}] Schema still not ready after migrate "
+                f"({exc}); will re-repair and retry next tick."
+            ))
+            self._repair_lying_migration_records(shop, schema_name)
+            return "pending"
+        except Exception as exc:
+            self.stdout.write(self.style.WARNING(
+                f"[CronProvision] [{schema_name}] Could not provision tenant admin (non-fatal): {exc}"
+            ))
+
+        # 4) Seed defaults (theme, settings singletons).
+        try:
+            from system.account.migration_runner import _seed_tenant_defaults
+            _seed_tenant_defaults(schema_name)
+        except Exception as exc:
+            self.stdout.write(self.style.WARNING(
+                f"[CronProvision] [{schema_name}] Defaults seeding failed (non-fatal): {exc}"
+            ))
+
+        # 5) Flip to READY.
+        from system.account.migration_runner import _finalize_ready
+        _finalize_ready(shop)
+
+        # 6) Mark the onboarding session completed.
+        try:
+            from django.utils import timezone
+            from system.account.models import OnboardingSession
+            session = (
+                OnboardingSession.objects.filter(metadata__tenant_schema_name=schema_name)
+                .exclude(status__in=[
+                    OnboardingSession.Status.COMPLETED,
+                    OnboardingSession.Status.CANCELLED,
+                ])
+                .order_by("-updated_at")
+                .first()
+            )
+            if session:
+                metadata = dict(session.metadata or {})
+                metadata["tenant_schema_name"] = schema_name
+                metadata["provisioned_at"] = timezone.now().isoformat()
+                metadata["provisioning_source"] = "cron_sweep"
+                session.status = OnboardingSession.Status.COMPLETED
+                session.completed_at = timezone.now()
+                session.metadata = metadata
+                session.save(update_fields=["status", "completed_at", "metadata", "updated_at"])
+        except Exception as exc:
+            self.stdout.write(self.style.WARNING(
+                f"[CronProvision] [{schema_name}] Could not mark onboarding session completed: {exc}"
+            ))
+
+        return "ready"
+
     def _build_migrate_command(
         self,
         subprocess_python: str,
         schema_name: str,
         extra_migrate_args: str,
     ) -> List[str]:
-        # ``migrate --schema=<name>`` is the django-tenants 3.x way to
-        # apply a single tenant's migrations.  --noinput avoids prompts.
-        # We do NOT pass --run-syncdb here; the chunked runner uses the
-        # executor and we want consistent behaviour.
+        # Plain ``migrate --schema=<name>`` is the ONLY subprocess we spawn.
         #
+        # Deliberately NOT run_tenant_chunked_migrations:
+        #   * The chunked runner "fake-heals" (records migrations as applied
+        #     when it sees "already exists" errors, and records prerequisite
+        #     migrations without running their DDL).  That is exactly the
+        #     mechanism that leaves schemas in the broken state where
+        #     django_migrations says pos.0002 is applied but the
+        #     pos_catalog_items table does not exist.
+        #   * The chunked runner shares the parent's coordination locks
+        #     (--force clears them), so a parent + subprocess pair can both
+        #     run against the same schema concurrently.
+        # Plain Django migrate is atomic per migration, applies every pending
+        # migration in dependency order, and never records anything it did
+        # not actually run.
         from django.conf import settings
         manage_py_path = str(settings.BASE_DIR / "manage.py")
 
         cmd = [
             subprocess_python,
             manage_py_path,
-            "run_tenant_chunked_migrations",
+            "migrate",
             f"--schema={schema_name}",
-            "--force",
-            "--no-throttle",
+            "--noinput",
         ]
         if extra_migrate_args:
             cmd.extend(extra_migrate_args.split())
