@@ -317,9 +317,13 @@
               }, 1000);
 
             } else if (data.status === "failed") {
-              progressBar.classList.replace("bg-blue-600", "bg-rose-500");
-              setProgress(100, data.error || "Setup hit an issue. Please refresh.", "Contact support if this persists.");
-              progressStatusText.className = "text-rose-600 font-semibold";
+              progressBar.classList.replace("bg-blue-600", "bg-amber-500");
+              setProgress(100, "Setup is taking a little longer than expected.", "Please reload the page to continue.");
+              progressStatusText.className = "text-amber-700 font-semibold";
+              if (migDetailText) {
+                migDetailText.innerHTML = '<span class="inline-flex items-center gap-2 mt-2"><button onclick="window.location.reload()" class="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition">Reload Page</button> <a href="mailto:support@sabistart.com" class="text-xs text-blue-600 underline font-medium ml-2">Contact Support</a></span>';
+              }
+
             } else {
               // In-progress — show live migration detail
               const progress = Math.max(15, Math.min(95, data.progress || 35));
