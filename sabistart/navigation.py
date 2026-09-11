@@ -15,6 +15,7 @@ PLATFORM_NAVIGATION = (
             {"key": "platform_features", "name": "Feature Marketplace", "icon": "store", "route": "platform_features:home"},
             {"key": "platform_payments", "name": "Payments", "icon": "payments", "route": "platform_payments:home"},
             {"key": "platform_domains", "name": "Domains", "icon": "language", "route": "platform_domains:home"},
+            {"key": "platform_settings", "name": "Settings", "icon": "settings", "route": "platform:settings"},
             {"key": "platform_diagnostics", "name": "Diagnostics", "icon": "monitor_heart", "route": "platform:diagnostics"},
         ),
     },

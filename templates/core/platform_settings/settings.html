@@ -1,0 +1,439 @@
+{% extends "account/_platform_base.html" %}
+
+{% block page_intro %}
+  <p class="mt-2 text-sm text-slate-500">Manage global platform infrastructure: outgoing SMTP email, media storage backends, and SMS/WhatsApp messaging providers.</p>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- Tab Navigation -->
+  <div class="flex border-b border-slate-200">
+    <a href="?tab=smtp"
+       class="flex items-center gap-2 border-b-2 px-6 py-3.5 text-sm font-bold transition {% if active_tab == 'smtp' %}border-blue-600 text-blue-600{% else %}border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-800{% endif %}">
+      <span class="material-symbols-outlined text-[20px]">mail</span>
+      <span>SMTP Email</span>
+      {% if smtp_setting.is_active %}
+        <span class="ml-1.5 inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">Active</span>
+      {% endif %}
+    </a>
+    <a href="?tab=storage"
+       class="flex items-center gap-2 border-b-2 px-6 py-3.5 text-sm font-bold transition {% if active_tab == 'storage' %}border-blue-600 text-blue-600{% else %}border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-800{% endif %}">
+      <span class="material-symbols-outlined text-[20px]">cloud_upload</span>
+      <span>Storage</span>
+      {% if storage_setting.is_active %}
+        <span class="ml-1.5 inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">Active</span>
+      {% endif %}
+    </a>
+    <a href="?tab=messaging"
+       class="flex items-center gap-2 border-b-2 px-6 py-3.5 text-sm font-bold transition {% if active_tab == 'messaging' %}border-blue-600 text-blue-600{% else %}border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-800{% endif %}">
+      <span class="material-symbols-outlined text-[20px]">sms</span>
+      <span>Messaging</span>
+      {% if messaging_setting.is_active %}
+        <span class="ml-1.5 inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">Active</span>
+      {% endif %}
+    </a>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SMTP TAB -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  {% if active_tab == 'smtp' %}
+  <div class="grid gap-6 xl:grid-cols-3">
+    <!-- Form column -->
+    <div class="xl:col-span-2 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="flex items-center justify-between pb-6 border-b border-slate-100">
+        <div>
+          <h3 class="text-lg font-bold text-slate-950">Outgoing SMTP Configuration</h3>
+          <p class="mt-1 text-sm text-slate-500">Configure credentials for system transactional emails.</p>
+        </div>
+        <div>
+          {% if smtp_setting.is_configured %}
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-700">
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Configured
+            </span>
+          {% else %}
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200 px-3 py-1 text-xs font-semibold text-amber-700">
+              <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span> Not configured
+            </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <form method="post" action="{% url 'platform:settings' %}?tab=smtp" class="mt-6 space-y-6">
+        {% csrf_token %}
+        <input type="hidden" name="_tab" value="smtp" />
+
+        <div class="grid gap-6 sm:grid-cols-2">
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">SMTP Host</label>
+            {{ smtp_form.host }}
+            {% if smtp_form.host.errors %}<p class="mt-1 text-xs text-rose-600">{{ smtp_form.host.errors.0 }}</p>{% endif %}
+            <p class="mt-1 text-xs text-slate-400">e.g. smtp.sendgrid.net, email-smtp.us-east-1.amazonaws.com, smtp.mailgun.org</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Port</label>
+            {{ smtp_form.port }}
+            {% if smtp_form.port.errors %}<p class="mt-1 text-xs text-rose-600">{{ smtp_form.port.errors.0 }}</p>{% endif %}
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Security / Encryption</label>
+            {{ smtp_form.security }}
+            {% if smtp_form.security.errors %}<p class="mt-1 text-xs text-rose-600">{{ smtp_form.security.errors.0 }}</p>{% endif %}
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Username</label>
+            {{ smtp_form.username }}
+            {% if smtp_form.username.errors %}<p class="mt-1 text-xs text-rose-600">{{ smtp_form.username.errors.0 }}</p>{% endif %}
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Password / API Key</label>
+            {{ smtp_form.password }}
+            {% if smtp_form.password.errors %}<p class="mt-1 text-xs text-rose-600">{{ smtp_form.password.errors.0 }}</p>{% endif %}
+            <p class="mt-1 text-xs text-slate-400">Leave blank to keep existing password.</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Default From Email</label>
+            {{ smtp_form.default_from_email }}
+            {% if smtp_form.default_from_email.errors %}<p class="mt-1 text-xs text-rose-600">{{ smtp_form.default_from_email.errors.0 }}</p>{% endif %}
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Default From Name</label>
+            {{ smtp_form.default_from_name }}
+            {% if smtp_form.default_from_name.errors %}<p class="mt-1 text-xs text-rose-600">{{ smtp_form.default_from_name.errors.0 }}</p>{% endif %}
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+          <label class="flex items-center gap-3 cursor-pointer">
+            {{ smtp_form.is_active }}
+            <span class="text-sm font-semibold text-slate-800">Activate this SMTP configuration</span>
+          </label>
+          <button type="submit" class="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-6 py-2.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 transition">
+            <span class="material-symbols-outlined text-[18px]">save</span>
+            <span>Save SMTP Settings</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Test email side panel -->
+    <div class="space-y-6">
+      <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <h4 class="text-base font-bold text-slate-950">Send Test Email</h4>
+        <p class="mt-1 text-sm text-slate-500">Sends a test email to <strong class="text-slate-800">{{ request.user.email }}</strong> to verify connectivity.</p>
+
+        <form method="post" action="{% url 'platform:smtp_test' %}" class="mt-6">
+          {% csrf_token %}
+          <button type="submit"
+                  {% if not smtp_setting.is_configured %}disabled{% endif %}
+                  class="w-full inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition">
+            <span class="material-symbols-outlined text-[18px]">outgoing_mail</span>
+            <span>Send Test Email</span>
+          </button>
+        </form>
+      </div>
+
+      <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-6">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Settings Info</h4>
+        <dl class="mt-4 space-y-3 text-xs">
+          <div class="flex justify-between">
+            <dt class="text-slate-500">Status</dt>
+            <dd class="font-semibold text-slate-800">{% if smtp_setting.is_active %}<span class="text-emerald-600">Active</span>{% else %}Inactive{% endif %}</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-slate-500">Last updated</dt>
+            <dd class="font-semibold text-slate-800">{{ smtp_setting.updated_at|date:"M j, Y, H:i"|default:"Never" }}</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-slate-500">Updated by</dt>
+            <dd class="font-semibold text-slate-800">{{ smtp_setting.updated_by.email|default:"System" }}</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- STORAGE TAB -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  {% if active_tab == 'storage' %}
+  <div class="grid gap-6 xl:grid-cols-3">
+    <div class="xl:col-span-2 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="flex items-center justify-between pb-6 border-b border-slate-100">
+        <div>
+          <h3 class="text-lg font-bold text-slate-950">Media & File Storage Backend</h3>
+          <p class="mt-1 text-sm text-slate-500">Choose and configure where uploaded media and store assets are stored.</p>
+        </div>
+        <div>
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-700">
+            {{ storage_setting.get_backend_display }}
+          </span>
+        </div>
+      </div>
+
+      <form method="post" action="{% url 'platform:settings' %}?tab=storage" class="mt-6 space-y-6">
+        {% csrf_token %}
+        <input type="hidden" name="_tab" value="storage" />
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Storage Provider</label>
+          {{ storage_form.backend }}
+          {% if storage_form.backend.errors %}<p class="mt-1 text-xs text-rose-600">{{ storage_form.backend.errors.0 }}</p>{% endif %}
+        </div>
+
+        <!-- S3 Section -->
+        <div class="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-blue-600 text-[20px]">cloud</span>
+            <h4 class="text-sm font-bold text-slate-900">AWS S3 / S3-Compatible Configuration</h4>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Access Key ID</label>
+              {{ storage_form.s3_access_key_id }}
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Secret Access Key</label>
+              {{ storage_form.s3_secret_access_key }}
+              <p class="mt-1 text-xs text-slate-400">Leave blank to keep existing key.</p>
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Bucket Name</label>
+              {{ storage_form.s3_bucket_name }}
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Region</label>
+              {{ storage_form.s3_region }}
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Endpoint URL (Optional)</label>
+              {{ storage_form.s3_endpoint_url }}
+              <p class="mt-1 text-xs text-slate-400">For MinIO, DigitalOcean Spaces, Cloudflare R2, or Wasabi.</p>
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Custom / CDN Domain (Optional)</label>
+              {{ storage_form.s3_custom_domain }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Vercel Blob Section -->
+        <div class="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-slate-800 text-[20px]">dataset</span>
+            <h4 class="text-sm font-bold text-slate-900">Vercel Blob Configuration</h4>
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Read/Write Token</label>
+            {{ storage_form.vercel_blob_read_write_token }}
+            <p class="mt-1 text-xs text-slate-400">vercel_blob_rw_... token from your Vercel project storage.</p>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+          <label class="flex items-center gap-3 cursor-pointer">
+            {{ storage_form.is_active }}
+            <span class="text-sm font-semibold text-slate-800">Activate dynamic platform storage override</span>
+          </label>
+          <button type="submit" class="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-6 py-2.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 transition">
+            <span class="material-symbols-outlined text-[18px]">save</span>
+            <span>Save Storage Settings</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Storage Info Card -->
+    <div>
+      <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-6 space-y-4">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Storage Overview</h4>
+        <dl class="space-y-3 text-xs">
+          <div class="flex justify-between">
+            <dt class="text-slate-500">Active Backend</dt>
+            <dd class="font-semibold text-slate-800">{{ storage_setting.get_backend_display }}</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-slate-500">Override Active</dt>
+            <dd class="font-semibold text-slate-800">{% if storage_setting.is_active %}<span class="text-emerald-600">Yes</span>{% else %}No (using default settings){% endif %}</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-slate-500">Last updated</dt>
+            <dd class="font-semibold text-slate-800">{{ storage_setting.updated_at|date:"M j, Y, H:i"|default:"Never" }}</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- MESSAGING TAB -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  {% if active_tab == 'messaging' %}
+  <div class="grid gap-6 xl:grid-cols-3">
+    <div class="xl:col-span-2 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="flex items-center justify-between pb-6 border-b border-slate-100">
+        <div>
+          <h3 class="text-lg font-bold text-slate-950">SMS & WhatsApp Gateway</h3>
+          <p class="mt-1 text-sm text-slate-500">Configure outbound messaging providers for order updates, OTPs, and notifications.</p>
+        </div>
+        <div>
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-700">
+            {{ messaging_setting.get_provider_display }}
+          </span>
+        </div>
+      </div>
+
+      <form method="post" action="{% url 'platform:settings' %}?tab=messaging" class="mt-6 space-y-6">
+        {% csrf_token %}
+        <input type="hidden" name="_tab" value="messaging" />
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Primary Provider</label>
+          {{ messaging_form.provider }}
+          {% if messaging_form.provider.errors %}<p class="mt-1 text-xs text-rose-600">{{ messaging_form.provider.errors.0 }}</p>{% endif %}
+        </div>
+
+        <!-- Twilio -->
+        <div class="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-rose-600 text-[20px]">sms</span>
+            <h4 class="text-sm font-bold text-slate-900">Twilio Configuration</h4>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Account SID</label>
+              {{ messaging_form.twilio_account_sid }}
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Auth Token</label>
+              {{ messaging_form.twilio_auth_token }}
+              <p class="mt-1 text-xs text-slate-400">Leave blank to keep existing token.</p>
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">From Number (SMS)</label>
+              {{ messaging_form.twilio_from_number }}
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">WhatsApp From Number</label>
+              {{ messaging_form.twilio_whatsapp_from }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Termii -->
+        <div class="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-emerald-600 text-[20px]">chat</span>
+            <h4 class="text-sm font-bold text-slate-900">Termii Configuration (Nigeria / Africa)</h4>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">API Key</label>
+              {{ messaging_form.termii_api_key }}
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Sender ID</label>
+              {{ messaging_form.termii_sender_id }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Vonage -->
+        <div class="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-indigo-600 text-[20px]">perm_phone_msg</span>
+            <h4 class="text-sm font-bold text-slate-900">Vonage (Nexmo) Configuration</h4>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">API Key</label>
+              {{ messaging_form.vonage_api_key }}
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">API Secret</label>
+              {{ messaging_form.vonage_api_secret }}
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">From Name</label>
+              {{ messaging_form.vonage_from_name }}
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+          <label class="flex items-center gap-3 cursor-pointer">
+            {{ messaging_form.is_active }}
+            <span class="text-sm font-semibold text-slate-800">Activate messaging gateway</span>
+          </label>
+          <button type="submit" class="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-6 py-2.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 transition">
+            <span class="material-symbols-outlined text-[18px]">save</span>
+            <span>Save Messaging Settings</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Webhook secret & info panel -->
+    <div class="space-y-6">
+      <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <h4 class="text-base font-bold text-slate-950">Inbound Webhook Secret</h4>
+        <p class="mt-1 text-sm text-slate-500">HMAC secret for verifying callbacks and incoming delivery receipts.</p>
+
+        <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3 font-mono text-xs text-slate-700 break-all">
+          {{ messaging_setting.webhook_secret|default:"No secret generated yet." }}
+        </div>
+
+        <form method="post" action="{% url 'platform:messaging_rotate_webhook_secret' %}" class="mt-4">
+          {% csrf_token %}
+          <button type="submit" class="w-full inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition">
+            <span class="material-symbols-outlined text-[16px]">sync</span>
+            <span>Generate / Rotate Secret</span>
+          </button>
+        </form>
+      </div>
+
+      <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-6">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Settings Info</h4>
+        <dl class="mt-4 space-y-3 text-xs">
+          <div class="flex justify-between">
+            <dt class="text-slate-500">Provider</dt>
+            <dd class="font-semibold text-slate-800">{{ messaging_setting.get_provider_display }}</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-slate-500">Status</dt>
+            <dd class="font-semibold text-slate-800">{% if messaging_setting.is_active %}<span class="text-emerald-600">Active</span>{% else %}Inactive{% endif %}</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-slate-500">Last updated</dt>
+            <dd class="font-semibold text-slate-800">{{ messaging_setting.updated_at|date:"M j, Y, H:i"|default:"Never" }}</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- Auto-style inputs to match Tailwind form design -->
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll("input[type=text], input[type=email], input[type=password], input[type=number], input[type=url], select").forEach(function(el) {
+      el.classList.add("w-full", "rounded-xl", "border", "border-slate-200", "bg-white", "px-4", "py-2.5", "text-sm", "text-slate-900", "placeholder-slate-400", "focus:border-blue-600", "focus:outline-none", "focus:ring-2", "focus:ring-blue-600/20");
+    });
+    document.querySelectorAll("input[type=checkbox]").forEach(function(el) {
+      el.classList.add("h-4", "w-4", "rounded", "border-slate-300", "text-blue-600", "focus:ring-blue-600");
+    });
+  });
+</script>
+{% endblock %}

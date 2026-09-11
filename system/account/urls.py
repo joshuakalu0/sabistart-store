@@ -21,6 +21,11 @@ from system.account.dashboard_views import (
     PlatformProvisioningRetryView,
     PlatformProvisioningDropSchemaView,
 )
+from system.core.platform_settings_views import (
+    messaging_rotate_webhook_secret,
+    platform_settings,
+    smtp_test,
+)
 from system.account.worker_views import (
     worker_migrate_endpoint,
     tenant_migration_webhook_callback,
@@ -72,4 +77,9 @@ urlpatterns = [
     # Diagnostics
     path('diagnostics/', PlatformDiagnosticsView.as_view(), name='diagnostics'),
     path('diagnostics/run/', PlatformDiagnosticsRunView.as_view(), name='diagnostics_run'),
+
+    # Platform infrastructure settings (unified tabbed page)
+    path('settings/', platform_settings, name='settings'),
+    path('settings/smtp/test/', smtp_test, name='smtp_test'),
+    path('settings/messaging/rotate-webhook-secret/', messaging_rotate_webhook_secret, name='messaging_rotate_webhook_secret'),
 ]
