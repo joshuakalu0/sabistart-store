@@ -79,6 +79,8 @@ def _is_migration_command() -> bool:
         "migrate_schemas",
         "showmigrations",
         "sqlmigrate",
+        "repair_public_migrations",
+        "process_pending_tenants",
     }
 
 
