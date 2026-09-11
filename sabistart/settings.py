@@ -22,7 +22,7 @@ THEMES_ROOT = BASE_DIR / "themes"
 IS_VERCEL = bool(os.getenv("VERCEL")) or bool(os.getenv("VERCEL_URL"))
 IS_RENDER = bool(os.getenv("RENDER"))
 
-DEFAULT_REDIS_URL = "redis://default:SkYC5kgCv2yVzKR2J6Kr2wSKxeUSoTlA@quill-button-authentic-13782.db.redis.io:17211"
+DEFAULT_REDIS_URL = ""
 
 
 def env(name: str, default=None):
@@ -504,10 +504,12 @@ CELERY_WORKER_MAX_MEMORY_PER_CHILD = env_int("CELERY_WORKER_MAX_MEMORY_PER_CHILD
 CELERY_TASK_DEFAULT_QUEUE = "default"
 
 # -----------------------------------------------------------------------------
-# Cache Configuration (Uses Upstash / Remote Redis if provided, LocMem fallback)
+# Cache Configuration (LocMem default, Redis optional only when explicitly enabled)
 # -----------------------------------------------------------------------------
-REDIS_CACHE_URL = env_first("REDIS_URL", "CELERY_BROKER_URL", default=DEFAULT_REDIS_URL)
-if REDIS_CACHE_URL and (REDIS_CACHE_URL.startswith("redis://") or REDIS_CACHE_URL.startswith("rediss://")):
+ENABLE_REDIS = env_bool("ENABLE_REDIS", default=False)
+REDIS_CACHE_URL = env_first("REDIS_URL", "CELERY_BROKER_URL", default="")
+
+if ENABLE_REDIS and REDIS_CACHE_URL and (REDIS_CACHE_URL.startswith("redis://") or REDIS_CACHE_URL.startswith("rediss://")):
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.redis.RedisCache",
@@ -550,13 +552,13 @@ CSRF_COOKIE_SECURE = env_bool("DJANGO_CSRF_COOKIE_SECURE", default=env_bool("CSR
 # Migration Runner Configuration
 # -----------------------------------------------------------------------------
 # Controls the primary migration execution engine:
-# - "cron"   : OS cron job owns ALL migrations. Gunicorn never runs DDL.
-#              Use this on shared/cPanel hosts to prevent OOM/timeout kills.
-#              Schedule `manage.py process_pending_tenants` in cPanel Cron Jobs.
+# - "cron"   : OS cron job owns ALL migrations. Gunicorn never runs DDL. (DEFAULT)
+#              Use this on shared/VM hosts to prevent OOM/timeout kills.
+#              Schedule `manage.py process_pending_tenants` in Cron.
 # - "redis"  : local background thread with Redis progress tracking
 # - "worker" : external migration worker microservice (Railway / VPS)
-# - "auto"   : remote worker if MIGRATION_WORKER_URL is set, else local Redis thread
-MIGRATION_RUNNER = env("MIGRATION_RUNNER", default="redis").lower()
+# - "auto"   : remote worker if MIGRATION_WORKER_URL is set, else local thread
+MIGRATION_RUNNER = env("MIGRATION_RUNNER", default="cron").lower()
 
 # URL of the external Migration Worker node (Railway / VPS).
 # Leave blank to run migrations in a local background daemon thread instead.

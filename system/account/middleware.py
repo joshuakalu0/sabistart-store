@@ -104,7 +104,7 @@ class TenantProvisioningGuardMiddleware:
         # advance_tenant_provisioning() inside a Gunicorn HTTP worker is what
         # causes OOM / timeout kills, so we skip it entirely and just show
         # the interstitial immediately.
-        migration_runner = getattr(settings, "MIGRATION_RUNNER", "redis").lower()
+        migration_runner = getattr(settings, "MIGRATION_RUNNER", "cron").lower()
         heal_result: dict = {}
 
         if migration_runner != "cron":
