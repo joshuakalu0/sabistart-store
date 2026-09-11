@@ -148,14 +148,23 @@ def rate_limit(
             ip = get_client_ip(request) or "unknown"
             user_key = str(getattr(request.user, "pk", "")) if by_user and getattr(request.user, "is_authenticated", False) else "anon"
             window = int(time.time() // per_seconds)
-            cache_key = f"ratelimit:{scope}:{window}:{ip}:{user_key}"
-            current = cache.get(cache_key, 0)
-            if current >= rate:
+            current = 0
+            try:
+                current = cache.get(cache_key, 0)
+            except Exception:
+                pass
+
+            if current and current >= rate:
                 retry_after = per_seconds - (int(time.time()) % per_seconds)
                 response = HttpResponse("Too many requests. Please try again later.", status=429)
                 response["Retry-After"] = str(max(retry_after, 1))
                 return response
-            cache.set(cache_key, int(current) + 1, per_seconds)
+
+            try:
+                cache.set(cache_key, int(current or 0) + 1, per_seconds)
+            except Exception:
+                pass
+
             return view_func(request, *args, **kwargs)
 
         return _wrapped
