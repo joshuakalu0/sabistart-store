@@ -29,6 +29,7 @@ from django.utils import timezone
 _KNOWN_INITIAL_TABLE_MAP = {
     ("system_feature_marketplace", "0001_initial"): "system_feature_marketplace_featurebundle",
     ("core", "0001_initial"): "core_shop",
+    ("core", "0004_platform_settings"): "core_platformsmtpsetting",
     ("account", "0001_initial"): "account_platformuser",
     ("system_pay", "0001_initial"): "system_pay_platformpaymentsetting",
 }

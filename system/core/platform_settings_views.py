@@ -82,18 +82,36 @@ def platform_settings(request):
     else:
         active_tab = request.GET.get("tab", "smtp")
 
-    if active_tab not in VALID_TABS:
-        active_tab = "smtp"
+    setup_warning = None
+    try:
+        smtp_setting = PlatformSmtpSetting.load()
+    except Exception as exc:
+        smtp_setting = PlatformSmtpSetting()
+        setup_warning = "Database tables for platform settings are not migrated yet. Please run 'python manage.py migrate --schema=public'."
 
-    smtp_setting = PlatformSmtpSetting.load()
-    storage_setting = PlatformStorageSetting.load()
-    messaging_setting = PlatformMessagingSetting.load()
+    try:
+        storage_setting = PlatformStorageSetting.load()
+    except Exception:
+        storage_setting = PlatformStorageSetting()
+        if not setup_warning:
+            setup_warning = "Database tables for platform settings are not migrated yet. Please run 'python manage.py migrate --schema=public'."
+
+    try:
+        messaging_setting = PlatformMessagingSetting.load()
+    except Exception:
+        messaging_setting = PlatformMessagingSetting()
+        if not setup_warning:
+            setup_warning = "Database tables for platform settings are not migrated yet. Please run 'python manage.py migrate --schema=public'."
 
     smtp_form = PlatformSmtpSettingForm(instance=smtp_setting)
     storage_form = PlatformStorageSettingForm(instance=storage_setting)
     messaging_form = PlatformMessagingSettingForm(instance=messaging_setting)
 
     if request.method == "POST":
+        if setup_warning:
+            messages.error(request, setup_warning)
+            return redirect(f"{request.path}?tab={active_tab}")
+
         if active_tab == "smtp":
             smtp_form = PlatformSmtpSettingForm(request.POST, instance=smtp_setting)
             if smtp_form.is_valid():
@@ -122,6 +140,7 @@ def platform_settings(request):
     context = _shared_context(
         request,
         active_tab=active_tab,
+        setup_warning=setup_warning,
         smtp_form=smtp_form,
         smtp_setting=smtp_setting,
         storage_form=storage_form,

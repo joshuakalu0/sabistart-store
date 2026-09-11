@@ -1232,6 +1232,22 @@ def onboarding_provisioning_status(request):
         return JsonResponse({"status": "provisioning", "progress": 30})
 
     from system.account.sso import get_tenant_subdomain_redirect_url
+    from system.account.migration_runner import advance_tenant_provisioning, in_failure_cooldown
+
+    # ── Active Advancement: drive migrations forward in bounded chunks during polling ──
+    if shop.provisioning_status != Shop.ProvisioningStatus.READY and not in_failure_cooldown(schema_name):
+        try:
+            from django.conf import settings
+            heal_budget = getattr(settings, "TENANT_PROVISIONING_POLL_BUDGET", 6)
+            advance_result = advance_tenant_provisioning(
+                schema_name,
+                time_budget=heal_budget,
+                source="status_poll",
+            )
+            if advance_result.get("is_ready"):
+                shop.refresh_from_db()
+        except Exception as exc:
+            logger.warning("[Provisioning] Poll advance error for '%s': %s", schema_name, exc)
 
     # ── Fast path: shop row already says READY → redirect ────────────────
     if shop.provisioning_status == Shop.ProvisioningStatus.READY:
@@ -1256,7 +1272,7 @@ def onboarding_provisioning_status(request):
             "progress": 100,
             "redirect_url": redirect_url,
             "schema_name": schema_name,
-            "engine": "cron_sweep",
+            "engine": "active_provisioner",
         })
 
     # ── Failed: surface a clear error to the user ────────────────────────
