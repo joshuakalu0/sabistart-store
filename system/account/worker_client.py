@@ -192,7 +192,7 @@ def dispatch_migration_to_worker(
     """
     schema_name = getattr(shop, "schema_name", "") or ""
 
-    runner = getattr(settings, "MIGRATION_RUNNER", "cron").lower()
+    runner = getattr(settings, "MIGRATION_RUNNER", "redis").lower()
 
     # ── Cron mode: the cron job is the only authority, never dispatch here ───
     if runner == "cron":

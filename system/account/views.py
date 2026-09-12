@@ -1109,37 +1109,6 @@ def onboarding_subdomain(request):
     return render(request, "account/onboarding/subdomain.html", context)
 
 
-def _spawn_background_provisioning(schema_name: str) -> None:
-    """
-    Launch a detached OS subprocess to run process_pending_tenants for this schema.
-    Runs asynchronously in its own OS process so Gunicorn HTTP workers are never blocked.
-    """
-    import os
-    import subprocess
-    import sys
-    import logging
-    from django.conf import settings
-    from system.account.migration_runner import in_failure_cooldown
-
-    if not schema_name or in_failure_cooldown(schema_name):
-        return
-
-    manage_py = str(settings.BASE_DIR / "manage.py")
-    cmd = [sys.executable, manage_py, "process_pending_tenants", f"--schema={schema_name}"]
-    try:
-        kwargs = {
-            "stdout": subprocess.DEVNULL,
-            "stderr": subprocess.DEVNULL,
-            "cwd": str(settings.BASE_DIR),
-        }
-        if os.name != "nt":
-            kwargs["start_new_session"] = True
-        subprocess.Popen(cmd, **kwargs)
-        logging.getLogger("sabistart.account.views").info("[Provisioning] Spawned background process for '%s'", schema_name)
-    except Exception as exc:
-        logging.getLogger("sabistart.account.views").warning("[Provisioning] Could not spawn background process for '%s': %s", schema_name, exc)
-
-
 def onboarding_provisioning(request):
     from django.db import connection
     try:
@@ -1180,11 +1149,15 @@ def onboarding_provisioning(request):
     if not schema_name:
         return redirect("platform:onboarding_subdomain")
 
-    # Spawn background worker asynchronously (never blocks HTTP response)
-    if schema_name:
-        _spawn_background_provisioning(schema_name)
-
+    # NOTE: Migration work is intentionally NOT dispatched from this view.
+    # The provisioning flow is fully cron-driven: a background OS process
+    # (the `process_pending_tenants` management command) runs every few
+    # minutes, finds tenants in `pending` / `provisioning` / `in_progress` /
+    # `failed` status, and migrates + finalises them in a separate process.
+    # This view's only job is to render the polling page and let the JSON
+    # status endpoint (below) report progress.
     selected_bundle = None
+
     if session.selected_bundle_slug:
         selected_bundle = get_plan_bundle_by_slug(session.selected_bundle_slug, currency=session.currency)
 
@@ -1203,8 +1176,23 @@ def onboarding_provisioning(request):
 def onboarding_provisioning_status(request):
     """
     JSON status endpoint polled by the provisioning page.
-    Pure non-blocking read (<10ms) that inspects DB migration status and
-    returns real-time progress while the background subprocess runs.
+
+    CRON-DRIVEN PROVISIONING MODEL
+    ------------------------------
+    This endpoint is intentionally a pure read.  It does NOT dispatch to
+    any background worker, kill any process, or try to provision the
+    tenant admin user.  All migration + finalisation work is performed
+    by the OS-cron-scheduled management command
+    ``process_pending_tenants`` (see system/account/management/commands/
+    process_pending_tenants.py).
+
+    The poll just inspects ``Shop.provisioning_status`` and, when
+    pending, returns a progress curve derived from
+    ``get_tenant_migration_status()`` which reads the actual
+    ``django_migrations`` table in the tenant schema.  The frontend
+    keeps polling every 1.5-2.5 seconds; once the cron sweep flips the
+    row to ``READY`` we return the redirect URL and the page navigates
+    away.
     """
     import logging
     from django.db import connection
@@ -1252,6 +1240,7 @@ def onboarding_provisioning_status(request):
             redirect_url = get_tenant_subdomain_redirect_url(shop, request=request, user=user, next_path='/dashboard/')
         except Exception as exc:
             logger.warning("[Provisioning] Could not build SSO redirect URL: %s", exc)
+            # Build a simple fallback URL manually
             primary_domain = shop.domains.filter(is_primary=True).first()
             domain_name = primary_domain.domain if primary_domain else schema_name
             from django.conf import settings
@@ -1267,7 +1256,7 @@ def onboarding_provisioning_status(request):
             "progress": 100,
             "redirect_url": redirect_url,
             "schema_name": schema_name,
-            "engine": "background_provisioner",
+            "engine": "cron_sweep",
         })
 
     # ── Failed: surface a clear error to the user ────────────────────────
@@ -1279,17 +1268,13 @@ def onboarding_provisioning_status(request):
             "error": err[:2000],
             "schema_name": schema_name,
             "stage_message": "Provisioning failed.",
-            "engine": "background_provisioner",
+            "engine": "cron_sweep",
         })
 
-    # ── Ensure background process is active ──────────────────────────────
-    if shop.provisioning_status in (Shop.ProvisioningStatus.PENDING, Shop.ProvisioningStatus.PROVISIONING):
-        _spawn_background_provisioning(schema_name)
-
-    # ── Real DB progress check (<5ms) ────────────────────────────────────
+    # ── Pending: report real DB progress (what the cron sweep is doing) ──
     from system.account.schema_inspector import get_tenant_migration_status
     try:
-        mig_status = get_tenant_migration_status(schema_name, use_cache=False)
+        mig_status = get_tenant_migration_status(schema_name, use_cache=True)
     except Exception as exc:
         logger.warning("[Provisioning] schema_inspector failed for '%s': %s", schema_name, exc)
         mig_status = {"is_ready": False, "progress_percent": 15, "applied_count": 0,
@@ -1300,6 +1285,7 @@ def onboarding_provisioning_status(request):
     db_percent = int(mig_status.get("progress_percent") or 0)
     current_stage = mig_status.get("current_stage") or {}
 
+    # Stage message: use the cron-readable stage name from the inspector.
     if current_stage:
         stage_message = (
             f"Stage {current_stage.get('stage', '')}: "
@@ -1308,12 +1294,16 @@ def onboarding_provisioning_status(request):
     else:
         stage_message = "Setting up database..."
 
+    # Status row tells us whether the cron sweep is even aware of this
+    # tenant yet.  If it's PENDING (just registered, no schema created
+    # at all yet) or PROVISIONING (schema created, no migrations yet)
+    # the message should reflect that.
     if shop.provisioning_status == Shop.ProvisioningStatus.PENDING:
-        stage_message = "Starting store setup..."
+        stage_message = "Waiting for the migration sweep to pick up your store..."
     elif shop.provisioning_status == Shop.ProvisioningStatus.PROVISIONING:
-        stage_message = "Preparing your database schema..."
+        stage_message = "Preparing your store..."
     elif shop.provisioning_status == Shop.ProvisioningStatus.IN_PROGRESS and applied == 0:
-        stage_message = "Applying initial database tables..."
+        stage_message = "Migration sweep is starting..."
 
     return JsonResponse({
         "status": "provisioning",
@@ -1323,7 +1313,7 @@ def onboarding_provisioning_status(request):
         "stage_message": stage_message,
         "applied_count": applied,
         "total_migrations": total,
-        "engine": "background_provisioner",
+        "engine": "cron_sweep",
     })
 
 

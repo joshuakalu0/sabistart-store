@@ -10,7 +10,20 @@ from public.monitoring.services import (
 
 import logging
 
+from django.db import connection
+
 logger = logging.getLogger(__name__)
+
+# Paths that should never be tracked (platform admin, static assets, etc.)
+_SKIP_MONITORING_PREFIXES = (
+    "/platform/",
+    "/admin/",
+    "/static/",
+    "/media/",
+    "/favicon",
+    "/healthz",
+    "/readyz",
+)
 
 
 class VisitorMonitoringMiddleware:
@@ -18,10 +31,17 @@ class VisitorMonitoringMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        # Skip monitoring on public schema (platform pages) — no tenant visit tables here.
+        # Also skip well-known platform paths regardless of schema.
+        schema = getattr(connection, "schema_name", "public")
+        path = request.path
+        if schema == "public" or any(path.startswith(p) for p in _SKIP_MONITORING_PREFIXES):
+            return self.get_response(request)
+
         headers = dict(request.headers)
         tracked = False
         try:
-            if should_track_request(request.path, request.method, headers):
+            if should_track_request(path, request.method, headers):
                 if hasattr(request, "session") and not request.session.session_key:
                     request.session.create()
                 request._visitor_monitoring_session = ensure_visitor_session(request)

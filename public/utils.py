@@ -148,6 +148,7 @@ def rate_limit(
             ip = get_client_ip(request) or "unknown"
             user_key = str(getattr(request.user, "pk", "")) if by_user and getattr(request.user, "is_authenticated", False) else "anon"
             window = int(time.time() // per_seconds)
+            cache_key = f"rate_limit:{scope}:{ip}:{user_key}:{window}"
             current = 0
             try:
                 current = cache.get(cache_key, 0)

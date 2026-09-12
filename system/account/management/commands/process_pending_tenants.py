@@ -170,33 +170,6 @@ class Command(BaseCommand):
                 "schema does not get hammered on every cron tick."
             ),
         )
-        parser.add_argument(
-            "--chunked",
-            action="store_true",
-            default=None,
-            help=(
-                "Run migrations in chunked mode using run_tenant_chunked_migrations. "
-                "Overrides PROVISION_USE_CHUNKS env variable."
-            ),
-        )
-        parser.add_argument(
-            "--no-chunked",
-            action="store_true",
-            default=False,
-            help=(
-                "Force standard single-pass migrate subprocess. "
-                "Overrides PROVISION_USE_CHUNKS env variable."
-            ),
-        )
-        parser.add_argument(
-            "--chunk-size",
-            type=int,
-            default=None,
-            help=(
-                "Number of migrations per chunk when chunked mode is enabled. "
-                "Defaults to PROVISION_CHUNK_SIZE env or 3."
-            ),
-        )
 
     # ------------------------------------------------------------------ #
     # Main entry point                                                    #
@@ -277,7 +250,6 @@ class Command(BaseCommand):
                     extra_migrate_args=options["migrate_args"],
                     subprocess_timeout=options["subprocess_timeout"],
                     dry_run=options["dry_run"],
-                    options=options,
                 )
                 if ok:
                     summary["ok"] += 1
@@ -310,7 +282,6 @@ class Command(BaseCommand):
         extra_migrate_args: str,
         subprocess_timeout: int,
         dry_run: bool,
-        options: dict,
     ) -> bool:
         from system.account.migration_runner import (
             acquire_migration_lock,
@@ -327,35 +298,13 @@ class Command(BaseCommand):
             ))
             return False
 
-        # Determine whether to use chunked migrations for this run
-        if options.get("no_chunked"):
-            use_chunked = False
-        elif options.get("chunked"):
-            use_chunked = True
-        else:
-            raw_env = os.getenv("PROVISION_USE_CHUNKS") or os.getenv("TENANT_PROVISIONING_USE_CHUNKS") or ""
-            use_chunked = raw_env.strip().lower() in ("1", "true", "yes", "on")
-
-        raw_chunk_size = options.get("chunk_size") or os.getenv("PROVISION_CHUNK_SIZE") or os.getenv("TENANT_PROVISIONING_CHUNK_SIZE")
-        try:
-            chunk_size = int(raw_chunk_size) if raw_chunk_size else 3
-        except (ValueError, TypeError):
-            chunk_size = 3
-
-        mode_label = f"chunked (size={chunk_size})" if use_chunked else "standard (single-pass)"
-
         # Dry-run short-circuit -- print and exit without changing state.
         if dry_run:
             cmd_preview = self._build_migrate_command(
-                subprocess_python,
-                schema_name,
-                extra_migrate_args,
-                use_chunked=use_chunked,
-                chunk_size=chunk_size,
-                timeout=subprocess_timeout,
+                subprocess_python, schema_name, extra_migrate_args,
             )
             self.stdout.write(self.style.NOTICE(
-                f"[CronProvision][DRY-RUN] {schema_name} (status={shop.provisioning_status}, mode={mode_label})"
+                f"[CronProvision][DRY-RUN] {schema_name} (status={shop.provisioning_status})"
             ))
             self.stdout.write("    " + " ".join(cmd_preview))
             return True
@@ -381,14 +330,21 @@ class Command(BaseCommand):
                 return True
 
             shop.provisioning_status = Shop.ProvisioningStatus.IN_PROGRESS
-            shop.provisioning_error = f"Cron sweep: migration subprocess starting ({mode_label})..."
+            shop.provisioning_error = "Cron sweep: migration subprocess starting..."
             shop.save(update_fields=["provisioning_status", "provisioning_error"])
 
             self.stdout.write(self.style.NOTICE(
-                f"[CronProvision] [{schema_name}] Marked IN_PROGRESS ({mode_label}). Spawning subprocess..."
+                f"[CronProvision] [{schema_name}] Marked IN_PROGRESS. Spawning migrate subprocess..."
             ))
 
             # 0) Pre-flight: repair "lying django_migrations" rows.
+            #    A previous chunked-runner fake-heal may have recorded a
+            #    migration as applied while its CREATE TABLE never
+            #    committed (e.g. pos.0002 / pos_catalog_items).  Plain
+            #    migrate will never re-run a recorded migration, so we
+            #    detect the mismatch here and un-apply the lying rows --
+            #    the subprocess then genuinely re-runs them and builds
+            #    the missing tables.
             self._repair_lying_migration_records(shop, schema_name)
 
             # 1) Subprocess: run the actual DDL in a separate OS process.
@@ -397,8 +353,6 @@ class Command(BaseCommand):
                 schema_name=schema_name,
                 extra_migrate_args=extra_migrate_args,
                 timeout=subprocess_timeout,
-                use_chunked=use_chunked,
-                chunk_size=chunk_size,
             )
 
             if not ok:
@@ -613,32 +567,32 @@ class Command(BaseCommand):
         subprocess_python: str,
         schema_name: str,
         extra_migrate_args: str,
-        use_chunked: bool = False,
-        chunk_size: int = 3,
-        timeout: int = DEFAULT_SUBPROCESS_TIMEOUT,
     ) -> List[str]:
+        # Plain ``migrate --schema=<name>`` is the ONLY subprocess we spawn.
+        #
+        # Deliberately NOT run_tenant_chunked_migrations:
+        #   * The chunked runner "fake-heals" (records migrations as applied
+        #     when it sees "already exists" errors, and records prerequisite
+        #     migrations without running their DDL).  That is exactly the
+        #     mechanism that leaves schemas in the broken state where
+        #     django_migrations says pos.0002 is applied but the
+        #     pos_catalog_items table does not exist.
+        #   * The chunked runner shares the parent's coordination locks
+        #     (--force clears them), so a parent + subprocess pair can both
+        #     run against the same schema concurrently.
+        # Plain Django migrate is atomic per migration, applies every pending
+        # migration in dependency order, and never records anything it did
+        # not actually run.
         from django.conf import settings
         manage_py_path = str(settings.BASE_DIR / "manage.py")
 
-        if use_chunked:
-            cmd = [
-                subprocess_python,
-                manage_py_path,
-                "run_tenant_chunked_migrations",
-                f"--schema={schema_name}",
-                f"--chunk-size={chunk_size}",
-                f"--time-budget={max(10, timeout - 10)}",
-                "--force",
-            ]
-        else:
-            cmd = [
-                subprocess_python,
-                manage_py_path,
-                "migrate",
-                f"--schema={schema_name}",
-                "--noinput",
-            ]
-
+        cmd = [
+            subprocess_python,
+            manage_py_path,
+            "migrate",
+            f"--schema={schema_name}",
+            "--noinput",
+        ]
         if extra_migrate_args:
             cmd.extend(extra_migrate_args.split())
         return cmd
@@ -651,20 +605,11 @@ class Command(BaseCommand):
         schema_name: str,
         extra_migrate_args: str,
         timeout: int,
-        use_chunked: bool = False,
-        chunk_size: int = 3,
     ) -> Tuple[bool, str, int]:
         """Run the migrate subprocess.  Returns (ok, stderr_text, returncode)."""
         from django.conf import settings
 
-        cmd = self._build_migrate_command(
-            subprocess_python,
-            schema_name,
-            extra_migrate_args,
-            use_chunked=use_chunked,
-            chunk_size=chunk_size,
-            timeout=timeout,
-        )
+        cmd = self._build_migrate_command(subprocess_python, schema_name, extra_migrate_args)
 
         # Make sure the subprocess inherits the venv on PATH and
         # runs in the project root directory (where manage.py lives).
