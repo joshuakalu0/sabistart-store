@@ -22,7 +22,7 @@ THEMES_ROOT = BASE_DIR / "themes"
 IS_VERCEL = bool(os.getenv("VERCEL")) or bool(os.getenv("VERCEL_URL"))
 IS_RENDER = bool(os.getenv("RENDER"))
 
-DEFAULT_REDIS_URL = "redis://default:SkYC5kgCv2yVzKR2J6Kr2wSKxeUSoTlA@quill-button-authentic-13782.db.redis.io:17211"
+DEFAULT_REDIS_URL = ""
 
 
 def env(name: str, default=None):
@@ -502,10 +502,11 @@ CELERY_WORKER_MAX_MEMORY_PER_CHILD = env_int("CELERY_WORKER_MAX_MEMORY_PER_CHILD
 CELERY_TASK_DEFAULT_QUEUE = "default"
 
 # -----------------------------------------------------------------------------
-# Cache Configuration (Uses Upstash / Remote Redis if provided, LocMem fallback)
+# Cache Configuration (LocMem default, Redis optional only when explicitly enabled)
 # -----------------------------------------------------------------------------
+ENABLE_REDIS = env_bool("ENABLE_REDIS", default=False)
 REDIS_CACHE_URL = env_first("REDIS_URL", "CELERY_BROKER_URL", default=DEFAULT_REDIS_URL)
-if REDIS_CACHE_URL and (REDIS_CACHE_URL.startswith("redis://") or REDIS_CACHE_URL.startswith("rediss://")):
+if ENABLE_REDIS and REDIS_CACHE_URL and (REDIS_CACHE_URL.startswith("redis://") or REDIS_CACHE_URL.startswith("rediss://")):
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.redis.RedisCache",
