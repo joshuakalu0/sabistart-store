@@ -1274,16 +1274,45 @@ def onboarding_provisioning_status(request):
     # ── Pending: report real DB progress (what the cron sweep is doing) ──
     from system.account.schema_inspector import get_tenant_migration_status
     try:
-        mig_status = get_tenant_migration_status(schema_name, use_cache=True)
+        mig_status = get_tenant_migration_status(schema_name, use_cache=False)
     except Exception as exc:
         logger.warning("[Provisioning] schema_inspector failed for '%s': %s", schema_name, exc)
-        mig_status = {"is_ready": False, "progress_percent": 15, "applied_count": 0,
+        mig_status = {"is_ready": False, "progress_percent": 0, "applied_count": 0,
                       "total_migrations": 0, "current_stage": None}
 
     total = int(mig_status.get("total_migrations") or 0)
     applied = int(mig_status.get("applied_count") or 0)
     db_percent = int(mig_status.get("progress_percent") or 0)
     current_stage = mig_status.get("current_stage") or {}
+
+    # ── Fallback: parse Shop.provisioning_error for live progress ────────
+    # When the cron subprocess applies migrations, it writes lines like:
+    #   "Migration 3/37: pos.0002_postransaction_authoritative_order_and_more"
+    # to Shop.provisioning_error.  If the tenant schema's django_migrations
+    # table is empty (because zero or very few have committed yet), this
+    # fallback ensures the UI always shows forward movement and never
+    # gets stuck at "0/37 migrations applied".
+    current_migration = None
+    error_text = (shop.provisioning_error or "").strip()
+    if error_text.startswith("Migration ") and "/" in error_text:
+        # Format: "Migration <applied>/<total>: <migration_label>"
+        try:
+            rest = error_text[len("Migration "):].strip()
+            counts_part, migration_label = rest.split(":", 1)
+            applied_str, total_str = counts_part.strip().split("/", 1)
+            err_applied = int(applied_str.strip())
+            err_total = int(total_str.strip())
+            # Only use the error-based count if it's ahead of what the DB
+            # reports (the DB catches up only after each commit).
+            if err_applied > applied:
+                applied = err_applied
+            if err_total > total:
+                total = err_total
+            current_migration = migration_label.strip()
+            if total > 0:
+                db_percent = int((applied / total) * 100)
+        except Exception:
+            pass
 
     # Stage message: use the cron-readable stage name from the inspector.
     if current_stage:
@@ -1303,7 +1332,7 @@ def onboarding_provisioning_status(request):
     elif shop.provisioning_status == Shop.ProvisioningStatus.PROVISIONING:
         stage_message = "Preparing your store..."
     elif shop.provisioning_status == Shop.ProvisioningStatus.IN_PROGRESS and applied == 0:
-        stage_message = "Migration sweep is starting..."
+        stage_message = "Migration sweep is starting — first migration pending..."
 
     return JsonResponse({
         "status": "provisioning",
@@ -1313,6 +1342,7 @@ def onboarding_provisioning_status(request):
         "stage_message": stage_message,
         "applied_count": applied,
         "total_migrations": total,
+        "current_migration": current_migration,
         "engine": "cron_sweep",
     })
 

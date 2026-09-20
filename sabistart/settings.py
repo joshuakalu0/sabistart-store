@@ -555,7 +555,7 @@ CSRF_COOKIE_SECURE = env_bool("DJANGO_CSRF_COOKIE_SECURE", default=env_bool("CSR
 # - "redis"  : local background thread with Redis progress tracking
 # - "worker" : external migration worker microservice (Railway / VPS)
 # - "auto"   : remote worker if MIGRATION_WORKER_URL is set, else local Redis thread
-MIGRATION_RUNNER = env("MIGRATION_RUNNER", default="redis").lower()
+MIGRATION_RUNNER = env("MIGRATION_RUNNER", default="cron").lower()
 
 # URL of the external Migration Worker node (Railway / VPS).
 # Leave blank to run migrations in a local background daemon thread instead.

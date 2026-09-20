@@ -238,7 +238,7 @@ def _heal_tenant_migration_dependencies(schema_name: str) -> None:
             for app_label, migration_name in to_record:
                 try:
                     recorder.record_applied(app_label, migration_name)
-                    logger.info("[ChunkedRunner][%s] ✓ Healed parent migration record %s.%s", schema_name, app_label, migration_name)
+                    logger.info("[ChunkedRunner][%s] [OK] Healed parent migration record %s.%s", schema_name, app_label, migration_name)
                 except Exception as exc:
                     logger.warning("[ChunkedRunner][%s] Could not record healed migration %s.%s: %s", schema_name, app_label, migration_name, exc)
     except Exception as exc:
@@ -299,7 +299,7 @@ def _apply_chunk(schema_name: str, migrations: List[Tuple[str, str]]) -> None:
                 recorder.record_applied(app_label, migration_name)
             else:
                 raise
-        logger.info("[ChunkedRunner][%s] ✓ Applied %s.%s", schema_name, app_label, migration_name)
+        logger.info("[ChunkedRunner][%s] [OK] Applied %s.%s", schema_name, app_label, migration_name)
 
 
 
@@ -711,7 +711,7 @@ def _create_singleton_settings(schema_name: str) -> None:
                 store_name=f"Store - {schema_name}",
                 contact_email="contact@example.com",
             )
-            logger.info("[Seed] ✓ Created StoreSettings for '%s'", schema_name)
+            logger.info("[Seed] [OK] Created StoreSettings for '%s'", schema_name)
     except Exception as exc:
         logger.warning("[Seed] StoreSettings: %s", exc)
 
@@ -719,7 +719,7 @@ def _create_singleton_settings(schema_name: str) -> None:
         from dashboard.store_settings.models.theme_settings import ThemeSettings
         if not ThemeSettings.objects.exists():
             ThemeSettings.objects.create(theme_name="Default Theme", is_active=True)
-            logger.info("[Seed] ✓ Created ThemeSettings for '%s'", schema_name)
+            logger.info("[Seed] [OK] Created ThemeSettings for '%s'", schema_name)
     except Exception as exc:
         logger.warning("[Seed] ThemeSettings: %s", exc)
 
@@ -727,7 +727,7 @@ def _create_singleton_settings(schema_name: str) -> None:
         from dashboard.store_settings.models.header_settings import HeaderSettings
         if not HeaderSettings.objects.exists():
             HeaderSettings.objects.create()
-            logger.info("[Seed] ✓ Created HeaderSettings for '%s'", schema_name)
+            logger.info("[Seed] [OK] Created HeaderSettings for '%s'", schema_name)
     except Exception as exc:
         logger.warning("[Seed] HeaderSettings: %s", exc)
 
@@ -735,7 +735,7 @@ def _create_singleton_settings(schema_name: str) -> None:
         from dashboard.store_settings.models.footer_settings import FooterSettings
         if not FooterSettings.objects.exists():
             FooterSettings.objects.create()
-            logger.info("[Seed] ✓ Created FooterSettings for '%s'", schema_name)
+            logger.info("[Seed] [OK] Created FooterSettings for '%s'", schema_name)
     except Exception as exc:
         logger.warning("[Seed] FooterSettings: %s", exc)
 
@@ -743,7 +743,7 @@ def _create_singleton_settings(schema_name: str) -> None:
         from dashboard.store_settings.models.homepage_layout import HomepageLayout
         if not HomepageLayout.objects.exists():
             HomepageLayout.objects.create()
-            logger.info("[Seed] ✓ Created HomepageLayout for '%s'", schema_name)
+            logger.info("[Seed] [OK] Created HomepageLayout for '%s'", schema_name)
     except Exception as exc:
         logger.warning("[Seed] HomepageLayout: %s", exc)
 
@@ -751,7 +751,7 @@ def _create_singleton_settings(schema_name: str) -> None:
         from dashboard.store_settings.models.product_display_settings import ProductDisplaySettings
         if not ProductDisplaySettings.objects.exists():
             ProductDisplaySettings.objects.create()
-            logger.info("[Seed] ✓ Created ProductDisplaySettings for '%s'", schema_name)
+            logger.info("[Seed] [OK] Created ProductDisplaySettings for '%s'", schema_name)
     except Exception as exc:
         logger.warning("[Seed] ProductDisplaySettings: %s", exc)
 
@@ -759,7 +759,7 @@ def _create_singleton_settings(schema_name: str) -> None:
         from dashboard.store_settings.models.product_page_settings import ProductPageSettings
         if not ProductPageSettings.objects.exists():
             ProductPageSettings.objects.create()
-            logger.info("[Seed] ✓ Created ProductPageSettings for '%s'", schema_name)
+            logger.info("[Seed] [OK] Created ProductPageSettings for '%s'", schema_name)
     except Exception as exc:
         logger.warning("[Seed] ProductPageSettings: %s", exc)
 
@@ -767,7 +767,7 @@ def _create_singleton_settings(schema_name: str) -> None:
         from dashboard.store_settings.models.cart_settings import CartSettings
         if not CartSettings.objects.exists():
             CartSettings.objects.create()
-            logger.info("[Seed] ✓ Created CartSettings for '%s'", schema_name)
+            logger.info("[Seed] [OK] Created CartSettings for '%s'", schema_name)
     except Exception as exc:
         logger.warning("[Seed] CartSettings: %s", exc)
 
@@ -775,7 +775,7 @@ def _create_singleton_settings(schema_name: str) -> None:
         from dashboard.store_settings.models.checkout_settings import CheckoutSettings
         if not CheckoutSettings.objects.exists():
             CheckoutSettings.objects.create()
-            logger.info("[Seed] ✓ Created CheckoutSettings for '%s'", schema_name)
+            logger.info("[Seed] [OK] Created CheckoutSettings for '%s'", schema_name)
     except Exception as exc:
         logger.warning("[Seed] CheckoutSettings: %s", exc)
 
@@ -783,7 +783,7 @@ def _create_singleton_settings(schema_name: str) -> None:
         from dashboard.store_settings.models.search_settings import SearchSettings
         if not SearchSettings.objects.exists():
             SearchSettings.objects.create()
-            logger.info("[Seed] ✓ Created SearchSettings for '%s'", schema_name)
+            logger.info("[Seed] [OK] Created SearchSettings for '%s'", schema_name)
     except Exception as exc:
         logger.warning("[Seed] SearchSettings: %s", exc)
 
@@ -791,7 +791,7 @@ def _create_singleton_settings(schema_name: str) -> None:
         from dashboard.store_settings.models.email_template_settings import EmailTemplateSettings
         if not EmailTemplateSettings.objects.exists():
             EmailTemplateSettings.objects.create()
-            logger.info("[Seed] ✓ Created EmailTemplateSettings for '%s'", schema_name)
+            logger.info("[Seed] [OK] Created EmailTemplateSettings for '%s'", schema_name)
     except Exception as exc:
         logger.warning("[Seed] EmailTemplateSettings: %s", exc)
 
@@ -799,7 +799,7 @@ def _create_singleton_settings(schema_name: str) -> None:
         from dashboard.store_settings.models.social_media_links import SocialMediaLinks
         if not SocialMediaLinks.objects.exists():
             SocialMediaLinks.objects.create()
-            logger.info("[Seed] ✓ Created SocialMediaLinks for '%s'", schema_name)
+            logger.info("[Seed] [OK] Created SocialMediaLinks for '%s'", schema_name)
     except Exception as exc:
         logger.warning("[Seed] SocialMediaLinks: %s", exc)
 
@@ -807,7 +807,7 @@ def _create_singleton_settings(schema_name: str) -> None:
         from dashboard.store_settings.models.notification_settings import NotificationSettings
         if not NotificationSettings.objects.exists():
             NotificationSettings.objects.create()
-            logger.info("[Seed] ✓ Created NotificationSettings for '%s'", schema_name)
+            logger.info("[Seed] [OK] Created NotificationSettings for '%s'", schema_name)
     except Exception as exc:
         logger.warning("[Seed] NotificationSettings: %s", exc)
 
@@ -815,7 +815,7 @@ def _create_singleton_settings(schema_name: str) -> None:
         from dashboard.store_settings.models.mobile_app_settings import MobileAppSettings
         if not MobileAppSettings.objects.exists():
             MobileAppSettings.objects.create(app_name=f"Store App - {schema_name}")
-            logger.info("[Seed] ✓ Created MobileAppSettings for '%s'", schema_name)
+            logger.info("[Seed] [OK] Created MobileAppSettings for '%s'", schema_name)
     except Exception as exc:
         logger.warning("[Seed] MobileAppSettings: %s", exc)
 
@@ -823,7 +823,7 @@ def _create_singleton_settings(schema_name: str) -> None:
         from dashboard.store_settings.models.blog_settings import BlogSettings
         if not BlogSettings.objects.exists():
             BlogSettings.objects.create()
-            logger.info("[Seed] ✓ Created BlogSettings for '%s'", schema_name)
+            logger.info("[Seed] [OK] Created BlogSettings for '%s'", schema_name)
     except Exception as exc:
         logger.warning("[Seed] BlogSettings: %s", exc)
 
@@ -831,7 +831,7 @@ def _create_singleton_settings(schema_name: str) -> None:
         from dashboard.store_settings.models.popup_settings import PopupSettings
         if not PopupSettings.objects.exists():
             PopupSettings.objects.create()
-            logger.info("[Seed] ✓ Created PopupSettings for '%s'", schema_name)
+            logger.info("[Seed] [OK] Created PopupSettings for '%s'", schema_name)
     except Exception as exc:
         logger.warning("[Seed] PopupSettings: %s", exc)
 
@@ -839,7 +839,7 @@ def _create_singleton_settings(schema_name: str) -> None:
         from dashboard.store_settings.models.performance_settings import PerformanceSettings
         if not PerformanceSettings.objects.exists():
             PerformanceSettings.objects.create()
-            logger.info("[Seed] ✓ Created PerformanceSettings for '%s'", schema_name)
+            logger.info("[Seed] [OK] Created PerformanceSettings for '%s'", schema_name)
     except Exception as exc:
         logger.warning("[Seed] PerformanceSettings: %s", exc)
 
@@ -847,11 +847,11 @@ def _create_singleton_settings(schema_name: str) -> None:
         from dashboard.store_settings.models.navigation import NavigationMenu
         if not NavigationMenu.objects.filter(location="header").exists():
             NavigationMenu.objects.create(name="Main Menu", location="header", is_active=True)
-            logger.info("[Seed] ✓ Created default navigation menu for '%s'", schema_name)
+            logger.info("[Seed] [OK] Created default navigation menu for '%s'", schema_name)
     except Exception as exc:
         logger.warning("[Seed] NavigationMenu: %s", exc)
 
-    logger.info("[Seed] ✅ Singleton settings seeding complete for '%s'.", schema_name)
+    logger.info("[Seed] [OK] Singleton settings seeding complete for '%s'.", schema_name)
 
 
 def _finalize_ready(shop) -> None:
