@@ -68,11 +68,11 @@ class Command(BaseCommand):
         parser.add_argument(
             "--max-chunks",
             type=int,
-            default=1,
+            default=0,
             help=(
                 "Stop after applying this many chunks per schema. "
-                "Default 1 (exactly one migration per invocation). "
-                "Set to 0 for unlimited."
+                "Default 0 (unlimited: run until all migrations applied). "
+                "Set to 1 for single-migration execution."
             ),
         )
         parser.add_argument(
@@ -362,10 +362,22 @@ class Command(BaseCommand):
                 new_applied = new_status["applied_count"]
                 label = f"{app_label}.{migration_name}"
                 # Machine-readable progress line parsed by process_pending_tenants
-                self.stdout.write(f"PROGRESS:{new_applied}/{total_migrations}:{label}")
+                self.stdout.write(f"PROGRESS:{new_applied}/{total_migrations}:{label}\n")
+                self.stdout.flush()
                 self.stdout.write(self.style.SUCCESS(
                     f"  [{schema_name}] [OK] {label} ({new_applied}/{total_migrations})"
                 ))
+                self.stdout.flush()
+
+                # Directly persist progress to Shop row so any status poller sees real-time progress
+                try:
+                    from system.core.models import Shop
+                    Shop.objects.filter(schema_name=schema_name).update(
+                        provisioning_error=f"Migration {new_applied}/{total_migrations}: {label}",
+                        provisioning_status=Shop.ProvisioningStatus.IN_PROGRESS,
+                    )
+                except Exception:
+                    pass
 
             chunks_applied += 1
 

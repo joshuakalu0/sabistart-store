@@ -98,8 +98,12 @@ _PENDING_STATUSES = (
     "failed",
 )
 
-# Subprocess hard timeout for a single migration (generous).
-DEFAULT_SUBPROCESS_TIMEOUT = 300  # 5 minutes per single migration
+# Per-migration subprocess timeout (generous for remote Neon DDL)
+DEFAULT_SUBPROCESS_TIMEOUT = 300  # 5 minutes per individual migration
+
+# Total wall-clock budget per cron tick (cron runs every 2 min; budget < cron interval)
+# Each subprocess applies 1 migration; loop until budget exhausted or all done.
+CRON_TICK_BUDGET_SECONDS = 550  # <10 min total per cron invocation
 
 
 class Command(BaseCommand):
@@ -313,7 +317,7 @@ class Command(BaseCommand):
             shop.save(update_fields=["provisioning_status", "provisioning_error"])
 
             self.stdout.write(self.style.NOTICE(
-                f"[CronProvision] [{schema_name}] Marked IN_PROGRESS. Applying next migration..."
+                f"[CronProvision] [{schema_name}] Marked IN_PROGRESS. Starting migration loop..."
             ))
 
             # 0) Pre-flight: repair "lying" migration records.
@@ -323,52 +327,74 @@ class Command(BaseCommand):
             #    migration records are seeded (so Django dependency resolution works).
             self._ensure_schema_bootstrapped(schema_name)
 
-            # 2) Run exactly ONE migration as a subprocess.
-            returncode, stdout_text, stderr_text = self._run_chunk_subprocess(
-                subprocess_python=subprocess_python,
-                schema_name=schema_name,
-                timeout=subprocess_timeout,
-            )
+            # 2) Loop: apply ONE migration per subprocess call until all done
+            #    or the cron tick budget (CRON_TICK_BUDGET_SECONDS) is exhausted.
+            #    Each subprocess has its own per-migration timeout so a single
+            #    slow DDL statement can never stall the whole cron tick.
+            import time as _time
+            from system.account.schema_inspector import is_tenant_ready
 
-            # returncode semantics (set by run_tenant_chunked_migrations):
-            #   0 = applied 1 migration, more remain
-            #   1 = migration failure
-            #   2 = all migrations already applied (complete)
-            if returncode == 1:
-                # Hard failure — extract meaningful error from output
-                error_text = (stderr_text or stdout_text or "Migration subprocess failed.")[-2800:]
-                self._mark_failed(shop, f"Migration subprocess failed for schema '{schema_name}':\n{error_text}")
-                return False
+            tick_start = _time.monotonic()
+            migrations_this_tick = 0
+            complete = False
 
-            # Parse progress from subprocess stdout and persist to Shop.
-            self._write_progress_from_output(shop, schema_name, stdout_text)
+            while True:
+                elapsed = _time.monotonic() - tick_start
+                if elapsed >= CRON_TICK_BUDGET_SECONDS:
+                    self.stdout.write(self.style.NOTICE(
+                        f"[CronProvision] [{schema_name}] Tick budget exhausted after "
+                        f"{elapsed:.0f}s ({migrations_this_tick} migrations this tick). "
+                        f"Next cron tick will continue."
+                    ))
+                    break
 
-            complete = returncode == 2
+                returncode, stdout_text, stderr_text = self._run_chunk_subprocess(
+                    subprocess_python=subprocess_python,
+                    schema_name=schema_name,
+                    timeout=subprocess_timeout,
+                )
+
+                # Parse progress from subprocess stdout and persist to Shop.
+                self._write_progress_from_output(shop, schema_name, stdout_text)
+
+                # returncode semantics (set by run_tenant_chunked_migrations):
+                #   0 = one migration applied, more remain
+                #   1 = migration failure
+                #   2 = all migrations applied (complete)
+                if returncode == 1:
+                    error_text = (stderr_text or stdout_text or "Migration subprocess failed.")[-2800:]
+                    self._mark_failed(
+                        shop,
+                        f"Migration subprocess failed for schema '{schema_name}':\n{error_text}"
+                    )
+                    return False
+
+                migrations_this_tick += 1
+
+                if returncode == 2 or is_tenant_ready(schema_name):
+                    complete = True
+                    break
+
+                # returncode == 0: one migration done, more remain — loop immediately
 
             if complete:
-                # All migrations applied — finalise.
                 final = self._finalise_if_complete(shop, schema_name)
                 if final == "ready":
                     clear_failure_cooldown(schema_name)
                     self.stdout.write(self.style.SUCCESS(
-                        f"[CronProvision] [{schema_name}] All migrations applied. Finalised -> READY."
+                        f"[CronProvision] [{schema_name}] All migrations applied "
+                        f"({migrations_this_tick} this tick). Finalised -> READY."
                     ))
                     return True
                 if final == "failed":
                     return False
-                # Finalisation returned "pending" (admin user table still missing etc.)
-                # — next tick will retry.
                 self.stdout.write(self.style.WARNING(
                     f"[CronProvision] [{schema_name}] Migrations complete but finalisation "
                     f"deferred; next cron tick will finish."
                 ))
                 return True
 
-            # returncode == 0: one migration applied, more remain.
-            self.stdout.write(self.style.NOTICE(
-                f"[CronProvision] [{schema_name}] One migration applied. "
-                f"Will continue next cron tick."
-            ))
+            # Budget exhausted but not done — next cron tick continues.
             return True
 
         finally:
@@ -454,6 +480,10 @@ class Command(BaseCommand):
         """
         Build the single-migration subprocess command:
           run_tenant_chunked_migrations --schema=<name> --chunk-size=1 --max-chunks=1 --no-throttle
+
+        IMPORTANT: --max-chunks=1 means the subprocess applies EXACTLY ONE migration
+        and exits.  The parent loop in _process_one calls this repeatedly until
+        all migrations are done or the cron tick budget is exhausted.
         """
         from django.conf import settings
         manage_py_path = str(settings.BASE_DIR / "manage.py")
@@ -464,7 +494,7 @@ class Command(BaseCommand):
             "run_tenant_chunked_migrations",
             f"--schema={schema_name}",
             "--chunk-size=1",
-            "--max-chunks=1",
+            "--max-chunks=1",   # ONE migration per subprocess — never timeouts
             "--no-throttle",
             "--force",
         ]
