@@ -522,17 +522,20 @@ class Command(BaseCommand):
             f"[CronProvision] [{schema_name}] $ {' '.join(cmd)}"
         ))
 
+        kwargs = {
+            "stdout": subprocess.PIPE,
+            "stderr": subprocess.PIPE,
+            "env": env,
+            "cwd": project_cwd,
+            "text": True,
+            "encoding": "utf-8",
+            "errors": "replace",
+        }
+        if sys.platform == "win32":
+            kwargs["creationflags"] = 0x08000000  # CREATE_NO_WINDOW
+
         try:
-            proc = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                env=env,
-                cwd=project_cwd,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-            )
+            proc = subprocess.Popen(cmd, **kwargs)
         except FileNotFoundError as exc:
             return 1, "", f"Could not launch subprocess: {exc}"
         except Exception as exc:

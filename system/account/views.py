@@ -1109,6 +1109,61 @@ def onboarding_subdomain(request):
     return render(request, "account/onboarding/subdomain.html", context)
 
 
+def _trigger_background_provisioning(schema_name: str) -> None:
+    """
+    Spawns `manage.py process_pending_tenants --schema=<name> --skip-cooldown`
+    as an independent, detached background OS process if not already locked or running.
+    Completely Celery-free, non-blocking (<5ms), isolated memory.
+    """
+    if not schema_name:
+        return
+    from system.account.migration_runner import is_migration_locked
+    if is_migration_locked(schema_name):
+        return  # Already actively being migrated
+
+    import os
+    import sys
+    import subprocess
+    import logging
+    from django.conf import settings
+
+    logger = logging.getLogger(__name__)
+    manage_py = str(settings.BASE_DIR / "manage.py")
+    cmd = [
+        sys.executable,
+        manage_py,
+        "process_pending_tenants",
+        f"--schema={schema_name}",
+        "--skip-cooldown",
+    ]
+    env = os.environ.copy()
+    env["PYTHONIOENCODING"] = "utf-8"
+    env["PYTHONUTF8"] = "1"
+
+    try:
+        if sys.platform == "win32":
+            subprocess.Popen(
+                cmd,
+                cwd=str(settings.BASE_DIR),
+                env=env,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                creationflags=subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS | 0x08000000,
+            )
+        else:
+            subprocess.Popen(
+                cmd,
+                cwd=str(settings.BASE_DIR),
+                env=env,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                start_new_session=True,
+            )
+        logger.info("[Provisioning] Spawned background process_pending_tenants for schema '%s'.", schema_name)
+    except Exception as exc:
+        logger.warning("[Provisioning] Could not spawn background process for '%s': %s", schema_name, exc)
+
+
 def onboarding_provisioning(request):
     from django.db import connection
     try:
@@ -1149,13 +1204,15 @@ def onboarding_provisioning(request):
     if not schema_name:
         return redirect("platform:onboarding_subdomain")
 
-    # NOTE: Migration work is intentionally NOT dispatched from this view.
-    # The provisioning flow is fully cron-driven: a background OS process
-    # (the `process_pending_tenants` management command) runs every few
-    # minutes, finds tenants in `pending` / `provisioning` / `in_progress` /
-    # `failed` status, and migrates + finalises them in a separate process.
-    # This view's only job is to render the polling page and let the JSON
-    # status endpoint (below) report progress.
+    # Trigger background provisioning sweep if not already running
+    if schema_name:
+        try:
+            shop_obj = Shop.objects.filter(schema_name=schema_name).first()
+            if shop_obj and shop_obj.provisioning_status != Shop.ProvisioningStatus.READY:
+                _trigger_background_provisioning(schema_name)
+        except Exception:
+            pass
+
     selected_bundle = None
 
     if session.selected_bundle_slug:
@@ -1271,7 +1328,9 @@ def onboarding_provisioning_status(request):
             "engine": "cron_sweep",
         })
 
-    # ── Pending: report real DB progress (what the cron sweep is doing) ──
+    # ── Pending: report real DB progress (what the sweep is doing) ──────
+    _trigger_background_provisioning(schema_name)
+
     from system.account.schema_inspector import get_tenant_migration_status
     try:
         mig_status = get_tenant_migration_status(schema_name, use_cache=False)
