@@ -148,12 +148,12 @@ def rate_limit(
             ip = get_client_ip(request) or "unknown"
             user_key = str(getattr(request.user, "pk", "")) if by_user and getattr(request.user, "is_authenticated", False) else "anon"
             window = int(time.time() // per_seconds)
-            cache_key = f"rate_limit:{scope}:{ip}:{user_key}:{window}"
+            cache_key = f"ratelimit:{scope}:{window}:{ip}:{user_key}"
             current = 0
             try:
                 current = cache.get(cache_key, 0)
             except Exception:
-                pass
+                current = 0
 
             if current and current >= rate:
                 retry_after = per_seconds - (int(time.time()) % per_seconds)
