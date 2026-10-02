@@ -1317,9 +1317,31 @@ def onboarding_provisioning_status(request):
             "engine": "cron_sweep",
         })
 
-    # ── Failed: surface a clear error to the user ────────────────────────
+    # ── Failed: auto-reset and re-trigger rather than dead-ending the user ──
     if shop.provisioning_status == Shop.ProvisioningStatus.FAILED:
-        err = (shop.provisioning_error or "Migration failed. Please retry.").strip()
+        from system.account.migration_runner import in_failure_cooldown
+        err = (shop.provisioning_error or "").strip()
+        # If the subprocess is not in cooldown, auto-reset and retry immediately
+        if not in_failure_cooldown(shop.schema_name):
+            logger.info(
+                "[Provisioning] Auto-resetting FAILED shop '%s' and re-triggering migration.",
+                schema_name,
+            )
+            shop.provisioning_status = Shop.ProvisioningStatus.IN_PROGRESS
+            shop.provisioning_error = "Auto-recovering: re-triggering migration subprocess..."
+            shop.save(update_fields=["provisioning_status", "provisioning_error"])
+            _trigger_background_provisioning(schema_name)
+            return JsonResponse({
+                "status": "provisioning",
+                "progress": 15,
+                "schema_name": schema_name,
+                "stage_message": "Recovering — restarting migration...",
+                "applied_count": 0,
+                "total_migrations": 0,
+                "current_migration": None,
+                "engine": "cron_sweep",
+            })
+        # In cooldown — surface the error so user knows something real is wrong
         return JsonResponse({
             "status": "failed",
             "progress": 100,

@@ -258,6 +258,7 @@
 
         let isRedirecting = false;
         let pollCount = 0;
+        let pollInterval = 1500;  // Start at 1.5s, slow down over time
 
         function setProgress(pct, text, detail) {
           progressBar.style.width = pct + "%";
@@ -288,10 +289,18 @@
         function poll() {
           if (isRedirecting) return;
           pollCount++;
-          
-          if (pollCount > 150) {
-              progressStatusText.textContent = "Taking longer than expected. Please refresh the page.";
-              return;
+
+          // After 2 minutes slow down to polling every 5s to be kind to the server.
+          // NEVER stop polling — migrations can take 10-15 minutes on a cold Neon DB.
+          if (pollCount > 80) {
+            pollInterval = 5000;
+          } else if (pollCount > 30) {
+            pollInterval = 3000;
+          }
+
+          // Show informational message after 3 minutes but keep polling
+          if (pollCount === 120) {
+            progressStatusText.textContent = "Still working... large stores take up to 15 minutes.";
           }
 
           fetch(pollUrl, {
@@ -317,12 +326,13 @@
               }, 1000);
 
             } else if (data.status === "failed") {
-              progressBar.classList.replace("bg-blue-600", "bg-amber-500");
-              setProgress(100, "Setup is taking a little longer than expected.", "Please reload the page to continue.");
-              progressStatusText.className = "text-amber-700 font-semibold";
+              // Don't stop — the backend auto-retries on the next poll.
+              // Just show a soft warning and keep going.
+              progressStatusText.textContent = "Recovering... retrying automatically.";
               if (migDetailText) {
-                migDetailText.innerHTML = '<span class="inline-flex items-center gap-2 mt-2"><button onclick="window.location.reload()" class="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition">Reload Page</button> <a href="mailto:support@sabistart.com" class="text-xs text-blue-600 underline font-medium ml-2">Contact Support</a></span>';
+                migDetailText.textContent = data.error ? data.error.slice(-120) : "Will retry on next check.";
               }
+              setTimeout(poll, 8000);  // Wait 8s before retrying after a failure
 
             } else {
               // In-progress — show live migration detail
@@ -357,12 +367,12 @@
                 updateStepUI("step-subdomain", "step-subdomain-label", false, "Configuring...");
               }
 
-              setTimeout(poll, 1500);
+              setTimeout(poll, pollInterval);
             }
           })
           .catch(err => {
             console.error("Polling status error:", err);
-            setTimeout(poll, 2500);
+            setTimeout(poll, 5000);  // Wait 5s on network error before retrying
           });
         }
 
