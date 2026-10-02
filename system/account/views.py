@@ -1158,6 +1158,7 @@ def _trigger_background_provisioning(schema_name: str) -> None:
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 start_new_session=True,
+                close_fds=True,
             )
         logger.info("[Provisioning] Spawned background process_pending_tenants for schema '%s'.", schema_name)
     except Exception as exc:
