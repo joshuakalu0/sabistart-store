@@ -100,39 +100,50 @@ def _sync_session_with_user(session: OnboardingSession, user) -> None:
 
 
 def _get_existing_onboarding_session(request) -> OnboardingSession | None:
-    token = request.session.get("platform_onboarding_token")
+    try:
+        token = request.session.get("platform_onboarding_token")
+    except Exception:
+        # django_session table may not exist yet (mid-migration state)
+        token = None
+
     if token:
-        session = (
-            OnboardingSession.objects.filter(session_token=token)
-            .exclude(status__in=[OnboardingSession.Status.COMPLETED, OnboardingSession.Status.CANCELLED])
-            .first()
-        )
+        try:
+            session = (
+                OnboardingSession.objects.filter(session_token=token)
+                .exclude(status__in=[OnboardingSession.Status.COMPLETED, OnboardingSession.Status.CANCELLED])
+                .first()
+            )
+        except Exception:
+            session = None
         if session:
             if getattr(request.user, "is_authenticated", False):
                 _sync_session_with_user(session, request.user)
             return session
 
     if getattr(request.user, "is_authenticated", False) and getattr(request.user, "email", ""):
-        session = (
-            OnboardingSession.objects.filter(email__iexact=request.user.email)
-            .exclude(status__in=[OnboardingSession.Status.COMPLETED, OnboardingSession.Status.CANCELLED])
-            .order_by("-updated_at")
-            .first()
-        )
-        if not session:
-            user_id = str(getattr(request.user, "id", ""))
-            if user_id:
-                session = (
-                    OnboardingSession.objects.filter(metadata__platform_user_id=user_id)
-                    .exclude(status__in=[OnboardingSession.Status.COMPLETED, OnboardingSession.Status.CANCELLED])
-                    .order_by("-updated_at")
-                    .first()
-                )
-        if session:
-            _sync_session_with_user(session, request.user)
-            request.session["platform_onboarding_token"] = session.session_token
-            request.session.modified = True
-            return session
+        try:
+            session = (
+                OnboardingSession.objects.filter(email__iexact=request.user.email)
+                .exclude(status__in=[OnboardingSession.Status.COMPLETED, OnboardingSession.Status.CANCELLED])
+                .order_by("-updated_at")
+                .first()
+            )
+            if not session:
+                user_id = str(getattr(request.user, "id", ""))
+                if user_id:
+                    session = (
+                        OnboardingSession.objects.filter(metadata__platform_user_id=user_id)
+                        .exclude(status__in=[OnboardingSession.Status.COMPLETED, OnboardingSession.Status.CANCELLED])
+                        .order_by("-updated_at")
+                        .first()
+                    )
+            if session:
+                _sync_session_with_user(session, request.user)
+                request.session["platform_onboarding_token"] = session.session_token
+                request.session.modified = True
+                return session
+        except Exception:
+            pass
     return None
 
 
