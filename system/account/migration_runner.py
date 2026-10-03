@@ -71,6 +71,13 @@ def acquire_migration_lock(schema_name: str, timeout: int = LOCK_TTL, force: boo
         return True
 
 
+def is_migration_locked(schema_name: str) -> bool:
+    try:
+        return bool(cache.get(f"{LOCK_PREFIX}:{schema_name}"))
+    except Exception:
+        return False
+
+
 def release_migration_lock(schema_name: str) -> None:
     try:
         cache.delete(f"{LOCK_PREFIX}:{schema_name}")
