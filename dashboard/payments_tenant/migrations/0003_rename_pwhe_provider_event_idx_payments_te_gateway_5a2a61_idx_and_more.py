@@ -4,31 +4,113 @@ import uuid
 from django.db import migrations, models
 
 
+def apply_0003(apps, schema_editor):
+    conn = schema_editor.connection
+    with conn.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT 1 FROM information_schema.tables 
+            WHERE table_schema = current_schema() AND table_name = 'payments_tenant_processedwebhookevent'
+            LIMIT 1;
+            """
+        )
+        if not cursor.fetchone():
+            return
+
+        for old_name, new_name, cols in [
+            ("pwhe_provider_event_idx", "payments_te_gateway_5a2a61_idx", '("gateway_provider", "gateway_event_id")'),
+            ("pwhe_provider_created_idx", "payments_te_gateway_c22c2d_idx", '("gateway_provider", "created_at" DESC)'),
+            ("pwhe_order_number_idx", "payments_te_order_n_920172_idx", '("order_number")'),
+        ]:
+            cursor.execute(
+                """
+                SELECT 1 FROM pg_indexes 
+                WHERE schemaname = current_schema() AND tablename = 'payments_tenant_processedwebhookevent' AND indexname = %s;
+                """,
+                [old_name],
+            )
+            if cursor.fetchone():
+                cursor.execute(f'ALTER INDEX IF EXISTS "{old_name}" RENAME TO "{new_name}";')
+            else:
+                cursor.execute(
+                    f'CREATE INDEX IF NOT EXISTS "{new_name}" ON "payments_tenant_processedwebhookevent" {cols};'
+                )
+
+        # Alter id to uuid if needed
+        cursor.execute(
+            """
+            SELECT data_type FROM information_schema.columns
+            WHERE table_schema = current_schema() AND table_name = 'payments_tenant_processedwebhookevent' AND column_name = 'id';
+            """
+        )
+        row = cursor.fetchone()
+        if row and row[0] != "uuid":
+            cursor.execute(
+                'ALTER TABLE "payments_tenant_processedwebhookevent" ALTER COLUMN "id" TYPE uuid USING "id"::uuid;'
+            )
+
+
+def reverse_0003(apps, schema_editor):
+    conn = schema_editor.connection
+    with conn.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT 1 FROM information_schema.tables 
+            WHERE table_schema = current_schema() AND table_name = 'payments_tenant_processedwebhookevent'
+            LIMIT 1;
+            """
+        )
+        if not cursor.fetchone():
+            return
+
+        for old_name, new_name in [
+            ("pwhe_provider_event_idx", "payments_te_gateway_5a2a61_idx"),
+            ("pwhe_provider_created_idx", "payments_te_gateway_c22c2d_idx"),
+            ("pwhe_order_number_idx", "payments_te_order_n_920172_idx"),
+        ]:
+            cursor.execute(
+                """
+                SELECT 1 FROM pg_indexes 
+                WHERE schemaname = current_schema() AND tablename = 'payments_tenant_processedwebhookevent' AND indexname = %s;
+                """,
+                [new_name],
+            )
+            if cursor.fetchone():
+                cursor.execute(f'ALTER INDEX IF EXISTS "{new_name}" RENAME TO "{old_name}";')
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('payments_tenant', '0002_transaction_purpose_processedwebhookevent'),
+        ("payments_tenant", "0002_transaction_purpose_processedwebhookevent"),
     ]
 
     operations = [
-        migrations.RenameIndex(
-            model_name='processedwebhookevent',
-            new_name='payments_te_gateway_5a2a61_idx',
-            old_name='pwhe_provider_event_idx',
-        ),
-        migrations.RenameIndex(
-            model_name='processedwebhookevent',
-            new_name='payments_te_gateway_c22c2d_idx',
-            old_name='pwhe_provider_created_idx',
-        ),
-        migrations.RenameIndex(
-            model_name='processedwebhookevent',
-            new_name='payments_te_order_n_920172_idx',
-            old_name='pwhe_order_number_idx',
-        ),
-        migrations.AlterField(
-            model_name='processedwebhookevent',
-            name='id',
-            field=models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False),
-        ),
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.RenameIndex(
+                    model_name="processedwebhookevent",
+                    new_name="payments_te_gateway_5a2a61_idx",
+                    old_name="pwhe_provider_event_idx",
+                ),
+                migrations.RenameIndex(
+                    model_name="processedwebhookevent",
+                    new_name="payments_te_gateway_c22c2d_idx",
+                    old_name="pwhe_provider_created_idx",
+                ),
+                migrations.RenameIndex(
+                    model_name="processedwebhookevent",
+                    new_name="payments_te_order_n_920172_idx",
+                    old_name="pwhe_order_number_idx",
+                ),
+                migrations.AlterField(
+                    model_name="processedwebhookevent",
+                    name="id",
+                    field=models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False),
+                ),
+            ],
+            database_operations=[
+                migrations.RunPython(apply_0003, reverse_code=reverse_0003),
+            ],
+        )
     ]
