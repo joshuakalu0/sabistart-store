@@ -48,6 +48,47 @@ def get_or_create_platform_payment_setting() -> PlatformPaymentSetting:
     return setting
 
 
+def get_active_onboarding_gateway_provider() -> str:
+    """
+    Returns the active gateway provider ('paystack' or 'flutterwave') selected by the platform admin.
+    Defaults to 'paystack' if configured, otherwise 'flutterwave' or the first available enabled gateway.
+    """
+    try:
+        setting = get_or_create_platform_payment_setting()
+        active = (setting.metadata or {}).get("active_onboarding_gateway", "").strip().lower()
+        if active in {"paystack", "flutterwave"}:
+            return active
+    except Exception:
+        pass
+
+    try:
+        gw = PaymentGatewayDefinition.objects.filter(provider="paystack", is_enabled=True).first()
+        if gw and gw.platform_credentials.filter(is_active=True).exists():
+            return "paystack"
+        gw_flw = PaymentGatewayDefinition.objects.filter(provider="flutterwave", is_enabled=True).first()
+        if gw_flw and gw_flw.platform_credentials.filter(is_active=True).exists():
+            return "flutterwave"
+    except Exception:
+        pass
+    return "paystack"
+
+
+def set_active_onboarding_gateway_provider(provider: str) -> None:
+    """
+    Sets the active gateway provider for platform onboarding & billing.
+    """
+    provider = (provider or "").strip().lower()
+    if provider not in {"paystack", "flutterwave"}:
+        raise ValueError(f"Unsupported gateway provider: {provider}")
+    setting = get_or_create_platform_payment_setting()
+    metadata = dict(setting.metadata or {})
+    metadata["active_onboarding_gateway"] = provider
+    setting.metadata = metadata
+    setting.save(update_fields=["metadata", "updated_at"])
+
+    PaymentGatewayDefinition.objects.filter(provider=provider).update(is_enabled=True)
+
+
 def get_platform_payment_overview() -> dict:
     return {
         "tenant_count": TenantPaymentSnapshot.objects.count(),

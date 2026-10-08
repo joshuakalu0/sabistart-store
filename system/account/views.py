@@ -51,7 +51,9 @@ from system.feature_marketplace.services import (
     get_plan_bundle_by_slug,
     get_plan_bundles,
     get_plan_groups,
+    _bundle_feature_labels,
 )
+from system.system_pay.services import get_active_onboarding_gateway_provider
 
 
 SCHEMA_AWARE_BACKEND = "sabistart.auth_backends.SchemaAwareAuthenticationBackend"
@@ -272,10 +274,9 @@ def _resume_onboarding_url(session: OnboardingSession, request=None) -> str:
 
 def _onboarding_progress(current_step: str):
     steps = (
-        ("start", "Welcome"),
         ("account", "Account"),
-        ("plan", "Plan"),
-        ("checkout", "Payment"),
+        ("plan", "Choose Plan"),
+        ("checkout", "Review & Payment"),
         ("subdomain", "Store Setup"),
     )
     return [
@@ -641,25 +642,7 @@ def _get_post_auth_redirect_url(user, request=None) -> str:
 
 
 def onboarding_start(request):
-    if request.user.is_authenticated:
-        existing_session = _get_existing_onboarding_session(request)
-        if existing_session:
-            return redirect(_resume_onboarding_url(existing_session, request))
-        return redirect(_get_post_auth_redirect_url(request.user, request))
-
-    session = _get_existing_onboarding_session(request)
-    if session and session.email and ((session.metadata or {}).get("password_hash") or (session.metadata or {}).get("platform_user_id")):
-        return redirect(_resume_onboarding_url(session, request))
-
-    session = session or _get_or_create_onboarding_session(request)
-    _remember_requested_plan(request, session)
-    context = _onboarding_context(
-        request,
-        session=session,
-        page_title="Start Onboarding",
-        current_step="start",
-    )
-    return render(request, "account/onboarding/start.html", context)
+    return onboarding_account(request)
 
 
 def onboarding_account(request):
@@ -758,22 +741,14 @@ def onboarding_account(request):
 
 
 def onboarding_plan(request):
+    if not request.user.is_authenticated:
+        messages.info(request, "Please create your account to choose a plan.")
+        return redirect("platform:onboarding_account")
+
     existing_session = _get_existing_onboarding_session(request)
     session = existing_session or _get_or_create_onboarding_session(request)
+    _sync_session_with_user(session, request.user)
     requested_plan = _remember_requested_plan(request, session)
-
-    is_authenticated = bool(getattr(request.user, "is_authenticated", False))
-    has_account = bool(
-        session.email
-        and (
-            is_authenticated
-            or (session.metadata or {}).get("password_hash")
-            or (session.metadata or {}).get("platform_user_id")
-        )
-    )
-    if not has_account:
-        messages.info(request, "Tell us about your business before selecting a plan.")
-        return redirect("platform:onboarding_account")
 
     plan_groups = get_plan_groups(currency=session.currency, current_only=True)
     plan_bundles = get_plan_bundles(currency=session.currency, current_only=True)
@@ -824,11 +799,13 @@ def onboarding_plan(request):
 
 
 def onboarding_checkout(request):
+    if not request.user.is_authenticated:
+        return redirect(f"{reverse('platform:login')}?next={request.get_full_path()}")
 
     existing_session = _get_existing_onboarding_session(request)
-    if request.user.is_authenticated and existing_session is None:
-        return redirect(_get_post_auth_redirect_url(request.user, request))
     session = existing_session or _get_or_create_onboarding_session(request)
+    _sync_session_with_user(session, request.user)
+
     if not session.selected_bundle_slug:
         messages.info(request, "Choose a plan before heading to payment.")
         return redirect("platform:onboarding_plan")
@@ -840,75 +817,67 @@ def onboarding_checkout(request):
         messages.error(request, "The selected plan could not be found. Please choose a plan.")
         return redirect("platform:onboarding_plan")
 
-    gateway_choices = _gateway_choices(session.currency)
-    gateway_cards = _sorted_marketplace_gateways(session.currency)
-    default_gateway_provider = (session.metadata or {}).get("selected_gateway_provider", "")
-    if not default_gateway_provider and gateway_cards:
-        default_gateway_provider = gateway_cards[0]["provider"]
-    form = OnboardingCheckoutForm(
-        request.POST or None,
-        gateway_choices=gateway_choices,
-        initial={"gateway_provider": default_gateway_provider},
-    )
+    if selected_bundle.price == Decimal("0.00"):
+        session.payment_status = OnboardingSession.PaymentStatus.PAID
+        session.save(update_fields=["payment_status", "updated_at"])
+        return redirect("platform:onboarding_subdomain")
+
+    provider = get_active_onboarding_gateway_provider()
+    bundle_features = _bundle_feature_labels(selected_bundle)
+    bundle_items = list(selected_bundle.items.select_related("feature", "feature__category").order_by("sort_order", "feature__display_order"))
 
     if request.method == "POST":
-        if not gateway_choices:
-            messages.error(request, "No platform billing gateways are configured for onboarding yet.")
-        elif form.is_valid():
-            provider = form.cleaned_data["gateway_provider"]
-            selected_gateway = _selected_gateway(session.currency, provider)
-            metadata = dict(session.metadata or {})
-            metadata["selected_gateway_provider"] = provider
-            metadata["selected_gateway_name"] = selected_gateway["name"] if selected_gateway else provider.title()
-            metadata["checkout_reference"] = metadata.get("checkout_reference") or _ensure_onboarding_checkout_reference(session)
+        metadata = dict(session.metadata or {})
+        metadata["selected_gateway_provider"] = provider
+        metadata["checkout_reference"] = metadata.get("checkout_reference") or _ensure_onboarding_checkout_reference(session)
 
-            callback_base = reverse("platform:onboarding_payment_callback", kwargs={"purchase_reference": "PURCHASE_REFERENCE"})
-            success_redirect_url = request.build_absolute_uri(f"{callback_base}?session_token={session.session_token}&status=success")
-            cancel_redirect_url = request.build_absolute_uri(f"{callback_base}?session_token={session.session_token}&status=cancel")
+        callback_base = reverse("platform:onboarding_payment_callback", kwargs={"purchase_reference": "PURCHASE_REFERENCE"})
+        success_redirect_url = request.build_absolute_uri(f"{callback_base}?session_token={session.session_token}&status=success")
+        cancel_redirect_url = request.build_absolute_uri(f"{callback_base}?session_token={session.session_token}&status=cancel")
 
-            init_res = _init_pre_tenant_payment(
-                gateway_provider=provider,
-                bundle=selected_bundle,
-                session=session,
-                callback_url=success_redirect_url.replace("PURCHASE_REFERENCE", "pending"),
-                cancel_url=cancel_redirect_url.replace("PURCHASE_REFERENCE", "pending"),
-            )
+        init_res = _init_pre_tenant_payment(
+            gateway_provider=provider,
+            bundle=selected_bundle,
+            session=session,
+            callback_url=success_redirect_url.replace("PURCHASE_REFERENCE", "pending"),
+            cancel_url=cancel_redirect_url.replace("PURCHASE_REFERENCE", "pending"),
+        )
 
-            if not init_res.get("success"):
-                messages.error(request, init_res.get("error", "Payment initialization failed."))
-                return redirect("platform:onboarding_checkout")
+        if not init_res.get("success"):
+            messages.error(request, init_res.get("error", "Payment initialization failed. Please try again or contact support."))
+            return redirect("platform:onboarding_checkout")
 
-            ref = init_res.get("reference", "")
-            checkout_url = init_res.get("checkout_url", "")
-            metadata["purchase_reference"] = ref
-            metadata["provider_checkout_url"] = checkout_url
-            session.metadata = metadata
-            session.payment_status = OnboardingSession.PaymentStatus.PENDING
-            session.save(update_fields=["metadata", "payment_status", "updated_at"])
+        ref = init_res.get("reference", "")
+        checkout_url = init_res.get("checkout_url", "")
+        metadata["purchase_reference"] = ref
+        metadata["provider_checkout_url"] = checkout_url
+        session.metadata = metadata
+        session.payment_status = OnboardingSession.PaymentStatus.PENDING
+        session.save(update_fields=["metadata", "payment_status", "updated_at"])
 
-            if not checkout_url:
-                messages.error(request, "The selected gateway did not return a hosted checkout link. Please check your gateway credentials.")
-                return redirect("platform:onboarding_checkout")
-            return redirect(checkout_url)
+        if not checkout_url:
+            messages.error(request, "The payment gateway did not return a checkout link. Please try again or contact support.")
+            return redirect("platform:onboarding_checkout")
+        return redirect(checkout_url)
 
     context = _onboarding_context(
         request,
         session=session,
-        page_title="Complete Payment",
+        page_title="Review Plan & Proceed",
         current_step="checkout",
         selected_bundle=selected_bundle,
-        selected_addons=[],
-        gateway_cards=gateway_cards,
-        form=form,
+        bundle_features=bundle_features,
+        bundle_items=bundle_items,
     )
     return render(request, "account/onboarding/checkout.html", context)
 
 
 def onboarding_payment_session(request):
+    if not request.user.is_authenticated:
+        return redirect(f"{reverse('platform:login')}?next={request.get_full_path()}")
     existing_session = _get_existing_onboarding_session(request)
-    if request.user.is_authenticated and existing_session is None:
-        return redirect(_get_post_auth_redirect_url(request.user, request))
     session = existing_session or _get_or_create_onboarding_session(request)
+    _sync_session_with_user(session, request.user)
     if not session.selected_bundle_slug:
         messages.info(request, "Choose a plan before opening payment.")
         return redirect("platform:onboarding_plan")
@@ -1004,10 +973,11 @@ def onboarding_payment_callback(request, purchase_reference):
 
 
 def onboarding_subdomain(request):
+    if not request.user.is_authenticated:
+        return redirect(f"{reverse('platform:login')}?next={request.get_full_path()}")
     existing_session = _get_existing_onboarding_session(request)
-    if request.user.is_authenticated and existing_session is None:
-        return redirect(_get_post_auth_redirect_url(request.user, request))
     session = existing_session or _get_or_create_onboarding_session(request)
+    _sync_session_with_user(session, request.user)
     if not session.selected_bundle_slug:
         messages.info(request, "Choose a plan before reserving your subdomain.")
         return redirect("platform:onboarding_plan")
@@ -1185,12 +1155,16 @@ def onboarding_provisioning(request):
         pass
     connection.set_schema_to_public()
 
+    if not request.user.is_authenticated:
+        return redirect(f"{reverse('platform:login')}?next={request.get_full_path()}")
+
     # Allow both signup-flow (session) and login-flow (?schema=) to use this page
     schema_from_param = request.GET.get("schema", "").strip().lower()
     next_url = request.GET.get("next", "")
 
     existing_session = _get_existing_onboarding_session(request)
     session = existing_session or _get_or_create_onboarding_session(request)
+    _sync_session_with_user(session, request.user)
     schema_name = schema_from_param or (session.metadata or {}).get("tenant_schema_name")
 
     # Try finding schema from authenticated user's shop
@@ -1203,6 +1177,15 @@ def onboarding_provisioning(request):
                 session.save(update_fields=["metadata", "updated_at"])
             except Exception:
                 pass
+
+    if schema_name:
+        shop_obj = Shop.objects.filter(schema_name=schema_name).first()
+        if shop_obj:
+            is_owner = shop_obj.owner_id == request.user.id
+            is_admin = request.user.is_superuser or request.user.is_staff or getattr(request.user, "is_platform_admin", False)
+            if not (is_owner or is_admin):
+                messages.error(request, "You do not have permission to access this store's provisioning workspace.")
+                return redirect("platform:login")
 
     # For login-flow users coming via middleware redirect: skip payment checks
     login_flow = bool(schema_from_param)
@@ -1245,24 +1228,11 @@ def onboarding_provisioning(request):
 def onboarding_provisioning_status(request):
     """
     JSON status endpoint polled by the provisioning page.
-
-    CRON-DRIVEN PROVISIONING MODEL
-    ------------------------------
-    This endpoint is intentionally a pure read.  It does NOT dispatch to
-    any background worker, kill any process, or try to provision the
-    tenant admin user.  All migration + finalisation work is performed
-    by the OS-cron-scheduled management command
-    ``process_pending_tenants`` (see system/account/management/commands/
-    process_pending_tenants.py).
-
-    The poll just inspects ``Shop.provisioning_status`` and, when
-    pending, returns a progress curve derived from
-    ``get_tenant_migration_status()`` which reads the actual
-    ``django_migrations`` table in the tenant schema.  The frontend
-    keeps polling every 1.5-2.5 seconds; once the cron sweep flips the
-    row to ``READY`` we return the redirect URL and the page navigates
-    away.
+    Requires authentication and store ownership.
     """
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "unauthenticated", "status": "unauthenticated", "redirect": reverse("platform:login")}, status=401)
+
     import logging
     from django.db import connection
 
@@ -1280,9 +1250,10 @@ def onboarding_provisioning_status(request):
 
     existing_session = _get_existing_onboarding_session(request)
     session = existing_session or _get_or_create_onboarding_session(request)
+    _sync_session_with_user(session, request.user)
     schema_name = schema_from_param or (session.metadata or {}).get("tenant_schema_name")
 
-    if not schema_name and getattr(request.user, "is_authenticated", False):
+    if not schema_name:
         try:
             shop = Shop.objects.filter(owner=request.user).order_by("-created_on").first()
             if shop:
@@ -1299,6 +1270,11 @@ def onboarding_provisioning_status(request):
         shop = None
     if not shop:
         return JsonResponse({"status": "provisioning", "progress": 30})
+
+    is_owner = shop.owner_id == request.user.id
+    is_admin = request.user.is_superuser or request.user.is_staff or getattr(request.user, "is_platform_admin", False)
+    if not (is_owner or is_admin):
+        return JsonResponse({"error": "forbidden"}, status=403)
 
     from system.account.sso import get_tenant_subdomain_redirect_url
 

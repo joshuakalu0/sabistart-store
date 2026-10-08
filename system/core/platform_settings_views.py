@@ -63,7 +63,7 @@ def _shared_context(request, **extra):
     }
 
 
-VALID_TABS = ("smtp", "storage", "messaging")
+VALID_TABS = ("smtp", "storage", "messaging", "payments")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -73,9 +73,15 @@ VALID_TABS = ("smtp", "storage", "messaging")
 @_platform_admin_required
 def platform_settings(request):
     """
-    GET  → render all three forms, default tab = smtp (or ?tab=storage / ?tab=messaging)
+    GET  → render all forms, default tab = smtp (or ?tab=storage / ?tab=messaging / ?tab=payments)
     POST → identify which tab was submitted (hidden field `_tab`), save that form only
     """
+    from system.system_pay.services import (
+        get_active_onboarding_gateway_provider,
+        set_active_onboarding_gateway_provider,
+    )
+    from system.system_pay.models import PaymentGatewayDefinition
+
     # Determine active tab
     if request.method == "POST":
         active_tab = request.POST.get("_tab", "smtp")
@@ -107,6 +113,28 @@ def platform_settings(request):
     storage_form = PlatformStorageSettingForm(instance=storage_setting)
     messaging_form = PlatformMessagingSettingForm(instance=messaging_setting)
 
+    active_gateway = get_active_onboarding_gateway_provider()
+    gateways_info = []
+    try:
+        for provider_code, provider_name in [("paystack", "Paystack"), ("flutterwave", "Flutterwave")]:
+            gw_def = PaymentGatewayDefinition.objects.filter(provider=provider_code).first()
+            has_creds = False
+            env = "test"
+            if gw_def:
+                cred = gw_def.platform_credentials.filter(is_active=True).first()
+                if cred:
+                    has_creds = bool(cred.secret_key)
+                    env = cred.environment
+            gateways_info.append({
+                "provider": provider_code,
+                "name": provider_name,
+                "is_active": provider_code == active_gateway,
+                "has_credentials": has_creds,
+                "environment": env,
+            })
+    except Exception:
+        pass
+
     if request.method == "POST":
         if setup_warning:
             messages.error(request, setup_warning)
@@ -136,6 +164,15 @@ def platform_settings(request):
                 setting.save()
                 messages.success(request, "Messaging settings saved successfully.")
                 return redirect(f"{request.path}?tab=messaging")
+        elif active_tab == "payments":
+            selected_provider = request.POST.get("active_gateway", "").strip().lower()
+            if selected_provider in {"paystack", "flutterwave"}:
+                set_active_onboarding_gateway_provider(selected_provider)
+                messages.success(request, f"Active platform payment gateway set to {selected_provider.title()}.")
+                return redirect(f"{request.path}?tab=payments")
+            else:
+                messages.error(request, "Please select a valid payment gateway.")
+                return redirect(f"{request.path}?tab=payments")
 
     context = _shared_context(
         request,
@@ -147,6 +184,8 @@ def platform_settings(request):
         storage_setting=storage_setting,
         messaging_form=messaging_form,
         messaging_setting=messaging_setting,
+        active_gateway=active_gateway,
+        gateways_info=gateways_info,
     )
     return render(request, "core/platform_settings/settings.html", context)
 
