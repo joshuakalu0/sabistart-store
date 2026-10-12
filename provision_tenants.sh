@@ -47,7 +47,7 @@ fi
 # 6. Run the tenant provisioning sweep
 "${VENV_PYTHON}" "${MANAGE}" process_pending_tenants \
     --max-per-run 1 \
-    --subprocess-timeout 600 \
+    --subprocess-timeout 1800 \
     >> "${LOG_FILE}" 2>&1
 
 EXIT_CODE=$?
