@@ -80,8 +80,14 @@ import logging
 import os
 import subprocess
 import sys
+import tempfile
 import time
 from typing import Any, Dict, List, Optional, Tuple
+
+try:  # advisory cross-process locking (Unix); Windows dev machines skip it
+    import fcntl
+except ImportError:  # pragma: no cover - Windows
+    fcntl = None
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection
@@ -100,6 +106,55 @@ _PENDING_STATUSES = (
 
 # Per-migration subprocess timeout (generous for remote Neon DDL)
 DEFAULT_SUBPROCESS_TIMEOUT = 300  # 5 minutes per individual migration
+
+
+# ---------------------------------------------------------------------------
+# Cross-process per-schema mutex (advisory flock).
+#
+# The Django cache is LocMem (per-process) in this deployment, so a
+# cache-based "migration lock" can never coordinate two OS processes: the
+# Gunicorn status poller spawns detached `process_pending_tenants`
+# processes that could not see each other's cache locks, causing a
+# process storm on the 1 GB VM. A filesystem flock IS shared across
+# processes on the same host and needs no external service.
+# ---------------------------------------------------------------------------
+def _schema_flock_path(schema_name: str) -> str:
+    safe = "".join(ch for ch in schema_name if ch.isalnum() or ch in ("-", "_"))
+    return os.path.join(tempfile.gettempdir(), f"sabistart_migrate_{safe}.lock")
+
+
+def _acquire_schema_flock(schema_name: str):
+    """
+    Non-blocking cross-process lock. Returns an open file descriptor to
+    release later, or None when another process already holds the lock.
+    On Windows (no fcntl) returns a placeholder sentinel so the code
+    path stays uniform; the dev machine runs a single process anyway.
+    """
+    if fcntl is None:
+        return object()
+    try:
+        fd = os.open(_schema_flock_path(schema_name), os.O_CREAT | os.O_WRONLY)
+    except OSError:
+        return object()  # cannot create lock file — proceed; cron flock still serialises
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        return fd
+    except OSError:
+        os.close(fd)
+        return None
+
+
+def _release_schema_flock(fd) -> None:
+    if fd is None or fcntl is None or not isinstance(fd, int):
+        return
+    try:
+        fcntl.flock(fd, fcntl.LOCK_UN)
+    except OSError:
+        pass
+    try:
+        os.close(fd)
+    except OSError:
+        pass
 
 # Total wall-clock budget per cron tick (cron runs every 2 min; budget < cron interval)
 # Each subprocess applies 1 migration; loop until budget exhausted or all done.
@@ -294,15 +349,21 @@ class Command(BaseCommand):
             self.stdout.write("    " + " ".join(cmd_preview))
             return True
 
-        # Acquire lock (force=True — cron is highest authority).
-        acquired = acquire_migration_lock(schema_name, force=True)
-        if not acquired:
+        # Real cross-process mutex first: the LocMem cache lock below is
+        # per-process and cannot stop the cron instance from colliding
+        # with a status-poller-triggered instance. The flock is what
+        # actually serialises them; whoever loses simply skips this tick.
+        flock_fd = _acquire_schema_flock(schema_name)
+        if flock_fd is None:
             self.stdout.write(self.style.WARNING(
-                f"[CronProvision] Could not acquire lock for '{schema_name}'. Skipping."
+                f"[CronProvision] Another process is already migrating '{schema_name}'. Skipping."
             ))
             return False
 
         try:
+            # Cache lock kept as intra-process bookkeeping (TTL semantics).
+            acquire_migration_lock(schema_name)
+
             shop.refresh_from_db()
             if shop.provisioning_status == Shop.ProvisioningStatus.READY:
                 self.stdout.write(self.style.SUCCESS(
@@ -399,6 +460,7 @@ class Command(BaseCommand):
 
         finally:
             release_migration_lock(schema_name)
+            _release_schema_flock(flock_fd)
 
     # ------------------------------------------------------------------ #
     # Helpers                                                            #

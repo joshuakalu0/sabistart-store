@@ -1093,22 +1093,58 @@ def onboarding_subdomain(request):
 def _trigger_background_provisioning(schema_name: str) -> None:
     """
     Spawns `manage.py process_pending_tenants --schema=<name> --skip-cooldown`
-    as an independent, detached background OS process if not already locked or running.
-    Completely Celery-free, non-blocking (<5ms), isolated memory.
+    as an independent, detached background OS process.
+
+    Cross-process throttle (file-based, NOT the Django cache): this runs
+    inside Gunicorn workers, which have their own per-process LocMem
+    cache — a cache-based lock can never see a spawned subprocess, so the
+    old check spawned one process per status poll (~every 2s) and the 1GB
+    VM OOM-died under the storm. An atomic O_EXCL file with a staleness
+    window guarantees at most ONE spawn per schema per 60s no matter how
+    fast the frontend polls.
     """
     if not schema_name:
         return
-    from system.account.migration_runner import is_migration_locked
-    if is_migration_locked(schema_name):
-        return  # Already actively being migrated
 
     import os
     import sys
     import subprocess
     import logging
+    import tempfile
+    import time
     from django.conf import settings
 
     logger = logging.getLogger(__name__)
+
+    # ── Atomic file throttle ────────────────────────────────────────────
+    throttle_secs = int(getattr(settings, "PROVISION_TRIGGER_THROTTLE_SECONDS", 60))
+    safe_name = "".join(ch for ch in schema_name if ch.isalnum() or ch in ("-", "_"))
+    lock_path = os.path.join(tempfile.gettempdir(), f"sabistart_provision_trigger_{safe_name}.lock")
+    try:
+        fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        os.close(fd)
+        spawn_allowed = True
+    except FileExistsError:
+        # File exists: spawn only if it is stale (previous run finished or
+        # died long ago); refresh mtime so the next poll sees it as fresh.
+        try:
+            age = time.time() - os.path.getmtime(lock_path)
+            if age >= throttle_secs:
+                os.utime(lock_path)
+                spawn_allowed = True
+            else:
+                spawn_allowed = False
+        except OSError:
+            spawn_allowed = False
+    except OSError:
+        # Temp dir not writable — fall back to spawning (better than never
+        # provisioning). The per-schema flock in the command still
+        # serialises the actual migration work.
+        spawn_allowed = True
+
+    if not spawn_allowed:
+        return
+
     manage_py = str(settings.BASE_DIR / "manage.py")
     cmd = [
         sys.executable,
