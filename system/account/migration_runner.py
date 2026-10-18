@@ -210,10 +210,35 @@ def _heal_tenant_migration_dependencies(schema_name: str) -> None:
     all of its prerequisite parent migrations are also recorded in django_migrations.
     This heals broken migration states where child migrations were applied/faked
     before their parent migrations were recorded.
+
+    IMPORTANT: A parent migration is only fake-recorded if its critical DDL table
+    actually exists in the schema. If the table is missing the migration was never
+    actually run, so we must NOT record it as applied — instead we remove any
+    stale record so the normal runner applies the DDL in the correct order.
     """
     from django.db.migrations.loader import MigrationLoader
     from django.db.migrations.recorder import MigrationRecorder
     from system.account.schema_inspector import get_tenant_app_labels
+
+    # Migrations whose DDL we can verify by checking for a known table.
+    # If the table is ABSENT we refuse to fake-record the migration and
+    # actively delete any stale record so the runner re-applies the DDL.
+    CRITICAL_TABLE_GUARDS: dict = {
+        ("userauth", "0001_initial"): "tenant_users",
+        ("pos", "0002_postransaction_authoritative_order_and_more"): "pos_catalog_items",
+    }
+
+    def _table_exists(schema: str, table: str) -> bool:
+        try:
+            with connection.cursor() as cur:
+                cur.execute(
+                    "SELECT 1 FROM information_schema.tables "
+                    "WHERE table_schema = %s AND table_name = %s LIMIT 1",
+                    [schema, table],
+                )
+                return bool(cur.fetchone())
+        except Exception:
+            return False
 
     _set_schema(schema_name)
     recorder = MigrationRecorder(connection)
@@ -230,6 +255,29 @@ def _heal_tenant_migration_dependencies(schema_name: str) -> None:
         loader.load_disk()
         tenant_labels = get_tenant_app_labels()
 
+        # --- Pass 1: remove stale records whose DDL tables are missing ----------
+        # These are migrations that appear "applied" but the underlying tables
+        # don't exist (typically written by a previous bad healing run).
+        for (app_label, migration_name), guard_table in CRITICAL_TABLE_GUARDS.items():
+            if (app_label, migration_name) in applied:
+                if not _table_exists(schema_name, guard_table):
+                    try:
+                        recorder.record_unapplied(app_label, migration_name)
+                        logger.warning(
+                            "[ChunkedRunner][%s] Removed stale fake-applied record for %s.%s "
+                            "(table '%s' does not exist — DDL will run properly now).",
+                            schema_name, app_label, migration_name, guard_table,
+                        )
+                        # Refresh the applied set after deletion
+                        applied = recorder.applied_migrations()
+                    except Exception as exc:
+                        logger.warning(
+                            "[ChunkedRunner][%s] Could not remove stale record %s.%s: %s",
+                            schema_name, app_label, migration_name, exc,
+                        )
+
+        # --- Pass 2: record truly-missing prerequisites -----------------------
+        # Only record a parent if it has no guard table OR its guard table exists.
         to_record = []
         for app_label, migration_name in list(applied):
             if (app_label, migration_name) in loader.disk_migrations:
@@ -243,6 +291,15 @@ def _heal_tenant_migration_dependencies(schema_name: str) -> None:
         if to_record:
             logger.info("[ChunkedRunner][%s] Healing %d missing prerequisite migration records...", schema_name, len(to_record))
             for app_label, migration_name in to_record:
+                # Guard: only fake-record if the critical DDL table exists
+                guard_table = CRITICAL_TABLE_GUARDS.get((app_label, migration_name))
+                if guard_table and not _table_exists(schema_name, guard_table):
+                    logger.info(
+                        "[ChunkedRunner][%s] Skipping heal for %s.%s — table '%s' is absent; "
+                        "DDL will be applied by the normal runner.",
+                        schema_name, app_label, migration_name, guard_table,
+                    )
+                    continue
                 try:
                     recorder.record_applied(app_label, migration_name)
                     logger.info("[ChunkedRunner][%s] [OK] Healed parent migration record %s.%s", schema_name, app_label, migration_name)
