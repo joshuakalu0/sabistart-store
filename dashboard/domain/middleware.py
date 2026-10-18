@@ -221,3 +221,87 @@ class CustomDomainMiddleware(TenantMainMiddleware):
             f"<p><strong>{hostname}</strong> is not associated with any store on this platform.</p>"
             "</body></html>"
         )
+
+
+# =============================================================================
+# Tenant Route Guard — blocks platform-admin URLs on tenant domains
+# =============================================================================
+
+class TenantRouteGuardMiddleware:
+    """
+    Second-layer defence: returns 404 for any platform-only path when the
+    request is coming in on a tenant subdomain / custom domain.
+
+    Platform-only prefixes (blocked on tenant domains):
+        /platform/      — platform admin dashboard
+        /account/       — platform registration & auth (except /account/auth/sso/)
+        /admin/         — Django admin (blocked on tenants; tenants use /dashboard/admin/)
+        /api/v1/tenants/status/     — platform status API
+        /api/v1/worker/             — internal worker endpoints
+
+    This guard runs AFTER CustomDomainMiddleware so request.tenant is available.
+    Add to MIDDLEWARE in settings.py, right after CustomDomainMiddleware.
+    """
+
+    # Paths that are ONLY valid on the platform (public schema) domain.
+    # Requests for these paths from a tenant domain get a hard 404.
+    PLATFORM_ONLY_PREFIXES = (
+        "/platform/",
+        "/api/v1/tenants/status",
+        "/api/v1/tenants/migration-callback",
+        "/api/v1/worker/",
+    )
+
+    # /account/ is platform-only EXCEPT for the SSO handshake endpoint.
+    ACCOUNT_PREFIX = "/account/"
+    ACCOUNT_ALLOWED_SUBPATHS = (
+        "/account/auth/sso/",
+    )
+
+    # /admin/ Django admin is blocked on tenants (their admin is /dashboard/admin/)
+    ADMIN_PREFIX = "/admin/"
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Only enforce on tenant schemas (not the public/platform schema)
+        tenant = getattr(request, "tenant", None)
+        if tenant is not None:
+            schema = getattr(tenant, "schema_name", "public")
+            if schema != "public":
+                path = request.path_info
+
+                # Block /platform/ and internal API paths
+                for prefix in self.PLATFORM_ONLY_PREFIXES:
+                    if path.startswith(prefix):
+                        logger.warning(
+                            "[TenantRouteGuard] Blocked platform path '%s' on tenant schema '%s'",
+                            path, schema,
+                        )
+                        return HttpResponseNotFound(
+                            "<html><body><h1>404 Not Found</h1></body></html>"
+                        )
+
+                # Block /account/ except the SSO endpoint
+                if path.startswith(self.ACCOUNT_PREFIX):
+                    if not any(path.startswith(allowed) for allowed in self.ACCOUNT_ALLOWED_SUBPATHS):
+                        logger.warning(
+                            "[TenantRouteGuard] Blocked /account/ path '%s' on tenant schema '%s'",
+                            path, schema,
+                        )
+                        return HttpResponseNotFound(
+                            "<html><body><h1>404 Not Found</h1></body></html>"
+                        )
+
+                # Block /admin/ (Django admin) on tenant domains
+                if path.startswith(self.ADMIN_PREFIX):
+                    logger.warning(
+                        "[TenantRouteGuard] Blocked /admin/ on tenant schema '%s'",
+                        schema,
+                    )
+                    return HttpResponseNotFound(
+                        "<html><body><h1>404 Not Found</h1></body></html>"
+                    )
+
+        return self.get_response(request)

@@ -206,6 +206,7 @@ PUBLIC_SCHEMA_URLCONF = "sabistart.urls_public"
 
 MIDDLEWARE = [
     "dashboard.domain.middleware.CustomDomainMiddleware",
+    "dashboard.domain.middleware.TenantRouteGuardMiddleware",  # blocks platform paths on tenant domains
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
