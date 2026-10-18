@@ -605,6 +605,163 @@ class PlatformProvisioningDropSchemaView(PlatformStaffRequiredMixin, View):
         return redirect("platform:provisioning_logs")
 
 
+@method_decorator(csrf_protect, name="dispatch")
+class PlatformProvisioningFixFakeRecordsView(PlatformStaffRequiredMixin, View):
+    """Removes stale fake-applied migration records whose DDL tables don't exist."""
+
+    def post(self, request, schema_name):
+        from django.db import connection
+        from django.contrib import messages
+        from django.shortcuts import redirect
+
+        schema_name = schema_name.strip().lower()
+
+        CRITICAL_TABLE_GUARDS = {
+            ("userauth", "0001_initial"): "tenant_users",
+            ("pos", "0002_postransaction_authoritative_order_and_more"): "pos_catalog_items",
+        }
+
+        def _table_exists(schema, table):
+            try:
+                with connection.cursor() as cur:
+                    cur.execute(
+                        "SELECT 1 FROM information_schema.tables "
+                        "WHERE table_schema = %s AND table_name = %s LIMIT 1",
+                        [schema, table],
+                    )
+                    return bool(cur.fetchone())
+            except Exception:
+                return False
+
+        removed = []
+        for (app_label, migration_name), guard_table in CRITICAL_TABLE_GUARDS.items():
+            try:
+                with connection.cursor() as cur:
+                    cur.execute(
+                        f'SELECT id FROM "{schema_name}"."django_migrations" '
+                        'WHERE app = %s AND name = %s LIMIT 1',
+                        [app_label, migration_name],
+                    )
+                    row = cur.fetchone()
+                if row and not _table_exists(schema_name, guard_table):
+                    with connection.cursor() as cur:
+                        cur.execute(
+                            f'DELETE FROM "{schema_name}"."django_migrations" '
+                            'WHERE app = %s AND name = %s',
+                            [app_label, migration_name],
+                        )
+                    removed.append(f"{app_label}.{migration_name}")
+            except Exception as e:
+                messages.warning(request, f"Could not check {app_label}.{migration_name}: {e}")
+
+        if removed:
+            messages.success(
+                request,
+                f"[{schema_name}] Removed {len(removed)} stale fake record(s): "
+                + ", ".join(removed)
+                + ". You can now retry migrations."
+            )
+        else:
+            messages.info(request, f"[{schema_name}] No stale fake migration records found.")
+
+        return redirect("platform:provisioning_logs")
+
+
+@method_decorator(csrf_protect, name="dispatch")
+class PlatformProvisioningShopSendReadyEmailView(PlatformStaffRequiredMixin, View):
+    """Sends an 'account ready' email to the shop owner. Schema must be READY."""
+
+    def post(self, request, schema_name):
+        from system.core.models import Shop
+        from django.contrib import messages
+        from django.shortcuts import redirect
+        from django.core.mail import send_mail
+        from django.conf import settings as dj_settings
+
+        shop = get_object_or_404(Shop, schema_name=schema_name)
+
+        if shop.provisioning_status != Shop.ProvisioningStatus.READY:
+            messages.error(request, f"[{schema_name}] Cannot send email: migrations are not complete.")
+            return redirect("platform:provisioning_logs")
+
+        user = shop.owner
+        if not user:
+            messages.error(request, f"[{schema_name}] No owner on record for this shop.")
+            return redirect("platform:provisioning_logs")
+
+        primary_domain = shop.domains.filter(is_primary=True).first()
+        if primary_domain:
+            domain_name = primary_domain.domain
+            if "." not in domain_name:
+                platform_cname = getattr(dj_settings, "PLATFORM_CNAME", "localhost").lstrip(".")
+                domain_name = f"{domain_name}.{platform_cname}"
+            subdomain_url = f"https://{domain_name}/"
+        else:
+            platform_cname = getattr(dj_settings, "PLATFORM_CNAME", "localhost").lstrip(".")
+            subdomain_url = f"https://{schema_name}.{platform_cname}/"
+
+        recipient_name = user.get_full_name() or user.email
+        from_email = getattr(dj_settings, "DEFAULT_FROM_EMAIL", "noreply@sabistart.com")
+        platform_name = getattr(dj_settings, "PLATFORM_NAME", "SabiStart")
+        subject = f"Your {platform_name} store is ready!"
+        plain_message = (
+            f"Hi {recipient_name},\n\n"
+            f"Great news! Your {platform_name} store '{shop.name}' has been set up and is ready to go.\n\n"
+            f"Log in and manage your store at:\n{subdomain_url}\n\n"
+            f"Welcome aboard!\nThe {platform_name} Team"
+        )
+        html_message = (
+            f"<p>Hi <strong>{recipient_name}</strong>,</p>"
+            f"<p>Your <strong>{platform_name}</strong> store <em>'{shop.name}'</em> is ready!</p>"
+            f'<p><a href="{subdomain_url}" style="display:inline-block;background:#2563eb;color:#fff;'
+            f'text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:bold;">Open My Store &rarr;</a></p>'
+            f'<p>Or: <a href="{subdomain_url}">{subdomain_url}</a></p>'
+            f"<p>Welcome aboard!<br><strong>The {platform_name} Team</strong></p>"
+        )
+        try:
+            send_mail(subject=subject, message=plain_message, from_email=from_email,
+                      recipient_list=[user.email], html_message=html_message, fail_silently=False)
+            messages.success(request, f"Account-ready email sent to {user.email} ({subdomain_url})")
+        except Exception as e:
+            messages.error(request, f"Failed to send email to {user.email}: {str(e)}")
+
+        return redirect("platform:provisioning_logs")
+
+
+@method_decorator(csrf_protect, name="dispatch")
+class PlatformProvisioningShopCreateTenantAdminView(PlatformStaffRequiredMixin, View):
+    """Creates/updates the shop owner as a superuser TenantUser in the tenant schema."""
+
+    def post(self, request, schema_name):
+        from system.core.models import Shop
+        from system.account.sso import ensure_tenant_admin_user, TenantSchemaNotReady
+        from django.contrib import messages
+        from django.shortcuts import redirect
+
+        shop = get_object_or_404(Shop, schema_name=schema_name)
+
+        if shop.provisioning_status != Shop.ProvisioningStatus.READY:
+            messages.error(request, f"[{schema_name}] Cannot create tenant user: migrations not complete.")
+            return redirect("platform:provisioning_logs")
+
+        if not shop.owner:
+            messages.error(request, f"[{schema_name}] No owner on record.")
+            return redirect("platform:provisioning_logs")
+
+        try:
+            ensure_tenant_admin_user(shop, shop.owner)
+            messages.success(
+                request,
+                f"Tenant admin user for '{shop.owner.email}' created/updated in schema '{schema_name}'."
+            )
+        except TenantSchemaNotReady as e:
+            messages.error(request, f"[{schema_name}] Schema not ready: {e}")
+        except Exception as e:
+            messages.error(request, f"[{schema_name}] Error: {str(e)}")
+
+        return redirect("platform:provisioning_logs")
+
+
 # =============================================================================
 # USER-SCOPED MIGRATION PROGRESS, EMAIL & TENANT ADMIN CREATION
 # =============================================================================

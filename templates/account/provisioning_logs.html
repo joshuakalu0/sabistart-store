@@ -190,8 +190,23 @@
               </td>
 
               <td class="px-6 py-4 text-right">
-                <div class="flex items-center justify-end gap-2">
-                  {% if s.provisioning_status == 'failed' or s.provisioning_status == 'pending' or s.provisioning_status == 'provisioning' %}
+                <div class="flex items-center justify-end gap-2 flex-wrap">
+
+                  {% if s.provisioning_status == 'failed' or s.provisioning_status == 'pending' or s.provisioning_status == 'provisioning' or s.provisioning_status == 'in_progress' %}
+                    <!-- Fix Fake Records -->
+                    <form method="post" action="{% url 'platform:provisioning_fix_records' s.schema_name %}">
+                      {% csrf_token %}
+                      <button
+                        type="submit"
+                        class="rounded-xl border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs font-semibold text-violet-700 hover:bg-violet-100 transition inline-flex items-center gap-1"
+                        title="Remove stale fake migration records for {{ s.schema_name }}"
+                        onclick="return confirm('Fix fake migration records for {{ s.schema_name }}? This removes incorrectly recorded migrations so they can re-run properly.')"
+                      >
+                        <span class="material-symbols-outlined text-[14px]">build</span> Fix Records
+                      </button>
+                    </form>
+
+                    <!-- Retry -->
                     <form method="post" action="{% url 'platform:provisioning_retry' s.schema_name %}">
                       {% csrf_token %}
                       <button
@@ -204,12 +219,47 @@
                   {% endif %}
 
                   {% if s.provisioning_status == 'ready' %}
+                    <!-- Send Ready Email (active) -->
+                    <form method="post" action="{% url 'platform:provisioning_send_ready_email' s.schema_name %}">
+                      {% csrf_token %}
+                      <button
+                        type="submit"
+                        class="rounded-xl border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition inline-flex items-center gap-1"
+                        title="Send account-ready email to {{ s.owner.email }}"
+                        onclick="return confirm('Send account-ready email to {{ s.owner.email|default:'the owner'|escapejs }}?')"
+                      >
+                        <span class="material-symbols-outlined text-[14px]">mail</span> Send Email
+                      </button>
+                    </form>
+
+                    <!-- Create Tenant Admin (active) -->
+                    <form method="post" action="{% url 'platform:provisioning_create_tenant_admin' s.schema_name %}">
+                      {% csrf_token %}
+                      <button
+                        type="submit"
+                        class="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition inline-flex items-center gap-1"
+                        title="Create admin user in {{ s.schema_name }} for {{ s.owner.email }}"
+                        onclick="return confirm('Create/update tenant admin user for {{ s.owner.email|default:'the owner'|escapejs }} in schema \'{{ s.schema_name|escapejs }}\'?')"
+                      >
+                        <span class="material-symbols-outlined text-[14px]">person_add</span> Create User
+                      </button>
+                    </form>
+
+                    <!-- Open Dashboard -->
                     <a
                       href="/dashboard/{{ s.schema_name }}/"
                       class="rounded-xl bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition"
                     >
                       Dashboard
                     </a>
+                  {% else %}
+                    <!-- Disabled send/create when not ready -->
+                    <span class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-400 cursor-not-allowed inline-flex items-center gap-1" title="Migrations not complete">
+                      <span class="material-symbols-outlined text-[14px]">mail</span> Send Email
+                    </span>
+                    <span class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-400 cursor-not-allowed inline-flex items-center gap-1" title="Migrations not complete">
+                      <span class="material-symbols-outlined text-[14px]">person_add</span> Create User
+                    </span>
                   {% endif %}
 
                   <a
@@ -220,6 +270,7 @@
                   </a>
                 </div>
               </td>
+
             </tr>
           {% empty %}
             <tr>

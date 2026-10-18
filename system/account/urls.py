@@ -20,6 +20,9 @@ from system.account.dashboard_views import (
     PlatformProvisioningLogsView,
     PlatformProvisioningRetryView,
     PlatformProvisioningDropSchemaView,
+    PlatformProvisioningFixFakeRecordsView,
+    PlatformProvisioningShopSendReadyEmailView,
+    PlatformProvisioningShopCreateTenantAdminView,
     PlatformUserMigrationProgressView,
     PlatformUserSendReadyEmailView,
     PlatformUserCreateTenantAdminView,
@@ -57,6 +60,9 @@ urlpatterns = [
     path('provisioning/', PlatformProvisioningLogsView.as_view(), name='provisioning_logs'),
     path('provisioning/retry/<str:schema_name>/', PlatformProvisioningRetryView.as_view(), name='provisioning_retry'),
     path('provisioning/drop-schema/<str:schema_name>/', PlatformProvisioningDropSchemaView.as_view(), name='provisioning_drop_schema'),
+    path('provisioning/fix-records/<str:schema_name>/', PlatformProvisioningFixFakeRecordsView.as_view(), name='provisioning_fix_records'),
+    path('provisioning/send-ready-email/<str:schema_name>/', PlatformProvisioningShopSendReadyEmailView.as_view(), name='provisioning_send_ready_email'),
+    path('provisioning/create-tenant-admin/<str:schema_name>/', PlatformProvisioningShopCreateTenantAdminView.as_view(), name='provisioning_create_tenant_admin'),
 
     # Authentication
     path('register/', views.onboarding_start, name='register'),
