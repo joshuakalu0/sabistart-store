@@ -1,0 +1,249 @@
+{% extends "account/_platform_base.html" %}
+{% block page_intro %}
+  <p class="mt-2 text-sm text-slate-500">
+    Live migration status for all stores belonging to
+    <strong class="text-slate-700">{{ target_user.get_full_name|default:target_user.email }}</strong>.
+    Migrations must be 100% complete before sending the account-ready email or creating a tenant admin user.
+  </p>
+{% endblock %}
+
+{% block page_actions %}
+  <a href="{% url 'platform:user_detail' target_user.id %}" class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition">
+    <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+    <span>Back to User</span>
+  </a>
+  <button onclick="window.location.reload()" class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition">
+    <span class="material-symbols-outlined text-[18px]">refresh</span>
+    <span>Refresh</span>
+  </button>
+{% endblock %}
+
+{% block content %}
+  <!-- User Info Card -->
+  <div class="mb-6 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm flex items-center gap-5">
+    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-base font-bold text-white">
+      {{ target_user.get_initials|default:"U" }}
+    </div>
+    <div>
+      <h2 class="text-xl font-extrabold text-slate-950">{{ target_user.get_full_name|default:target_user.email }}</h2>
+      <p class="text-sm font-mono text-slate-500">{{ target_user.email }}</p>
+    </div>
+    <div class="ml-auto flex items-center gap-2">
+      {% if target_user.is_superuser %}
+        <span class="inline-flex items-center gap-1 rounded-full bg-purple-50 px-3 py-1 text-xs font-bold text-purple-700">
+          <span class="material-symbols-outlined text-[14px]">shield</span> Superadmin
+        </span>
+      {% elif target_user.is_staff or target_user.is_platform_admin %}
+        <span class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
+          <span class="material-symbols-outlined text-[14px]">badge</span> Staff
+        </span>
+      {% else %}
+        <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+          <span class="material-symbols-outlined text-[14px]">storefront</span> Merchant
+        </span>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if not shop_statuses %}
+    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-12 text-center shadow-sm">
+      <span class="material-symbols-outlined text-[48px] text-slate-300">inventory_2</span>
+      <p class="mt-3 text-sm text-slate-500">This user has no stores yet.</p>
+    </div>
+  {% endif %}
+
+  {% for item in shop_statuses %}
+    {% with shop=item.shop status=item.status primary_domain=item.primary_domain %}
+      <div class="mb-6 rounded-[1.75rem] border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <!-- Shop Header -->
+        <div class="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+          <div class="flex items-center gap-4">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl
+              {% if status.is_ready %}bg-emerald-50 text-emerald-600
+              {% elif shop.provisioning_status == 'failed' %}bg-rose-50 text-rose-600
+              {% else %}bg-amber-50 text-amber-600{% endif %}">
+              <span class="material-symbols-outlined text-[22px]">
+                {% if status.is_ready %}check_circle
+                {% elif shop.provisioning_status == 'failed' %}error
+                {% else %}sync{% endif %}
+              </span>
+            </div>
+            <div>
+              <p class="text-base font-bold text-slate-950">{{ shop.name }}</p>
+              <p class="text-xs font-mono text-slate-500">{{ shop.schema_name }}
+                {% if primary_domain %}
+                  · <a href="https://{{ primary_domain.domain }}/" target="_blank" class="text-blue-600 hover:underline">{{ primary_domain.domain }}</a>
+                {% endif %}
+              </p>
+            </div>
+          </div>
+
+          <!-- Status Badge -->
+          <div class="flex items-center gap-3">
+            {% if status.is_ready %}
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Ready
+              </span>
+            {% elif shop.provisioning_status == 'failed' %}
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-3 py-1 text-xs font-bold text-rose-700">
+                <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span> Failed
+              </span>
+            {% elif shop.provisioning_status == 'in_progress' or shop.provisioning_status == 'provisioning' %}
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
+                <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-500"></span> Migrating
+              </span>
+            {% else %}
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
+                <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span> Pending
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="px-6 py-5">
+          <!-- Progress bar -->
+          <div class="mb-3 flex items-center justify-between">
+            <span class="text-sm font-semibold text-slate-700">Migration Progress</span>
+            <span class="text-sm font-bold
+              {% if status.is_ready %}text-emerald-600
+              {% elif shop.provisioning_status == 'failed' %}text-rose-600
+              {% else %}text-blue-600{% endif %}">
+              {{ status.applied_count }}/{{ status.total_migrations }} ({{ status.progress_percent }}%)
+            </span>
+          </div>
+          <div class="h-3 w-full overflow-hidden rounded-full bg-slate-100">
+            <div
+              class="h-3 rounded-full transition-all duration-500
+                {% if status.is_ready %}bg-emerald-500
+                {% elif shop.provisioning_status == 'failed' %}bg-rose-500
+                {% else %}bg-blue-500{% endif %}"
+              style="width: {{ status.progress_percent }}%"
+            ></div>
+          </div>
+
+          <!-- Stage info -->
+          {% if status.current_stage and not status.is_ready %}
+            <div class="mt-4 rounded-2xl border border-blue-100 bg-blue-50/60 px-4 py-3">
+              <p class="text-xs font-bold text-blue-800">
+                Currently running: Stage {{ status.current_stage.stage }} — {{ status.current_stage.name }}
+              </p>
+              <p class="mt-0.5 text-xs text-blue-700">{{ status.current_stage.description }}</p>
+            </div>
+          {% elif status.is_ready %}
+            <div class="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50/60 px-4 py-3">
+              <p class="text-xs font-bold text-emerald-800">
+                ✓ All {{ status.total_migrations }} migrations applied. Store is fully provisioned.
+              </p>
+            </div>
+          {% endif %}
+
+          <!-- Stage Breakdown -->
+          {% if item.stages %}
+            <div class="mt-5">
+              <p class="mb-2 text-xs font-semibold uppercase tracking-widest text-slate-400">Stage Breakdown</p>
+              <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {% for stage in item.stages %}
+                  {% with stage_apps=stage.apps %}
+                    {% comment %}
+                      We need to determine if this stage is complete, active, or pending.
+                      We compare against pending migrations.
+                    {% endcomment %}
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                      <div class="flex items-center gap-2">
+                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-200 text-[10px] font-bold text-slate-600">
+                          {{ stage.stage }}
+                        </span>
+                        <p class="text-xs font-bold text-slate-800 leading-tight">{{ stage.name }}</p>
+                      </div>
+                      <p class="mt-1 text-[11px] text-slate-500 leading-snug">{{ stage.description }}</p>
+                      <p class="mt-1.5 text-[10px] font-mono text-slate-400">
+                        {% for app in stage.apps %}{{ app }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                      </p>
+                    </div>
+                  {% endwith %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          <!-- Pending migrations count -->
+          {% if status.pending_count > 0 %}
+            <div class="mt-4 rounded-2xl border border-amber-100 bg-amber-50/60 px-4 py-3">
+              <p class="text-xs font-semibold text-amber-800">
+                <span class="material-symbols-outlined align-middle text-[14px]">hourglass_top</span>
+                {{ status.pending_count }} migration{{ status.pending_count|pluralize }} still pending.
+                Run the server command to complete them (see below).
+              </p>
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- Action Buttons (only shown when ready) -->
+        {% if status.is_ready %}
+          <div class="border-t border-slate-100 px-6 py-4 bg-slate-50/60">
+            <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-400">Post-Migration Actions</p>
+            <div class="flex flex-wrap gap-3">
+              <form method="post" action="{% url 'platform:user_send_ready_email' target_user.id shop.schema_name %}">
+                {% csrf_token %}
+                <button
+                  type="submit"
+                  class="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition"
+                  onclick="return confirm('Send account-ready email to {{ target_user.email|escapejs }}?')"
+                >
+                  <span class="material-symbols-outlined text-[16px]">mail</span>
+                  Send Account-Ready Email
+                </button>
+              </form>
+
+              <form method="post" action="{% url 'platform:user_create_tenant_admin' target_user.id shop.schema_name %}">
+                {% csrf_token %}
+                <button
+                  type="submit"
+                  class="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700 transition"
+                  onclick="return confirm('Create/update admin user for {{ target_user.email|escapejs }} in schema \'{{ shop.schema_name|escapejs }}\'?')"
+                >
+                  <span class="material-symbols-outlined text-[16px]">person_add</span>
+                  Create Tenant Admin User
+                </button>
+              </form>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    {% endwith %}
+  {% endfor %}
+
+  <!-- CLI Help Card -->
+  <div class="mt-4 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="flex items-start gap-4">
+      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-white">
+        <span class="material-symbols-outlined text-[20px]">terminal</span>
+      </div>
+      <div class="min-w-0 flex-1">
+        <h3 class="text-sm font-bold text-slate-950">Finish Migrations from Server Terminal</h3>
+        <p class="mt-1 text-xs text-slate-500">
+          If migrations are stuck, run the command below on the server to complete them:
+        </p>
+        <div class="mt-3 space-y-2">
+          {% for item in shop_statuses %}
+            {% if not item.status.is_ready %}
+              <div>
+                <p class="mb-1 text-[11px] font-semibold text-slate-500">For store: {{ item.shop.name }} ({{ item.shop.schema_name }})</p>
+                <code class="block rounded-xl bg-slate-900 px-4 py-3 text-xs text-emerald-400 font-mono break-all">
+                  python manage.py finish_tenant_migrations --schema {{ item.shop.schema_name }}
+                </code>
+              </div>
+            {% endif %}
+          {% endfor %}
+          <div>
+            <p class="mb-1 text-[11px] font-semibold text-slate-500">For all pending stores:</p>
+            <code class="block rounded-xl bg-slate-900 px-4 py-3 text-xs text-emerald-400 font-mono break-all">
+              python manage.py finish_tenant_migrations
+            </code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -604,3 +604,157 @@ class PlatformProvisioningDropSchemaView(PlatformStaffRequiredMixin, View):
 
         return redirect("platform:provisioning_logs")
 
+
+# =============================================================================
+# USER-SCOPED MIGRATION PROGRESS, EMAIL & TENANT ADMIN CREATION
+# =============================================================================
+
+class PlatformUserMigrationProgressView(PlatformStaffRequiredMixin, View):
+    """Shows migration progress for all shops belonging to a given platform user."""
+
+    template_name = "account/user_migration_progress.html"
+
+    def get(self, request, user_id):
+        from system.account.models import PlatformUser
+        from system.account.schema_inspector import get_tenant_migration_status, STAGE_APP_MAPPINGS
+
+        user = get_object_or_404(PlatformUser, id=user_id)
+        shops = list(user.owned_shops.prefetch_related("domains").order_by("-created_on"))
+
+        shop_statuses = []
+        for shop in shops:
+            primary_domain = shop.domains.filter(is_primary=True).first()
+            try:
+                status = get_tenant_migration_status(shop.schema_name, use_cache=False)
+            except Exception:
+                status = {
+                    "is_ready": False,
+                    "total_migrations": 0,
+                    "applied_count": 0,
+                    "pending_count": 0,
+                    "progress_percent": 0,
+                    "current_stage": None,
+                    "pending_migrations": [],
+                }
+            shop_statuses.append({
+                "shop": shop,
+                "primary_domain": primary_domain,
+                "status": status,
+                "stages": STAGE_APP_MAPPINGS,
+            })
+
+        context = {
+            "page_title": f"Migration Progress — {user.get_full_name() or user.email}",
+            "active_platform_nav": "platform_users",
+            "platform_navigation": build_platform_navigation("platform_users"),
+            "target_user": user,
+            "shop_statuses": shop_statuses,
+        }
+        return render(request, self.template_name, context)
+
+
+@method_decorator(csrf_protect, name="dispatch")
+class PlatformUserSendReadyEmailView(PlatformStaffRequiredMixin, View):
+    """Sends an 'account ready' email to the user for a specific shop (migration must be complete)."""
+
+    def post(self, request, user_id, schema_name):
+        from system.account.models import PlatformUser
+        from system.core.models import Shop
+        from django.contrib import messages
+        from django.shortcuts import redirect
+        from django.core.mail import send_mail
+        from django.conf import settings as dj_settings
+
+        user = get_object_or_404(PlatformUser, id=user_id)
+        shop = get_object_or_404(Shop, schema_name=schema_name, owner=user)
+
+        if shop.provisioning_status != Shop.ProvisioningStatus.READY:
+            messages.error(request, "Cannot send email: migrations are not yet complete for this store.")
+            return redirect("platform:user_detail", user_id=user_id)
+
+        primary_domain = shop.domains.filter(is_primary=True).first()
+        subdomain_url = ""
+        if primary_domain:
+            protocol = "https"
+            domain_name = primary_domain.domain
+            if "." not in domain_name:
+                platform_cname = getattr(dj_settings, "PLATFORM_CNAME", "localhost").lstrip(".")
+                domain_name = f"{domain_name}.{platform_cname}"
+            subdomain_url = f"{protocol}://{domain_name}/"
+        else:
+            platform_cname = getattr(dj_settings, "PLATFORM_CNAME", "localhost").lstrip(".")
+            subdomain_url = f"https://{shop.schema_name}.{platform_cname}/"
+
+        recipient_name = user.get_full_name() or user.email
+        from_email = getattr(dj_settings, "DEFAULT_FROM_EMAIL", "noreply@sabistart.com")
+        platform_name = getattr(dj_settings, "PLATFORM_NAME", "SabiStart")
+        subject = f"Your {platform_name} store is ready!"
+
+        plain_message = (
+            f"Hi {recipient_name},\n\n"
+            f"Great news! Your {platform_name} store '{shop.name}' has been set up and is ready to go.\n\n"
+            f"You can now log in and start managing your store at:\n"
+            f"{subdomain_url}\n\n"
+            f"If you have any questions, please don't hesitate to reach out to our support team.\n\n"
+            f"Welcome aboard!\n"
+            f"The {platform_name} Team"
+        )
+        html_message = (
+            f"<p>Hi <strong>{recipient_name}</strong>,</p>"
+            f"<p>Great news! Your <strong>{platform_name}</strong> store <em>'{shop.name}'</em> has been fully set up and is ready to use.</p>"
+            f"<p><a href=\"{subdomain_url}\" style=\"display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:bold;\">Open My Store &rarr;</a></p>"
+            f"<p>Or copy this link: <a href=\"{subdomain_url}\">{subdomain_url}</a></p>"
+            f"<p>If you have any questions, please don't hesitate to reach out to our support team.</p>"
+            f"<p>Welcome aboard!<br><strong>The {platform_name} Team</strong></p>"
+        )
+
+        try:
+            send_mail(
+                subject=subject,
+                message=plain_message,
+                from_email=from_email,
+                recipient_list=[user.email],
+                html_message=html_message,
+                fail_silently=False,
+            )
+            messages.success(
+                request,
+                f"Account-ready email sent to {user.email} with link: {subdomain_url}"
+            )
+        except Exception as e:
+            messages.error(request, f"Failed to send email: {str(e)}")
+
+        return redirect("platform:user_detail", user_id=user_id)
+
+
+@method_decorator(csrf_protect, name="dispatch")
+class PlatformUserCreateTenantAdminView(PlatformStaffRequiredMixin, View):
+    """Creates (or updates) the PlatformUser as a superuser TenantUser inside the tenant schema."""
+
+    def post(self, request, user_id, schema_name):
+        from system.account.models import PlatformUser
+        from system.core.models import Shop
+        from system.account.sso import ensure_tenant_admin_user, TenantSchemaNotReady
+        from django.contrib import messages
+        from django.shortcuts import redirect
+
+        user = get_object_or_404(PlatformUser, id=user_id)
+        shop = get_object_or_404(Shop, schema_name=schema_name, owner=user)
+
+        if shop.provisioning_status != Shop.ProvisioningStatus.READY:
+            messages.error(request, "Cannot create tenant user: migrations are not yet complete for this store.")
+            return redirect("platform:user_detail", user_id=user_id)
+
+        try:
+            ensure_tenant_admin_user(shop, user)
+            messages.success(
+                request,
+                f"Tenant admin user for '{user.email}' was successfully created/updated in schema '{schema_name}'."
+            )
+        except TenantSchemaNotReady as e:
+            messages.error(request, f"Schema not ready: {e}")
+        except Exception as e:
+            messages.error(request, f"Error creating tenant admin user: {str(e)}")
+
+        return redirect("platform:user_detail", user_id=user_id)
+

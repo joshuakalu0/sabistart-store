@@ -20,6 +20,9 @@ from system.account.dashboard_views import (
     PlatformProvisioningLogsView,
     PlatformProvisioningRetryView,
     PlatformProvisioningDropSchemaView,
+    PlatformUserMigrationProgressView,
+    PlatformUserSendReadyEmailView,
+    PlatformUserCreateTenantAdminView,
 )
 from system.core.platform_settings_views import (
     messaging_rotate_webhook_secret,
@@ -46,6 +49,9 @@ urlpatterns = [
     path('users/<str:user_id>/', PlatformUserDetailView.as_view(), name='user_detail'),
     path('users/<str:user_id>/delete/', PlatformUserDeleteView.as_view(), name='user_delete'),
     path('users/<str:user_id>/status/', PlatformUserStatusToggleView.as_view(), name='user_status_toggle'),
+    path('users/<str:user_id>/migration-progress/', PlatformUserMigrationProgressView.as_view(), name='user_migration_progress'),
+    path('users/<str:user_id>/send-ready-email/<str:schema_name>/', PlatformUserSendReadyEmailView.as_view(), name='user_send_ready_email'),
+    path('users/<str:user_id>/create-tenant-admin/<str:schema_name>/', PlatformUserCreateTenantAdminView.as_view(), name='user_create_tenant_admin'),
 
     # Provisioning & Migration Logs
     path('provisioning/', PlatformProvisioningLogsView.as_view(), name='provisioning_logs'),
