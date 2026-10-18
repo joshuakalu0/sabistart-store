@@ -404,6 +404,26 @@ X_FRAME_OPTIONS = env("DJANGO_X_FRAME_OPTIONS", "SAMEORIGIN")
 DEFAULT_FROM_EMAIL = env("DJANGO_DEFAULT_FROM_EMAIL", "no-reply@localhost")
 SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", DEFAULT_FROM_EMAIL)
 
+# -----------------------------------------------------------------------------
+# Email / SMTP Configuration
+# -----------------------------------------------------------------------------
+_email_host = env("EMAIL_HOST", "")
+EMAIL_BACKEND = env(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.smtp.EmailBackend"
+    if _email_host
+    else "django.core.mail.backends.console.EmailBackend",
+)
+EMAIL_HOST = _email_host
+EMAIL_PORT = env_int("EMAIL_PORT", 587)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", default=True)
+EMAIL_USE_SSL = env_bool("EMAIL_USE_SSL", default=False)
+EMAIL_TIMEOUT = env_int("EMAIL_TIMEOUT", 30)
+EMAIL_SUBJECT_PREFIX = env("EMAIL_SUBJECT_PREFIX", "[SabiStart] ")
+PLATFORM_NAME = env("PLATFORM_NAME", "SabiStart")
+
 log_to_file = env_bool("DJANGO_LOG_TO_FILE", default=not IS_VERCEL)
 LOG_TO_FILE = log_to_file
 LOG_DIR = env_path("DJANGO_LOG_DIR", Path("/tmp/logs")
