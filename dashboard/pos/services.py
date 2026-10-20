@@ -883,11 +883,11 @@ def add_item_to_cart(*, cart: POSCart, inventory_id: str, store: Store) -> POSCa
         return existing
 
     name = (
-        (catalog_item.name if catalog_item else None)
-        or getattr(inventory, "display_name", "")
+        getattr(inventory, "display_name", "")
+        or (catalog_item.display_name if catalog_item else None)
         or "Unknown product"
     )
-    sku = (catalog_item.sku if catalog_item else None) or ""
+    sku = (catalog_item.display_sku if catalog_item else None) or getattr(inventory, "display_sku", "") or ""
 
     item = POSCartItem.objects.create(
         cart=cart,

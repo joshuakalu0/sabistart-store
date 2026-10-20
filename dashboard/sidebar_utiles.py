@@ -41,13 +41,15 @@ def _filter_sidebar_by_features(sidebar):
                 continue
 
             sub_menu = values.get("sub_menu")
-            if sub_menu:
-                values["sub_menu"] = [
+            if sub_menu is not None:
+                had_children = len(sub_menu) > 0
+                filtered_sub = [
                     item
                     for item in sub_menu
                     if not item.get("feature_code") or engine.has_feature(item["feature_code"])
                 ]
-                if not values["sub_menu"] and values.get("url") == "#":
+                values["sub_menu"] = filtered_sub
+                if had_children and not filtered_sub and (values.get("url") == "#" or feature_code):
                     continue
 
             next_entries[key] = values

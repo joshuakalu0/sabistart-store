@@ -355,14 +355,28 @@ def require_feature(feature_code: str):
             engine = get_engine_for_request(request)
             if engine.has_feature(feature_code):
                 return view_func(request, *args, **kwargs)
+
+            # Handle JSON / AJAX requests gracefully
+            is_json = (
+                request.headers.get("x-requested-with") == "XMLHttpRequest"
+                or getattr(request, "content_type", "") == "application/json"
+                or "application/json" in request.headers.get("Accept", "")
+            )
+            if is_json:
+                from django.http import JsonResponse
+                return JsonResponse(
+                    {"success": False, "error": f"{feature_code.replace('_', ' ').title()} is not included in your plan."},
+                    status=403,
+                )
+
             prefix = kwargs.get("prefix")
             if not prefix and args:
                 first_arg = args[0]
                 if isinstance(first_arg, str):
                     prefix = first_arg
             if prefix:
-                messages.error(request, f"{feature_code.replace('_', ' ').title()} is not enabled for this store.")
-                return redirect("dashboard:feature_marketplace:catalog", prefix=prefix)
+                messages.error(request, f"Access restricted: {feature_code.replace('_', ' ').title()} is not included in your plan.")
+                return redirect("dashboard:dashboard_home:home", prefix=prefix)
             raise FeatureAccessError(f"Missing feature: {feature_code}")
 
         return wrapped

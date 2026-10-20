@@ -875,6 +875,7 @@
                         {% endif %}
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
+                            {% if feature_access_map.reviews.active %}
                             <!-- Product Reviews -->
                             <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
@@ -888,7 +889,9 @@
                                     </span>
                                 </div>
                             </div>
+                            {% endif %}
 
+                            {% if feature_access_map.wishlist.active %}
                             <!-- Wishlist -->
                             <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
@@ -902,7 +905,9 @@
                                     </span>
                                 </div>
                             </div>
+                            {% endif %}
 
+                            {% if feature_access_map.compare.active %}
                             <!-- Product Compare -->
                             <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
@@ -916,7 +921,9 @@
                                     </span>
                                 </div>
                             </div>
+                            {% endif %}
 
+                            {% if feature_access_map.gift_cards.active %}
                             <!-- Gift Cards -->
                             <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
@@ -930,7 +937,9 @@
                                     </span>
                                 </div>
                             </div>
+                            {% endif %}
 
+                            {% if feature_access_map.subscriptions.active %}
                             <!-- Subscriptions -->
                             <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
@@ -944,7 +953,9 @@
                                     </span>
                                 </div>
                             </div>
+                            {% endif %}
 
+                            {% if feature_access_map.social_login.active %}
                             <!-- Social Login -->
                             <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
@@ -958,6 +969,7 @@
                                     </span>
                                 </div>
                             </div>
+                            {% endif %}
 
                             <!-- Social Sharing -->
                             <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
@@ -987,6 +999,7 @@
                                 </div>
                             </div>
 
+                            {% if feature_access_map.discount_codes.active %}
                             <!-- Discount Codes -->
                             <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
@@ -1000,7 +1013,9 @@
                                     </span>
                                 </div>
                             </div>
+                            {% endif %}
 
+                            {% if feature_access_map.live_chat.active %}
                             <!-- Live Chat -->
                             <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
@@ -1014,7 +1029,9 @@
                                     </span>
                                 </div>
                             </div>
+                            {% endif %}
 
+                            {% if feature_access_map.api_access.active %}
                             <!-- API Access -->
                             <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
@@ -1028,7 +1045,9 @@
                                     </span>
                                 </div>
                             </div>
+                            {% endif %}
 
+                            {% if feature_access_map.webhooks.active %}
                             <!-- Webhooks -->
                             <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
@@ -1042,13 +1061,16 @@
                                     </span>
                                 </div>
                             </div>
+                            {% endif %}
 
+                            {% if feature_access_map.live_chat.active %}
                             <!-- Live Chat Provider -->
                             <div class="lg:col-span-3 space-y-2 pt-6 border-t border-slate-100">
                                 <label class="block text-sm font-semibold text-slate-700" for="{{ form.live_chat_provider.id_for_label }}">Live Chat Provider</label>
                                 {{ form.live_chat_provider }}
                                 <p class="text-xs text-slate-500">e.g., Intercom, Zendesk, Tawk.to</p>
                             </div>
+                            {% endif %}
 
                         </div>
                     </div>

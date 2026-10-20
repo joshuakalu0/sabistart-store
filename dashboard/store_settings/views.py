@@ -20,11 +20,19 @@ logger = logging.getLogger(__name__)
 
 
 def _ctx(prefix: str, page_title: str, active_menu: str = "store_theme", **extra):
+    try:
+        from dashboard.feature_marketplace.services import FeatureEntitlementEngine
+        engine = FeatureEntitlementEngine()
+        feature_access_map = engine.get_all_entitlements()
+    except Exception:
+        feature_access_map = {}
+
     context = {
         "prefix": prefix,
         "page_title": page_title,
         "active_menu": active_menu,
         "sidebar": main_sidebar(prefix, active_menu),
+        "feature_access_map": feature_access_map,
     }
     context.update(extra)
     return context

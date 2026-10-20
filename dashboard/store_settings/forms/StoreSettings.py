@@ -326,6 +326,16 @@ class StoreSettingsForm(forms.ModelForm):
         """Cross-field validation."""
         cleaned_data = super().clean()
 
+        schema_name = getattr(connection, "schema_name", "public")
+        if schema_name != "public":
+            try:
+                engine = FeatureEntitlementEngine(schema_name)
+                for field_name, feature_code in PREMIUM_SETTING_FEATURES.items():
+                    if not engine.has_feature(feature_code):
+                        cleaned_data[field_name] = False
+            except Exception as exc:
+                logger.debug("[StoreSettingsForm] Error validating feature entitlements: %s", exc)
+
         # Validate email consistency
         contact_email = cleaned_data.get('contact_email')
         support_email = cleaned_data.get('support_email')

@@ -29,7 +29,9 @@ from .models import (
     InventoryAdjustment,
     POSCart,
     POSCartItem,
+    POSCatalogItem,
     POSDiscount,
+    POSProduct,
     POSSession,
     POSTerminal,
     POSTransaction,
@@ -224,22 +226,29 @@ def _require_place(request, prefix):
 def _require_register_and_session(request, prefix):
     store = _current_store(request)
     if store is None:
-        return None, None, None, redirect(_pos_url("dashboard:pos:stores", prefix=prefix))
+        store = Store.objects.filter(is_active=True).first()
+        if not store:
+            store = Store.objects.create(
+                name="Main Store",
+                code="MAIN-01",
+                address="Store Front",
+                is_active=True,
+                created_by=request.user if isinstance(request.user, TenantUser) else None,
+                updated_by=request.user if isinstance(request.user, TenantUser) else None,
+            )
+        request.session["pos_store_id"] = str(store.id)
     register = _current_register(request, store)
     if register is None:
-        messages.info(request, "Create a register for this POS place first.")
-        return store, None, None, redirect(
-            _pos_url("dashboard:pos:stores", prefix=prefix, query={"store": store.id})
-        )
+        register = get_or_create_default_register(store=store, user=request.user if isinstance(request.user, TenantUser) else None)
+        request.session["pos_register_id"] = str(register.id)
     session = _current_session(request, store, register)
-    if session is None:
-        messages.info(request, "Open a register session before using checkout.")
-        return store, register, None, redirect(
-            _pos_url(
-                "dashboard:pos:sessions",
-                prefix=prefix,
-                query={"store": store.id, "register": register.id},
-            )
+    if session is None and isinstance(request.user, TenantUser):
+        session = open_register_session(
+            cashier=request.user,
+            store=store,
+            terminal=register,
+            opening_cash=Decimal("0.00"),
+            notes="Auto-opened session for POS",
         )
     return store, register, session, None
 
@@ -636,6 +645,7 @@ def search_products(request, prefix):
 @login_required
 @dashboard_prefix_required
 @require_pos_schema_ready()
+@require_feature("max_pos_locations")
 def pos_products(request, prefix):
     store, redirect_response = _require_place(request, prefix)
     if redirect_response:
@@ -687,6 +697,7 @@ def pos_products(request, prefix):
 @dashboard_prefix_required
 @require_pos_schema_ready()
 @require_http_methods(["POST"])
+@require_feature("max_pos_locations")
 def create_pos_product(request, prefix):
     store, redirect_response = _require_place(request, prefix)
     if redirect_response:
@@ -711,6 +722,7 @@ def create_pos_product(request, prefix):
 @dashboard_prefix_required
 @require_pos_schema_ready()
 @require_http_methods(["POST"])
+@require_feature("max_pos_locations")
 def edit_pos_product(request, prefix, product_id):
     store, redirect_response = _require_place(request, prefix)
     if redirect_response:
@@ -733,6 +745,7 @@ def edit_pos_product(request, prefix, product_id):
 @dashboard_prefix_required
 @require_pos_schema_ready()
 @require_http_methods(["POST"])
+@require_feature("max_pos_locations")
 def sync_catalog_bridge_view(request, prefix):
     summary = sync_catalog_bridge(
         user=request.user,
@@ -747,6 +760,7 @@ def sync_catalog_bridge_view(request, prefix):
 @dashboard_prefix_required
 @require_pos_schema_ready()
 @require_http_methods(["POST"])
+@require_feature("max_pos_locations")
 def toggle_product(request, prefix, product_id):
     product = get_object_or_404(active_product_queryset(), pk=product_id)
     toggle_product_status(product=product, user=request.user)
@@ -758,6 +772,7 @@ def toggle_product(request, prefix, product_id):
 @login_required
 @dashboard_prefix_required
 @require_pos_schema_ready()
+@require_feature("max_pos_locations")
 def inventory(request, prefix):
     store, redirect_response = _require_place(request, prefix)
     if redirect_response:
@@ -805,6 +820,7 @@ def inventory(request, prefix):
 @dashboard_prefix_required
 @require_pos_schema_ready(json_mode=True)
 @require_http_methods(["POST"])
+@require_feature("max_pos_locations")
 def adjust_inventory(request, prefix):
     try:
         payload = request.POST.dict() if request.POST else _json_payload(request)
@@ -834,6 +850,7 @@ def adjust_inventory(request, prefix):
 @login_required
 @dashboard_prefix_required
 @require_pos_schema_ready()
+@require_feature("max_pos_locations")
 def sales(request, prefix):
     store, redirect_response = _require_place(request, prefix)
     if redirect_response:
@@ -891,6 +908,7 @@ def sales(request, prefix):
 @dashboard_prefix_required
 @require_pos_schema_ready()
 @require_http_methods(["GET", "POST"])
+@require_feature("max_pos_locations")
 def sale_detail(request, prefix, transaction_id):
     transaction = get_object_or_404(
         POSTransaction.objects.select_related("store", "cashier", "session", "terminal").prefetch_related("items", "payments"),
@@ -911,6 +929,7 @@ def sale_detail(request, prefix, transaction_id):
 @login_required
 @dashboard_prefix_required
 @require_pos_schema_ready()
+@require_feature("max_pos_locations")
 def discounts(request, prefix):
     discounts_qs = active_discount_queryset()
     context = _ctx(prefix, "POS Discounts", "pos_discounts", discounts=discounts_qs)
@@ -935,15 +954,96 @@ def generate_receipt(request, prefix, transaction_id):
 @login_required
 @dashboard_prefix_required
 @require_pos_schema_ready()
+@require_feature("max_pos_locations")
 def pos_register(request, prefix):
     store, register, session, redirect_response = _require_register_and_session(request, prefix)
     if redirect_response:
         return redirect_response
     cart = get_or_create_active_cart(cashier=request.user, store=store)
     cart_data = get_cart_context(cart)
+
     inventory_qs = active_inventory_queryset().filter(store=store).select_related(
         "product", "catalog_item", "catalog_item__product", "catalog_item__variant"
     )
+    if not inventory_qs.exists():
+        try:
+            sync_catalog_bridge(user=request.user if isinstance(request.user, TenantUser) else None, published_only=False, include_all_active=True)
+            for c_item in POSCatalogItem.objects.filter(is_active=True):
+                StoreInventory.objects.get_or_create(
+                    store=store,
+                    catalog_item=c_item,
+                    defaults={"quantity": 100, "created_by": request.user, "updated_by": request.user},
+                )
+        except Exception:
+            pass
+
+        if not StoreInventory.objects.filter(store=store, is_deleted=False).exists():
+            starter_items = [
+                ("Espresso Roast", "BEV-001", "Beverages", Decimal("1500.00")),
+                ("Cappuccino", "BEV-002", "Beverages", Decimal("2200.00")),
+                ("Butter Croissant", "BAK-001", "Bakery", Decimal("1800.00")),
+                ("Club Sandwich", "FOO-001", "Food", Decimal("3500.00")),
+                ("Fresh Orange Juice", "BEV-003", "Beverages", Decimal("2000.00")),
+                ("Chocolate Brownie", "BAK-002", "Bakery", Decimal("1600.00")),
+                ("Mineral Water", "BEV-004", "Beverages", Decimal("800.00")),
+                ("Chicken Caesar Salad", "FOO-002", "Food", Decimal("4500.00")),
+            ]
+            for name, sku, category, price in starter_items:
+                pos_prod, _ = POSProduct.objects.get_or_create(
+                    sku=sku,
+                    defaults={
+                        "name": name,
+                        "category": category,
+                        "cost_price": price * Decimal("0.7"),
+                        "selling_price": price,
+                        "is_active": True,
+                        "created_by": request.user,
+                        "updated_by": request.user,
+                    },
+                )
+                StoreInventory.objects.get_or_create(
+                    store=store,
+                    product=pos_prod,
+                    defaults={"quantity": 50, "created_by": request.user, "updated_by": request.user},
+                )
+        inventory_qs = active_inventory_queryset().filter(store=store).select_related(
+            "product", "catalog_item", "catalog_item__product", "catalog_item__variant"
+        )
+
+    grid_products = []
+    categories = set()
+    for inv in inventory_qs:
+        cat = "General"
+        img = ""
+        if inv.product:
+            cat = inv.product.category or "General"
+            if inv.product.image:
+                try:
+                    img = inv.product.image.url
+                except Exception:
+                    img = ""
+        elif inv.catalog_item and inv.catalog_item.product:
+            cat_obj = inv.catalog_item.product.categories.first()
+            cat = cat_obj.name if cat_obj else "General"
+            if hasattr(inv.catalog_item.product, "primary_image") and inv.catalog_item.product.primary_image:
+                try:
+                    img = inv.catalog_item.product.primary_image.url
+                except Exception:
+                    img = ""
+        categories.add(cat)
+        grid_products.append({
+            "id": str(inv.id),
+            "name": inv.display_name,
+            "sku": inv.display_sku,
+            "barcode": inv.display_barcode,
+            "price": float(inv.effective_selling_price),
+            "stock": inv.quantity,
+            "category": cat,
+            "image": img,
+        })
+
+    sorted_categories = sorted(list(categories))
+
     inventory_summary = {
         "low_stock_count": inventory_qs.filter(quantity__gt=0, quantity__lte=models.F("low_stock_threshold")).count(),
         "out_of_stock_count": inventory_qs.filter(quantity=0).count(),
@@ -959,6 +1059,10 @@ def pos_register(request, prefix):
         active_session=session,
         cart=cart,
         cart_data=cart_data,
+        cart_data_json=json.dumps(cart_data),
+        grid_products=grid_products,
+        grid_products_json=json.dumps(grid_products),
+        categories=sorted_categories,
         held_carts=held_carts,
         inventory_summary=inventory_summary,
         payment_method_options=PAYMENT_METHOD_OPTIONS,
@@ -980,6 +1084,7 @@ def pos_register(request, prefix):
 @dashboard_prefix_required
 @require_pos_schema_ready(json_mode=True)
 @require_http_methods(["POST"])
+@require_feature("max_pos_locations")
 def cart_api_add(request, prefix):
     store, register, session, redirect_response = _require_register_and_session(request, prefix)
     if redirect_response:
@@ -1000,6 +1105,7 @@ def cart_api_add(request, prefix):
 @dashboard_prefix_required
 @require_pos_schema_ready(json_mode=True)
 @require_http_methods(["POST"])
+@require_feature("max_pos_locations")
 def cart_api_update(request, prefix):
     store, register, session, redirect_response = _require_register_and_session(request, prefix)
     if redirect_response:
@@ -1022,6 +1128,7 @@ def cart_api_update(request, prefix):
 @dashboard_prefix_required
 @require_pos_schema_ready(json_mode=True)
 @require_http_methods(["POST"])
+@require_feature("max_pos_locations")
 def cart_api_remove(request, prefix):
     store, register, session, redirect_response = _require_register_and_session(request, prefix)
     if redirect_response:
@@ -1043,6 +1150,7 @@ def cart_api_remove(request, prefix):
 @dashboard_prefix_required
 @require_pos_schema_ready(json_mode=True)
 @require_http_methods(["POST"])
+@require_feature("max_pos_locations")
 def cart_api_hold(request, prefix):
     store, register, session, redirect_response = _require_register_and_session(request, prefix)
     if redirect_response:
@@ -1060,6 +1168,7 @@ def cart_api_hold(request, prefix):
 @dashboard_prefix_required
 @require_pos_schema_ready(json_mode=True)
 @require_http_methods(["POST"])
+@require_feature("max_pos_locations")
 def cart_api_resume(request, prefix):
     store, register, session, redirect_response = _require_register_and_session(request, prefix)
     if redirect_response:
@@ -1077,6 +1186,7 @@ def cart_api_resume(request, prefix):
 @dashboard_prefix_required
 @require_pos_schema_ready(json_mode=True)
 @require_http_methods(["POST"])
+@require_feature("max_pos_locations")
 def cart_api_clear(request, prefix):
     store, register, session, redirect_response = _require_register_and_session(request, prefix)
     if redirect_response:
@@ -1094,6 +1204,7 @@ def cart_api_clear(request, prefix):
 @dashboard_prefix_required
 @require_pos_schema_ready(json_mode=True)
 @require_http_methods(["POST"])
+@require_feature("max_pos_locations")
 def cart_api_checkout(request, prefix):
     store, register, session, redirect_response = _require_register_and_session(request, prefix)
     if redirect_response:
@@ -1128,12 +1239,39 @@ def cart_api_checkout(request, prefix):
         return JsonResponse({"success": False, "error": msg}, status=400)
     except Exception as exc:
         return JsonResponse({"success": False, "error": str(exc)}, status=500)
+    receipt_items = [
+        {
+            "name": item.product_name or "Item",
+            "sku": item.product_sku or "",
+            "quantity": item.quantity,
+            "price": float(item.unit_price),
+            "total": float(item.line_total),
+        }
+        for item in txn.items.all()
+    ]
+    new_cart = get_or_create_active_cart(cashier=request.user, store=store)
     return JsonResponse({
         "success": True,
         "transaction_number": txn.transaction_number,
         "receipt_url": reverse("dashboard:pos:receipt", kwargs={"prefix": prefix, "transaction_id": txn.id}),
         "detail_url": reverse("dashboard:pos:sale_detail", kwargs={"prefix": prefix, "transaction_id": txn.id}),
         "invoice_url": reverse("dashboard:pos:invoice", kwargs={"prefix": prefix, "transaction_id": txn.id}),
+        "receipt": {
+            "transaction_number": txn.transaction_number,
+            "created_at": txn.created_at.strftime("%b %d, %Y %I:%M %p"),
+            "cashier": (request.user.get_full_name() or request.user.email) if hasattr(request.user, "get_full_name") else str(request.user),
+            "store_name": store.name,
+            "store_address": store.address,
+            "customer_name": txn.customer_name or "Walk-in Customer",
+            "customer_phone": txn.customer_phone or "",
+            "items": receipt_items,
+            "subtotal": float(txn.subtotal),
+            "tax_amount": float(txn.tax_amount),
+            "discount_amount": float(txn.discount_amount),
+            "total_amount": float(txn.total_amount),
+            "payment_method": txn.payment_method.capitalize(),
+        },
+        "cart": get_cart_context(new_cart),
     })
 
 
@@ -1141,6 +1279,7 @@ def cart_api_checkout(request, prefix):
 @dashboard_prefix_required
 @require_pos_schema_ready(json_mode=True)
 @require_http_methods(["POST"])
+@require_feature("max_pos_locations")
 def offline_sync(request, prefix):
     store, register, session, redirect_response = _require_register_and_session(request, prefix)
     if redirect_response:

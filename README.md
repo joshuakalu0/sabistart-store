@@ -317,3 +317,29 @@ Defang allows you to deploy to your own cloud (AWS, GCP, Azure) using a Docker C
    - Check the health endpoints: `/healthz/` and `/readyz/`
 
 Note: The `compose.yaml` file in the repository defines the services (web and db) and uses the Dockerfile for building the Docker image. The startup script waits for the database, runs migrations, and starts the Gunicorn server with Uvicorn workers.
+
+
+
+i need you to focus on what i tell you and not go above or below it
+forget what we were working on before and focus on this and do not do not do any thing you`re not told
+on the platform dashboard (user section) i want you to add a buuton along those there that when the admin click take him to a page where he sees the migration progess of that user ( not start any migration but just to see the progress)
+and a button to send an email to the user telling him his account is ready with a link to this sub domain account 
+amd a button to create to create a user on that subdomian (that is create that user account on his account and make him an admin)
+but this buttons will only be active if the migrations has finsied
+
+also i want you to create a command i can run on the server terminal , the command will finish all pending migration and i can specify a user for only that user migration to complete and it when it is done then the admin can nowgo to the platform dashboard and  click on the send email b utton to send them email
+
+
+
+trfq vili fcuj kazm
+
+
+
+
+ python manage.py finish_tenant_migrations --schema onboard_0468d027
+
+ python manage.py process_pending_tenants
+
+  python manage.py repair_public_migrations
+
+  python manage.py reset_tenant_migrations --schema onboard_0468d027 --dry-run

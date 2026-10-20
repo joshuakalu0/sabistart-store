@@ -108,6 +108,9 @@ def product_qa_view(request, product_slug):
 
 
 def submit_review_view(request, product_slug):
+    from dashboard.feature_marketplace.services import FeatureEntitlementEngine
+    if not FeatureEntitlementEngine().has_feature("reviews"):
+        raise Http404("Reviews are not enabled for this store.")
     product = get_object_or_404(Product.objects.filter(is_active=True), slug=product_slug)
     if not product.enable_reviews:
         raise Http404("Reviews are disabled for this product.")

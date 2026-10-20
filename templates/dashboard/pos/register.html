@@ -1,216 +1,382 @@
 {% extends 'dashboard/_partials/base.html' %}
 
+{% block extra_head %}
+<style>
+  /* Custom print styles: only the receipt prints */
+  @media print {
+    body * {
+      visibility: hidden !important;
+    }
+    #pos-receipt-modal, #pos-receipt-modal * {
+      visibility: visible !important;
+    }
+    #pos-receipt-modal {
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #fff !important;
+      box-shadow: none !important;
+      border: none !important;
+    }
+    #pos-receipt-paper {
+      box-shadow: none !important;
+      border: none !important;
+      max-width: 100% !important;
+      padding: 1rem !important;
+    }
+    .no-print {
+      display: none !important;
+    }
+  }
+
+  .pos-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .pos-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 9999px;
+  }
+  .pos-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+  }
+  .pos-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<section class="space-y-6">
-  <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-      <div class="space-y-1">
-        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-blue-600">POS Register</p>
-        <h1 class="text-2xl font-semibold text-slate-900">{{ store.name }}</h1>
-        <p class="text-sm text-slate-500">
-          Register: {{ register.name }}
-          {% if active_session %} • Session opened {{ active_session.opened_at|date:"M d, Y H:i" }}{% endif %}
-        </p>
+<section class="space-y-5 pb-12">
+  <!-- Top Bar: Header & Controls -->
+  <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div class="flex items-center gap-3.5">
+        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-bold tracking-tight text-slate-900">{{ store.name }}</h1>
+            <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
+              {{ register.name }}
+            </span>
+          </div>
+          <p class="text-xs text-slate-500">
+            Cashier: <span class="font-medium text-slate-700">{{ request.user.get_full_name|default:request.user.email }}</span>
+            {% if active_session %} • <span class="text-emerald-600 font-medium">Session Active</span>{% endif %}
+          </p>
+        </div>
       </div>
-      <div class="flex items-center gap-3">
+
+      <div class="flex flex-wrap items-center gap-2.5">
         <a href="{% url 'dashboard:pos:dashboard' prefix=prefix %}?store={{ store.id }}"
-           class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-blue-200 hover:text-blue-600">
-          Back to Dashboard
+           class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-600 shadow-sm transition hover:border-blue-200 hover:text-blue-600">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          Dashboard
         </a>
         <a href="{% url 'dashboard:pos:sessions' prefix=prefix %}?store={{ store.id }}&register={{ register.id }}"
-           class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-blue-200 hover:text-blue-600">
-          Session
+           class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-600 shadow-sm transition hover:border-blue-200 hover:text-blue-600">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Sessions
         </a>
       </div>
     </div>
   </div>
 
-  <div class="grid gap-4 md:grid-cols-4">
-    <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Products</p>
-      <p class="mt-3 text-2xl font-semibold text-slate-900">{{ inventory_summary.total_products }}</p>
-    </div>
-    <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Low Stock</p>
-      <p class="mt-3 text-2xl font-semibold text-amber-600">{{ inventory_summary.low_stock_count }}</p>
-    </div>
-    <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Out Of Stock</p>
-      <p class="mt-3 text-2xl font-semibold text-rose-600">{{ inventory_summary.out_of_stock_count }}</p>
-    </div>
-    <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Held Carts</p>
-      <p class="mt-3 text-2xl font-semibold text-slate-900">{{ held_carts|length }}</p>
-    </div>
-  </div>
-
-  <div class="grid gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(25rem,0.95fr)]">
-    <div class="space-y-6">
-      <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
-          <div>
-            <label for="product-search" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Find Product</label>
-            <input id="product-search" type="search" autocomplete="off" placeholder="Search by product name, SKU, or barcode"
-                   class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+  <!-- Main POS Workspace: Product Grid (Left) + Side Cart (Right) -->
+  <div class="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_420px] 2xl:grid-cols-[1fr_460px]">
+    
+    <!-- LEFT: Product Search, Category Filter, and Product Grid -->
+    <div class="space-y-4">
+      <!-- Search & Filters Header -->
+      <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-4">
+        <!-- Live Search Bar -->
+        <div class="relative">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
           </div>
-          <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Tax Rate</p>
-            <p class="mt-2 text-lg font-semibold text-slate-900">{{ tax_rate|floatformat:2 }}%</p>
-            <p class="mt-1 text-xs text-slate-500">Search works live and falls back to cached products when offline.</p>
-          </div>
+          <input id="product-grid-search"
+                 type="search"
+                 autocomplete="off"
+                 placeholder="Search products by title, SKU, or barcode..."
+                 class="w-full rounded-2xl border border-slate-200 bg-slate-50/70 py-3.5 pl-11 pr-10 text-sm text-slate-900 shadow-inner transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100">
+          <button id="clear-search-btn" type="button" class="hidden absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-slate-600">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
-        <div id="search-results" class="mt-3 hidden rounded-2xl border border-slate-200 bg-slate-50 p-3"></div>
-
-        <div class="mt-5 grid gap-4 lg:grid-cols-3">
-          <div>
-            <label for="customer_name" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Customer Name</label>
-            <input id="customer_name" type="text" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
-          </div>
-          <div>
-            <label for="customer_email" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Customer Email</label>
-            <input id="customer_email" type="email" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
-          </div>
-          <div>
-            <label for="customer_phone" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Customer Phone</label>
-            <input id="customer_phone" type="text" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
-          </div>
-        </div>
-
-        <div class="mt-5 overflow-hidden rounded-3xl border border-slate-200">
-          <table class="min-w-full divide-y divide-slate-200 text-sm">
-            <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-              <tr>
-                <th class="px-4 py-3">Product</th>
-                <th class="px-4 py-3">Unit Price</th>
-                <th class="px-4 py-3">Qty</th>
-                <th class="px-4 py-3">Line Total</th>
-                <th class="px-4 py-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody id="cart-body" class="divide-y divide-slate-200 bg-white">
-              <tr id="empty-row">
-                <td colspan="5" class="px-4 py-10 text-center text-sm text-slate-500">Search for a product to begin this sale.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <aside class="space-y-6">
-      <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div class="flex items-center justify-between gap-4">
-          <div>
-            <h2 class="text-xl font-semibold text-slate-900">Order Summary</h2>
-            <p class="mt-1 text-sm text-slate-600">Checkout stays local. No hosted gateway redirects.</p>
-          </div>
-          <div id="network-indicator" class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-            Online
-          </div>
-        </div>
-
-        <div class="mt-6 space-y-3 rounded-2xl bg-slate-50 p-4">
-          <div class="flex items-center justify-between text-sm text-slate-600"><span>Subtotal</span><span id="subtotal">NGN 0.00</span></div>
-          <div class="flex items-center justify-between text-sm text-slate-600"><span>Tax</span><span id="tax">NGN 0.00</span></div>
-          <div class="flex items-center justify-between border-t border-slate-200 pt-3 text-base font-semibold text-slate-900"><span>Total</span><span id="grand-total">NGN 0.00</span></div>
-        </div>
-
-        <div class="mt-5 space-y-4">
-          <div>
-            <label for="payment_method" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Payment Method</label>
-            <select id="payment_method" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
-              {% for value,label in payment_method_options %}
-                <option value="{{ value }}">{{ label }}</option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <div id="single-payment-panel" class="space-y-4">
-            <div>
-              <label for="payment_reference" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Payment Reference</label>
-              <input id="payment_reference" type="text" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
-            </div>
-            <div id="bank-name-wrap" class="hidden">
-              <label for="bank_name" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Bank Name</label>
-              <input id="bank_name" type="text" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
-            </div>
-            <div id="terminal-reference-wrap" class="hidden">
-              <label for="terminal_reference" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Terminal Reference</label>
-              <input id="terminal_reference" type="text" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
-            </div>
-            <div id="custom-label-wrap" class="hidden">
-              <label for="custom_payment_label" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Custom Payment Label</label>
-              <input id="custom_payment_label" type="text" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
-            </div>
-            <div id="amount-received-wrap">
-              <label for="amount_received" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Amount Received</label>
-              <input id="amount_received" type="number" min="0" step="0.01" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
-            </div>
-          </div>
-
-          <div id="split-payment-panel" class="hidden space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-            <div class="flex items-center justify-between gap-4">
-              <div>
-                <h3 class="text-sm font-semibold text-slate-900">Split payments</h3>
-                <p class="text-xs text-slate-500">Add multiple rows until the sale total is fully covered.</p>
-              </div>
-              <button id="add-split-row" type="button" class="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">Add row</button>
-            </div>
-            <div id="split-rows" class="space-y-3"></div>
-            <p id="split-summary" class="text-xs text-slate-500">Split totals will appear here.</p>
-          </div>
-
-          <div>
-            <label for="sale_notes" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Notes</label>
-            <textarea id="sale_notes" rows="3" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"></textarea>
-          </div>
-
-          <div>
-            <label for="hold_reference" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Hold Reference</label>
-            <input id="hold_reference" type="text" placeholder="Customer name, counter note, or basket label" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
-          </div>
-        </div>
-
-        <div id="sale-feedback" class="mt-4 hidden rounded-2xl px-4 py-3 text-sm font-medium"></div>
-
-        <button id="checkout-btn" type="button" disabled class="mt-5 w-full rounded-2xl bg-blue-600 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300">Complete Sale</button>
-        <div class="mt-3 grid gap-3 sm:grid-cols-2">
-          <button id="hold-cart-btn" type="button" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700">Hold Cart</button>
-          <button id="clear-cart-btn" type="button" class="rounded-2xl border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-700">Void Cart</button>
-        </div>
-      </div>
-
-      <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div class="flex items-center justify-between gap-4">
-          <div>
-            <h2 class="text-xl font-semibold text-slate-900">Offline Queue</h2>
-            <p class="mt-1 text-sm text-slate-600">Offline sales are queued here and synced when your connection returns.</p>
-          </div>
-          <span id="queued-count" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">0 queued</span>
-        </div>
-        <div class="mt-4 flex gap-3">
-          <button id="sync-queued-btn" type="button" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700">Sync queued sales</button>
-        </div>
-        <div id="queued-sales-list" class="mt-4 space-y-3">
-          <p class="text-sm text-slate-500">No queued offline sales.</p>
-        </div>
-      </div>
-
-      <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 class="text-xl font-semibold text-slate-900">Held Carts</h2>
-        <div id="held-carts" class="mt-4 space-y-3">
-          {% for held in held_carts %}
-            <button type="button" data-held-cart="{{ held.id }}" class="block w-full rounded-2xl border border-slate-200 px-4 py-3 text-left text-sm">
-              <span class="font-semibold text-slate-900">{{ held.hold_reference|default:held.id }}</span>
-              <span class="mt-1 block text-slate-500">{{ held.held_at|date:"M d, Y H:i" }}</span>
-            </button>
-          {% empty %}
-            <p class="text-sm text-slate-500">No held carts yet.</p>
+        <!-- Category Pills -->
+        <div class="flex items-center gap-2 overflow-x-auto pos-scrollbar pb-1 text-xs">
+          <button type="button"
+                  data-category="ALL"
+                  class="cat-pill active-cat rounded-full px-4 py-2 font-medium transition whitespace-nowrap bg-blue-600 text-white shadow-sm shadow-blue-500/20">
+            All Products
+          </button>
+          {% for cat in categories %}
+          <button type="button"
+                  data-category="{{ cat }}"
+                  class="cat-pill rounded-full px-4 py-2 font-medium transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200">
+            {{ cat }}
+          </button>
           {% endfor %}
         </div>
       </div>
-    </aside>
+
+      <!-- Products Grid Container -->
+      <div id="product-grid-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-4 gap-4">
+        <!-- Rendered dynamically via JS from grid_products -->
+      </div>
+
+      <!-- Empty Filter State -->
+      <div id="no-products-found" class="hidden rounded-3xl border border-dashed border-slate-200 bg-white p-12 text-center">
+        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <p class="mt-4 text-base font-semibold text-slate-800">No products match your search</p>
+        <p class="mt-1 text-xs text-slate-500">Try adjusting your keywords or selected category.</p>
+        <button id="reset-filter-btn" type="button" class="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50">
+          Reset Filter
+        </button>
+      </div>
+    </div>
+
+    <!-- RIGHT: Side Cart (Persistent Interactive Cart) -->
+    <div class="space-y-4">
+      <div class="sticky top-4 rounded-3xl border border-slate-200/80 bg-white shadow-sm flex flex-col overflow-hidden max-h-[calc(100vh-2rem)]">
+        
+        <!-- Cart Header -->
+        <div class="border-b border-slate-100 p-5 pb-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+              </div>
+              <div>
+                <h2 class="text-base font-bold text-slate-900">Current Cart</h2>
+                <p id="cart-item-count-label" class="text-xs text-slate-500">0 items</p>
+              </div>
+            </div>
+            
+            <button id="clear-cart-btn"
+                    type="button"
+                    title="Clear all items from cart"
+                    class="inline-flex items-center gap-1 rounded-xl border border-rose-100 bg-rose-50/70 px-2.5 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100">
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Clear
+            </button>
+          </div>
+
+          <!-- Customer Info Toggle -->
+          <div class="mt-3.5 pt-3 border-t border-slate-100">
+            <button id="toggle-customer-btn" type="button" class="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-wider text-slate-500 hover:text-slate-800">
+              <span class="flex items-center gap-1.5">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Customer Info (Optional)
+              </span>
+              <svg id="customer-caret" class="h-4 w-4 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div id="customer-fields" class="hidden mt-2 space-y-2">
+              <input id="cart-customer-name" type="text" placeholder="Customer name" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-900 focus:border-blue-500 focus:outline-none">
+              <input id="cart-customer-phone" type="text" placeholder="Customer phone" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-900 focus:border-blue-500 focus:outline-none">
+            </div>
+          </div>
+        </div>
+
+        <!-- Scrollable Cart Items -->
+        <div id="cart-items-scroll" class="flex-1 overflow-y-auto pos-scrollbar p-5 space-y-3 min-h-[220px]">
+          <!-- Cart items rendered here via JS -->
+          <div id="cart-empty-state" class="flex flex-col items-center justify-center py-10 text-center">
+            <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 text-slate-300">
+              <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <p class="mt-3 text-sm font-semibold text-slate-600">Cart is empty</p>
+            <p class="mt-1 text-xs text-slate-400 max-w-[200px]">Click any product from the grid on the left to add it.</p>
+          </div>
+        </div>
+
+        <!-- Cart Footer & Totals -->
+        <div class="border-t border-slate-100 bg-slate-50/70 p-5 space-y-4">
+          <div class="space-y-1.5 text-xs">
+            <div class="flex items-center justify-between text-slate-500">
+              <span>Subtotal</span>
+              <span id="cart-subtotal-val" class="font-semibold text-slate-700">NGN 0.00</span>
+            </div>
+            <div class="flex items-center justify-between text-slate-500">
+              <span>Tax ({{ tax_rate|floatformat:1 }}%)</span>
+              <span id="cart-tax-val" class="font-semibold text-slate-700">NGN 0.00</span>
+            </div>
+            <div class="pt-2 border-t border-slate-200/80 flex items-center justify-between">
+              <span class="text-sm font-bold text-slate-900">Total</span>
+              <span id="cart-grand-total-val" class="text-xl font-extrabold text-blue-700">NGN 0.00</span>
+            </div>
+          </div>
+
+          <!-- Checkout Button -->
+          <button id="checkout-action-btn"
+                  type="button"
+                  disabled
+                  class="w-full flex items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3.5 px-4 text-sm font-bold text-white shadow-md shadow-blue-500/25 transition hover:bg-blue-700 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Checkout & Generate Receipt</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECEIPT MODAL (Generates automatically upon checkout) -->
+  <div id="pos-receipt-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+    <div class="w-full max-w-md rounded-3xl bg-white shadow-2xl overflow-hidden border border-slate-200 animate-in fade-in zoom-in duration-200">
+      
+      <!-- Modal Top Controls (Hidden in Print) -->
+      <div class="no-print flex items-center justify-between border-b border-slate-100 bg-slate-50 px-6 py-4">
+        <div class="flex items-center gap-2">
+          <div class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <span class="text-sm font-bold text-slate-800">Checkout Complete</span>
+        </div>
+        <button id="close-receipt-btn" type="button" class="rounded-xl p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-600">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Receipt Body (Printable Paper Card) -->
+      <div id="pos-receipt-paper" class="p-6 text-slate-800 font-sans">
+        <!-- Store Header -->
+        <div class="text-center">
+          <p id="receipt-store-name" class="text-xl font-black uppercase tracking-tight text-slate-900">{{ store.name }}</p>
+          <p id="receipt-store-address" class="mt-0.5 text-xs text-slate-500">{{ store.address|default:"Retail Store Location" }}</p>
+          <p class="mt-2 inline-block rounded-full bg-slate-100 px-3 py-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-600">
+            Official Receipt
+          </p>
+        </div>
+
+        <div class="my-4 border-b border-dashed border-slate-300"></div>
+
+        <!-- Receipt Metadata -->
+        <div class="space-y-1.5 text-xs">
+          <div class="flex justify-between">
+            <span class="text-slate-500 uppercase tracking-wider text-[11px]">Receipt No.</span>
+            <span id="receipt-tx-number" class="font-bold text-slate-900">#REC-000000</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500 uppercase tracking-wider text-[11px]">Date</span>
+            <span id="receipt-date-time" class="text-slate-700">Oct 18, 2026 05:00 PM</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500 uppercase tracking-wider text-[11px]">Cashier</span>
+            <span id="receipt-cashier-name" class="text-slate-700">{{ request.user.get_full_name|default:request.user.email }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500 uppercase tracking-wider text-[11px]">Customer</span>
+            <span id="receipt-customer-name" class="text-slate-700">Walk-in Customer</span>
+          </div>
+        </div>
+
+        <div class="my-4 border-b border-dashed border-slate-300"></div>
+
+        <!-- Line Items Table -->
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="border-b border-slate-200 text-slate-400 uppercase tracking-wider text-[10px]">
+              <th class="pb-1.5 text-left font-semibold">Item</th>
+              <th class="pb-1.5 text-center font-semibold w-10">Qty</th>
+              <th class="pb-1.5 text-right font-semibold">Price</th>
+              <th class="pb-1.5 text-right font-semibold">Total</th>
+            </tr>
+          </thead>
+          <tbody id="receipt-items-body" class="divide-y divide-slate-100">
+            <!-- Items injected via JS -->
+          </tbody>
+        </table>
+
+        <div class="my-4 border-b border-dashed border-slate-300"></div>
+
+        <!-- Financial Summary -->
+        <div class="space-y-1.5 text-xs">
+          <div class="flex justify-between text-slate-600">
+            <span>Subtotal</span>
+            <span id="receipt-subtotal-val">NGN 0.00</span>
+          </div>
+          <div class="flex justify-between text-slate-600">
+            <span>Tax</span>
+            <span id="receipt-tax-val">NGN 0.00</span>
+          </div>
+          <div class="pt-2 border-t border-slate-800 flex justify-between text-sm font-black text-slate-900">
+            <span>TOTAL</span>
+            <span id="receipt-total-val" class="text-base font-extrabold text-blue-700">NGN 0.00</span>
+          </div>
+          <div class="flex justify-between text-xs text-slate-500 pt-1">
+            <span>Payment Method</span>
+            <span id="receipt-payment-method" class="font-semibold text-emerald-600">Cash (Paid)</span>
+          </div>
+        </div>
+
+        <div class="my-5 border-b border-dashed border-slate-300"></div>
+
+        <!-- Receipt Footer Note -->
+        <div class="text-center text-xs text-slate-500 space-y-1">
+          <p class="font-medium text-slate-700">Thank you for your purchase!</p>
+          <p class="text-[11px] text-slate-400">Please retain this receipt for your records.</p>
+        </div>
+      </div>
+
+      <!-- Modal Bottom Actions (Hidden in Print) -->
+      <div class="no-print border-t border-slate-100 bg-slate-50 p-4 flex items-center justify-between gap-3">
+        <button id="print-receipt-btn"
+                type="button"
+                class="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 py-2.5 px-4 text-xs font-bold text-white shadow-sm hover:bg-slate-800 transition">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+          Print Receipt
+        </button>
+
+        <button id="new-sale-btn"
+                type="button"
+                class="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 py-2.5 px-4 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          New Sale
+        </button>
+      </div>
+
+    </div>
   </div>
 </section>
 {% endblock %}
@@ -219,55 +385,48 @@
 <script>
 (() => {
   const CFG = {
-    searchUrl: "{{ search_url }}",
     addUrl: "{{ cart_add_url }}",
     updateUrl: "{{ cart_update_url }}",
     removeUrl: "{{ cart_remove_url }}",
-    holdUrl: "{{ cart_hold_url }}",
-    resumeUrl: "{{ cart_resume_url }}",
     clearUrl: "{{ cart_clear_url }}",
     checkoutUrl: "{{ cart_checkout_url }}",
-    offlineSyncUrl: "{{ offline_sync_url }}",
     taxRate: {{ tax_rate }},
-    storeId: "{{ store.id }}",
-    registerId: "{{ register.id }}",
-    sessionId: "{{ active_session.id }}",
+    currency: "NGN",
   };
 
-  const OFFLINE_DB = "sabistart-pos";
-  const OFFLINE_QUEUE_STORE = "offline_sales_queue";
-  const PRODUCT_CACHE_KEY = `sabistart-pos-products:${CFG.storeId}`;
+  const allProducts = {{ grid_products_json|safe }};
+  let cartData = {{ cart_data_json|safe }};
+  let selectedCategory = "ALL";
+  let searchKeyword = "";
 
-  const searchInput = document.getElementById("product-search");
-  const resultsEl = document.getElementById("search-results");
-  const cartBody = document.getElementById("cart-body");
-  const emptyRow = document.getElementById("empty-row");
-  const subtotalEl = document.getElementById("subtotal");
-  const taxEl = document.getElementById("tax");
-  const totalEl = document.getElementById("grand-total");
-  const checkoutBtn = document.getElementById("checkout-btn");
-  const holdBtn = document.getElementById("hold-cart-btn");
-  const clearBtn = document.getElementById("clear-cart-btn");
-  const feedbackEl = document.getElementById("sale-feedback");
-  const heldCartsEl = document.getElementById("held-carts");
-  const paymentMethodEl = document.getElementById("payment_method");
-  const singlePaymentPanel = document.getElementById("single-payment-panel");
-  const splitPaymentPanel = document.getElementById("split-payment-panel");
-  const bankNameWrap = document.getElementById("bank-name-wrap");
-  const terminalReferenceWrap = document.getElementById("terminal-reference-wrap");
-  const customLabelWrap = document.getElementById("custom-label-wrap");
-  const amountReceivedWrap = document.getElementById("amount-received-wrap");
-  const networkIndicator = document.getElementById("network-indicator");
-  const queuedCountEl = document.getElementById("queued-count");
-  const syncQueuedBtn = document.getElementById("sync-queued-btn");
-  const queuedSalesListEl = document.getElementById("queued-sales-list");
-  const splitRowsEl = document.getElementById("split-rows");
-  const splitSummaryEl = document.getElementById("split-summary");
-  const addSplitRowBtn = document.getElementById("add-split-row");
-  const holdReferenceEl = document.getElementById("hold_reference");
+  // DOM Elements
+  const gridContainer = document.getElementById("product-grid-container");
+  const noProductsFound = document.getElementById("no-products-found");
+  const searchInput = document.getElementById("product-grid-search");
+  const clearSearchBtn = document.getElementById("clear-search-btn");
+  const catPills = document.querySelectorAll(".cat-pill");
+  const resetFilterBtn = document.getElementById("reset-filter-btn");
 
-  let cartItems = {{ cart_data.items|safe }};
-  let splitRows = [];
+  const cartItemsScroll = document.getElementById("cart-items-scroll");
+  const cartEmptyState = document.getElementById("cart-empty-state");
+  const cartItemCountLabel = document.getElementById("cart-item-count-label");
+  const cartSubtotalVal = document.getElementById("cart-subtotal-val");
+  const cartTaxVal = document.getElementById("cart-tax-val");
+  const cartGrandTotalVal = document.getElementById("cart-grand-total-val");
+  const checkoutBtn = document.getElementById("checkout-action-btn");
+  const clearCartBtn = document.getElementById("clear-cart-btn");
+
+  const toggleCustomerBtn = document.getElementById("toggle-customer-btn");
+  const customerFields = document.getElementById("customer-fields");
+  const customerCaret = document.getElementById("customer-caret");
+  const customerNameInput = document.getElementById("cart-customer-name");
+  const customerPhoneInput = document.getElementById("cart-customer-phone");
+
+  // Receipt Modal DOM
+  const receiptModal = document.getElementById("pos-receipt-modal");
+  const closeReceiptBtn = document.getElementById("close-receipt-btn");
+  const printReceiptBtn = document.getElementById("print-receipt-btn");
+  const newSaleBtn = document.getElementById("new-sale-btn");
 
   function getCookie(name) {
     for (const cookie of document.cookie.split(";")) {
@@ -277,659 +436,465 @@
     return "";
   }
 
-  function money(value) {
-    return `NGN ${Number(value || 0).toFixed(2)}`;
+  function formatMoney(amount) {
+    const num = Number(amount || 0);
+    return `${CFG.currency} ${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
-  function parseMoney(value) {
-    return Number.parseFloat(value || "0") || 0;
-  }
-
-  function feedback(message, tone = "neutral") {
-    feedbackEl.textContent = message;
-    feedbackEl.className = "mt-4 rounded-2xl px-4 py-3 text-sm font-medium";
-    const tones = {
-      success: "bg-emerald-50 text-emerald-700",
-      error: "bg-rose-50 text-rose-700",
-      neutral: "bg-slate-100 text-slate-700",
-    };
-    feedbackEl.className += " " + (tones[tone] || tones.neutral);
-  }
-
-  async function post(url, payload) {
+  async function postJson(url, data) {
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-CSRFToken": getCookie("csrftoken"),
       },
-      body: JSON.stringify(payload || {}),
+      body: JSON.stringify(data || {}),
     });
-    return { ok: response.ok, data: await response.json() };
+    return await response.json();
   }
 
-  function cartSubtotal() {
-    return cartItems.reduce((sum, item) => sum + Number(item.line_total || 0), 0);
+  // ─────────────────────────────────────────────────────────────
+  // 1. PRODUCT GRID RENDERING & FILTERING
+  // ─────────────────────────────────────────────────────────────
+  function getFilteredProducts() {
+    return allProducts.filter(item => {
+      const matchesCat = (selectedCategory === "ALL" || item.category === selectedCategory);
+      const q = searchKeyword.toLowerCase().trim();
+      const matchesSearch = !q || (
+        (item.name && item.name.toLowerCase().includes(q)) ||
+        (item.sku && item.sku.toLowerCase().includes(q)) ||
+        (item.barcode && item.barcode.toLowerCase().includes(q))
+      );
+      return matchesCat && matchesSearch;
+    });
   }
 
-  function cartTax(subtotal) {
-    return subtotal * (CFG.taxRate / 100);
+  function getCartItemQuantity(inventoryId) {
+    if (!cartData || !cartData.items) return 0;
+    const item = cartData.items.find(i => String(i.inventory_id) === String(inventoryId));
+    return item ? item.quantity : 0;
   }
 
-  function cartTotal() {
-    const subtotal = cartSubtotal();
-    return subtotal + cartTax(subtotal);
-  }
+  function renderGrid() {
+    const products = getFilteredProducts();
+    gridContainer.innerHTML = "";
 
-  function updateNetworkIndicator() {
-    if (navigator.onLine) {
-      networkIndicator.textContent = "Online";
-      networkIndicator.className = "rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700";
-    } else {
-      networkIndicator.textContent = "Offline";
-      networkIndicator.className = "rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700";
-    }
-  }
-
-  function getCachedProducts() {
-    try {
-      return JSON.parse(localStorage.getItem(PRODUCT_CACHE_KEY) || "[]");
-    } catch {
-      return [];
-    }
-  }
-
-  function cacheProducts(products) {
-    const existing = getCachedProducts();
-    const map = new Map(existing.map((item) => [item.id, item]));
-    products.forEach((item) => map.set(item.id, item));
-    localStorage.setItem(PRODUCT_CACHE_KEY, JSON.stringify(Array.from(map.values()).slice(-300)));
-  }
-
-  function renderCart() {
-    cartBody.innerHTML = "";
-    if (!cartItems.length) {
-      cartBody.appendChild(emptyRow);
-      checkoutBtn.disabled = true;
-      subtotalEl.textContent = money(0);
-      taxEl.textContent = money(0);
-      totalEl.textContent = money(0);
-      updateSplitSummary();
+    if (products.length === 0) {
+      gridContainer.classList.add("hidden");
+      noProductsFound.classList.remove("hidden");
       return;
     }
 
-    let subtotal = 0;
-    cartItems.forEach((item) => {
-      subtotal += Number(item.line_total);
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td class="px-4 py-4">
-          <p class="font-medium text-slate-900">${item.product_name}</p>
-          <p class="text-xs text-slate-400">${item.product_sku || ""}</p>
-        </td>
-        <td class="px-4 py-4 text-slate-600">${money(item.unit_price)}</td>
-        <td class="px-4 py-4">
-          <input type="number" min="1" max="${item.max_quantity}" value="${item.quantity}" data-item-id="${item.id}" class="cart-qty-input w-24 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900">
-        </td>
-        <td class="px-4 py-4 font-medium text-slate-900">${money(item.line_total)}</td>
-        <td class="px-4 py-4 text-right">
-          <button type="button" data-remove="${item.id}" class="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600">Remove</button>
-        </td>`;
-      cartBody.appendChild(tr);
-    });
-    const tax = cartTax(subtotal);
-    subtotalEl.textContent = money(subtotal);
-    taxEl.textContent = money(tax);
-    totalEl.textContent = money(subtotal + tax);
-    checkoutBtn.disabled = false;
-    updateSplitSummary();
-  }
+    gridContainer.classList.remove("hidden");
+    noProductsFound.classList.add("hidden");
 
-  function renderResults(products) {
-    if (!products.length) {
-      resultsEl.innerHTML = `<p class="px-3 py-2 text-sm text-slate-500">No products found.</p>`;
-    } else {
-      resultsEl.innerHTML = products.map((p) => `
-        <button type="button" class="result-btn flex w-full items-center justify-between gap-4 rounded-2xl px-4 py-3 text-left transition hover:bg-white" data-inv-id="${p.id}">
-          <span>
-            <span class="block text-sm font-medium text-slate-900">${p.name}</span>
-            <span class="block text-xs text-slate-400">${p.sku || "—"} • ${p.quantity} in stock</span>
+    products.forEach(p => {
+      const inCartQty = getCartItemQuantity(p.id);
+      const isOutOfStock = p.stock <= 0;
+
+      const card = document.createElement("div");
+      card.className = `group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-400 hover:shadow-md cursor-pointer select-none ${isOutOfStock ? 'opacity-60 grayscale' : ''}`;
+      card.setAttribute("data-inventory-id", p.id);
+
+      card.innerHTML = `
+        <!-- Card Top Image / Placeholder -->
+        <div class="relative mb-3 flex h-28 w-full items-center justify-center overflow-hidden rounded-xl bg-slate-100/80">
+          ${p.image ? `
+            <img src="${p.image}" alt="${p.name}" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+          ` : `
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-500">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            </div>
+          `}
+          <!-- Category Badge -->
+          <span class="absolute top-2 left-2 rounded-md bg-white/90 backdrop-blur-sm px-2 py-0.5 text-[10px] font-semibold text-slate-700 shadow-xs">
+            ${p.category || 'General'}
           </span>
-          <span class="text-sm font-semibold text-slate-900">${money(p.price)}</span>
-        </button>
-      `).join("");
-    }
-    resultsEl.classList.remove("hidden");
-  }
-
-  function updatePaymentVisibility() {
-    const method = paymentMethodEl.value;
-    const isSplit = method === "split";
-    singlePaymentPanel.classList.toggle("hidden", isSplit);
-    splitPaymentPanel.classList.toggle("hidden", !isSplit);
-
-    bankNameWrap.classList.toggle("hidden", method !== "bank_transfer");
-    terminalReferenceWrap.classList.toggle("hidden", method !== "card_terminal");
-    customLabelWrap.classList.toggle("hidden", method !== "custom");
-    amountReceivedWrap.classList.toggle("hidden", method !== "cash");
-
-    if (isSplit && splitRows.length === 0) {
-      splitRows = [newSplitRow("cash"), newSplitRow("card_terminal")];
-      renderSplitRows();
-    }
-    updateSplitSummary();
-  }
-
-  function newSplitRow(method = "cash") {
-    return {
-      id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-      payment_method: method,
-      amount: "",
-      reference_number: "",
-      bank_name: "",
-      terminal_reference: "",
-      custom_payment_label: "",
-      amount_received: "",
-    };
-  }
-
-  function splitRowFields(row, index) {
-    const showBank = row.payment_method === "bank_transfer";
-    const showTerminal = row.payment_method === "card_terminal";
-    const showCustom = row.payment_method === "custom";
-    const showCashReceived = row.payment_method === "cash";
-    return `
-      <div class="rounded-2xl border border-slate-200 bg-white p-4">
-        <div class="grid gap-3 md:grid-cols-2">
-          <div>
-            <label class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Method</label>
-            <select data-split-field="payment_method" data-row-index="${index}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900">
-              ${[
-                ["cash", "Cash"],
-                ["bank_transfer", "Bank Transfer"],
-                ["card_terminal", "POS Terminal / Card"],
-                ["mobile_money", "Mobile Money"],
-                ["custom", "Custom Payment"],
-              ].map(([value, label]) => `<option value="${value}" ${row.payment_method === value ? "selected" : ""}>${label}</option>`).join("")}
-            </select>
-          </div>
-          <div>
-            <label class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Amount</label>
-            <input data-split-field="amount" data-row-index="${index}" type="number" min="0" step="0.01" value="${row.amount}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900">
-          </div>
-          <div>
-            <label class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Reference</label>
-            <input data-split-field="reference_number" data-row-index="${index}" type="text" value="${row.reference_number}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900">
-          </div>
-          ${showBank ? `
-          <div>
-            <label class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Bank Name</label>
-            <input data-split-field="bank_name" data-row-index="${index}" type="text" value="${row.bank_name}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900">
-          </div>` : ""}
-          ${showTerminal ? `
-          <div>
-            <label class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Terminal Ref</label>
-            <input data-split-field="terminal_reference" data-row-index="${index}" type="text" value="${row.terminal_reference}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900">
-          </div>` : ""}
-          ${showCustom ? `
-          <div>
-            <label class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Custom Label</label>
-            <input data-split-field="custom_payment_label" data-row-index="${index}" type="text" value="${row.custom_payment_label}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900">
-          </div>` : ""}
-          ${showCashReceived ? `
-          <div>
-            <label class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Amount Received</label>
-            <input data-split-field="amount_received" data-row-index="${index}" type="number" min="0" step="0.01" value="${row.amount_received}" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900">
-          </div>` : ""}
+          <!-- In-Cart Quantity Badge -->
+          ${inCartQty > 0 ? `
+            <span class="cart-badge absolute top-2 right-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-blue-600 px-1.5 text-xs font-bold text-white shadow-md">
+              ${inCartQty}
+            </span>
+          ` : ''}
         </div>
-        <div class="mt-3 flex justify-end">
-          <button type="button" data-remove-split="${index}" class="rounded-full border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700">Remove row</button>
+
+        <!-- Card Content -->
+        <div class="flex flex-1 flex-col justify-between">
+          <div>
+            <h3 class="line-clamp-2 text-xs font-bold text-slate-800 group-hover:text-blue-600" title="${p.name}">
+              ${p.name}
+            </h3>
+            <p class="mt-0.5 text-[11px] text-slate-400 font-mono">${p.sku || ''}</p>
+          </div>
+
+          <div class="mt-3 flex items-center justify-between pt-2 border-t border-slate-100">
+            <div>
+              <p class="text-xs font-black text-slate-900">${formatMoney(p.price)}</p>
+              <p class="text-[10px] ${p.stock > 10 ? 'text-emerald-600' : (p.stock > 0 ? 'text-amber-600' : 'text-rose-600')} font-medium">
+                ${isOutOfStock ? 'Out of Stock' : `${p.stock} in stock`}
+              </p>
+            </div>
+            
+            <button type="button"
+                    ${isOutOfStock ? 'disabled' : ''}
+                    class="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white group-active:scale-95">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+          </div>
         </div>
-      </div>
-    `;
-  }
+      `;
 
-  function renderSplitRows() {
-    splitRowsEl.innerHTML = splitRows.map((row, index) => splitRowFields(row, index)).join("");
-    updateSplitSummary();
-  }
-
-  function updateSplitSummary() {
-    if (paymentMethodEl.value !== "split") {
-      splitSummaryEl.textContent = "";
-      return;
-    }
-    const due = cartTotal();
-    const total = splitRows.reduce((sum, row) => sum + parseMoney(row.amount), 0);
-    splitSummaryEl.textContent = `Assigned: ${money(total)} • Due: ${money(due)}`;
-  }
-
-  function buildSinglePaymentPayload() {
-    const method = paymentMethodEl.value;
-    const payload = {
-      payment_method: method,
-      payment_reference: document.getElementById("payment_reference").value,
-      bank_name: document.getElementById("bank_name").value,
-      terminal_reference: document.getElementById("terminal_reference").value,
-      custom_payment_label: document.getElementById("custom_payment_label").value,
-      amount_received: document.getElementById("amount_received").value,
-    };
-    if (method !== "cash") {
-      delete payload.amount_received;
-    }
-    return payload;
-  }
-
-  function buildSplitPaymentPayload(total) {
-    const cleanedRows = splitRows
-      .map((row) => ({
-        payment_method: row.payment_method,
-        amount: parseMoney(row.amount).toFixed(2),
-        reference_number: row.reference_number || "",
-        bank_name: row.bank_name || "",
-        terminal_reference: row.terminal_reference || "",
-        custom_payment_label: row.custom_payment_label || "",
-        amount_received: row.payment_method === "cash" && row.amount_received ? parseMoney(row.amount_received).toFixed(2) : "",
-      }))
-      .filter((row) => parseMoney(row.amount) > 0);
-
-    const assigned = cleanedRows.reduce((sum, row) => sum + parseMoney(row.amount), 0);
-    if (!cleanedRows.length) {
-      throw new Error("Add at least one split payment row.");
-    }
-    if (assigned + 0.0001 < total) {
-      throw new Error("Split payments do not cover the full sale total.");
-    }
-    return {
-      payment_method: "split",
-      payments: cleanedRows,
-    };
-  }
-
-  function baseCheckoutPayload() {
-    return {
-      customer_name: document.getElementById("customer_name").value,
-      customer_email: document.getElementById("customer_email").value,
-      customer_phone: document.getElementById("customer_phone").value,
-      notes: document.getElementById("sale_notes").value,
-    };
-  }
-
-  function buildCheckoutPayload() {
-    const total = cartTotal();
-    if (paymentMethodEl.value === "split") {
-      return { ...baseCheckoutPayload(), ...buildSplitPaymentPayload(total) };
-    }
-    return { ...baseCheckoutPayload(), ...buildSinglePaymentPayload() };
-  }
-
-  function localReceiptHtml(record) {
-    const total = Number(record.summary.total || 0);
-    const subtotal = Number(record.summary.subtotal || 0);
-    const tax = Number(record.summary.tax || 0);
-    return `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Offline Receipt</title>
-        <style>
-          body { font-family: Arial, sans-serif; padding: 24px; color: #0f172a; }
-          .wrap { max-width: 520px; margin: 0 auto; }
-          table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-          th, td { border-bottom: 1px solid #e2e8f0; padding: 8px 0; text-align: left; font-size: 14px; }
-          th:last-child, td:last-child { text-align: right; }
-        </style>
-      </head>
-      <body>
-        <div class="wrap">
-          <h1>${record.store_name}</h1>
-          <p>Offline receipt</p>
-          <p>Reference: ${record.client_transaction_id}</p>
-          <p>Date: ${new Date(record.created_at).toLocaleString()}</p>
-          <table>
-            <thead>
-              <tr><th>Item</th><th>Qty</th><th>Total</th></tr>
-            </thead>
-            <tbody>
-              ${record.items.map((item) => `<tr><td>${item.product_name}</td><td>${item.quantity}</td><td>${money(item.line_total)}</td></tr>`).join("")}
-            </tbody>
-          </table>
-          <p style="margin-top:16px;">Subtotal: ${money(subtotal)}</p>
-          <p>Tax: ${money(tax)}</p>
-          <p><strong>Total: ${money(total)}</strong></p>
-          <p>This sale is queued locally and will sync when the connection returns.</p>
-        </div>
-      </body>
-      </html>
-    `;
-  }
-
-  function openLocalReceipt(record) {
-    const win = window.open("", "_blank", "noopener,noreferrer");
-    if (!win) return;
-    win.document.open();
-    win.document.write(localReceiptHtml(record));
-    win.document.close();
-  }
-
-  function openOfflineDb() {
-    return new Promise((resolve, reject) => {
-      if (!window.indexedDB) {
-        reject(new Error("IndexedDB is not available in this browser."));
-        return;
-      }
-      const request = window.indexedDB.open(OFFLINE_DB, 1);
-      request.onupgradeneeded = () => {
-        const db = request.result;
-        if (!db.objectStoreNames.contains(OFFLINE_QUEUE_STORE)) {
-          db.createObjectStore(OFFLINE_QUEUE_STORE, { keyPath: "client_transaction_id" });
+      card.addEventListener("click", () => {
+        if (!isOutOfStock) {
+          handleAddToCart(p.id);
         }
-      };
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
+      });
+
+      gridContainer.appendChild(card);
     });
   }
 
-  async function queueOfflineSale(record) {
-    const db = await openOfflineDb();
-    await new Promise((resolve, reject) => {
-      const tx = db.transaction(OFFLINE_QUEUE_STORE, "readwrite");
-      tx.objectStore(OFFLINE_QUEUE_STORE).put(record);
-      tx.oncomplete = resolve;
-      tx.onerror = () => reject(tx.error);
-    });
-    db.close();
-  }
+  // ─────────────────────────────────────────────────────────────
+  // 2. SIDE CART RENDERING & CONTROLS
+  // ─────────────────────────────────────────────────────────────
+  function renderCart() {
+    const items = (cartData && cartData.items) ? cartData.items : [];
+    
+    // Clear dynamic cart item rows
+    const currentRows = cartItemsScroll.querySelectorAll(".cart-item-row");
+    currentRows.forEach(r => r.remove());
 
-  async function listQueuedSales() {
-    const db = await openOfflineDb();
-    const records = await new Promise((resolve, reject) => {
-      const tx = db.transaction(OFFLINE_QUEUE_STORE, "readonly");
-      const request = tx.objectStore(OFFLINE_QUEUE_STORE).getAll();
-      request.onsuccess = () => resolve(request.result || []);
-      request.onerror = () => reject(request.error);
-    });
-    db.close();
-    return records.filter((record) => record.store_id === CFG.storeId);
-  }
-
-  async function removeQueuedSales(ids) {
-    const db = await openOfflineDb();
-    await new Promise((resolve, reject) => {
-      const tx = db.transaction(OFFLINE_QUEUE_STORE, "readwrite");
-      const store = tx.objectStore(OFFLINE_QUEUE_STORE);
-      ids.forEach((id) => store.delete(id));
-      tx.oncomplete = resolve;
-      tx.onerror = () => reject(tx.error);
-    });
-    db.close();
-  }
-
-  async function refreshQueuedCount() {
-    try {
-      const records = await listQueuedSales();
-      queuedCountEl.textContent = `${records.length} queued`;
-      renderQueuedSales(records);
-    } catch {
-      queuedCountEl.textContent = "queue unavailable";
-      queuedSalesListEl.innerHTML = `<p class="text-sm text-slate-500">Offline queue is unavailable in this browser.</p>`;
-    }
-  }
-
-  function renderQueuedSales(records) {
-    if (!records.length) {
-      queuedSalesListEl.innerHTML = `<p class="text-sm text-slate-500">No queued offline sales.</p>`;
+    if (items.length === 0) {
+      cartEmptyState.classList.remove("hidden");
+      cartItemCountLabel.textContent = "0 items";
+      cartSubtotalVal.textContent = formatMoney(0);
+      cartTaxVal.textContent = formatMoney(0);
+      cartGrandTotalVal.textContent = formatMoney(0);
+      checkoutBtn.disabled = true;
       return;
     }
-    queuedSalesListEl.innerHTML = records.map((record) => `
-      <div class="rounded-2xl border border-slate-200 px-4 py-3 text-sm">
-        <div class="flex items-start justify-between gap-3">
-          <div>
-            <p class="font-semibold text-slate-900">${record.client_transaction_id}</p>
-            <p class="mt-1 text-xs text-slate-500">${new Date(record.created_at).toLocaleString()}</p>
-            <p class="mt-2 text-slate-600">${record.items.length} line item(s) &middot; ${money(record.summary.total)}</p>
+
+    cartEmptyState.classList.add("hidden");
+    checkoutBtn.disabled = false;
+
+    let totalCount = 0;
+    let subtotal = 0;
+
+    items.forEach(item => {
+      totalCount += item.quantity;
+      subtotal += Number(item.line_total || 0);
+
+      const row = document.createElement("div");
+      row.className = "cart-item-row rounded-2xl border border-slate-100 bg-white p-3 shadow-xs space-y-2.5 transition hover:border-slate-200";
+      row.innerHTML = `
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex-1 min-w-0">
+            <h4 class="text-xs font-bold text-slate-900 truncate" title="${item.product_name}">
+              ${item.product_name}
+            </h4>
+            <p class="text-[11px] text-slate-500">${formatMoney(item.unit_price)} each</p>
           </div>
-          <div class="flex gap-2">
-            <button type="button" data-print-queued="${record.client_transaction_id}" class="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">Print</button>
-            <button type="button" data-remove-queued="${record.client_transaction_id}" class="rounded-full border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700">Remove</button>
-          </div>
+          <button type="button"
+                  data-remove-item="${item.id}"
+                  title="Remove item"
+                  class="text-slate-400 hover:text-rose-600 transition p-1">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
         </div>
-      </div>
-    `).join("");
-  }
 
-  async function syncQueuedSales(showFeedback = true) {
-    if (!navigator.onLine) {
-      if (showFeedback) feedback("You're offline. Queued sales will sync when the connection returns.", "neutral");
-      return;
-    }
-    const records = await listQueuedSales();
-    if (!records.length) {
-      if (showFeedback) feedback("No queued offline sales to sync.", "neutral");
-      await refreshQueuedCount();
-      return;
-    }
-    const response = await post(CFG.offlineSyncUrl, {
-      transactions: records.map((record) => record.payload),
-    });
-    if (!response.ok || !response.data.success) {
-      feedback(response.data?.error || "Could not sync queued sales right now.", "error");
-      return;
-    }
-    const syncedIds = (response.data.transactions || []).map((item) => item.client_transaction_id);
-    await removeQueuedSales(syncedIds);
-    await refreshQueuedCount();
-    feedback(`Synced ${syncedIds.length} queued sale(s).`, "success");
-  }
+        <div class="flex items-center justify-between pt-1 border-t border-slate-50">
+          <!-- Quantity Stepper -->
+          <div class="flex items-center rounded-xl border border-slate-200 bg-slate-50 p-0.5">
+            <button type="button"
+                    data-step-qty="${item.id}"
+                    data-direction="-1"
+                    class="flex h-6 w-6 items-center justify-center rounded-lg bg-white text-slate-600 shadow-xs hover:bg-slate-100 transition">
+              <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+              </svg>
+            </button>
+            <span class="w-8 text-center text-xs font-bold text-slate-800">${item.quantity}</span>
+            <button type="button"
+                    data-step-qty="${item.id}"
+                    data-direction="1"
+                    class="flex h-6 w-6 items-center justify-center rounded-lg bg-white text-slate-600 shadow-xs hover:bg-slate-100 transition">
+              <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+          </div>
 
-  let searchTimer;
-  searchInput?.addEventListener("input", () => {
-    clearTimeout(searchTimer);
-    const q = searchInput.value.trim();
-    const looksLikeBarcode = /^\d{4,}$/.test(q);
-    if (q.length < 2 && !looksLikeBarcode) {
-      resultsEl.classList.add("hidden");
-      return;
-    }
-    searchTimer = setTimeout(async () => {
-      if (!navigator.onLine) {
-        const cached = getCachedProducts().filter((item) => {
-          const text = `${item.name} ${item.sku || ""} ${item.barcode || ""}`.toLowerCase();
-          return text.includes(q.toLowerCase());
+          <!-- Line Total -->
+          <span class="text-xs font-extrabold text-slate-900">${formatMoney(item.line_total)}</span>
+        </div>
+      `;
+
+      // Stepper events
+      row.querySelectorAll("[data-step-qty]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const delta = parseInt(btn.dataset.direction, 10);
+          const nextQty = item.quantity + delta;
+          if (nextQty <= 0) {
+            handleRemoveItem(item.id);
+          } else {
+            handleUpdateQuantity(item.id, nextQty);
+          }
         });
-        renderResults(cached);
-        return;
+      });
+
+      // Remove event
+      const removeBtn = row.querySelector("[data-remove-item]");
+      if (removeBtn) {
+        removeBtn.addEventListener("click", () => handleRemoveItem(item.id));
       }
-      const response = await fetch(`${CFG.searchUrl}?q=${encodeURIComponent(q)}`);
-      const data = await response.json();
-      cacheProducts(data.products || []);
-      renderResults(data.products || []);
-    }, 280);
-  });
 
-  resultsEl?.addEventListener("click", async (e) => {
-    const button = e.target.closest(".result-btn");
-    if (!button) return;
-    const response = await post(CFG.addUrl, { inventory_id: button.dataset.invId });
-    if (response.data.success) {
-      cartItems = response.data.cart.items;
-      renderCart();
-      searchInput.value = "";
-      resultsEl.classList.add("hidden");
-    } else {
-      feedback(response.data.error || "Could not add item.", "error");
-    }
-  });
+      cartItemsScroll.appendChild(row);
+    });
 
-  cartBody?.addEventListener("change", async (e) => {
-    if (!e.target.classList.contains("cart-qty-input")) return;
-    const response = await post(CFG.updateUrl, { item_id: e.target.dataset.itemId, quantity: parseInt(e.target.value || "1", 10) });
-    if (response.data.success) {
-      cartItems = response.data.cart.items;
-      renderCart();
-    } else {
-      feedback(response.data.error || "Could not update quantity.", "error");
-    }
-  });
+    const tax = subtotal * (CFG.taxRate / 100);
+    const grandTotal = subtotal + tax;
 
-  cartBody?.addEventListener("click", async (e) => {
-    const button = e.target.closest("[data-remove]");
-    if (!button) return;
-    const response = await post(CFG.removeUrl, { item_id: button.dataset.remove });
-    if (response.data.success) {
-      cartItems = response.data.cart.items;
-      renderCart();
-    } else {
-      feedback(response.data.error || "Could not remove item.", "error");
-    }
-  });
+    cartItemCountLabel.textContent = `${totalCount} item${totalCount === 1 ? '' : 's'}`;
+    cartSubtotalVal.textContent = formatMoney(subtotal);
+    cartTaxVal.textContent = formatMoney(tax);
+    cartGrandTotalVal.textContent = formatMoney(grandTotal);
 
-  heldCartsEl?.addEventListener("click", async (e) => {
-    const button = e.target.closest("[data-held-cart]");
-    if (!button) return;
-    const response = await post(CFG.resumeUrl, { cart_id: button.dataset.heldCart });
-    if (response.data.success) {
-      feedback("Held cart resumed.", "success");
-      window.location.reload();
-    } else {
-      feedback(response.data.error || "Could not resume cart.", "error");
-    }
-  });
-
-  holdBtn?.addEventListener("click", async () => {
-    const response = await post(CFG.holdUrl, { reference: holdReferenceEl?.value || "" });
-    if (response.data.success) {
-      feedback("Cart held.", "success");
-      window.location.reload();
-    } else {
-      feedback(response.data.error || "Could not hold cart.", "error");
-    }
-  });
-
-  clearBtn?.addEventListener("click", async () => {
-    const response = await post(CFG.clearUrl, {});
-    if (response.data.success) {
-      cartItems = response.data.cart.items;
-      renderCart();
-      feedback("Cart voided.", "success");
-    } else {
-      feedback(response.data.error || "Could not void cart.", "error");
-    }
-  });
-
-  addSplitRowBtn?.addEventListener("click", () => {
-    splitRows.push(newSplitRow("cash"));
-    renderSplitRows();
-  });
-
-  splitRowsEl?.addEventListener("input", (e) => {
-    const field = e.target.dataset.splitField;
-    const index = Number(e.target.dataset.rowIndex);
-    if (!field || Number.isNaN(index) || !splitRows[index]) return;
-    splitRows[index][field] = e.target.value;
-    if (field === "payment_method") {
-      splitRows[index] = { ...newSplitRow(e.target.value), id: splitRows[index].id, payment_method: e.target.value, amount: splitRows[index].amount };
-      renderSplitRows();
-      return;
-    }
-    updateSplitSummary();
-  });
-
-  splitRowsEl?.addEventListener("click", (e) => {
-    const button = e.target.closest("[data-remove-split]");
-    if (!button) return;
-    splitRows.splice(Number(button.dataset.removeSplit), 1);
-    renderSplitRows();
-  });
-
-  paymentMethodEl?.addEventListener("change", updatePaymentVisibility);
-  syncQueuedBtn?.addEventListener("click", () => syncQueuedSales(true));
-  queuedSalesListEl?.addEventListener("click", async (e) => {
-    const printButton = e.target.closest("[data-print-queued]");
-    if (printButton) {
-      const records = await listQueuedSales();
-      const record = records.find((item) => item.client_transaction_id === printButton.dataset.printQueued);
-      if (record) {
-        openLocalReceipt(record);
-      }
-      return;
-    }
-    const removeButton = e.target.closest("[data-remove-queued]");
-    if (removeButton) {
-      await removeQueuedSales([removeButton.dataset.removeQueued]);
-      await refreshQueuedCount();
-      feedback("Queued offline sale removed.", "neutral");
-    }
-  });
-  window.addEventListener("online", () => {
-    updateNetworkIndicator();
-    syncQueuedSales(false);
-  });
-  window.addEventListener("offline", updateNetworkIndicator);
-
-  checkoutBtn?.addEventListener("click", async () => {
-    let payload;
-    try {
-      payload = buildCheckoutPayload();
-    } catch (error) {
-      feedback(error.message || "Could not prepare this sale.", "error");
-      return;
-    }
-
-    try {
-      const response = await post(CFG.checkoutUrl, payload);
-      if (response.data.success) {
-        feedback(`Sale ${response.data.transaction_number} complete. Opening receipt...`, "success");
-        cartItems = [];
-        renderCart();
-        if (holdReferenceEl) holdReferenceEl.value = "";
-        if (response.data.receipt_url) window.open(response.data.receipt_url, "_blank", "noopener,noreferrer");
-        if (response.data.detail_url) window.location.href = response.data.detail_url;
-        return;
-      }
-      throw new Error(response.data.error || "Could not complete sale.");
-    } catch (error) {
-      const offlineRecord = {
-        client_transaction_id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-        created_at: new Date().toISOString(),
-        store_id: CFG.storeId,
-        store_name: "{{ store.name|escapejs }}",
-        register_id: CFG.registerId,
-        session_id: CFG.sessionId,
-        items: cartItems.map((item) => ({ ...item })),
-        summary: {
-          subtotal: cartSubtotal(),
-          tax: cartTax(cartSubtotal()),
-          total: cartTotal(),
-        },
-        payload: {
-          ...payload,
-          client_transaction_id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-          items: cartItems.map((item) => ({ inventory_id: item.inventory_id, quantity: item.quantity })),
-        },
-      };
-      offlineRecord.client_transaction_id = offlineRecord.payload.client_transaction_id;
-      try {
-        await queueOfflineSale(offlineRecord);
-        await refreshQueuedCount();
-        openLocalReceipt(offlineRecord);
-        feedback("Connection lost. Sale saved offline and queued for sync.", "success");
-        cartItems = [];
-        renderCart();
-        if (holdReferenceEl) holdReferenceEl.value = "";
-      } catch (queueError) {
-        feedback(error.message || queueError.message || "Could not complete or queue this sale.", "error");
-      }
-    }
-  });
-
-  updateNetworkIndicator();
-  updatePaymentVisibility();
-  renderCart();
-  refreshQueuedCount();
-  if (navigator.onLine) {
-    syncQueuedSales(false);
+    // Refresh grid badges
+    renderGrid();
   }
+
+  // ─────────────────────────────────────────────────────────────
+  // 3. CART API ACTIONS
+  // ─────────────────────────────────────────────────────────────
+  async function handleAddToCart(inventoryId) {
+    try {
+      const res = await postJson(CFG.addUrl, { inventory_id: inventoryId });
+      if (res.success && res.cart) {
+        cartData = res.cart;
+        renderCart();
+      } else {
+        alert(res.error || "Could not add product to cart.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Network error adding product to cart.");
+    }
+  }
+
+  async function handleUpdateQuantity(itemId, quantity) {
+    try {
+      const res = await postJson(CFG.updateUrl, { item_id: itemId, quantity });
+      if (res.success && res.cart) {
+        cartData = res.cart;
+        renderCart();
+      } else {
+        alert(res.error || "Could not update item quantity.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Network error updating cart.");
+    }
+  }
+
+  async function handleRemoveItem(itemId) {
+    try {
+      const res = await postJson(CFG.removeUrl, { item_id: itemId });
+      if (res.success && res.cart) {
+        cartData = res.cart;
+        renderCart();
+      } else {
+        alert(res.error || "Could not remove item.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Network error removing item.");
+    }
+  }
+
+  async function handleClearCart() {
+    if (!cartData || !cartData.items || cartData.items.length === 0) return;
+    if (!confirm("Clear all items from this cart?")) return;
+    try {
+      const res = await postJson(CFG.clearUrl, {});
+      if (res.success && res.cart) {
+        cartData = res.cart;
+        renderCart();
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Network error clearing cart.");
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // 4. CHECKOUT & IMMEDIATE RECEIPT GENERATION
+  // ─────────────────────────────────────────────────────────────
+  async function handleCheckout() {
+    if (!cartData || !cartData.items || cartData.items.length === 0) return;
+
+    checkoutBtn.disabled = true;
+    const originalText = checkoutBtn.innerHTML;
+    checkoutBtn.innerHTML = `
+      <svg class="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+      </svg>
+      <span>Completing Sale...</span>
+    `;
+
+    const payload = {
+      payment_method: "cash",
+      customer_name: customerNameInput ? customerNameInput.value.trim() : "",
+      customer_phone: customerPhoneInput ? customerPhoneInput.value.trim() : "",
+    };
+
+    try {
+      const res = await postJson(CFG.checkoutUrl, payload);
+      if (res.success) {
+        // Update cart data to new empty cart
+        if (res.cart) {
+          cartData = res.cart;
+        } else {
+          cartData = { items: [] };
+        }
+        renderCart();
+
+        // Clear customer inputs
+        if (customerNameInput) customerNameInput.value = "";
+        if (customerPhoneInput) customerPhoneInput.value = "";
+
+        // Display Receipt Modal immediately!
+        displayReceiptModal(res.receipt, res.receipt_url);
+      } else {
+        alert(res.error || "Could not complete checkout.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error during checkout. Please try again.");
+    } finally {
+      checkoutBtn.disabled = false;
+      checkoutBtn.innerHTML = originalText;
+    }
+  }
+
+  function displayReceiptModal(receipt, receiptUrl) {
+    if (!receipt) return;
+
+    // Fill metadata
+    document.getElementById("receipt-store-name").textContent = receipt.store_name || "{{ store.name|escapejs }}";
+    document.getElementById("receipt-store-address").textContent = receipt.store_address || "Retail Store Location";
+    document.getElementById("receipt-tx-number").textContent = `#${receipt.transaction_number}`;
+    document.getElementById("receipt-date-time").textContent = receipt.created_at || new Date().toLocaleString();
+    document.getElementById("receipt-cashier-name").textContent = receipt.cashier || "{{ request.user.get_full_name|default:request.user.email|escapejs }}";
+    document.getElementById("receipt-customer-name").textContent = receipt.customer_name || "Walk-in Customer";
+
+    // Fill items
+    const itemsTbody = document.getElementById("receipt-items-body");
+    itemsTbody.innerHTML = "";
+    (receipt.items || []).forEach(item => {
+      const tr = document.createElement("tr");
+      tr.className = "text-slate-800";
+      tr.innerHTML = `
+        <td class="py-1.5 pr-2 font-medium">
+          ${item.name}
+          ${item.sku ? `<span class="block text-[10px] text-slate-400 font-mono">${item.sku}</span>` : ''}
+        </td>
+        <td class="py-1.5 text-center text-slate-600">${item.quantity}</td>
+        <td class="py-1.5 text-right text-slate-600">${formatMoney(item.price)}</td>
+        <td class="py-1.5 text-right font-bold text-slate-900">${formatMoney(item.total)}</td>
+      `;
+      itemsTbody.appendChild(tr);
+    });
+
+    // Fill totals
+    document.getElementById("receipt-subtotal-val").textContent = formatMoney(receipt.subtotal);
+    document.getElementById("receipt-tax-val").textContent = formatMoney(receipt.tax_amount);
+    document.getElementById("receipt-total-val").textContent = formatMoney(receipt.total_amount);
+    document.getElementById("receipt-payment-method").textContent = `${receipt.payment_method || 'Cash'} (Paid)`;
+
+    // Show modal
+    receiptModal.classList.remove("hidden");
+  }
+
+  function closeReceipt() {
+    receiptModal.classList.add("hidden");
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // 5. EVENT LISTENERS
+  // ─────────────────────────────────────────────────────────────
+  // Category filter clicks
+  catPills.forEach(pill => {
+    pill.addEventListener("click", () => {
+      catPills.forEach(p => {
+        p.classList.remove("active-cat", "bg-blue-600", "text-white", "shadow-sm", "shadow-blue-500/20");
+        p.classList.add("bg-slate-100", "text-slate-600");
+      });
+      pill.classList.remove("bg-slate-100", "text-slate-600");
+      pill.classList.add("active-cat", "bg-blue-600", "text-white", "shadow-sm", "shadow-blue-500/20");
+
+      selectedCategory = pill.dataset.category;
+      renderGrid();
+    });
+  });
+
+  // Search input live filtering
+  searchInput.addEventListener("input", (e) => {
+    searchKeyword = e.target.value;
+    clearSearchBtn.classList.toggle("hidden", !searchKeyword);
+    renderGrid();
+  });
+
+  clearSearchBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    searchKeyword = "";
+    clearSearchBtn.classList.add("hidden");
+    renderGrid();
+    searchInput.focus();
+  });
+
+  resetFilterBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    searchKeyword = "";
+    clearSearchBtn.classList.add("hidden");
+    selectedCategory = "ALL";
+    catPills.forEach(p => {
+      if (p.dataset.category === "ALL") {
+        p.click();
+      }
+    });
+  });
+
+  // Cart actions
+  clearCartBtn.addEventListener("click", handleClearCart);
+  checkoutBtn.addEventListener("click", handleCheckout);
+
+  // Customer dropdown toggle
+  toggleCustomerBtn.addEventListener("click", () => {
+    const isHidden = customerFields.classList.contains("hidden");
+    customerFields.classList.toggle("hidden", !isHidden);
+    customerCaret.classList.toggle("rotate-180", isHidden);
+  });
+
+  // Receipt Modal actions
+  closeReceiptBtn.addEventListener("click", closeReceipt);
+  newSaleBtn.addEventListener("click", () => {
+    closeReceipt();
+    searchInput.focus();
+  });
+  printReceiptBtn.addEventListener("click", () => {
+    window.print();
+  });
+
+  // Initialize
+  renderGrid();
+  renderCart();
 })();
 </script>
 {% endblock %}

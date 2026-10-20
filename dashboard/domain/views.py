@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from dashboard.feature_marketplace.services import require_feature
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse, HttpResponseForbidden
@@ -139,6 +141,7 @@ def _bind_gateway_choices(form, currency="USD"):
 
 @login_required
 @dashboard_prefix_required
+@require_feature("max_custom_domains")
 def domain_list(request, prefix):
     provider, tlds = ensure_default_domain_catalog()
     search_form = DomainSearchForm(request.GET or None)
@@ -165,6 +168,7 @@ def domain_list(request, prefix):
 @login_required
 @dashboard_prefix_required
 @require_http_methods(["POST"])
+@require_feature("max_custom_domains")
 def domain_add(request, prefix):
     quota = get_domain_quota(request.tenant)
     if not quota.has_capacity:
@@ -202,6 +206,7 @@ def domain_add(request, prefix):
 
 @login_required
 @dashboard_prefix_required
+@require_feature("max_custom_domains")
 def domain_checkout(request, prefix):
     domain_name = request.GET.get("domain") or request.POST.get("domain_name", "")
     search_bundle = search_domain_availability(domain_name) if domain_name else None
@@ -281,6 +286,7 @@ def domain_checkout(request, prefix):
 
 @login_required
 @dashboard_prefix_required
+@require_feature("max_custom_domains")
 def domain_portfolio(request, prefix):
     managed_domains = ManagedDomain.objects.filter(tenant=request.tenant).order_by("-created_at")
     context = _build_summary_context(
@@ -294,6 +300,7 @@ def domain_portfolio(request, prefix):
 
 @login_required
 @dashboard_prefix_required
+@require_feature("max_custom_domains")
 def managed_domain_detail(request, prefix, managed_domain_id):
     managed_domain = _tenant_managed_domain_or_404(request, managed_domain_id)
     linked_custom = getattr(managed_domain, "custom_connection", None)
@@ -320,6 +327,7 @@ def managed_domain_detail(request, prefix, managed_domain_id):
 @login_required
 @dashboard_prefix_required
 @require_POST
+@require_feature("max_custom_domains")
 def managed_domain_connect(request, prefix, managed_domain_id):
     managed_domain = _tenant_managed_domain_or_404(request, managed_domain_id)
     use_provider_dns = request.POST.get("use_provider_dns") == "1"
@@ -336,6 +344,7 @@ def managed_domain_connect(request, prefix, managed_domain_id):
 @login_required
 @dashboard_prefix_required
 @require_http_methods(["GET", "POST"])
+@require_feature("max_custom_domains")
 def managed_domain_dns(request, prefix, managed_domain_id):
     managed_domain = _tenant_managed_domain_or_404(request, managed_domain_id)
     if request.method == "POST" and "save_nameservers" in request.POST:
@@ -373,6 +382,7 @@ def managed_domain_dns(request, prefix, managed_domain_id):
 
 @login_required
 @dashboard_prefix_required
+@require_feature("max_custom_domains")
 def domain_orders(request, prefix):
     form = DomainOrderFilterForm(request.GET or None)
     orders = DomainPurchaseOrder.objects.filter(tenant=request.tenant).select_related("managed_domain").order_by("-created_at")
@@ -393,6 +403,7 @@ def domain_orders(request, prefix):
 
 @login_required
 @dashboard_prefix_required
+@require_feature("max_custom_domains")
 def domain_order_detail(request, prefix, purchase_reference):
     order = _tenant_order_or_404(request, purchase_reference)
     context = _build_summary_context(
@@ -409,6 +420,7 @@ def domain_order_detail(request, prefix, purchase_reference):
 @login_required
 @dashboard_prefix_required
 @require_POST
+@require_feature("max_custom_domains")
 def managed_domain_renew(request, prefix, managed_domain_id):
     managed_domain = _tenant_managed_domain_or_404(request, managed_domain_id)
     contact = managed_domain.contact or request.tenant.domain_contacts.order_by("-is_default", "created_at").first()
@@ -454,6 +466,7 @@ def managed_domain_renew(request, prefix, managed_domain_id):
 
 @login_required
 @dashboard_prefix_required
+@require_feature("max_custom_domains")
 def domain_contacts(request, prefix):
     form = TenantDomainContactForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
@@ -476,6 +489,7 @@ def domain_contacts(request, prefix):
 
 @login_required
 @dashboard_prefix_required
+@require_feature("max_custom_domains")
 def domain_notifications(request, prefix):
     notifications = DomainNotification.objects.filter(tenant=request.tenant).order_by("-created_at")
     context = _build_summary_context(
@@ -490,6 +504,7 @@ def domain_notifications(request, prefix):
 @login_required
 @dashboard_prefix_required
 @require_POST
+@require_feature("max_custom_domains")
 def domain_notification_read(request, prefix, notification_id):
     notification = get_object_or_404(DomainNotification, pk=notification_id, tenant=request.tenant)
     notification.is_read = True
@@ -500,6 +515,7 @@ def domain_notification_read(request, prefix, notification_id):
 
 @login_required
 @dashboard_prefix_required
+@require_feature("max_custom_domains")
 def domain_detail(request, prefix, domain_id):
     custom_domain = _tenant_domain_or_404(request, domain_id)
     if request.method == "POST":
@@ -534,6 +550,7 @@ def domain_detail(request, prefix, domain_id):
 @login_required
 @dashboard_prefix_required
 @require_POST
+@require_feature("max_custom_domains")
 def domain_delete(request, prefix, domain_id):
     custom_domain = _tenant_domain_or_404(request, domain_id)
     custom_domain.status = CustomDomain.Status.REMOVED
@@ -564,6 +581,7 @@ def domain_delete(request, prefix, domain_id):
 @login_required
 @dashboard_prefix_required
 @require_POST
+@require_feature("max_custom_domains")
 def domain_set_primary(request, prefix, domain_id):
     custom_domain = _tenant_domain_or_404(request, domain_id)
     if custom_domain.status == CustomDomain.Status.REMOVED:
@@ -579,6 +597,7 @@ def domain_set_primary(request, prefix, domain_id):
 @login_required
 @dashboard_prefix_required
 @require_POST
+@require_feature("max_custom_domains")
 def domain_retrigger_verification(request, prefix, domain_id):
     custom_domain = _tenant_domain_or_404(request, domain_id)
     custom_domain.status = CustomDomain.Status.DNS_CHECKING
@@ -591,6 +610,7 @@ def domain_retrigger_verification(request, prefix, domain_id):
 @login_required
 @dashboard_prefix_required
 @require_GET
+@require_feature("max_custom_domains")
 def domain_status_partial(request, prefix, domain_id):
     custom_domain = _tenant_domain_or_404(request, domain_id)
     return render(request, "dashboard/domain/partials/domain_status_badge.html", {"domain": custom_domain})

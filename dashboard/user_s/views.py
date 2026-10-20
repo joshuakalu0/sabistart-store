@@ -22,7 +22,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
 from dashboard.decorators import dashboard_prefix_required
-from dashboard.feature_marketplace.services import FeatureEntitlementEngine, enforce_quota
+from dashboard.feature_marketplace.services import FeatureEntitlementEngine, enforce_quota, require_feature
 from dashboard.sidebar_utiles import main_sidebar
 from public.userauth.models import (
     TenantUser,
@@ -237,6 +237,7 @@ def user_toggle_status(request, prefix, pk):
 
 @login_required
 @dashboard_prefix_required
+@require_feature("staff_management")
 def staff_list(request, prefix):
     """List all StoreStaff records with search and status filter."""
     qs = StoreStaff.objects.select_related("user", "role").all()
@@ -271,6 +272,7 @@ def staff_list(request, prefix):
 
 @login_required
 @dashboard_prefix_required
+@require_feature("staff_management")
 def staff_create(request, prefix):
     """
     Create a StoreStaff record.
@@ -304,6 +306,7 @@ def staff_create(request, prefix):
 
 @login_required
 @dashboard_prefix_required
+@require_feature("staff_management")
 def staff_detail(request, prefix, pk):
     """Staff member detail: overview, permissions, activity log."""
     staff = get_object_or_404(StoreStaff.objects.select_related("user", "role"), pk=pk)
@@ -329,6 +332,7 @@ def staff_detail(request, prefix, pk):
 
 @login_required
 @dashboard_prefix_required
+@require_feature("staff_management")
 def staff_edit(request, prefix, pk):
     """Edit a StoreStaff record: role, status, 2FA requirement."""
     staff = get_object_or_404(StoreStaff.objects.select_related("user", "role"), pk=pk)
@@ -359,6 +363,7 @@ def staff_edit(request, prefix, pk):
 @login_required
 @dashboard_prefix_required
 @require_http_methods(["POST"])
+@require_feature("staff_management")
 def staff_remove(request, prefix, pk):
     """Set a staff member's status to INACTIVE (soft remove)."""
     staff = get_object_or_404(StoreStaff, pk=pk)
@@ -378,6 +383,7 @@ def staff_remove(request, prefix, pk):
 
 @login_required
 @dashboard_prefix_required
+@require_feature("staff_management")
 def role_list(request, prefix):
     """List all roles with permission counts."""
     qs = Role.objects.annotate(perm_count=Count("role_permissions")).order_by("sort_order", "name")
@@ -399,6 +405,7 @@ def role_list(request, prefix):
 
 @login_required
 @dashboard_prefix_required
+@require_feature("staff_management")
 def role_create(request, prefix):
     """Create a new custom Role with permission assignment."""
     all_permissions = Permission.objects.filter(is_active=True).order_by("category", "name")
@@ -438,6 +445,7 @@ def role_create(request, prefix):
 
 @login_required
 @dashboard_prefix_required
+@require_feature("staff_management")
 def role_edit(request, prefix, pk):
     """Edit a Role's details and update its permission set."""
     role = get_object_or_404(Role, pk=pk)
@@ -486,6 +494,7 @@ def role_edit(request, prefix, pk):
 @login_required
 @dashboard_prefix_required
 @require_http_methods(["POST"])
+@require_feature("staff_management")
 def role_delete(request, prefix, pk):
     """Soft-delete (deactivate) a custom Role. System roles cannot be deleted."""
     role = get_object_or_404(Role, pk=pk)
@@ -502,6 +511,7 @@ def role_delete(request, prefix, pk):
 
 @login_required
 @dashboard_prefix_required
+@require_feature("staff_management")
 def permission_list(request, prefix):
     """Read-only view of all system permissions grouped by category."""
     q = request.GET.get("q", "").strip()
@@ -801,6 +811,7 @@ def login_audit_list(request, prefix):
 
 @login_required
 @dashboard_prefix_required
+@require_feature("staff_management")
 def staff_activity_list(request, prefix):
     """Read-only list of all staff activity log entries."""
     qs = StaffActivityLog.objects.select_related("staff", "user").all()

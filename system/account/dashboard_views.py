@@ -161,7 +161,7 @@ def _store_detail_sections(shop: Shop) -> dict:
 class PlatformDashboardView(PlatformStaffRequiredMixin, View):
     """Global platform dashboard - app hub and tenant overview."""
 
-    template_name = "account/dashboard.html"
+    template_name = "account/platform_dashboard.html"
 
     def get(self, request):
         shops = _base_shop_queryset()

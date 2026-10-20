@@ -205,6 +205,7 @@ TENANT_NAVIGATION = (
                 "name": "Domains & SSL",
                 "icon": "language",
                 "route": "dashboard:domain:list",
+                "feature_code": "max_custom_domains",
                 "active_keys": (
                     "domains",
                     "domains_list",
@@ -215,12 +216,12 @@ TENANT_NAVIGATION = (
                     "domains_notifications",
                 ),
                 "children": (
-                    {"key": "domains_list", "name": "Overview", "icon": "dashboard", "route": "dashboard:domain:list"},
-                    {"key": "domains_search", "name": "Discover & Buy", "icon": "travel_explore", "route": "dashboard:domain:checkout"},
-                    {"key": "domains_portfolio", "name": "Portfolio", "icon": "domain", "route": "dashboard:domain:portfolio"},
-                    {"key": "domains_orders", "name": "Orders & Renewals", "icon": "receipt_long", "route": "dashboard:domain:orders"},
-                    {"key": "domains_contacts", "name": "Contacts", "icon": "contacts", "route": "dashboard:domain:contacts"},
-                    {"key": "domains_notifications", "name": "Notifications", "icon": "notifications", "route": "dashboard:domain:notifications"},
+                    {"key": "domains_list", "name": "Overview", "icon": "dashboard", "route": "dashboard:domain:list", "feature_code": "max_custom_domains"},
+                    {"key": "domains_search", "name": "Discover & Buy", "icon": "travel_explore", "route": "dashboard:domain:checkout", "feature_code": "max_custom_domains"},
+                    {"key": "domains_portfolio", "name": "Portfolio", "icon": "domain", "route": "dashboard:domain:portfolio", "feature_code": "max_custom_domains"},
+                    {"key": "domains_orders", "name": "Orders & Renewals", "icon": "receipt_long", "route": "dashboard:domain:orders", "feature_code": "max_custom_domains"},
+                    {"key": "domains_contacts", "name": "Contacts", "icon": "contacts", "route": "dashboard:domain:contacts", "feature_code": "max_custom_domains"},
+                    {"key": "domains_notifications", "name": "Notifications", "icon": "notifications", "route": "dashboard:domain:notifications", "feature_code": "max_custom_domains"},
                 ),
             },
             {
@@ -269,8 +270,8 @@ TENANT_NAVIGATION = (
                 "active_keys": ("users", "staff", "roles", "customers", "audit"),
                 "children": (
                     {"key": "users", "name": "Users", "icon": "manage_accounts", "route": "dashboard:user_settings:user_list"},
-                    {"key": "staff", "name": "Store Staff", "icon": "badge", "route": "dashboard:user_settings:staff_list"},
-                    {"key": "roles", "name": "Roles & Permissions", "icon": "security", "route": "dashboard:user_settings:role_list"},
+                    {"key": "staff", "name": "Store Staff", "icon": "badge", "route": "dashboard:user_settings:staff_list", "feature_code": "staff_management"},
+                    {"key": "roles", "name": "Roles & Permissions", "icon": "security", "route": "dashboard:user_settings:role_list", "feature_code": "staff_management"},
                     {"key": "customers", "name": "Customers", "icon": "people", "route": "dashboard:user_settings:customer_list"},
                     {"key": "audit", "name": "Audit Logs", "icon": "policy", "route": "dashboard:user_settings:login_audit_list"},
                 ),
