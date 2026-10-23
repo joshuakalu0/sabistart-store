@@ -1,8 +1,8 @@
  <!-- Media -->
         <div
-          class="bg-white rounded-xl shadow-sm border border-gray-200 section-card"
+          class="bg-white rounded-xl shadow-sm border border-gray-200 section-card w-full max-w-full min-w-0 overflow-hidden"
         >
-          <div class="p-6">
+          <div class="p-4 sm:p-6">
             <h2
               class="text-lg font-semibold text-gray-900 mb-4 flex items-center"
             >
@@ -29,7 +29,7 @@
               >
               <div
                 id="imageUploadArea"
-                class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary-500 transition-colors cursor-pointer"
+                class="border-2 border-dashed border-gray-300 rounded-xl p-4 sm:p-8 text-center hover:border-primary-500 transition-colors cursor-pointer"
                 ondragover="handleDragOver(event)"
                 ondragleave="handleDragLeave(event)"
                 ondrop="handleDrop(event)"
@@ -155,10 +155,10 @@
                 >Product Videos</label
               >
               <div class="space-y-3">
-                <div class="flex items-center space-x-3">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full min-w-0">
                   <select
                     id="videoType"
-                    class="block w-40 rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-2"
+                    class="w-full sm:w-40 shrink-0 rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm border p-2.5"
                   >
                     <option value="youtube">YouTube</option>
                     <option value="vimeo">Vimeo</option>
@@ -168,15 +168,15 @@
                   <input
                     type="text"
                     id="videoUrl"
-                    class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-2"
+                    class="w-full sm:flex-1 min-w-0 rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm border p-2.5"
                     placeholder="Enter video URL or ID"
                   />
                   <button
                     type="button"
                     onclick="addVideo()"
-                    class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                    class="w-full sm:w-auto shrink-0 px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors text-sm"
                   >
-                    Add
+                    Add Video
                   </button>
                 </div>
                 <div id="videoList" class="space-y-2">

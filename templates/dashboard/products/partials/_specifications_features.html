@@ -1,8 +1,8 @@
  <!-- Specifications (Key-Value Pairs) -->
         <div
-          class="bg-white rounded-xl shadow-sm border border-gray-200 section-card"
+          class="bg-white rounded-xl shadow-sm border border-gray-200 section-card w-full max-w-full min-w-0 overflow-hidden"
         >
-          <div class="p-6">
+          <div class="p-4 sm:p-6">
             <h2
               class="text-lg font-semibold text-gray-900 mb-4 flex items-center"
             >
@@ -44,27 +44,28 @@
               {% if is_edit and product.specifications %}
               {% for key, value in product.specifications.items %}
               <div
-                class="spec-row flex items-center space-x-3 p-3 bg-gray-50 rounded-lg"
+                class="spec-row flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 p-3 bg-gray-50 rounded-lg w-full min-w-0"
               >
                 <input
                   type="text"
                   value="{{ key }}"
                   placeholder="Key (e.g., Processor)"
                   onchange="updateSpecification({{ forloop.counter0 }}, 'key', this.value)"
-                  class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
+                  class="w-full sm:flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
                 />
                 <input
                   type="text"
                   value="{{ value }}"
                   placeholder="Value (e.g., Intel i7)"
                   onchange="updateSpecification({{ forloop.counter0 }}, 'value', this.value)"
-                  class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
+                  class="w-full sm:flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500"
                 />
-                <button
-                  type="button"
-                  onclick="removeSpecification({{ forloop.counter0 }})"
-                  class="p-2 text-red-600 hover:text-red-700"
-                >
+                <div class="flex justify-end sm:block shrink-0">
+                  <button
+                    type="button"
+                    onclick="removeSpecification({{ forloop.counter0 }})"
+                    class="p-1.5 sm:p-2 text-red-600 hover:text-red-700 flex items-center gap-1 text-xs sm:text-sm font-medium"
+                  >
                   <svg
                     class="w-4 h-4"
                     fill="none"
@@ -78,7 +79,9 @@
                       d="M6 18L18 6M6 6l12 12"
                     ></path>
                   </svg>
+                  <span class="sm:hidden">Remove</span>
                 </button>
+                </div>
               </div>
               {% endfor %} {% endif %}
             </div>
@@ -107,9 +110,9 @@
 
         <!-- Features (Tag-style) -->
         <div
-          class="bg-white rounded-xl shadow-sm border border-gray-200 section-card"
+          class="bg-white rounded-xl shadow-sm border border-gray-200 section-card w-full max-w-full min-w-0 overflow-hidden"
         >
-          <div class="p-6">
+          <div class="p-4 sm:p-6">
             <h2
               class="text-lg font-semibold text-gray-900 mb-4 flex items-center"
             >
@@ -177,10 +180,11 @@
               </span>
               {% endfor %} {% endif %}
             </div>
-            <div class="flex">
+            <div class="flex w-full min-w-0">
               <input
                 type="text"
                 id="featureInput"
+                class="flex-1 min-w-0
                 class="flex-1 rounded-l-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-3"
                 placeholder="Type feature and press Enter..."
                 onkeypress="
@@ -193,7 +197,7 @@
               <button
                 type="button"
                 onclick="addFeature()"
-                class="px-4 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 transition-colors"
+                class="shrink-0 px-4 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 transition-colors"
               >
                 Add
               </button>
@@ -266,14 +270,17 @@
     }
 
       container.innerHTML = specifications.map((spec, index) => `
-          <div class="spec-row flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+          <div class="spec-row flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 p-3 bg-gray-50 rounded-lg w-full min-w-0">
               <input type="text" value="${spec.key}" placeholder="Key (e.g., Processor)" onchange="updateSpecification(${index}, 'key', this.value)"
-                  class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500">
+                  class="w-full sm:flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500">
               <input type="text" value="${spec.value}" placeholder="Value (e.g., Intel i7)" onchange="updateSpecification(${index}, 'value', this.value)"
-                  class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500">
-              <button type="button" onclick="removeSpecification(${index})" class="p-2 text-red-600 hover:text-red-700">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-              </button>
+                  class="w-full sm:flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500">
+              <div class="flex justify-end sm:block shrink-0">
+                <button type="button" onclick="removeSpecification(${index})" class="p-1.5 sm:p-2 text-red-600 hover:text-red-700 flex items-center gap-1 text-xs sm:text-sm font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <span class="sm:hidden">Remove</span>
+                </button>
+              </div>
           </div>
       `).join('');
   }

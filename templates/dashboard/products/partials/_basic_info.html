@@ -1,8 +1,8 @@
         <!-- Basic Information -->
         <div
-          class="bg-white rounded-xl shadow-sm border border-gray-200 section-card"
+          class="bg-white rounded-xl shadow-sm border border-gray-200 section-card w-full max-w-full min-w-0 overflow-hidden"
         >
-          <div class="p-6">
+          <div class="p-4 sm:p-6">
             <h2
               class="text-lg font-semibold text-gray-900 mb-4 flex items-center"
             >
@@ -41,13 +41,14 @@
                   class="block text-sm font-medium text-gray-700"
                   >URL Slug</label
                 >
-                <div class="mt-1 flex rounded-md shadow-sm">
+                <div class="mt-1 flex rounded-md shadow-sm w-full min-w-0">
                   <span
-                    class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm"
+                    class="hidden sm:inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-xs sm:text-sm shrink-0"
                     >yourstore.com/products/</span
                   >
-                  {{ form.basic_form.slug }}
-                  <button
+                  <div class="flex-1 min-w-0 flex items-stretch">
+                    {{ form.basic_form.slug }}
+                    <button
                     type="button"
                     onclick="generateSlug()"
                     class="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:text-sm"
@@ -137,7 +138,7 @@
                   class="mt-1 border border-gray-300 rounded-lg overflow-hidden"
                 >
                   <div
-                    class="bg-gray-50 px-3 py-2 border-b border-gray-300 flex items-center space-x-2"
+                    class="bg-gray-50 p-2 border-b border-gray-300 flex flex-wrap items-center gap-1.5"
                   >
                     <button
                       type="button"

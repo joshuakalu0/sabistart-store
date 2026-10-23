@@ -1,18 +1,16 @@
 <!-- Header -->
-<header class="bg-white border-b border-gray-200 ">
+<header class="bg-white border-b border-gray-200">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-16">
-      <div class="flex items-center space-x-4">
-        <h1 class="text-2xl font-bold text-gray-900">
+    <div class="flex flex-wrap items-center justify-between gap-2 py-3 sm:py-0 sm:h-16 min-w-0">
+      <div class="flex items-center gap-2 sm:gap-4 min-w-0">
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 truncate">
           {% if is_edit %}Edit Product{% else %}Create Product{% endif %}
         </h1>
         <span
-          class="px-3 py-1 bg-blue-100 text-primary-700 text-sm font-medium rounded-full"
-          >{% if is_edit %}{{ product.name }}{% else %}New Product
-          {% endif%}</span
+          class="px-2.5 py-0.5 sm:px-3 sm:py-1 bg-blue-100 text-primary-700 text-xs sm:text-sm font-medium rounded-full truncate max-w-[140px] sm:max-w-xs"
+          >{% if is_edit %}{{ product.name }}{% else %}New Product{% endif %}</span
         >
       </div>
-
     </div>
   </div>
 </header>

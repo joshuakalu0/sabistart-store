@@ -121,7 +121,7 @@ class ProductBasicInfoForm(forms.ModelForm):
         max_length=500,
         required=False,
         widget=forms.TextInput(attrs={
-            'class': 'flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md focus:ring-primary-500 focus:border-primary-500 sm:text-sm border border-gray-300',
+            'class': 'flex-1 min-w-0 block w-full px-3 py-2 rounded-l-md sm:rounded-l-none rounded-r-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm border border-gray-300',
             'placeholder': 'product-name',
             'readonly': 'readonly'
         }),

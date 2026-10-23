@@ -1,13 +1,20 @@
 <!-- Sidebar -->
       <div class="space-y-6">
-        <!-- Product Preview Card -->
+        <!-- Product Preview Card (Collapsible on Mobile) -->
         <div
-          class="bg-white rounded-xl shadow-sm border border-gray-200 sticky top-24"
+          class="bg-white rounded-xl shadow-sm border border-gray-200 lg:sticky lg:top-24 w-full min-w-0 overflow-hidden"
         >
-          <div class="p-6">
-            <h3 class="text-sm font-medium text-gray-500 mb-3">
-              Product Preview
-            </h3>
+          <div class="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between cursor-pointer lg:cursor-default" onclick="toggleMobilePreview()">
+            <div class="flex items-center gap-2">
+              <span class="material-icons-outlined text-primary text-xl">visibility</span>
+              <h3 class="text-sm font-semibold text-gray-800">
+                Product Preview
+              </h3>
+            </div>
+            <span id="previewToggleIcon" class="material-icons-outlined text-gray-400 text-lg lg:hidden transition-transform">expand_more</span>
+          </div>
+
+          <div id="previewCardBody" class="p-4 sm:p-6 hidden lg:block">
             <div
               class="aspect-w-1 aspect-h-1 bg-gray-100 rounded-lg mb-4 overflow-hidden"
             >

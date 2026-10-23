@@ -1,8 +1,8 @@
 {% load static %}
 
 <!-- Attributes & Variants Section -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 section-card" id="attributesVariantsSection">
-    <div class="p-6">
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 section-card w-full max-w-full min-w-0 overflow-hidden" id="attributesVariantsSection">
+    <div class="p-4 sm:p-6">
         <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
             <svg class="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
@@ -26,8 +26,8 @@
         <!-- Add Attributes -->
         <div class="mb-6">
             <label class="block text-sm font-medium text-gray-700 mb-2">Product Attributes</label>
-            <div class="flex items-center space-x-3 mb-3">
-                <select id="attributeSelect" class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 mb-3 w-full min-w-0">
+                <select id="attributeSelect" class="w-full sm:flex-1 min-w-0 rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm border p-2.5">
                     <option value="">Select an attribute...</option>
                     {% for attr in available_attributes %}
                         <option value="{{ attr.id }}"
@@ -41,7 +41,7 @@
                         <option value="" disabled>No variant attributes available</option>
                     {% endfor %}
                 </select>
-                <button type="button" onclick="addAttribute()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center space-x-2">
+                <button type="button" onclick="addAttribute()" class="w-full sm:w-auto shrink-0 px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2 text-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
@@ -70,7 +70,7 @@
                                         <h4 class="font-medium text-gray-900">{{ attr_value.attribute.name }}</h4>
                                         <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">{{ attr_value.attribute.get_attribute_type_display }}</span>
                                     </div>
-                                    <div class="flex items-center space-x-2">
+                                    <div class="flex items-center gap-2 flex-wrap">
                                         <span class="text-xs text-gray-500">{{ attr_value.attribute.unit|default:"" }}</span>
                                         <button type="button" onclick="removeAttribute('{{ attr_value.attribute.id }}')" class="text-red-600 hover:text-red-700" title="Remove">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -188,9 +188,9 @@
 
         <!-- Variants Table -->
         <div id="variantsSection" style="display: none;">
-            <div class="mb-4 flex items-center justify-between">
+            <div class="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                 <h3 class="text-md font-semibold text-gray-900">Product Variants</h3>
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center gap-2 flex-wrap">
                     <button type="button" onclick="bulkEditVariants('price')" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
                         Bulk Edit Price
                     </button>
@@ -200,7 +200,7 @@
                 </div>
             </div>
 
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto w-full max-w-full rounded-xl border border-gray-200">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
@@ -334,7 +334,7 @@
                                     {% endfor %}
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2">
+                            <div class="flex items-center gap-2 flex-wrap">
                                 <span class="px-2 py-1 {% if variant.is_active %}bg-green-100 text-green-700{% else %}bg-gray-100 text-gray-700{% endif %} text-xs rounded">
                                     {% if variant.is_active %}Active{% else %}Inactive{% endif %}
                                 </span>
@@ -555,7 +555,7 @@
                             <h4 class="font-medium text-gray-900">${attr.name}</h4>
                             <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">${attr.type}</span>
                         </div>
-                        <div class="flex items-center space-x-2">
+                        <div class="flex items-center gap-2 flex-wrap">
                             ${attr.unit ? `<span class="text-xs text-gray-500">${attr.unit}</span>` : ''}
                             <button type="button" onclick="removeAttribute('${attr.id}')" class="text-red-600 hover:text-red-700" title="Remove">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
