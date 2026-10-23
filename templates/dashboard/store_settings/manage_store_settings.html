@@ -97,36 +97,36 @@
 <div class="relative">
 
 
-    <!-- Tab Navigation -->
-    <div class="bg-white/60 backdrop-blur-sm border-b border-slate-200/60 sticky -top-9 z-30">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8">
-            <div class="flex gap-2 py-3 overflow-x-auto scrollbar-hide">
-                <button type="button" class="tab-link active flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm whitespace-nowrap transition-all" data-tab="general">
-                    <span class="material-symbols-outlined text-base">settings</span>
+    <!-- Tab Navigation (Mobile Touch Horizontal Scroll) -->
+    <div class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 sticky top-14 lg:top-0 z-20 transition-all shadow-sm">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div class="flex gap-1.5 sm:gap-2 py-2.5 overflow-x-auto no-scrollbar scroll-smooth flex-nowrap">
+                <button type="button" class="tab-link active flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all" data-tab="general">
+                    <span class="material-symbols-outlined text-[18px]">settings</span>
                     General
                 </button>
-                <button type="button" class="tab-link flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm whitespace-nowrap transition-all" data-tab="branding">
-                    <span class="material-symbols-outlined text-base">palette</span>
+                <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all" data-tab="branding">
+                    <span class="material-symbols-outlined text-[18px]">palette</span>
                     Branding
                 </button>
-                <button type="button" class="tab-link flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm whitespace-nowrap transition-all" data-tab="seo">
-                    <span class="material-symbols-outlined text-base">seo</span>
+                <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all" data-tab="seo">
+                    <span class="material-symbols-outlined text-[18px]">seo</span>
                     SEO
                 </button>
-                <button type="button" class="tab-link flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm whitespace-nowrap transition-all" data-tab="shipping">
-                    <span class="material-symbols-outlined text-base">local_shipping</span>
+                <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all" data-tab="shipping">
+                    <span class="material-symbols-outlined text-[18px]">local_shipping</span>
                     Shipping
                 </button>
-                <button type="button" class="tab-link flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm whitespace-nowrap transition-all" data-tab="taxes">
-                    <span class="material-symbols-outlined text-base">account_balance</span>
+                <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all" data-tab="taxes">
+                    <span class="material-symbols-outlined text-[18px]">account_balance</span>
                     Taxes
                 </button>
-                <button type="button" class="tab-link flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm whitespace-nowrap transition-all" data-tab="checkout">
-                    <span class="material-symbols-outlined text-base">shopping_cart_checkout</span>
+                <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all" data-tab="checkout">
+                    <span class="material-symbols-outlined text-[18px]">shopping_cart_checkout</span>
                     Checkout
                 </button>
-                <button type="button" class="tab-link flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm whitespace-nowrap transition-all" data-tab="features">
-                    <span class="material-symbols-outlined text-base">bolt</span>
+                <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all" data-tab="features">
+                    <span class="material-symbols-outlined text-[18px]">bolt</span>
                     Features
                 </button>
             </div>
@@ -134,7 +134,7 @@
     </div>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-6 lg:px-8 py-10">
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 lg:py-10">
         <form id="settings-form" method="post" action="{{ action_url }}" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
 
@@ -143,7 +143,7 @@
 
                 <!-- Store Identity Card -->
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-slate-200/60">
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-blue-600">store</span>
@@ -154,7 +154,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="p-8">
+                    <div class="p-4 sm:p-6 lg:p-8">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
                                 <label class="block text-sm font-semibold text-slate-700" for="{{ form.store_name.id_for_label }}">Store Name</label>
@@ -191,7 +191,7 @@
 
                 <!-- Contact Information Card -->
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 px-8 py-6 border-b border-slate-200/60">
+                    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-emerald-600">mail</span>
@@ -202,7 +202,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="p-8">
+                    <div class="p-4 sm:p-6 lg:p-8">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
                                 <label class="block text-sm font-semibold text-slate-700" for="{{ form.contact_email.id_for_label }}">Primary Email</label>
@@ -246,7 +246,7 @@
 
                 <!-- Physical Address Card -->
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 px-8 py-6 border-b border-slate-200/60">
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-amber-600">location_on</span>
@@ -257,7 +257,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="p-8">
+                    <div class="p-4 sm:p-6 lg:p-8">
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="md:col-span-2 space-y-2">
@@ -336,7 +336,7 @@
 
                 <!-- Maintenance Mode Card -->
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-8 py-6 border-b border-slate-200/60">
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-purple-600">build</span>
@@ -347,7 +347,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="p-8">
+                    <div class="p-4 sm:p-6 lg:p-8">
                         <div class="space-y-6">
                             <div class="flex items-center justify-between p-5 bg-slate-50 rounded-2xl border border-slate-200">
                                 <div>
@@ -376,7 +376,7 @@
 
                 <!-- App Links Card -->
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-cyan-50 to-blue-50 px-8 py-6 border-b border-slate-200/60">
+                    <div class="bg-gradient-to-r from-cyan-50 to-blue-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-cyan-600">phone_android</span>
@@ -387,7 +387,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="p-8">
+                    <div class="p-4 sm:p-6 lg:p-8">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
                                 <label class="block text-sm font-semibold text-slate-700" for="{{ form.apple_store_link.id_for_label }}">Apple App Store</label>
@@ -407,7 +407,7 @@
             <section class="settings-section space-y-8 animate-fade-in" id="branding-section">
 
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-pink-50 to-rose-50 px-8 py-6 border-b border-slate-200/60">
+                    <div class="bg-gradient-to-r from-pink-50 to-rose-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-pink-600">palette</span>
@@ -418,7 +418,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="p-8">
+                    <div class="p-4 sm:p-6 lg:p-8">
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                             <!-- Main Logo -->
                             <div class="space-y-3">
@@ -509,7 +509,7 @@
             <section class="settings-section space-y-8 animate-fade-in" id="seo-section">
 
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-violet-50 to-purple-50 px-8 py-6 border-b border-slate-200/60">
+                    <div class="bg-gradient-to-r from-violet-50 to-purple-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-violet-600">search</span>
@@ -520,7 +520,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="p-8">
+                    <div class="p-4 sm:p-6 lg:p-8">
                         <div class="space-y-8">
                             <!-- Google Search Preview -->
                             <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
@@ -618,7 +618,7 @@
             <section class="settings-section space-y-8 animate-fade-in" id="shipping-section">
 
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-blue-50 to-cyan-50 px-8 py-6 border-b border-slate-200/60">
+                    <div class="bg-gradient-to-r from-blue-50 to-cyan-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
@@ -637,7 +637,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="p-8">
+                    <div class="p-4 sm:p-6 lg:p-8">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-slate-100">
                             <div class="space-y-2">
                                 <label class="block text-sm font-semibold text-slate-700" for="{{ form.free_shipping_threshold.id_for_label }}">Free Shipping Threshold</label>
@@ -685,7 +685,7 @@
             <section class="settings-section space-y-8 animate-fade-in" id="taxes-section">
 
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-emerald-50 to-green-50 px-8 py-6 border-b border-slate-200/60">
+                    <div class="bg-gradient-to-r from-emerald-50 to-green-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-emerald-600">account_balance</span>
@@ -696,7 +696,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="p-8">
+                    <div class="p-4 sm:p-6 lg:p-8">
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
                             <div class="space-y-6">
                                 <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
@@ -790,7 +790,7 @@
             <section class="settings-section space-y-8 animate-fade-in" id="checkout-section">
 
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-indigo-50 to-blue-50 px-8 py-6 border-b border-slate-200/60">
+                    <div class="bg-gradient-to-r from-indigo-50 to-blue-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-indigo-600">shopping_cart_checkout</span>
@@ -801,7 +801,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="p-8">
+                    <div class="p-4 sm:p-6 lg:p-8">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="flex items-center justify-between p-5 bg-slate-50 rounded-xl border border-slate-200">
                                 <div>
@@ -846,7 +846,7 @@
             <section class="settings-section space-y-8 pb-20 animate-fade-in" id="features-section">
 
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 px-8 py-6 border-b border-slate-200/60">
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-amber-600">bolt</span>
@@ -857,7 +857,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="p-8">
+                    <div class="p-4 sm:p-6 lg:p-8">
                         {% if locked_feature_fields %}
                         <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
                             <div class="flex items-start gap-3">
@@ -1077,6 +1077,23 @@
                 </div>
 
             </section>
+
+            <!-- Sticky Floating Action Save Bar (Mobile & Desktop) -->
+            <div class="sticky bottom-20 lg:bottom-6 z-30 mt-8 rounded-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-800 p-3.5 sm:p-4 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="flex items-center gap-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400 w-full sm:w-auto">
+                    <span class="material-symbols-outlined text-emerald-500 text-[20px]">verified</span>
+                    <span class="font-medium">Changes across all tabs are saved together</span>
+                </div>
+                <div class="flex items-center gap-2.5 w-full sm:w-auto">
+                    <button type="reset" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-xs sm:text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                        Reset
+                    </button>
+                    <button type="submit" class="flex-1 sm:flex-initial px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-blue-500/25 transition flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">save</span>
+                        Save Settings
+                    </button>
+                </div>
+            </div>
 
         </form>
     </main>

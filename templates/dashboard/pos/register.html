@@ -94,13 +94,26 @@
     </div>
   </div>
 
+  <!-- Mobile POS View Switcher (Visible on mobile/tablet below xl) -->
+  <div class="xl:hidden flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl sticky top-14 z-20 shadow-sm border border-slate-200 dark:border-slate-700">
+    <button type="button" id="pos-tab-catalog" class="flex-1 py-2 rounded-xl text-xs font-bold transition bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm flex items-center justify-center gap-1.5">
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+      <span>Products</span>
+    </button>
+    <button type="button" id="pos-tab-cart" class="flex-1 py-2 rounded-xl text-xs font-bold transition text-slate-600 dark:text-slate-300 hover:text-slate-900 flex items-center justify-center gap-1.5">
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+      <span>Cart</span>
+      <span id="mobile-cart-badge" class="ml-1 px-1.5 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold">0</span>
+    </button>
+  </div>
+
   <!-- Main POS Workspace: Product Grid (Left) + Side Cart (Right) -->
   <div class="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_420px] 2xl:grid-cols-[1fr_460px]">
     
     <!-- LEFT: Product Search, Category Filter, and Product Grid -->
-    <div class="space-y-4">
+    <div id="pos-catalog-column" class="space-y-4">
       <!-- Search & Filters Header -->
-      <div class="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-4">
+      <div class="rounded-3xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-sm space-y-4">
         <!-- Live Search Bar -->
         <div class="relative">
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
@@ -138,7 +151,7 @@
       </div>
 
       <!-- Products Grid Container -->
-      <div id="product-grid-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-4 gap-4">
+      <div id="product-grid-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-4 gap-3 sm:gap-4">
         <!-- Rendered dynamically via JS from grid_products -->
       </div>
 
@@ -158,11 +171,11 @@
     </div>
 
     <!-- RIGHT: Side Cart (Persistent Interactive Cart) -->
-    <div class="space-y-4">
+    <div id="pos-cart-column" class="hidden xl:block space-y-4">
       <div class="sticky top-4 rounded-3xl border border-slate-200/80 bg-white shadow-sm flex flex-col overflow-hidden max-h-[calc(100vh-2rem)]">
         
         <!-- Cart Header -->
-        <div class="border-b border-slate-100 p-5 pb-4">
+        <div class="border-b border-slate-100 p-4 sm:p-5 pb-4">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2.5">
               <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
@@ -428,6 +441,27 @@
   const printReceiptBtn = document.getElementById("print-receipt-btn");
   const newSaleBtn = document.getElementById("new-sale-btn");
 
+  // Mobile POS view switcher
+  const posTabCatalog = document.getElementById("pos-tab-catalog");
+  const posTabCart = document.getElementById("pos-tab-cart");
+  const posCatalogCol = document.getElementById("pos-catalog-column");
+  const posCartCol = document.getElementById("pos-cart-column");
+
+  if (posTabCatalog && posTabCart && posCatalogCol && posCartCol) {
+    posTabCatalog.addEventListener("click", () => {
+      posTabCatalog.className = "flex-1 py-2 rounded-xl text-xs font-bold transition bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm flex items-center justify-center gap-1.5";
+      posTabCart.className = "flex-1 py-2 rounded-xl text-xs font-bold transition text-slate-600 dark:text-slate-300 hover:text-slate-900 flex items-center justify-center gap-1.5";
+      posCatalogCol.classList.remove("hidden");
+      posCartCol.classList.add("hidden");
+    });
+    posTabCart.addEventListener("click", () => {
+      posTabCart.className = "flex-1 py-2 rounded-xl text-xs font-bold transition bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm flex items-center justify-center gap-1.5";
+      posTabCatalog.className = "flex-1 py-2 rounded-xl text-xs font-bold transition text-slate-600 dark:text-slate-300 hover:text-slate-900 flex items-center justify-center gap-1.5";
+      posCartCol.classList.remove("hidden");
+      posCatalogCol.classList.add("hidden");
+    });
+  }
+
   function getCookie(name) {
     for (const cookie of document.cookie.split(";")) {
       const trimmed = cookie.trim();
@@ -571,6 +605,8 @@
     if (items.length === 0) {
       cartEmptyState.classList.remove("hidden");
       cartItemCountLabel.textContent = "0 items";
+      const mobileBadge = document.getElementById("mobile-cart-badge");
+      if (mobileBadge) mobileBadge.textContent = "0";
       cartSubtotalVal.textContent = formatMoney(0);
       cartTaxVal.textContent = formatMoney(0);
       cartGrandTotalVal.textContent = formatMoney(0);
@@ -661,6 +697,8 @@
     const grandTotal = subtotal + tax;
 
     cartItemCountLabel.textContent = `${totalCount} item${totalCount === 1 ? '' : 's'}`;
+    const mobileBadge = document.getElementById("mobile-cart-badge");
+    if (mobileBadge) mobileBadge.textContent = totalCount;
     cartSubtotalVal.textContent = formatMoney(subtotal);
     cartTaxVal.textContent = formatMoney(tax);
     cartGrandTotalVal.textContent = formatMoney(grandTotal);
