@@ -1,17 +1,16 @@
 {% extends "dashboard/_partials/base.html" %} {% block content %}
-<div class="flex items-center justify-between mb-6">
+<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
   <div>
     <h2 class="text-xl font-bold text-slate-900 dark:text-white">
       {% if user %}Edit User{% else %}Create User{% endif %}
     </h2>
-    <p class="text-slate-600 dark:text-slate-400">
-      {% if user %}Edit user information, roles, and permissions{% else %}Create
-      a new user account with the appropriate role and permissions{% endif %}
+    <p class="text-sm text-slate-600 dark:text-slate-400">
+      {% if user %}Edit user information, roles, and permissions{% else %}Create a new user account with the appropriate role and permissions{% endif %}
     </p>
   </div>
   <a
     href="{% url 'dashboard:user_settings:user_list' prefix %}"
-    class="bg-slate-600 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors flex items-center space-x-2"
+    class="inline-flex items-center justify-center gap-1.5 bg-slate-600 text-white px-4 py-2.5 rounded-xl hover:bg-slate-700 transition-colors text-sm font-medium w-full sm:w-auto"
   >
     <span class="material-icons-outlined text-sm">arrow_back</span>
     <span>Back to Users</span>
@@ -307,22 +306,24 @@
         </div>
       </div>
 
-      <!-- Submit Buttons -->
-      <div class="mt-8 flex items-center justify-end space-x-4">
-        <button
-          type="submit"
-          class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2 font-medium shadow-sm hover:shadow-md"
-        >
-          <span class="material-icons-outlined text-sm">save</span>
-          <span>{% if user %}Save Changes{% else %}Create User{% endif %}</span>
-        </button>
-        <a
-          href="{% url 'dashboard:user_settings:user_list' prefix %}"
-          class="bg-slate-600 text-white px-6 py-3 rounded-lg hover:bg-slate-700 transition-colors flex items-center space-x-2 font-medium shadow-sm hover:shadow-md"
-        >
-          <span class="material-icons-outlined text-sm">cancel</span>
-          <span>Cancel</span>
-        </a>
+      <!-- Sticky mobile save bar -->
+      <div class="sticky bottom-0 z-20 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 px-4 py-3 mt-6 -mx-6 sm:mx-0 sm:static sm:border-0 sm:px-0 sm:pb-0">
+        <div class="flex gap-3">
+          <a
+            href="{% url 'dashboard:user_settings:user_list' prefix %}"
+            class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-5 py-2.5 bg-slate-600 text-white rounded-xl hover:bg-slate-700 active:scale-95 transition-all text-sm font-medium"
+          >
+            <span class="material-icons-outlined text-sm">cancel</span>
+            <span>Cancel</span>
+          </a>
+          <button
+            type="submit"
+            class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 bg-primary text-white px-6 py-2.5 rounded-xl hover:bg-blue-600 active:scale-95 transition-all text-sm font-semibold shadow-sm"
+          >
+            <span class="material-icons-outlined text-sm">save</span>
+            <span>{% if user %}Save Changes{% else %}Create User{% endif %}</span>
+          </button>
+        </div>
       </div>
     </form>
   </div>

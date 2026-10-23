@@ -1,16 +1,26 @@
 {% extends "dashboard/_partials/base.html" %} {% block content %}
-<div class="flex items-center justify-between mb-6">
+<style>
+  @media (max-width: 639px) {
+    .usr-table-wrap { display: none; }
+    .usr-cards-wrap { display: block; }
+  }
+  @media (min-width: 640px) {
+    .usr-table-wrap { display: block; }
+    .usr-cards-wrap { display: none; }
+  }
+</style>
+
+<!-- Page Header -->
+<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
   <div>
     <h2 class="text-xl font-bold text-slate-900 dark:text-white">Users</h2>
-    <p class="text-slate-600 dark:text-slate-400">
-      Manage your users, staff members, and customer accounts
-    </p>
+    <p class="text-sm text-slate-600 dark:text-slate-400">Manage users, staff members, and customer accounts</p>
   </div>
   <a
     href="{% url 'dashboard:user_settings:user_create' prefix %}"
-    class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+    class="inline-flex items-center justify-center gap-1.5 bg-primary text-white px-4 py-2.5 rounded-xl hover:bg-blue-600 active:scale-95 transition-all text-sm font-medium w-full sm:w-auto"
   >
-    <span class="material-icons-outlined text-sm">add</span>
+    <span class="material-icons-outlined text-base">add</span>
     <span>Add User</span>
   </a>
 </div>
@@ -18,88 +28,50 @@
 <div
   class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
 >
-  <div class="p-6 border-b border-slate-200 dark:border-slate-700">
-    <div class="flex flex-col sm:flex-row gap-4">
-      <div class="flex-1">
-        <div class="relative">
-          <span
-            class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-          >
-            <span class="material-icons-outlined text-slate-400 text-sm"
-              >search</span
-            >
-          </span>
-          <input
-            type="text"
-            name="search"
-            value="{{ search_query }}"
-            placeholder="Search users by name, email, or phone..."
-            class="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-700 dark:text-white"
-          />
-        </div>
+  <div class="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700">
+    <div class="flex flex-col gap-3">
+      <div class="relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+          <span class="material-icons-outlined text-slate-400 text-sm">search</span>
+        </span>
+        <input
+          type="text"
+          name="search"
+          value="{{ search_query }}"
+          placeholder="Search users by name, email, or phone..."
+          style="font-size:16px"
+          class="w-full pl-10 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-700 dark:text-white"
+        />
       </div>
-      <div class="flex items-center space-x-2">
-        <select
-          name="user_type"
-          class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white"
-        >
+      <div class="grid grid-cols-2 gap-2">
+        <select name="user_type" class="w-full px-3 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl dark:bg-slate-700 dark:text-white text-sm" style="font-size:16px">
           <option value="">All Types</option>
           {% for value, label in user_types %}
-          <option
-            value="{{ value }}"
-            {%
-            if
-            user_type_filter=""
-            ="value"
-            %}selected{%
-            endif
-            %}
-          >
-            {{ label }}
-          </option>
+          <option value="{{ value }}" {% if user_type_filter == value %}selected{% endif %}>{{ label }}</option>
           {% endfor %}
         </select>
-        <select
-          name="status"
-          class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white"
-        >
+        <select name="status" class="w-full px-3 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl dark:bg-slate-700 dark:text-white text-sm" style="font-size:16px">
           <option value="">All Statuses</option>
           {% for value, label in statuses %}
-          <option
-            value="{{ value }}"
-            {%
-            if
-            status_filter=""
-            ="value"
-            %}selected{%
-            endif
-            %}
-          >
-            {{ label }}
-          </option>
+          <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
           {% endfor %}
         </select>
       </div>
-    </div>
-    <div class="flex items-center space-x-4 mt-4">
-      <button
-        type="submit"
-        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-      >
-        <span class="material-icons-outlined text-sm mr-2">filter_list</span>
-        Apply Filters
-      </button>
-      <a
-        href="{% url 'dashboard:user_settings:user_list' prefix %}"
-        class="inline-flex items-center px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-      >
-        <span class="material-icons-outlined text-sm mr-2">clear</span>
-        Clear
-      </a>
+      <div class="flex gap-2">
+        <button type="submit" class="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 active:scale-95 transition-all">
+          <span class="material-icons-outlined text-sm">filter_list</span>
+          Apply Filters
+        </button>
+        <a href="{% url 'dashboard:user_settings:user_list' prefix %}" class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+          <span class="material-icons-outlined text-sm">clear</span>
+          Clear
+        </a>
+      </div>
     </div>
   </div>
 
-  <div class="overflow-x-auto">
+  <!-- Desktop table -->
+  <div class="usr-table-wrap overflow-x-auto">
     <table class="w-full">
       <thead class="bg-slate-50 dark:bg-slate-700">
         <tr>
@@ -210,7 +182,41 @@
         {% endif %}
       </tbody>
     </table>
-  </div>
+  </div><!-- end usr-table-wrap -->
+
+  <!-- Mobile user cards -->
+  <div class="usr-cards-wrap divide-y divide-slate-200 dark:divide-slate-700">
+    {% if page_obj %}{% for user in page_obj %}
+    <div class="p-4 flex items-start gap-3">
+      <div class="w-12 h-12 shrink-0 bg-slate-100 dark:bg-slate-700 rounded-xl flex items-center justify-center">
+        <span class="material-icons-outlined text-slate-400">person</span>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0">
+            <p class="text-sm font-semibold text-slate-900 dark:text-white truncate">{{ user.user.get_full_name }}</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ user.user.username }}</p>
+          </div>
+          <span class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {% if user.status == 'active' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200{% elif user.status == 'suspended' %}bg-yellow-100 text-yellow-800{% elif user.status == 'pending' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-700{% endif %}">
+            {{ user.get_status_display }}
+          </span>
+        </div>
+        <div class="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500 dark:text-slate-400">
+          <span>{{ user.user.email }}</span>
+          {% if user.phone %}<span>· {{ user.phone }}</span>{% endif %}
+          <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs {% if user.user_type == 'staff' %}bg-blue-100 text-blue-700{% elif user.user_type == 'customer' %}bg-green-100 text-green-700{% else %}bg-gray-100 text-gray-600{% endif %}">{{ user.get_user_type_display }}</span>
+        </div>
+        <div class="mt-2 flex gap-3">
+          <a href="{% url 'dashboard:user_settings:user_edit' prefix user.id %}" class="text-primary text-xs font-medium">Edit</a>
+          <button class="text-red-500 text-xs font-medium delete-btn" data-name="{{ user.user.get_full_name }}" data-url="{% url 'dashboard:user_settings:user_delete' prefix user.id %}">Deactivate</button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}{% else %}
+    <div class="p-8 text-center text-slate-500 dark:text-slate-400 text-sm">No users found</div>
+    {% endif %}
+  </div><!-- end usr-cards-wrap -->
+
 
   {% if page_obj.has_other_pages %}
   <div

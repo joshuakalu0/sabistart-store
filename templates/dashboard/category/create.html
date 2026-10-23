@@ -1,20 +1,17 @@
 {% extends "dashboard/_partials/base.html" %} {% block content %}
-<div class="flex items-center justify-between mb-6">
+<!-- Page Header -->
+<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
   <div>
     <h2 class="text-xl font-bold text-slate-900 dark:text-white">
-      {% if edit_url %}Edit {{ category.name }}{% else %}
-      Create Category
-{% endif %}
+      {% if edit_url %}Edit {{ category.name }}{% else %}Create Category{% endif %}
     </h2>
-    {% if edit_url %}<p class="text-slate-600 dark:text-slate-400">Update category details</p>{% else %}
-    <p class="text-slate-600 dark:text-slate-400">
-      Add a new category to organize your products
-    </p>
+    {% if edit_url %}<p class="text-sm text-slate-600 dark:text-slate-400">Update category details</p>
+    {% else %}<p class="text-sm text-slate-600 dark:text-slate-400">Add a new category to organize your products</p>
     {% endif %}
   </div>
   <a
     href="{% url 'dashboard:dashboard_categories:list' prefix %}"
-    class="bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors flex items-center space-x-2"
+    class="inline-flex items-center justify-center gap-1.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-sm font-medium w-full sm:w-auto"
   >
     <span class="material-icons-outlined text-sm">arrow_back</span>
     <span>Back to List</span>
@@ -162,14 +159,15 @@
         </div>
       </div>
     </div>
-    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-      <div class="flex items-center justify-end space-x-4">
-        <button type="button" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+    <!-- Mobile-friendly sticky save bar -->
+    <div class="sticky bottom-0 z-20 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 px-4 py-3 sm:rounded-xl sm:border sm:shadow-sm sm:static sm:mt-4">
+      <div class="flex gap-3">
+        <a href="{% url 'dashboard:dashboard_categories:list' prefix %}" class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
           Cancel
-        </button>
-        <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2">
+        </a>
+        <button type="submit" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-blue-600 active:scale-95 transition-all text-sm font-semibold">
           <span class="material-icons-outlined text-sm">save</span>
-          <span>Create Category</span>
+          <span>{% if edit_url %}Save Changes{% else %}Create Category{% endif %}</span>
         </button>
       </div>
     </div>
