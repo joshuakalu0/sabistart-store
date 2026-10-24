@@ -99,7 +99,7 @@ def get_active_feature_catalog(currency: str = "NGN", *, purchasable_only: bool 
     ).filter(
         Q(valid_until__isnull=True) | Q(valid_until__gte=now)
     )
-    filters = {"is_active": True}
+    filters = {"is_active": True, "is_globally_disabled": False}
     if purchasable_only:
         filters["is_purchasable"] = True
     qs = FeatureDefinition.objects.filter(**filters).select_related("category").prefetch_related(
@@ -178,6 +178,8 @@ def _bundle_feature_labels(bundle: FeatureBundle | None) -> list[str]:
     labels = []
     for item in bundle.items.all():
         feature = item.feature
+        if not feature.is_active or feature.is_globally_disabled:
+            continue
         if item.quantity_override:
             unit_label = feature.unit_label or "included"
             labels.append(f"{feature.name}: {item.quantity_override} {unit_label}")
@@ -217,7 +219,7 @@ def get_plan_bundle_by_slug(slug: str, currency: str = "NGN") -> FeatureBundle |
 
 
 def get_feature_by_code(code: str, *, purchasable_only: bool = False) -> FeatureDefinition:
-    filters = {"code": code, "is_active": True}
+    filters = {"code": code, "is_active": True, "is_globally_disabled": False}
     if purchasable_only:
         filters["is_purchasable"] = True
     return FeatureDefinition.objects.select_related("category").get(**filters)

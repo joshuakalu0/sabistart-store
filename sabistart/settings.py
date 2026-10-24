@@ -239,6 +239,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.media",
                 "public.storefront.context_processors.global_storefront_context",
+                "dashboard.context_processors.dashboard_feature_context",
             ],
         },
     },

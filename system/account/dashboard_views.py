@@ -17,6 +17,7 @@ from sabistart.navigation import build_platform_navigation
 from dashboard.analytics.services import build_platform_dashboard_bundle, bundle_to_json
 from system.account.platform_support import safe_platform_call, setup_warning_for
 from system.core.models import Shop
+from system.feature_marketplace.models import FeatureDefinition
 
 
 def _is_platform_staff(user) -> bool:
@@ -185,6 +186,13 @@ class PlatformDashboardView(PlatformStaffRequiredMixin, View):
                 "url": reverse("platform_payments:home"),
             },
         ]
+        all_features = safe_platform_call(
+            lambda: list(
+                FeatureDefinition.objects.select_related("category")
+                .order_by("category__display_order", "display_order", "name")
+            ),
+            [],
+        )
         context = _shop_context(
             request,
             active_platform_nav="platform_dashboard",
@@ -193,6 +201,7 @@ class PlatformDashboardView(PlatformStaffRequiredMixin, View):
             app_cards=app_cards,
             recent_shops=shops[:8],
             platform_analytics=build_platform_dashboard_bundle(),
+            all_features=all_features,
         )
         context["platform_analytics_json"] = bundle_to_json(context["platform_analytics"])
         return render(request, self.template_name, context)

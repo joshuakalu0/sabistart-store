@@ -675,6 +675,7 @@
         <span class="mt-1 text-[10px] tracking-tight">Products</span>
       </a>
 
+      {% if feature_access_map.max_pos_locations and feature_access_map.max_pos_locations.active %}
       <a
         href="{% if prefix %}{% url 'dashboard:pos:dashboard' prefix %}{% else %}/dashboard/admin/pos/{% endif %}"
         class="flex flex-1 flex-col items-center justify-center py-1 text-center transition {% if '/pos' in request.path %}text-primary font-bold{% else %}text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white{% endif %}"
@@ -682,6 +683,7 @@
         <span class="material-icons-outlined text-xl leading-none">point_of_sale</span>
         <span class="mt-1 text-[10px] tracking-tight">POS</span>
       </a>
+      {% endif %}
 
       <a
         href="{% if prefix %}{% url 'dashboard:store_settings:manage_theme_settings' prefix %}{% else %}/dashboard/admin/theme_settings/{% endif %}"

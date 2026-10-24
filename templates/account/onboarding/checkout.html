@@ -44,6 +44,7 @@
         {% endfor %}
       {% elif bundle_items %}
         {% for item in bundle_items %}
+          {% if item.feature.is_active and not item.feature.is_globally_disabled %}
           <li class="flex items-start gap-3">
             <span class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">&check;</span>
             <div>
@@ -56,16 +57,19 @@
               {% endif %}
             </div>
           </li>
+          {% endif %}
         {% endfor %}
       {% else %}
         <li class="flex items-start gap-3">
           <span class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">&check;</span>
           <span class="text-sm text-gray-700 font-medium">Full online storefront & commerce features</span>
         </li>
+        {% if feature_access_map.max_pos_locations and feature_access_map.max_pos_locations.active %}
         <li class="flex items-start gap-3">
           <span class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">&check;</span>
           <span class="text-sm text-gray-700 font-medium">Point of sale and inventory management</span>
         </li>
+        {% endif %}
         <li class="flex items-start gap-3">
           <span class="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">&check;</span>
           <span class="text-sm text-gray-700 font-medium">Custom subdomain with SSL included</span>

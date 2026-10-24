@@ -136,6 +136,8 @@ REALISTIC_PLUS_FEATURES = [
             "badge_label": "Monthly",
             "sidebar_key": "pos",
             "display_order": 45,
+            "is_active": False,
+            "is_globally_disabled": True,
             "metadata": {
                 "module_unlock": True,
                 "module_key": "pos",

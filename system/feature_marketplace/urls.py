@@ -11,6 +11,7 @@ urlpatterns = [
     path("catalog/", views.catalog, name="catalog"),
     path("features/create/", views.feature_create, name="feature_create"),
     path("features/<slug:code>/", views.feature_detail, name="feature_detail"),
+    path("features/<slug:code>/toggle/", views.feature_toggle, name="feature_toggle"),
     path("categories/", views.categories, name="categories"),
     path("pricing/", views.pricing, name="pricing"),
     path("bundles/", views.bundles, name="bundles"),

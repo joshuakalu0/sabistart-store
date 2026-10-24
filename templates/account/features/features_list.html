@@ -1,5 +1,5 @@
 {% extends "account/features/base.html" %}
-{% block page_intro %}<p class="mt-2 text-sm text-slate-500">Search, filter, and manage sellable features with visibility into category, usage, and pricing posture.</p>{% endblock %}
+{% block page_intro %}<p class="mt-2 text-sm text-slate-500">Search, filter, and manage sellable features. Use the toggle switch to enable or disable each feature globally — tenants lose access instantly when a feature is switched off.</p>{% endblock %}
 {% block feature_content %}
   <div class="rounded-[1.75rem] border border-slate-200 bg-white shadow-sm">
     <div class="border-b border-slate-200 px-6 py-5">
@@ -14,22 +14,51 @@
         <select name="status" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm">
           <option value="">All statuses</option>
           <option value="free" {% if selected_status == "free" %}selected{% endif %}>Free / globally on</option>
-          <option value="inactive" {% if selected_status == "inactive" %}selected{% endif %}>Inactive</option>
+          <option value="inactive" {% if selected_status == "inactive" %}selected{% endif %}>Inactive / disabled</option>
         </select>
         <button type="submit" class="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white">Filter</button>
       </form>
     </div>
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-slate-200 text-sm">
-        <thead class="bg-slate-50"><tr><th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Feature</th><th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Category</th><th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Status</th><th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Tenant Usage</th><th class="px-6 py-4 text-right font-semibold uppercase tracking-[0.18em] text-slate-400">Actions</th></tr></thead>
+        <thead class="bg-slate-50">
+          <tr>
+            <th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Feature</th>
+            <th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Category</th>
+            <th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Enabled</th>
+            <th class="px-6 py-4 text-left font-semibold uppercase tracking-[0.18em] text-slate-400">Tenants</th>
+            <th class="px-6 py-4 text-right font-semibold uppercase tracking-[0.18em] text-slate-400">Actions</th>
+          </tr>
+        </thead>
         <tbody class="divide-y divide-slate-200">
           {% for row in feature_rows %}
-            <tr>
-              <td class="px-6 py-4"><p class="font-semibold text-slate-950">{{ row.feature.name }}</p><p class="mt-1 text-xs font-mono text-slate-500">{{ row.feature.code }}</p></td>
+            <tr id="feature-row-{{ row.feature.code }}">
+              <td class="px-6 py-4">
+                <p class="font-semibold text-slate-950">{{ row.feature.name }}</p>
+                <p class="mt-1 text-xs font-mono text-slate-500">{{ row.feature.code }}</p>
+              </td>
               <td class="px-6 py-4 text-slate-500">{{ row.feature.category.name|default:"Uncategorised" }}</td>
-              <td class="px-6 py-4 text-slate-500">{% if row.feature.is_globally_enabled %}Free{% elif row.feature.is_active %}Active{% else %}Inactive{% endif %}</td>
+              <td class="px-6 py-4">
+                <form method="post" action="{% url 'platform_features:feature_toggle' row.feature.code %}" class="feature-toggle-form inline-flex items-center gap-2">
+                  {% csrf_token %}
+                  <input type="hidden" name="is_active" value="{% if row.feature.is_active %}false{% else %}true{% endif %}" />
+                  <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+                  <button type="submit"
+                    id="toggle-{{ row.feature.code }}"
+                    title="{% if row.feature.is_active %}Click to disable {{ row.feature.name }}{% else %}Click to enable {{ row.feature.name }}{% endif %}"
+                    class="relative inline-flex h-6 w-11 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 {% if row.feature.is_active %}bg-emerald-500{% else %}bg-slate-200{% endif %}"
+                    role="switch" aria-checked="{% if row.feature.is_active %}true{% else %}false{% endif %}">
+                    <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {% if row.feature.is_active %}translate-x-5{% else %}translate-x-0{% endif %}"></span>
+                  </button>
+                  <span class="text-xs font-semibold {% if row.feature.is_active %}text-emerald-600{% else %}text-slate-400{% endif %}">
+                    {% if row.feature.is_globally_enabled %}Free{% elif row.feature.is_active %}ON{% else %}OFF{% endif %}
+                  </span>
+                </form>
+              </td>
               <td class="px-6 py-4 text-slate-500">{{ row.tenant_usage_count }}</td>
-              <td class="px-6 py-4 text-right"><a href="{% url 'platform_features:feature_detail' row.feature.code %}" class="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700">Open</a></td>
+              <td class="px-6 py-4 text-right">
+                <a href="{% url 'platform_features:feature_detail' row.feature.code %}" class="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-950">Open</a>
+              </td>
             </tr>
           {% empty %}
             <tr><td colspan="5" class="px-6 py-10 text-center text-sm text-slate-500">No features configured yet.</td></tr>
@@ -39,3 +68,4 @@
     </div>
   </div>
 {% endblock %}
+

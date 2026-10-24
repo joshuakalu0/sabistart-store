@@ -4,9 +4,13 @@ from pathlib import Path
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.cache import cache
 from django.db.models import Count, Q
 from django.forms import HiddenInput
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.views.decorators.http import require_POST
 from django_tenants.utils import get_tenant_model, schema_context
 
 from dashboard.feature_marketplace.models import FeaturePurchase, TenantEntitlement
@@ -244,6 +248,52 @@ def feature_detail(request, code):
         tenant_overrides=TenantFeatureOverride.objects.select_related("shop").filter(feature=feature).order_by("-created_at"),
     )
     return render(request, "account/features/feature_detail.html", context)
+ 
+ 
+@platform_staff_required
+@require_POST
+def feature_toggle(request, code):
+    setup_warning = setup_warning_for("Feature marketplace", *FEATURE_SHARED_MODELS)
+    if setup_warning:
+        messages.warning(request, setup_warning)
+        return redirect("platform_features:home")
+    feature = get_object_or_404(FeatureDefinition, code=code)
+    explicit_state = request.POST.get("is_active")
+    if explicit_state is not None:
+        target_active = explicit_state.lower() in ("true", "1", "yes", "on")
+    else:
+        target_active = not feature.is_active
+
+    feature.is_active = target_active
+    feature.is_globally_disabled = not target_active
+    feature.save(update_fields=["is_active", "is_globally_disabled", "updated_at"])
+
+    try:
+        cache.clear()
+    except Exception:
+        pass
+
+    status_str = "turned ON" if feature.is_active else "turned OFF"
+    msg = f"Feature '{feature.name}' has been {status_str}."
+
+    is_ajax = (
+        request.headers.get("x-requested-with") == "XMLHttpRequest"
+        or "application/json" in request.headers.get("Accept", "")
+        or getattr(request, "content_type", "") == "application/json"
+    )
+    if is_ajax:
+        return JsonResponse({
+            "success": True,
+            "code": feature.code,
+            "name": feature.name,
+            "is_active": feature.is_active,
+            "is_globally_disabled": feature.is_globally_disabled,
+            "message": msg,
+        })
+
+    messages.success(request, msg)
+    next_url = request.POST.get("next") or request.META.get("HTTP_REFERER") or reverse("platform_features:catalog")
+    return redirect(next_url)
 
 
 @platform_staff_required
