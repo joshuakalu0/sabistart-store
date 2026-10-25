@@ -4,134 +4,67 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block extra_css %}
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            300: '#93c5fd',
-                            400: '#60a5fa',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
-                        },
-                        slate: {
-                            50: '#f8fafc',
-                            100: '#f1f5f9',
-                            200: '#e2e8f0',
-                            300: '#cbd5e1',
-                            400: '#94a3b8',
-                            500: '#64748b',
-                            600: '#475569',
-                            700: '#334155',
-                            800: '#1e293b',
-                            900: '#0f172a',
-                        },
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                        display: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
-                    },
-                    animation: {
-                        'fade-in': 'fadeIn 0.5s ease-out',
-                        'slide-up': 'slideUp 0.5s ease-out',
-                        'scale-in': 'scaleIn 0.3s ease-out',
-                        'toggle-on': 'toggleOn 0.2s ease-out',
-                        'toggle-off': 'toggleOff 0.2s ease-out',
-                    },
-                    keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' },
-                        },
-                        slideUp: {
-                            '0%': { opacity: '0', transform: 'translateY(20px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        },
-                        scaleIn: {
-                            '0%': { opacity: '0', transform: 'scale(0.95)' },
-                            '100%': { opacity: '1', transform: 'scale(1)' },
-                        },
-                        toggleOn: {
-                            '0%': { transform: 'translateX(0)' },
-                            '100%': { transform: 'translateX(1.5rem)' },
-                        },
-                        toggleOff: {
-                            '0%': { transform: 'translateX(1.5rem)' },
-                            '100%': { transform: 'translateX(0)' },
-                        },
-                    },
-                },
-            },
-        }
-    </script>
-    {% endblock %}
+<style>
+    .settings-section { display: none; }
+    .settings-section.active { display: block; animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 min-h-screen font-sans antialiased">
-
-<!-- Django Messages -->
-{% if messages %}
-<div class="fixed top-24 right-8 z-50 space-y-3 animate-fade-in">
-    {% for message in messages %}
-    <div class="flex items-center gap-3 px-5 py-4 rounded-2xl shadow-xl border backdrop-blur-sm transition-all hover:shadow-2xl hover:-translate-y-0.5"
-         style="background: {% if message.tags == 'success' %}linear-gradient(135deg, #10B981 0%, #059669 100%){% elif message.tags == 'error' %}linear-gradient(135deg, #ef4444 0%, #dc2626 100%){% else %}linear-gradient(135deg, #ffffff 0%, #f8fafc 100%){% endif %};
-                 color: {% if message.tags == 'error' %}#ffffff{% else %}#1e293b{% endif %};
-                 border: {% if message.tags == 'error' %}none{% else %}1px solid rgba(255,255,255,0.3){% endif %};">
-        <span class="material-symbols-outlined text-lg">
-            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
-        </span>
-        <span class="font-semibold text-sm">{{ message }}</span>
-    </div>
-    {% endfor %}
+<!-- Page Header -->
+<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Store Settings</h2>
+    <p class="text-sm text-slate-600 dark:text-slate-400">Configure global storefront identity, branding, checkout, SEO, and operations</p>
+  </div>
+  <div class="flex items-center gap-2">
+    <a
+      href="{% if prefix %}{% url 'dashboard:store_settings:manage_theme_settings' prefix %}{% else %}/dashboard/admin/theme_settings/{% endif %}"
+      class="inline-flex items-center justify-center gap-1.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-sm font-medium"
+    >
+      <span class="material-icons-outlined text-sm">palette</span>
+      <span>Theme Settings</span>
+    </a>
+  </div>
 </div>
-{% endif %}
 
-<!-- Main Container -->
-<div class="relative">
-
-
-    <!-- Tab Navigation (Mobile Touch Horizontal Scroll) -->
-    <div class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 sticky top-14 lg:top-0 z-20 transition-all shadow-sm">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-            <div class="flex gap-1.5 sm:gap-2 py-2.5 overflow-x-auto no-scrollbar scroll-smooth flex-nowrap">
-                <button type="button" class="tab-link active flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all" data-tab="general">
-                    <span class="material-symbols-outlined text-[18px]">settings</span>
-                    General
-                </button>
-                <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all" data-tab="branding">
-                    <span class="material-symbols-outlined text-[18px]">palette</span>
-                    Branding
-                </button>
-                <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all" data-tab="seo">
-                    <span class="material-symbols-outlined text-[18px]">seo</span>
-                    SEO
-                </button>
-                <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all" data-tab="shipping">
-                    <span class="material-symbols-outlined text-[18px]">local_shipping</span>
-                    Shipping
-                </button>
-                <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all" data-tab="taxes">
-                    <span class="material-symbols-outlined text-[18px]">account_balance</span>
-                    Taxes
-                </button>
-                <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all" data-tab="checkout">
-                    <span class="material-symbols-outlined text-[18px]">shopping_cart_checkout</span>
-                    Checkout
-                </button>
-                <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all" data-tab="features">
-                    <span class="material-symbols-outlined text-[18px]">bolt</span>
-                    Features
-                </button>
-            </div>
-        </div>
-    </div>
+<!-- Tab Navigation Pill Bar -->
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-2 shadow-sm mb-6">
+  <div class="flex gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar scroll-smooth flex-nowrap">
+    <button type="button" class="tab-link active flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all bg-primary text-white shadow-sm" data-tab="general">
+      <span class="material-icons-outlined text-base">settings</span>
+      <span>General</span>
+    </button>
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="branding">
+      <span class="material-icons-outlined text-base">palette</span>
+      <span>Branding</span>
+    </button>
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="seo">
+      <span class="material-icons-outlined text-base">search</span>
+      <span>SEO</span>
+    </button>
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="shipping">
+      <span class="material-icons-outlined text-base">local_shipping</span>
+      <span>Shipping</span>
+    </button>
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="taxes">
+      <span class="material-icons-outlined text-base">account_balance</span>
+      <span>Taxes</span>
+    </button>
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="checkout">
+      <span class="material-icons-outlined text-base">shopping_cart_checkout</span>
+      <span>Checkout</span>
+    </button>
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="features">
+      <span class="material-icons-outlined text-base">bolt</span>
+      <span>Features</span>
+    </button>
+  </div>
+</div>
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 lg:py-10">
@@ -1078,40 +1011,22 @@
 
             </section>
 
-            <!-- Sticky Floating Action Save Bar (Mobile & Desktop) -->
-            <div class="sticky bottom-20 lg:bottom-6 z-30 mt-8 rounded-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-800 p-3.5 sm:p-4 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-3">
-                <div class="flex items-center gap-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400 w-full sm:w-auto">
-                    <span class="material-symbols-outlined text-emerald-500 text-[20px]">verified</span>
-                    <span class="font-medium">Changes across all tabs are saved together</span>
-                </div>
-                <div class="flex items-center gap-2.5 w-full sm:w-auto">
-                    <button type="reset" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-xs sm:text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+            <!-- Mobile-friendly sticky bottom save bar -->
+            <div class="sticky bottom-16 sm:bottom-0 z-20 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 px-3 py-2.5 sm:px-4 sm:py-3 sm:rounded-xl sm:border sm:shadow-sm sm:static sm:mt-6">
+                <div class="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
+                    <button type="reset" class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                         Reset
                     </button>
-                    <button type="submit" class="flex-1 sm:flex-initial px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-blue-500/25 transition flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]">save</span>
-                        Save Settings
+                    <button type="submit" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-hover active:scale-95 transition-all text-sm font-semibold shadow-sm">
+                        <span class="material-icons-outlined text-sm">save</span>
+                        <span>Save Store Settings</span>
                     </button>
                 </div>
             </div>
 
         </form>
     </main>
-</div>
 
-<!-- CSS for Tab Functionality -->
-<style>
-    .settings-section { display: none; animation: fadeIn 0.3s; }
-    .settings-section.active { display: block; }
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-</style>
-
-<!-- JavaScript for Dynamic Interactions -->
-
-</div>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // === Tab Navigation ===
@@ -1124,11 +1039,11 @@
 
                 // Update tab styles
                 tabLinks.forEach(function(t) {
-                    t.classList.remove('active', 'bg-blue-50', 'text-blue-600');
-                    t.classList.add('text-slate-600');
+                    t.classList.remove('active', 'bg-primary', 'text-white', 'shadow-sm');
+                    t.classList.add('text-slate-600', 'dark:text-slate-300');
                 });
-                this.classList.add('active', 'bg-blue-50', 'text-blue-600');
-                this.classList.remove('text-slate-600');
+                this.classList.add('active', 'bg-primary', 'text-white', 'shadow-sm');
+                this.classList.remove('text-slate-600', 'dark:text-slate-300');
 
                 // Show corresponding section
                 sections.forEach(function(section) {
@@ -1143,7 +1058,8 @@
 
         // Initialize active tab styling
         document.querySelectorAll('.tab-link.active').forEach(function(tab) {
-            tab.classList.add('bg-blue-50', 'text-blue-600');
+            tab.classList.add('bg-primary', 'text-white', 'shadow-sm');
+            tab.classList.remove('text-slate-600', 'dark:text-slate-300');
         });
 
         // === Toggle Switch Styling ===

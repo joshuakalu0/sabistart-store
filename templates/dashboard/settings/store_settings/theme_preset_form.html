@@ -1,118 +1,163 @@
 {% extends "dashboard/_partials/base.html" %}
+{% load static %}
+
+{% block title %}{{ title|default:"Theme Preset" }}{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-6">
+<!-- Page Header -->
+<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
   <div>
     <h2 class="text-xl font-bold text-slate-900 dark:text-white">
-      {% if is_create %}Create Theme Preset{% else %}Edit Theme Preset{% endif %}
+      {% if is_edit %}Edit Theme Preset: {{ object.name }}{% else %}Create Theme Preset{% endif %}
     </h2>
-    <p class="text-slate-600 dark:text-slate-400">
-      {% if is_create %}Create a new theme preset for your storefront{% else %}Update theme preset settings{% endif %}
+    <p class="text-sm text-slate-600 dark:text-slate-400">
+      Configure reusable visual presets for storefront themes
     </p>
   </div>
   <a
-    href="{% url 'dashboard:store_settings:theme_preset_list' prefix %}"
-    class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+    href="{% if prefix %}{% url 'dashboard:store_settings:theme_preset_list' prefix %}{% else %}#{% endif %}"
+    class="inline-flex items-center justify-center gap-1.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-sm font-medium w-full sm:w-auto"
   >
-    <span class="material-icons-outlined text-sm mr-2">arrow_back</span>
-    Back to List
+    <span class="material-icons-outlined text-sm">arrow_back</span>
+    <span>Back to Presets</span>
   </a>
 </div>
 
-<div
-  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
->
-  <div class="p-6">
-    <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div class="space-y-6">
-          <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-              Preset Name <span class="text-red-500">*</span>
-            </label>
-            {{ form.name }}
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-              Description
-            </label>
-            {{ form.description }}
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                Style <span class="text-red-500">*</span>
-              </label>
-              {{ form.style }}
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                Industry <span class="text-red-500">*</span>
-              </label>
-              {{ form.industry }}
-            </div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                Preview Image
-              </label>
-              {{ form.preview_image }}
-            </div>
-            <div>
-              <label class="flex items-center space-x-2">
-                <input type="checkbox" name="{{ form.is_featured.name }}" {% if form.is_featured.value %}checked{% endif %}>
-                <span class="text-sm text-slate-600 dark:text-slate-400">Featured Preset</span>
-              </label>
-            </div>
-          </div>
-        </div>
-        <div class="space-y-6">
-          <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-              Theme Configuration
-            </label>
-            <div class="bg-slate-50 dark:bg-slate-900 rounded-lg p-4">
-              <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">
-                JSON configuration for theme settings
-              </p>
-              {{ form.theme_config }}
-            </div>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-              Usage Count
-            </label>
-            <input type="number" value="{{ object.usage_count|default:0 }}" disabled
-              class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-              Created At
-            </label>
-            <input type="text" value="{{ object.created_at|date:'M d, Y H:i' }}" disabled
-              class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400" />
-          </div>
-        </div>
-      </div>
-      <div class="mt-8 flex justify-end space-x-4">
-        <a
-          href="{% url 'dashboard:store_settings:theme_preset_list' prefix %}"
-          class="px-6 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-        >
-          Cancel
-        </a>
-        <button
-          type="submit"
-          class="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
-        >
-          <span class="material-icons-outlined text-sm">save</span>
-          <span>{% if is_create %}Create Preset{% else %}Update Preset{% endif %}</span>
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
+<form id="preset-form" method="post" action="{{ action_url }}" enctype="multipart/form-data" class="space-y-6">
+  {% csrf_token %}
+  {% include "dashboard/_partials/_error_message.html" %}
 
-{% endblock content %}
+  <!-- Basic Information Section -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
+        <span class="material-icons-outlined text-lg mr-3 text-blue-600 dark:text-blue-400">info</span>
+        Basic Information
+      </h3>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Preset name, category tags, and descriptive copy</p>
+    </div>
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.name.id_for_label }}">
+            Preset Name <span class="text-red-500">*</span>
+          </label>
+          {{ form.name }}
+          {% if form.name.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.name.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.style.id_for_label }}">
+            Design Style
+          </label>
+          {{ form.style }}
+          {% if form.style.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.style.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.industry.id_for_label }}">
+            Target Industry
+          </label>
+          {{ form.industry }}
+          {% if form.industry.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.industry.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div class="flex items-center gap-6 pt-7">
+          <label class="inline-flex items-center gap-2 cursor-pointer">
+            {{ form.is_default }}
+            <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Default Preset</span>
+          </label>
+          <label class="inline-flex items-center gap-2 cursor-pointer">
+            {{ form.is_featured }}
+            <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Featured</span>
+          </label>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.description.id_for_label }}">
+            Description
+          </label>
+          {{ form.description }}
+          {% if form.description.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.description.errors.0 }}</span>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Media Section -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
+        <span class="material-icons-outlined text-lg mr-3 text-purple-600 dark:text-purple-400">image</span>
+        Preview Thumbnail
+      </h3>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Upload a representative screenshot or banner of this theme preset</p>
+    </div>
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Preset Image</label>
+          <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 text-center hover:border-primary transition-colors">
+            <span class="material-icons-outlined text-slate-400 text-4xl mb-2">cloud_upload</span>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mb-2">Click to select or drag and drop</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">PNG, JPG, WebP up to 5MB</p>
+            {{ form.preview_image }}
+          </div>
+          {% if form.preview_image.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.preview_image.errors.0 }}</span>{% endif %}
+        </div>
+
+        {% if is_edit and object.preview_image %}
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Current Preview</label>
+          <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm max-h-48">
+            <img src="{{ object.preview_image.url }}" alt="{{ object.name }}" class="w-full h-48 object-cover"/>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Theme JSON Configuration Section -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
+        <span class="material-icons-outlined text-lg mr-3 text-emerald-600 dark:text-emerald-400">code</span>
+        Theme Configuration (JSON)
+      </h3>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">JSON configuration mapping directly to ThemeSettings schema attributes</p>
+    </div>
+    <div class="p-6">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.theme_config.id_for_label }}">
+          Preset Configuration Object
+        </label>
+        {{ form.theme_config }}
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-mono">
+          Example: {"primary_color": "#4F46E5", "secondary_color": "#4338CA", "heading_font": "inter", "border_radius": 12}
+        </p>
+        {% if form.theme_config.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.theme_config.errors.0 }}</span>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile-friendly sticky save bar -->
+  <div class="sticky bottom-16 sm:bottom-0 z-20 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 px-3 py-2.5 sm:px-4 sm:py-3 sm:rounded-xl sm:border sm:shadow-sm sm:static sm:mt-6">
+    <div class="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
+      <a
+        href="{% if prefix %}{% url 'dashboard:store_settings:theme_preset_list' prefix %}{% else %}#{% endif %}"
+        class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+      >
+        Cancel
+      </a>
+      <button
+        type="submit"
+        class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-hover active:scale-95 transition-all text-sm font-semibold shadow-sm"
+      >
+        <span class="material-icons-outlined text-sm">save</span>
+        <span>{% if is_edit %}Save Changes{% else %}Create Preset{% endif %}</span>
+      </button>
+    </div>
+  </div>
+</form>
+{% endblock %}

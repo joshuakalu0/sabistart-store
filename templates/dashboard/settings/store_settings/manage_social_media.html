@@ -1,223 +1,548 @@
 {% extends "dashboard/_partials/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-section { display: none; }
+    .settings-section.active { display: block; animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-6">
+<!-- Page Header -->
+<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
   <div>
-    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
-      Social Media Settings
-    </h2>
-    <p class="text-slate-600 dark:text-slate-400">
-      Configure social media integration and sharing settings
-    </p>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Social Media Links</h2>
+    <p class="text-sm text-slate-600 dark:text-slate-400">Configure connected social channels, WhatsApp integration, and share button styling</p>
   </div>
-  <a
-    href="{% url 'dashboard:store_settings:manage_social_media' prefix %}"
-    class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
-  >
-    <span class="material-icons-outlined text-sm mr-2">refresh</span>
-    Refresh
-  </a>
+  <div class="flex items-center gap-2">
+    <a
+      href="{% if prefix %}{% url 'dashboard:store_settings:manage_store_settings' prefix %}{% else %}/dashboard/admin/settings/{% endif %}"
+      class="inline-flex items-center justify-center gap-1.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-sm font-medium"
+    >
+      <span class="material-icons-outlined text-sm">settings</span>
+      <span>Store Settings</span>
+    </a>
+  </div>
 </div>
 
-<div
-  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
->
-  <div class="p-6">
-    <form method="post">
-      {% csrf_token %}
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div class="space-y-6">
-          <div>
-            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Social Media Links</h3>
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Facebook URL
-                </label>
-                {{ form.facebook_url }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Twitter URL
-                </label>
-                {{ form.twitter_url }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Instagram URL
-                </label>
-                {{ form.instagram_url }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  LinkedIn URL
-                </label>
-                {{ form.linkedin_url }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  YouTube URL
-                </label>
-                {{ form.youtube_url }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Pinterest URL
-                </label>
-                {{ form.pinterest_url }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  TikTok URL
-                </label>
-                {{ form.tiktok_url }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Snapchat URL
-                </label>
-                {{ form.snapchat_url }}
-              </div>
+<!-- Tab Navigation Pill Bar -->
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-2 shadow-sm mb-6">
+  <div class="flex gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar scroll-smooth flex-nowrap">
+    <button type="button" class="tab-link active flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all bg-primary text-white shadow-sm" data-tab="social">
+      <span class="material-icons-outlined text-base">share</span>
+      <span>Social Profiles</span>
+    </button>
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="sharing">
+      <span class="material-icons-outlined text-base">share_reviews</span>
+      <span>Sharing</span>
+    </button>
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="instagram">
+      <span class="material-icons-outlined text-base">photo_camera</span>
+      <span>Instagram</span>
+    </button>
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="visual">
+      <span class="material-icons-outlined text-base">palette</span>
+      <span>Visual Style</span>
+    </button>
+  </div>
+</div>
+    <form id="social-form" method="post" action="{{ action_url }}" novalidate>
+        {% csrf_token %}
+
+        <!-- ==================== SOCIAL PROFILES TAB ==================== -->
+        <section class="settings-section active" id="social-section">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-8 py-6 border-b border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-900 font-manrope">Social Media Profiles</h2>
+                    <p class="text-sm text-slate-500 mt-1">Connect your store's social media accounts</p>
+                </div>
+                <div class="p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {% for field in social_profiles_fields %}
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-slate-700" for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
+                            {{ field }}
+                            {% if field.errors %}
+                                {% for error in field.errors %}
+                                    <p class="error-message"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
-          </div>
-          <div>
-            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Social Sharing</h3>
-            <div class="space-y-4">
-              <div>
-                <label class="flex items-center space-x-2">
-                  <input type="checkbox" name="{{ form.enable_facebook_sharing.name }}" {% if form.enable_facebook_sharing.value %}checked{% endif %}>
-                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Facebook Sharing</span>
-                </label>
-              </div>
-              <div>
-                <label class="flex items-center space-x-2">
-                  <input type="checkbox" name="{{ form.enable_twitter_sharing.name }}" {% if form.enable_twitter_sharing.value %}checked{% endif %}>
-                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Twitter Sharing</span>
-                </label>
-              </div>
-              <div>
-                <label class="flex items-center space-x-2">
-                  <input type="checkbox" name="{{ form.enable_pinterest_sharing.name }}" {% if form.enable_pinterest_sharing.value %}checked{% endif %}>
-                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Pinterest Sharing</span>
-                </label>
-              </div>
-              <div>
-                <label class="flex items-center space-x-2">
-                  <input type="checkbox" name="{{ form.enable_linkedin_sharing.name }}" {% if form.enable_linkedin_sharing.value %}checked{% endif %}>
-                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable LinkedIn Sharing</span>
-                </label>
-              </div>
-              <div>
-                <label class="flex items-center space-x-2">
-                  <input type="checkbox" name="{{ form.enable_whatsapp_sharing.name }}" {% if form.enable_whatsapp_sharing.value %}checked{% endif %}>
-                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable WhatsApp Sharing</span>
-                </label>
-              </div>
-              <div>
-                <label class="flex items-center space-x-2">
-                  <input type="checkbox" name="{{ form.enable_email_sharing.name }}" {% if form.enable_email_sharing.value %}checked{% endif %}>
-                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Email Sharing</span>
-                </label>
-              </div>
+
+            <!-- WhatsApp Section -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mt-8">
+                <div class="px-8 py-6 border-b border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-900 font-manrope">WhatsApp Business</h2>
+                    <p class="text-sm text-slate-500 mt-1">Enable customer communication via WhatsApp</p>
+                </div>
+                <div class="p-8">
+                    <div class="max-w-md">
+                        <label class="block text-sm font-semibold text-slate-700 mb-2" for="{{ whatsapp_field.id_for_label }}">{{ whatsapp_field.label }}</label>
+                        <div class="flex items-center gap-3">
+                            <div class="flex-shrink-0 bg-slate-100 border border-slate-200 py-2.5 px-4 text-slate-700 font-semibold rounded-xl">+</div>
+                            {{ whatsapp_field }}
+                        </div>
+                        {% if whatsapp_field.errors %}
+                            {% for error in whatsapp_field.errors %}
+                                <p class="error-message"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                        <p class="mt-2 text-xs text-slate-500">Include country code without special characters.</p>
+                    </div>
+                </div>
             </div>
-          </div>
+        </section>
+
+        <!-- ==================== SHARING TAB ==================== -->
+        <section class="settings-section" id="sharing-section">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-8 py-6 border-b border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-900 font-manrope">Product Sharing</h2>
+                    <p class="text-sm text-slate-500 mt-1">Configure social sharing for your products</p>
+                </div>
+                <div class="p-8 space-y-8">
+                    <!-- Enable Product Sharing Toggle -->
+                    <div class="flex items-center justify-between p-5 bg-slate-50 rounded-xl border border-slate-200">
+                        <div>
+                            <h4 class="font-bold font-manrope text-slate-900">Enable Product Sharing</h4>
+                            <p class="text-sm text-slate-500 mt-0.5">Allow users to share products on social media</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            {{ sharing_fields.enable_product_sharing }}
+                            <div class="toggle-slider">
+                                <span class="absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300" style="transform: {% if sharing_fields.enable_product_sharing.value %}translateX(24px){% else %}translateX(0){% endif %};"></span>
+                            </div>
+                        </label>
+                    </div>
+                    {% if sharing_fields.enable_product_sharing.errors %}
+                        {% for error in sharing_fields.enable_product_sharing.errors %}
+                            <p class="error-message"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Target Sharing Platforms -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Target Platforms</label>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <!-- Facebook -->
+                            <label class="relative">
+                                <input type="checkbox" name="sharing_platforms" value="facebook" class="platform-checkbox"
+                                {% if 'facebook' in form.sharing_platforms.value %}
+                                checked{% endif %}/>
+                                <div class="platform-card">
+                                    <div class="platform-icon" style="background: #1877F2; color: white;">
+                                        <span class="material-symbols-outlined filled">facebook</span>
+                                    </div>
+                                    <span class="platform-name text-sm font-semibold text-slate-700">Facebook</span>
+                                    <div class="check-indicator">
+                                        <span class="material-symbols-outlined filled">check_circle</span>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Twitter/X -->
+                            <label class="relative">
+                                <input type="checkbox" name="sharing_platforms" value="twitter" class="platform-checkbox"
+                                {% if 'twitter' in form.sharing_platforms.value %}
+                                checked{% endif %}/>
+                                <div class="platform-card">
+                                    <div class="platform-icon" style="background: #000000; color: white;">
+                                        <span class="material-symbols-outlined filled">alternate_email</span>
+                                    </div>
+                                    <span class="platform-name text-sm font-semibold text-slate-700">Twitter/X</span>
+                                    <div class="check-indicator">
+                                        <span class="material-symbols-outlined filled">check_circle</span>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Instagram -->
+                            <label class="relative">
+                                <input type="checkbox" name="sharing_platforms" value="instagram" class="platform-checkbox" {% if 'instagram' in form.sharing_platforms.value %}checked{% endif %}/>
+                                <div class="platform-card">
+                                    <div class="platform-icon" style="background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white;">
+                                        <span class="material-symbols-outlined filled">photo_camera</span>
+                                    </div>
+                                    <span class="platform-name text-sm font-semibold text-slate-700">Instagram</span>
+                                    <div class="check-indicator">
+                                        <span class="material-symbols-outlined filled">check_circle</span>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Pinterest -->
+                            <label class="relative">
+                                <input type="checkbox" name="sharing_platforms" value="pinterest" class="platform-checkbox" {% if 'pinterest' in form.sharing_platforms.value %}checked{% endif %}/>
+                                <div class="platform-card">
+                                    <div class="platform-icon" style="background: #E60023; color: white;">
+                                        <span class="material-symbols-outlined filled">bookmark</span>
+                                    </div>
+                                    <span class="platform-name text-sm font-semibold text-slate-700">Pinterest</span>
+                                    <div class="check-indicator">
+                                        <span class="material-symbols-outlined filled">check_circle</span>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- WhatsApp -->
+                            <label class="relative">
+                                <input type="checkbox" name="sharing_platforms" value="whatsapp" class="platform-checkbox" {% if 'whatsapp' in form.sharing_platforms.value %}checked{% endif %}/>
+                                <div class="platform-card">
+                                    <div class="platform-icon" style="background: #25D366; color: white;">
+                                        <span class="material-symbols-outlined filled">chat</span>
+                                    </div>
+                                    <span class="platform-name text-sm font-semibold text-slate-700">WhatsApp</span>
+                                    <div class="check-indicator">
+                                        <span class="material-symbols-outlined filled">check_circle</span>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- LinkedIn -->
+                            <label class="relative">
+                                <input type="checkbox" name="sharing_platforms" value="linkedin" class="platform-checkbox" {% if 'linkedin' in form.sharing_platforms.value %}checked{% endif %}/>
+                                <div class="platform-card">
+                                    <div class="platform-icon" style="background: #0A66C2; color: white;">
+                                        <span class="material-symbols-outlined filled">work</span>
+                                    </div>
+                                    <span class="platform-name text-sm font-semibold text-slate-700">LinkedIn</span>
+                                    <div class="check-indicator">
+                                        <span class="material-symbols-outlined filled">check_circle</span>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- TikTok -->
+                            <label class="relative">
+                                <input type="checkbox" name="sharing_platforms" value="tiktok" class="platform-checkbox" {% if 'tiktok' in form.sharing_platforms.value %}checked{% endif %}/>
+                                <div class="platform-card">
+                                    <div class="platform-icon" style="background: #000000; color: white;">
+                                        <span class="material-symbols-outlined filled">music_note</span>
+                                    </div>
+                                    <span class="platform-name text-sm font-semibold text-slate-700">TikTok</span>
+                                    <div class="check-indicator">
+                                        <span class="material-symbols-outlined filled">check_circle</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                        {% if sharing_fields.sharing_platforms.errors %}
+                            {% for error in sharing_fields.sharing_platforms.errors %}
+                                <p class="error-message"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Facebook App ID -->
+                    <div class="max-w-md pt-6 border-t border-slate-200">
+                        <label class="block text-sm font-semibold text-slate-700 mb-2" for="{{ sharing_fields.facebook_app_id.id_for_label }}">Facebook App ID</label>
+                        {{ sharing_fields.facebook_app_id }}
+                        {% if sharing_fields.facebook_app_id.errors %}
+                            {% for error in sharing_fields.facebook_app_id.errors %}
+                                <p class="error-message"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                        <p class="mt-2 text-xs text-slate-500">Required for Meta pixel events and advanced analytics.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== INSTAGRAM TAB ==================== -->
+        <section class="settings-section" id="instagram-section">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-8 py-6 border-b border-slate-200 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 font-manrope">Instagram Feed</h2>
+                        <p class="text-sm text-slate-500 mt-1">Display your Instagram content on the storefront</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        {{ instagram_fields.show_instagram_feed }}
+                        <div class="toggle-slider">
+                            <span class="absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300" style="transform: {% if instagram_fields.show_instagram_feed.value %}translateX(24px){% else %}translateX(0){% endif %};"></span>
+                        </div>
+                    </label>
+                </div>
+                {% if instagram_fields.show_instagram_feed.errors %}
+                    {% for error in instagram_fields.show_instagram_feed.errors %}
+                        <p class="error-message"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="p-8 space-y-8">
+                    <!-- Access Token -->
+                    <div class="max-w-xl">
+                        <label class="block text-sm font-semibold text-slate-700 mb-2" for="{{ instagram_fields.instagram_access_token.id_for_label }}">Instagram Access Token</label>
+                        <div class="flex gap-3">
+                            {{ instagram_fields.instagram_access_token }}
+                            <button type="button" class="px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors" onclick="alert('In production, this would open Instagram OAuth flow')">
+                                <span class="material-symbols-outlined text-sm align-middle mr-1">refresh</span>
+                                Refresh
+                            </button>
+                        </div>
+                        {% if instagram_fields.instagram_access_token.errors %}
+                            {% for error in instagram_fields.instagram_access_token.errors %}
+                                <p class="error-message"><span class="material-symbols-outlined text-xs">error</span>{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Feed Count -->
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Feed Item Count</label>
+                            <span class="text-sm font-bold text-blue-600 font-manrope" id="feed-count-display">{{ instagram_fields.instagram_feed_count.value|default:8 }} Items</span>
+                        </div>
+                        {{ instagram_fields.instagram_feed_count }}
+                        <div class="flex justify-between text-xs text-slate-500 font-bold mt-2">
+                            <span>4</span><span>6</span><span>8</span><span>10</span><span>12</span>
+                        </div>
+                    </div>
+
+                    <!-- Feed Preview -->
+                    <div class="pt-6 border-t border-slate-200">
+                        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Feed Preview</h4>
+                        <div class="grid grid-cols-4 gap-2 aspect-video overflow-hidden rounded-xl border border-slate-200">
+                            {% for i in "12345678" %}
+                            <div class="bg-slate-100">
+                                <img class="w-full h-full object-cover" src="https://picsum.photos/300/300?random={{ forloop.counter }}" alt="Preview"/>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== VISUAL STYLE TAB ==================== -->
+        <section class="settings-section" id="visual-section">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-8 py-6 border-b border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-900 font-manrope">Visual Preferences</h2>
+                    <p class="text-sm text-slate-500 mt-1">Customize how social icons appear</p>
+                </div>
+                <div class="p-8 space-y-8">
+                    <!-- Icon Style -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Icon Style</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" class="icon-style-btn selected py-3 px-4 rounded-xl bg-blue-50 border-2 border-blue-500 text-blue-700 text-sm font-bold flex flex-col items-center gap-2" data-style="filled">
+                                <span class="material-symbols-outlined filled text-xl">square</span>
+                                Filled
+                            </button>
+                            <button type="button" class="icon-style-btn py-3 px-4 rounded-xl bg-slate-50 border-2 border-transparent text-slate-600 hover:border-slate-300 text-sm font-bold flex flex-col items-center gap-2" data-style="outline">
+                                <span class="material-symbols-outlined text-xl">check_box_outline_blank</span>
+                                Outline
+                            </button>
+                            <button type="button" class="icon-style-btn py-3 px-4 rounded-xl bg-slate-50 border-2 border-transparent text-slate-600 hover:border-slate-300 text-sm font-bold flex flex-col items-center gap-2" data-style="colored">
+                                <span class="material-symbols-outlined filled text-xl text-red-500">colors</span>
+                                Brand
+                            </button>
+                            <button type="button" class="icon-style-btn py-3 px-4 rounded-xl bg-slate-50 border-2 border-transparent text-slate-600 hover:border-slate-300 text-sm font-bold flex flex-col items-center gap-2" data-style="mono">
+                                <span class="material-symbols-outlined text-xl">contrast</span>
+                                Mono
+                            </button>
+                        </div>
+                        <input type="hidden" id="icon_style_value" name="icon_style" value="{{ form.icon_style.value|default:'filled' }}"/>
+                    </div>
+
+                    <!-- Icon Size -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Icon Size</label>
+                        <div class="flex p-1 bg-slate-100 rounded-xl">
+                            <button type="button" class="icon-size-btn flex-1 py-2.5 text-xs font-bold text-slate-600" data-size="small">Small</button>
+                            <button type="button" class="icon-size-btn flex-1 py-2.5 bg-white shadow-sm rounded-lg text-xs font-bold text-blue-600" data-size="medium">Medium</button>
+                            <button type="button" class="icon-size-btn flex-1 py-2.5 text-xs font-bold text-slate-600" data-size="large">Large</button>
+                        </div>
+                        <input type="hidden" id="icon_size_value" name="icon_size" value="{{ form.icon_size.value|default:'medium' }}"/>
+                    </div>
+
+                    <!-- Preview -->
+                    <div class="pt-6 border-t border-slate-200">
+                        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Live Preview</h4>
+                        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-wrap justify-center gap-4" id="icon-preview-container">
+                            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white icon-preview-item">
+                                <span class="material-symbols-outlined filled">social_leaderboard</span>
+                            </div>
+                            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white icon-preview-item">
+                                <span class="material-symbols-outlined filled">photo_camera</span>
+                            </div>
+                            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white icon-preview-item">
+                                <span class="material-symbols-outlined filled">alternate_email</span>
+                            </div>
+                            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white icon-preview-item">
+                                <span class="material-symbols-outlined filled">play_circle</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <!-- Mobile-friendly sticky bottom save bar -->
+        <div class="sticky bottom-16 sm:bottom-0 z-20 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 px-3 py-2.5 sm:px-4 sm:py-3 sm:rounded-xl sm:border sm:shadow-sm sm:static sm:mt-6">
+            <div class="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
+                <button type="reset" class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    Reset
+                </button>
+                <button type="submit" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-hover active:scale-95 transition-all text-sm font-semibold shadow-sm">
+                    <span class="material-icons-outlined text-sm">save</span>
+                    <span>Save Social Links</span>
+                </button>
+            </div>
         </div>
-        <div class="space-y-6">
-          <div>
-            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Social Media Integration</h3>
-            <div class="space-y-4">
-              <div>
-                <label class="flex items-center space-x-2">
-                  <input type="checkbox" name="{{ form.enable_facebook_comments.name }}" {% if form.enable_facebook_comments.value %}checked{% endif %}>
-                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Facebook Comments</span>
-                </label>
-              </div>
-              <div>
-                <label class="flex items-center space-x-2">
-                  <input type="checkbox" name="{{ form.enable_twitter_timeline.name }}" {% if form.enable_twitter_timeline.value %}checked{% endif %}>
-                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Twitter Timeline</span>
-                </label>
-              </div>
-              <div>
-                <label class="flex items-center space-x-2">
-                  <input type="checkbox" name="{{ form.enable_instagram_feed.name }}" {% if form.enable_instagram_feed.value %}checked{% endif %}>
-                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Instagram Feed</span>
-                </label>
-              </div>
-              <div>
-                <label class="flex items-center space-x-2">
-                  <input type="checkbox" name="{{ form.enable_youtube_channel.name }}" {% if form.enable_youtube_channel.value %}checked{% endif %}>
-                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable YouTube Channel</span>
-                </label>
-              </div>
-              <div>
-                <label class="flex items-center space-x-2">
-                  <input type="checkbox" name="{{ form.enable_social_login.name }}" {% if form.enable_social_login.value %}checked{% endif %}>
-                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Social Login</span>
-                </label>
-              </div>
-              <div>
-                <label class="flex items-center space-x-2">
-                  <input type="checkbox" name="{{ form.enable_social_follow.name }}" {% if form.enable_social_follow.value %}checked{% endif %}>
-                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Social Follow</span>
-                </label>
-              </div>
-            </div>
-          </div>
-          <div>
-            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">API Settings</h3>
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Facebook App ID
-                </label>
-                {{ form.facebook_app_id }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Facebook App Secret
-                </label>
-                {{ form.facebook_app_secret }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Twitter API Key
-                </label>
-                {{ form.twitter_api_key }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Twitter API Secret
-                </label>
-                {{ form.twitter_api_secret }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Instagram Access Token
-                </label>
-                {{ form.instagram_access_token }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  YouTube API Key
-                </label>
-                {{ form.youtube_api_key }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="mt-8 flex justify-end space-x-4">
-        <button
-          type="submit"
-          class="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
-        >
-          <span class="material-icons-outlined text-sm">save</span>
-          <span>Save Changes</span>
-        </button>
-      </div>
+
     </form>
-  </div>
-</div>
 
-{% endblock content %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // === Tab Navigation ===
+        const tabLinks = document.querySelectorAll('.tab-link');
+        const sections = document.querySelectorAll('.settings-section');
+
+        tabLinks.forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
+
+                tabLinks.forEach(function(t) {
+                    t.classList.remove('active', 'bg-primary', 'text-white', 'shadow-sm');
+                    t.classList.add('text-slate-600', 'dark:text-slate-300');
+                });
+                this.classList.add('active', 'bg-primary', 'text-white', 'shadow-sm');
+                this.classList.remove('text-slate-600', 'dark:text-slate-300');
+
+                sections.forEach(function(section) {
+                    section.classList.remove('active');
+                    if (section.id === targetTab + '-section') {
+                        section.classList.add('active');
+                    }
+                });
+            });
+        });
+
+        // === Toggle Switches ===
+        const toggleCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+        toggleCheckboxes.forEach(function(checkbox) {
+            checkbox.style.position = 'absolute';
+            checkbox.style.opacity = '0';
+            checkbox.style.width = '0';
+            checkbox.style.height = '0';
+
+            checkbox.addEventListener('change', function() {
+                const slider = this.parentElement.querySelector('.toggle-slider');
+                const knob = slider?.querySelector('.absolute');
+                if (slider && knob) {
+                    if (this.checked) {
+                        slider.style.background = 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+                        knob.style.transform = 'translateX(24px)';
+                    } else {
+                        slider.style.background = '#cbd5e1';
+                        knob.style.transform = 'translateX(0)';
+                    }
+                }
+            });
+        });
+
+        // === Icon Style Selection ===
+        const styleButtons = document.querySelectorAll('.icon-style-btn');
+        const styleValue = document.getElementById('icon_style_value');
+
+        styleButtons.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                styleButtons.forEach(function(b) {
+                    b.classList.remove('selected', 'border-blue-500', 'text-blue-700', 'bg-blue-50');
+                    b.classList.add('border-transparent', 'text-slate-600');
+                });
+                this.classList.add('selected', 'border-blue-500', 'text-blue-700', 'bg-blue-50');
+                this.classList.remove('border-transparent', 'text-slate-600');
+                styleValue.value = this.getAttribute('data-style');
+                updateIconPreview(this.getAttribute('data-style'));
+            });
+        });
+
+        // === Icon Size Selection ===
+        const sizeButtons = document.querySelectorAll('.icon-size-btn');
+        const sizeValue = document.getElementById('icon_size_value');
+
+        sizeButtons.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                sizeButtons.forEach(function(b) {
+                    b.classList.remove('bg-white', 'shadow-sm', 'rounded-lg', 'text-blue-600');
+                    b.classList.add('text-slate-600');
+                });
+                this.classList.add('bg-white', 'shadow-sm', 'rounded-lg', 'text-blue-600');
+                this.classList.remove('text-slate-600');
+                sizeValue.value = this.getAttribute('data-size');
+                updateIconSize(this.getAttribute('data-size'));
+            });
+        });
+
+        // === Update Icon Preview ===
+        function updateIconPreview(style) {
+            const icons = document.querySelectorAll('.icon-preview-item .material-symbols-outlined');
+            const items = document.querySelectorAll('.icon-preview-item');
+
+            items.forEach(function(item) {
+                item.classList.remove('bg-transparent', 'border-2', 'border-blue-600', 'bg-slate-200');
+                item.classList.add('bg-blue-600');
+            });
+
+            icons.forEach(function(icon) {
+                if (style === 'filled') {
+                    icon.classList.add('filled');
+                } else if (style === 'outline') {
+                    icon.classList.remove('filled');
+                    icon.parentElement.classList.remove('bg-blue-600');
+                    icon.parentElement.classList.add('bg-transparent', 'border-2', 'border-blue-600');
+                } else if (style === 'colored') {
+                    icon.classList.add('filled');
+                } else if (style === 'mono') {
+                    icon.classList.remove('filled');
+                    icon.parentElement.classList.remove('bg-blue-600');
+                    icon.parentElement.classList.add('bg-slate-200');
+                }
+            });
+        }
+
+        function updateIconSize(size) {
+            const items = document.querySelectorAll('.icon-preview-item');
+            items.forEach(function(item) {
+                item.classList.remove('w-8', 'h-8', 'w-10', 'h-10', 'w-12', 'h-12');
+                if (size === 'small') item.classList.add('w-8', 'h-8');
+                else if (size === 'medium') item.classList.add('w-10', 'h-10');
+                else if (size === 'large') item.classList.add('w-12', 'h-12');
+            });
+        }
+
+        // === Range Input ===
+        const feedCountRange = document.getElementById('{{ instagram_fields.instagram_feed_count.id_for_label }}');
+        const feedCountDisplay = document.getElementById('feed-count-display');
+        if (feedCountRange && feedCountDisplay) {
+            feedCountRange.addEventListener('input', function() {
+                feedCountDisplay.textContent = this.value + ' Items';
+            });
+        }
+
+        // === URL Auto-fix ===
+        const urlFields = document.querySelectorAll('input[type="url"]');
+        urlFields.forEach(function(input) {
+            input.addEventListener('blur', function() {
+                if (this.value && !this.value.startsWith('http://') && !this.value.startsWith('https://')) {
+                    this.value = 'https://' + this.value;
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

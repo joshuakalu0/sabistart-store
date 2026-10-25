@@ -4,200 +4,40 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block extra_css %}
-    <script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              "primary-container": "#dbe1ff",
-              "on-tertiary-fixed-variant": "#5b5672",
-              "on-primary-fixed": "#003798",
-              "on-surface": "#2a3439",
-              "inverse-surface": "#0b0f10",
-              "tertiary": "#605c78",
-              "error": "#9f403d",
-              "outline": "#717c82",
-              "secondary-fixed": "#d3e4fe",
-              "surface-dim": "#cfdce3",
-              "surface-variant": "#d9e4ea",
-              "tertiary-fixed-dim": "#d4cdee",
-              "secondary-fixed-dim": "#c5d6f0",
-              "on-secondary-fixed": "#314055",
-              "surface-container": "#e8eff3",
-              "on-error": "#fff7f6",
-              "tertiary-dim": "#54506b",
-              "surface-container-low": "#f0f4f7",
-              "primary-fixed-dim": "#c7d3ff",
-              "surface-container-highest": "#d9e4ea",
-              "on-secondary": "#f7f9ff",
-              "tertiary-fixed": "#e3dbfd",
-              "on-secondary-fixed-variant": "#4d5d73",
-              "on-error-container": "#752121",
-              "primary-fixed": "#dbe1ff",
-              "on-secondary-container": "#435368",
-              "on-tertiary": "#fcf7ff",
-              "error-container": "#fe8983",
-              "surface-tint": "#0053db",
-              "on-tertiary-fixed": "#3e3a54",
-              "surface-bright": "#f7f9fb",
-              "secondary-dim": "#44546a",
-              "secondary-container": "#d3e4fe",
-              "primary": "#0053db",
-              "error-dim": "#4e0309",
-              "on-tertiary-container": "#514d68",
-              "on-surface-variant": "#566166",
-              "surface": "#f7f9fb",
-              "on-primary-fixed-variant": "#0050d4",
-              "inverse-primary": "#618bff",
-              "background": "#f7f9fb",
-              "surface-container-high": "#e1e9ee",
-              "primary-dim": "#0048c1",
-              "surface-container-lowest": "#ffffff",
-              "on-background": "#2a3439",
-              "tertiary-container": "#e3dbfd",
-              "secondary": "#506076",
-              "inverse-on-surface": "#9a9d9f",
-              "on-primary-container": "#0048bf",
-              "outline-variant": "#a9b4b9",
-              "on-primary": "#f8f7ff"
-            },
-            fontFamily: {
-              "headline": ["Manrope"],
-              "body": ["Inter"],
-              "label": ["Inter"]
-            },
-            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
-          },
-        },
-      }
-    </script>
-    <style>
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        body { font-family: 'Inter', sans-serif; }
-        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+<style>
+    .selection-card.selected {
+        border-color: #4F46E5 !important;
+        background-color: #EEF2FF !important;
+    }
+    .variant-btn.selected {
+        background-color: #4F46E5 !important;
+        color: #ffffff !important;
+        border-color: #4F46E5 !important;
+    }
+</style>
+{% endblock %}
 
-        /* Form Control Styles */
-        .form-control {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            font-family: inherit;
-            font-size: 0.9375rem;
-            font-weight: 500;
-            color: #2a3439;
-            background-color: #ffffff;
-            border: 1.5px solid #d9e4ea;
-            border-radius: 0.75rem;
-            transition: all 0.2s;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
-        }
-        .form-control:focus {
-            border-color: #0053db;
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(0, 83, 219, 0.1);
-        }
-        .form-control::placeholder { color: #717c82; }
-        .form-control:disabled { background-color: #f0f4f7; cursor: not-allowed; }
-
-        /* Form Select */
-        .form-select {
-            display: block;
-            width: 100%;
-            padding: 0.75rem 2.5rem 0.75rem 1rem;
-            font-family: inherit;
-            font-size: 0.9375rem;
-            font-weight: 500;
-            color: #2a3439;
-            background-color: #ffffff;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23566166' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 0.75rem center;
-            background-size: 16px 12px;
-            border: 1.5px solid #d9e4ea;
-            border-radius: 0.75rem;
-            transition: all 0.2s;
-            appearance: none;
-        }
-        .form-select:focus {
-            border-color: #0053db;
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(0, 83, 219, 0.1);
-        }
-
-        /* Form Error States */
-        .form-field-error {
-            border: 2px solid #9f403d !important;
-            background-color: #fef2f2 !important;
-        }
-        .error-message {
-            color: #9f403d;
-            font-size: 0.75rem;
-            margin-top: 0.375rem;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        /* Toggle Switch Styling */
-        .toggle-checkbox {
-            opacity: 0;
-            position: absolute;
-            width: 0;
-            height: 0;
-            cursor: pointer;
-        }
-
-        /* Layout/Style Selection Cards */
-        .selection-card.selected {
-            border-color: #0053db;
-            background-color: #dbe1ff;
-        }
-        .selection-card.selected .selection-icon {
-            color: #0053db;
-        }
-
-        /* Variant Display Buttons */
-        .variant-btn.selected {
-            background-color: #0053db;
-            color: #ffffff;
-            border-color: #0053db;
-        }
-    </style>
-    {% endblock %}
 {% block content %}
-<div class="bg-surface text-on-surface antialiased min-h-screen">
-
-<!-- Django Messages Framework -->
-{% if messages %}
-<div class="fixed top-20 right-8 z-50 space-y-2">
-    {% for message in messages %}
-    <div class="flex items-center gap-3 px-6 py-4 rounded-lg shadow-lg" style="background-color: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#9f403d{% else %}#ffffff{% endif %}; color: {% if message.tags == 'error' %}#fff7f6{% else %}#2a3439{% endif %};">
-        <span class="material-symbols-outlined text-sm">
-            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
-        </span>
-        <span class="font-medium text-sm">{{ message }}</span>
-    </div>
-    {% endfor %}
+<!-- Page Header -->
+<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Product Page Settings</h2>
+    <p class="text-sm text-slate-600 dark:text-slate-400">Configure product layout, gallery zoom, quantity rules, trust badges, and reviews</p>
+  </div>
+  <div class="flex items-center gap-2">
+    <a
+      href="{% if prefix %}{% url 'dashboard:store_settings:manage_store_settings' prefix %}{% else %}/dashboard/admin/settings/{% endif %}"
+      class="inline-flex items-center justify-center gap-1.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-sm font-medium"
+    >
+      <span class="material-icons-outlined text-sm">settings</span>
+      <span>Store Settings</span>
+    </a>
+  </div>
 </div>
-{% endif %}
 
-
-
-<main class="pt-24 pb-20 max-w-7xl mx-auto px-8">
-    <form id="product-form" method="post" action="{{ action_url }}" novalidate>
-        {% csrf_token %}
-
-        <!-- Header & Page Meta -->
-        <div class="mb-12">
-            <h1 class="text-4xl font-extrabold text-on-surface mb-2">Product Page Configuration</h1>
-            <p class="text-on-surface-variant text-lg">Define how your products appear to customers. Global overrides for model: ProductPageSettings.</p>
-            {% if is_edit and layout_display %}
-            <p class="text-xs text-on-surface-variant mt-2">
-                <span class="material-symbols-outlined text-xs align-middle">info</span>
-                Current Layout: {{ layout_display }}
-            </p>
-            {% endif %}
-        </div>
+<form id="product-form" method="post" action="{{ action_url }}" class="space-y-8" novalidate>
+    {% csrf_token %}
+    {% include "dashboard/_partials/_error_message.html" %}
 
         <!-- 01. Layout & Header -->
         <section class="mb-16">
@@ -898,33 +738,20 @@
             </div>
         </section>
 
+        <!-- Mobile-friendly sticky bottom save bar -->
+        <div class="sticky bottom-16 sm:bottom-0 z-20 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 px-3 py-2.5 sm:px-4 sm:py-3 sm:rounded-xl sm:border sm:shadow-sm sm:static sm:mt-6">
+            <div class="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
+                <button type="reset" class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    Reset
+                </button>
+                <button type="submit" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-hover active:scale-95 transition-all text-sm font-semibold shadow-sm">
+                    <span class="material-icons-outlined text-sm">save</span>
+                    <span>Save Product Page Settings</span>
+                </button>
+            </div>
+        </div>
+
     </form>
-</main>
-
-<!-- Contextual Preview Bar -->
-<div class="fixed bottom-0 left-0 w-full bg-on-surface text-on-primary py-4 px-8 z-40 flex justify-between items-center shadow-2xl">
-    <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-            <span class="material-symbols-outlined text-primary text-xl">auto_fix_high</span>
-        </div>
-        <div>
-            <p class="text-xs font-bold uppercase opacity-60">Global Setting</p>
-            <p class="text-sm font-semibold">Editing: {% if is_edit %}{{ object }}{% else %}New Configuration{% endif %}</p>
-        </div>
-    </div>
-    <div class="flex items-center gap-6">
-        <div class="hidden md:flex flex-col items-end">
-            <p class="text-[10px] font-bold uppercase tracking-widest">Last Modified</p>
-            <p class="text-xs font-mono">{% if is_edit and object.updated_at %}{{ object.updated_at|date:"M d, Y H:i" }}{% else %}Just now{% endif %}</p>
-        </div>
-        <button type="submit" form="product-form" class="bg-primary hover:bg-primary-dim text-on-primary font-bold px-8 py-3 rounded-lg text-sm shadow-xl transition-all active:scale-95">
-            Save &amp; Publish
-        </button>
-    </div>
-</div>
-
-
-</div>
 <!-- JavaScript for Dynamic Interactions -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {

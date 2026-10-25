@@ -1,211 +1,522 @@
 {% extends "dashboard/_partials/base.html" %}
+{% load static %}
+
+{% block title %}{{ title|default:"Theme Settings" }}{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-6">
+<!-- Page Header -->
+<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
   <div>
     <h2 class="text-xl font-bold text-slate-900 dark:text-white">
-      Theme Settings
+      {% if is_edit %}Edit Theme: {{ object.theme_name }}{% else %}Storefront Theme Settings{% endif %}
     </h2>
-    <p class="text-slate-600 dark:text-slate-400">
-      Configure theme, colors, fonts, and layout settings
+    <p class="text-sm text-slate-600 dark:text-slate-400">
+      Configure your storefront typography, brand colors, layout, and visual styling
     </p>
   </div>
-  <a
-    href="{% url 'dashboard:store_settings:manage_theme_settings' prefix %}"
-    class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
-  >
-    <span class="material-icons-outlined text-sm mr-2">refresh</span>
-    Refresh
-  </a>
-</div>
-
-<div
-  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
->
-  <div class="p-6">
-    <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div class="space-y-6">
-          <div>
-            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Theme Selection</h3>
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Active Theme
-                </label>
-                {{ form.active_theme }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Theme Version
-                </label>
-                {{ form.theme_version }}
-              </div>
-              <div>
-                <label class="flex items-center space-x-2">
-                  <input type="checkbox" name="{{ form.enable_dark_mode.name }}" {% if form.enable_dark_mode.value %}checked{% endif %}>
-                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Dark Mode</span>
-                </label>
-              </div>
-              <div>
-                <label class="flex items-center space-x-2">
-                  <input type="checkbox" name="{{ form.enable_theme_switcher.name }}" {% if form.enable_theme_switcher.value %}checked{% endif %}>
-                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Theme Switcher</span>
-                </label>
-              </div>
-              <div>
-                <label class="flex items-center space-x-2">
-                  <input type="checkbox" name="{{ form.enable_responsive.name }}" {% if form.enable_responsive.value %}checked{% endif %}>
-                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Responsive Design</span>
-                </label>
-              </div>
-              <div>
-                <label class="flex items-center space-x-2">
-                  <input type="checkbox" name="{{ form.enable_custom_css.name }}" {% if form.enable_custom_css.value %}checked{% endif %}>
-                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Custom CSS</span>
-                </label>
-              </div>
-            </div>
-          </div>
-          <div>
-            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Typography</h3>
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Primary Font
-                </label>
-                {{ form.primary_font }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Secondary Font
-                </label>
-                {{ form.secondary_font }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Font Size Base
-                </label>
-                {{ form.font_size_base }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Line Height
-                </label>
-                {{ form.line_height }}
-              </div>
-              <div>
-                <label class="flex items-center space-x-2">
-                  <input type="checkbox" name="{{ form.enable_google_fonts.name }}" {% if form.enable_google_fonts.value %}checked{% endif %}>
-                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Google Fonts</span>
-                </label>
-              </div>
-              <div>
-                <label class="flex items-center space-x-2">
-                  <input type="checkbox" name="{{ form.enable_font_awesome.name }}" {% if form.enable_font_awesome.value %}checked{% endif %}>
-                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Font Awesome</span>
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="space-y-6">
-          <div>
-            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Colors</h3>
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Primary Color
-                </label>
-                {{ form.primary_color }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Secondary Color
-                </label>
-                {{ form.secondary_color }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Accent Color
-                </label>
-                {{ form.accent_color }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Background Color
-                </label>
-                {{ form.background_color }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Text Color
-                </label>
-                {{ form.text_color }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Link Color
-                </label>
-                {{ form.link_color }}
-              </div>
-            </div>
-          </div>
-          <div>
-            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Layout</h3>
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Layout Style
-                </label>
-                {{ form.layout_style }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Container Width
-                </label>
-                {{ form.container_width }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Sidebar Position
-                </label>
-                {{ form.sidebar_position }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Header Style
-                </label>
-                {{ form.header_style }}
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Footer Style
-                </label>
-                {{ form.footer_style }}
-              </div>
-              <div>
-                <label class="flex items-center space-x-2">
-                  <input type="checkbox" name="{{ form.enable_sticky_header.name }}" {% if form.enable_sticky_header.value %}checked{% endif %}>
-                  <span class="text-sm text-slate-600 dark:text-slate-400">Enable Sticky Header</span>
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="mt-8 flex justify-end space-x-4">
-        <button
-          type="submit"
-          class="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
-        >
-          <span class="material-icons-outlined text-sm">save</span>
-          <span>Save Changes</span>
-        </button>
-      </div>
-    </form>
+  <div class="flex items-center gap-2">
+    <a
+      href="{% if prefix %}{% url 'dashboard:store_settings:manage_store_settings' prefix %}{% else %}/dashboard/admin/settings/{% endif %}"
+      class="inline-flex items-center justify-center gap-1.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-sm font-medium"
+    >
+      <span class="material-icons-outlined text-sm">settings</span>
+      <span>Store Settings</span>
+    </a>
   </div>
 </div>
 
-{% endblock content %}
+<form id="theme-form" method="post" action="{{ action_url }}" class="space-y-6">
+  {% csrf_token %}
+  {% include "dashboard/_partials/_error_message.html" %}
+
+  <!-- 1. Core Settings Section -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
+        <span class="material-icons-outlined text-lg mr-3 text-blue-600 dark:text-blue-400">settings_applications</span>
+        Core Theme Settings
+      </h3>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Basic identification and storefront theme activation</p>
+    </div>
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.theme_name.id_for_label }}">
+            Theme Name <span class="text-red-500">*</span>
+          </label>
+          {{ form.theme_name }}
+          {% if form.theme_name.errors %}
+            <span class="text-red-500 text-sm mt-1 block">{{ form.theme_name.errors.0 }}</span>
+          {% endif %}
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">A descriptive name for this visual theme preset.</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Theme Activation</label>
+          <div class="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-750 rounded-xl border border-slate-200 dark:border-slate-700">
+            <div>
+              <span class="text-sm font-semibold text-slate-900 dark:text-white block">Active Theme</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">Apply this theme globally to your customer-facing storefront</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              {{ form.is_active }}
+            </label>
+          </div>
+          {% if form.is_active.errors %}
+            <span class="text-red-500 text-sm mt-1 block">{{ form.is_active.errors.0 }}</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Color Palette Section -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
+        <span class="material-icons-outlined text-lg mr-3 text-purple-600 dark:text-purple-400">palette</span>
+        Brand Color Palette
+      </h3>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Configure primary branding, surfaces, typography colors, and feedback states</p>
+    </div>
+    <div class="p-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Primary Color -->
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Primary Color</label>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.primary_color.value|default:'#2563EB' }};"></div>
+            <div class="flex-1">
+              {{ form.primary_color }}
+            </div>
+          </div>
+          {% if form.primary_color.errors %}<span class="text-red-500 text-xs mt-1 block">{{ form.primary_color.errors.0 }}</span>{% endif %}
+        </div>
+
+        <!-- Secondary Color -->
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Secondary Color</label>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.secondary_color.value|default:'#1E40AF' }};"></div>
+            <div class="flex-1">
+              {{ form.secondary_color }}
+            </div>
+          </div>
+          {% if form.secondary_color.errors %}<span class="text-red-500 text-xs mt-1 block">{{ form.secondary_color.errors.0 }}</span>{% endif %}
+        </div>
+
+        <!-- Accent Color -->
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Accent Color</label>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.accent_color.value|default:'#F59E0B' }};"></div>
+            <div class="flex-1">
+              {{ form.accent_color }}
+            </div>
+          </div>
+          {% if form.accent_color.errors %}<span class="text-red-500 text-xs mt-1 block">{{ form.accent_color.errors.0 }}</span>{% endif %}
+        </div>
+
+        <!-- Main Background -->
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Background Color</label>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.background_color.value|default:'#FFFFFF' }};"></div>
+            <div class="flex-1">
+              {{ form.background_color }}
+            </div>
+          </div>
+          {% if form.background_color.errors %}<span class="text-red-500 text-xs mt-1 block">{{ form.background_color.errors.0 }}</span>{% endif %}
+        </div>
+
+        <!-- Secondary Background -->
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Secondary Background</label>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.secondary_background_color.value|default:'#F9FAFB' }};"></div>
+            <div class="flex-1">
+              {{ form.secondary_background_color }}
+            </div>
+          </div>
+          {% if form.secondary_background_color.errors %}<span class="text-red-500 text-xs mt-1 block">{{ form.secondary_background_color.errors.0 }}</span>{% endif %}
+        </div>
+
+        <!-- Border Color -->
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Border & Divider Color</label>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.border_color.value|default:'#E5E7EB' }};"></div>
+            <div class="flex-1">
+              {{ form.border_color }}
+            </div>
+          </div>
+          {% if form.border_color.errors %}<span class="text-red-500 text-xs mt-1 block">{{ form.border_color.errors.0 }}</span>{% endif %}
+        </div>
+
+        <!-- Primary Text Color -->
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Primary Text Color</label>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.text_color.value|default:'#111827' }};"></div>
+            <div class="flex-1">
+              {{ form.text_color }}
+            </div>
+          </div>
+          {% if form.text_color.errors %}<span class="text-red-500 text-xs mt-1 block">{{ form.text_color.errors.0 }}</span>{% endif %}
+        </div>
+
+        <!-- Secondary Text Color -->
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Secondary Text Color</label>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.secondary_text_color.value|default:'#6B7280' }};"></div>
+            <div class="flex-1">
+              {{ form.secondary_text_color }}
+            </div>
+          </div>
+          {% if form.secondary_text_color.errors %}<span class="text-red-500 text-xs mt-1 block">{{ form.secondary_text_color.errors.0 }}</span>{% endif %}
+        </div>
+
+        <!-- Success Color -->
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Success State Color</label>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.success_color.value|default:'#10B981' }};"></div>
+            <div class="flex-1">
+              {{ form.success_color }}
+            </div>
+          </div>
+          {% if form.success_color.errors %}<span class="text-red-500 text-xs mt-1 block">{{ form.success_color.errors.0 }}</span>{% endif %}
+        </div>
+
+        <!-- Warning Color -->
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Warning State Color</label>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.warning_color.value|default:'#F59E0B' }};"></div>
+            <div class="flex-1">
+              {{ form.warning_color }}
+            </div>
+          </div>
+          {% if form.warning_color.errors %}<span class="text-red-500 text-xs mt-1 block">{{ form.warning_color.errors.0 }}</span>{% endif %}
+        </div>
+
+        <!-- Error Color -->
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Error State Color</label>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.error_color.value|default:'#EF4444' }};"></div>
+            <div class="flex-1">
+              {{ form.error_color }}
+            </div>
+          </div>
+          {% if form.error_color.errors %}<span class="text-red-500 text-xs mt-1 block">{{ form.error_color.errors.0 }}</span>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Typography Section -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
+        <span class="material-icons-outlined text-lg mr-3 text-amber-600 dark:text-amber-400">text_fields</span>
+        Storefront Typography
+      </h3>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Select typography families, custom font URLs, sizing scales, and weights</p>
+    </div>
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.heading_font.id_for_label }}">
+            Heading Font Family
+          </label>
+          {{ form.heading_font }}
+          {% if form.heading_font.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.heading_font.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.body_font.id_for_label }}">
+            Body Font Family
+          </label>
+          {{ form.body_font }}
+          {% if form.body_font.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.body_font.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.custom_font_url.id_for_label }}">
+            Custom Font URL
+          </label>
+          {{ form.custom_font_url }}
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">Optional Google Fonts or CDN link (e.g. https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap)</p>
+          {% if form.custom_font_url.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.custom_font_url.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.heading_font_weight.id_for_label }}">
+            Heading Font Weight
+          </label>
+          {{ form.heading_font_weight }}
+          {% if form.heading_font_weight.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.heading_font_weight.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.body_font_weight.id_for_label }}">
+            Body Font Weight
+          </label>
+          {{ form.body_font_weight }}
+          {% if form.body_font_weight.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.body_font_weight.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-sm font-medium text-slate-700 dark:text-slate-300" for="{{ form.base_font_size.id_for_label }}">Base Font Size</label>
+            <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md" id="base-font-size-display">{{ form.base_font_size.value|default:16 }}px</span>
+          </div>
+          {{ form.base_font_size }}
+          {% if form.base_font_size.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.base_font_size.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-sm font-medium text-slate-700 dark:text-slate-300" for="{{ form.heading_size_multiplier.id_for_label }}">Heading Size Multiplier</label>
+            <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md" id="heading-multiplier-display">{{ form.heading_size_multiplier.value|default:1.5 }}x</span>
+          </div>
+          {{ form.heading_size_multiplier }}
+          {% if form.heading_size_multiplier.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.heading_size_multiplier.errors.0 }}</span>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Borders, Shadows & Buttons Section -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
+        <span class="material-icons-outlined text-lg mr-3 text-emerald-600 dark:text-emerald-400">layers</span>
+        Borders, Shadows & Buttons
+      </h3>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Define element curves, elevation shadows, and button styles</p>
+    </div>
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-sm font-medium text-slate-700 dark:text-slate-300" for="{{ form.border_radius.id_for_label }}">Card / Container Border Radius</label>
+            <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md" id="border-radius-display">{{ form.border_radius.value|default:8 }}px</span>
+          </div>
+          {{ form.border_radius }}
+          {% if form.border_radius.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.border_radius.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Elevation Drop Shadows</label>
+          <div class="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-750 rounded-xl border border-slate-200 dark:border-slate-700">
+            <div>
+              <span class="text-sm font-semibold text-slate-900 dark:text-white block">Enable Drop Shadows</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">Add subtle depth to cards, dropdowns and modals</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              {{ form.use_shadows }}
+            </label>
+          </div>
+          {% if form.use_shadows.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.use_shadows.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.shadow_intensity.id_for_label }}">
+            Shadow Intensity
+          </label>
+          {{ form.shadow_intensity }}
+          {% if form.shadow_intensity.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.shadow_intensity.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.primary_button_style.id_for_label }}">
+            Primary Button Style
+          </label>
+          {{ form.primary_button_style }}
+          {% if form.primary_button_style.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.primary_button_style.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.button_text_transform.id_for_label }}">
+            Button Text Transform
+          </label>
+          {{ form.button_text_transform }}
+          {% if form.button_text_transform.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.button_text_transform.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.button_border_radius.id_for_label }}">
+            Button Border Radius (px)
+          </label>
+          {{ form.button_border_radius }}
+          {% if form.button_border_radius.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.button_border_radius.errors.0 }}</span>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Layout & Spacing Section -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
+        <span class="material-icons-outlined text-lg mr-3 text-cyan-600 dark:text-cyan-400">grid_view</span>
+        Storefront Layout & Spacing
+      </h3>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Grid width boundaries and global section spacing scale</p>
+    </div>
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.container_width.id_for_label }}">
+            Max Content Container Width (px)
+          </label>
+          {{ form.container_width }}
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">Maximum width for storefront content (960px - 1920px)</p>
+          {% if form.container_width.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.container_width.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.spacing_scale.id_for_label }}">
+            Section Spacing Scale
+          </label>
+          {{ form.spacing_scale }}
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">Controls whitespace rhythm between sections and cards</p>
+          {% if form.spacing_scale.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.spacing_scale.errors.0 }}</span>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Collapsible Live CSS & Design Variables Preview -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <button
+      type="button"
+      onclick="toggleCssPreview()"
+      class="flex items-center justify-between w-full px-6 py-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-600 border-b border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-650 transition-colors text-left"
+    >
+      <div>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
+          <span class="material-icons-outlined text-lg mr-3 text-slate-600 dark:text-slate-300">code</span>
+          Generated CSS & Design Variables
+        </h3>
+        <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Live compiled CSS tokens injected into your storefront header</p>
+      </div>
+      <span id="cssPreviewIcon" class="material-icons-outlined text-slate-500 transform transition-transform">expand_more</span>
+    </button>
+    <div id="cssPreviewContainer" class="hidden p-6 bg-slate-900 text-slate-200 rounded-b-xl overflow-x-auto">
+      <pre id="liveCssOutput" class="font-mono text-xs text-emerald-400 leading-relaxed custom-scrollbar">{{ css_preview }}</pre>
+    </div>
+  </div>
+
+  <!-- Mobile-friendly sticky bottom save bar -->
+  <div class="sticky bottom-16 sm:bottom-0 z-20 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 px-3 py-2.5 sm:px-4 sm:py-3 sm:rounded-xl sm:border sm:shadow-sm sm:static sm:mt-6">
+    <div class="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
+      <button
+        type="button"
+        onclick="window.location.reload()"
+        class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+      >
+        Reset
+      </button>
+      <button
+        type="submit"
+        class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-hover active:scale-95 transition-all text-sm font-semibold shadow-sm"
+      >
+        <span class="material-icons-outlined text-sm">save</span>
+        <span>Save Theme Settings</span>
+      </button>
+    </div>
+  </div>
+</form>
+
+<script>
+  function toggleCssPreview() {
+    const container = document.getElementById("cssPreviewContainer");
+    const icon = document.getElementById("cssPreviewIcon");
+    if (container.classList.contains("hidden")) {
+      container.classList.remove("hidden");
+      icon.style.transform = "rotate(180deg)";
+    } else {
+      container.classList.add("hidden");
+      icon.style.transform = "rotate(0deg)";
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Dynamic slider labels
+    const rangeBindings = [
+      { id: '{{ form.base_font_size.id_for_label }}', displayId: 'base-font-size-display', suffix: 'px' },
+      { id: '{{ form.heading_size_multiplier.id_for_label }}', displayId: 'heading-multiplier-display', suffix: 'x' },
+      { id: '{{ form.border_radius.id_for_label }}', displayId: 'border-radius-display', suffix: 'px' }
+    ];
+
+    rangeBindings.forEach(function(binding) {
+      const input = document.getElementById(binding.id);
+      const display = document.getElementById(binding.displayId);
+      if (input && display) {
+        input.addEventListener('input', function() {
+          display.textContent = this.value + binding.suffix;
+          updateLiveCss();
+        });
+      }
+    });
+
+    // Color pickers: update swatch immediately on change
+    const colorInputs = document.querySelectorAll('input[type="color"]');
+    colorInputs.forEach(function(picker) {
+      picker.addEventListener('input', function() {
+        const swatch = this.closest('.p-4')?.querySelector('.color-swatch');
+        if (swatch) {
+          swatch.style.backgroundColor = this.value;
+        }
+        updateLiveCss();
+      });
+    });
+
+    // Form inputs update live CSS
+    const form = document.getElementById('theme-form');
+    if (form) {
+      form.addEventListener('input', updateLiveCss);
+      form.addEventListener('change', updateLiveCss);
+    }
+
+    function updateLiveCss() {
+      const livePre = document.getElementById('liveCssOutput');
+      if (!livePre) return;
+
+      const pColor = document.getElementById('{{ form.primary_color.id_for_label }}')?.value || '#2563EB';
+      const sColor = document.getElementById('{{ form.secondary_color.id_for_label }}')?.value || '#1E40AF';
+      const aColor = document.getElementById('{{ form.accent_color.id_for_label }}')?.value || '#F59E0B';
+      const bgColor = document.getElementById('{{ form.background_color.id_for_label }}')?.value || '#FFFFFF';
+      const sBgColor = document.getElementById('{{ form.secondary_background_color.id_for_label }}')?.value || '#F9FAFB';
+      const tColor = document.getElementById('{{ form.text_color.id_for_label }}')?.value || '#111827';
+      const sTColor = document.getElementById('{{ form.secondary_text_color.id_for_label }}')?.value || '#6B7280';
+      const bColor = document.getElementById('{{ form.border_color.id_for_label }}')?.value || '#E5E7EB';
+      const hFont = document.getElementById('{{ form.heading_font.id_for_label }}')?.value || 'inter';
+      const bFont = document.getElementById('{{ form.body_font.id_for_label }}')?.value || 'inter';
+      const bSize = document.getElementById('{{ form.base_font_size.id_for_label }}')?.value || 16;
+      const bRadius = document.getElementById('{{ form.border_radius.id_for_label }}')?.value || 8;
+      const cWidth = document.getElementById('{{ form.container_width.id_for_label }}')?.value || 1200;
+
+      livePre.textContent = `:root {
+  --color-primary: ${pColor};
+  --color-secondary: ${sColor};
+  --color-accent: ${aColor};
+  --color-background: ${bgColor};
+  --color-background-secondary: ${sBgColor};
+  --color-text: ${tColor};
+  --color-text-secondary: ${sTColor};
+  --color-border: ${bColor};
+  --font-heading: "${hFont}", sans-serif;
+  --font-body: "${bFont}", sans-serif;
+  --font-size-base: ${bSize}px;
+  --border-radius: ${bRadius}px;
+  --container-width: ${cWidth}px;
+}`;
+    }
+  });
+</script>
+{% endblock %}

@@ -1,14 +1,15 @@
 {% extends "dashboard/_partials/base.html" %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-6">
+<!-- Page Header -->
+<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
   <div>
     <h2 class="text-xl font-bold text-slate-900 dark:text-white">Theme Presets</h2>
-    <p class="text-slate-600 dark:text-slate-400">Manage your theme preset library</p>
+    <p class="text-sm text-slate-600 dark:text-slate-400">Manage and explore ready-to-use storefront theme presets</p>
   </div>
   <a
-    href="{ url 'dashboard:store_settings:theme_preset_create' prefix %}"
-    class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+    href="{% url 'dashboard:store_settings:theme_preset_create' prefix %}"
+    class="inline-flex items-center justify-center gap-1.5 bg-primary text-white px-4 py-2.5 rounded-xl hover:bg-primary-hover active:scale-95 transition-all text-sm font-semibold shadow-sm w-full sm:w-auto"
   >
     <span class="material-icons-outlined text-sm">add</span>
     <span>Add Preset</span>
@@ -50,10 +51,10 @@
           <input type="checkbox" name="featured" value="true" {% if featured_only %}checked{% endif %} class="form-check-input">
           <span>Featured Only</span>
         </label>
-        <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors">
+        <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors">
           <span class="material-icons-outlined text-sm">filter_list</span>
         </button>
-        <a href="{ url 'dashboard:store_settings:theme_preset_list' prefix %}" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors">
+        <a href="{% url 'dashboard:store_settings:theme_preset_list' prefix %}" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors">
           <span class="material-icons-outlined text-sm">clear</span>
         </a>
       </div>
@@ -147,8 +148,8 @@
       <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">No Theme Presets</h3>
       <p class="text-slate-600 dark:text-slate-400 mb-6">Get started by creating your first theme preset</p>
       <a
-        href="{ url 'dashboard:store_settings:theme_preset_create' prefix %}"
-        class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+        href="{% url 'dashboard:store_settings:theme_preset_create' prefix %}"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-hover active:scale-95 transition-all font-semibold shadow-sm"
       >
         <span class="material-icons-outlined">add</span>
         Create Preset

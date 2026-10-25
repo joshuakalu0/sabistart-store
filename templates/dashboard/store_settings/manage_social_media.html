@@ -4,275 +4,55 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block extra_css %}
-   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              primary: {
-                50: '#eff6ff',
-                100: '#dbeafe',
-                200: '#bfdbfe',
-                300: '#93c5fd',
-                400: '#60a5fa',
-                500: '#3b82f6',
-                600: '#2563eb',
-                700: '#1d4ed8',
-                800: '#1e40af',
-                900: '#1e3a8a',
-              },
-              surface: {
-                50: '#f8fafc',
-                100: '#f1f5f9',
-                200: '#e2e8f0',
-                300: '#cbd5e1',
-                400: '#94a3b8',
-                500: '#64748b',
-                600: '#475569',
-                700: '#334155',
-                800: '#1e293b',
-                900: '#0f172a',
-              }
-            },
-            fontFamily: {
-              "headline": ["Plus Jakarta Sans", "sans-serif"],
-              "body": ["Inter", "sans-serif"],
-            },
-            borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "full": "9999px"},
-          },
-        },
-      }
-    </script>
-    <style>
-        * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .font-manrope { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+<style>
+    .settings-section { display: none; }
+    .settings-section.active { display: block; animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
 
-        /* Glass Navigation */
-        .glass-nav { backdrop-filter: blur(16px) saturate(180%); -webkit-backdrop-filter: blur(16px) saturate(180%); background: rgba(255, 255, 255, 0.9); }
-
-        /* Form Input Styles */
-        .form-control {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            font-family: inherit;
-            font-size: 0.9375rem;
-            font-weight: 500;
-            color: #1e293b;
-            background-color: #ffffff;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 0.75rem;
-            transition: all 0.2s;
-        }
-        .form-control:focus {
-            border-color: #3b82f6;
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-        }
-        .form-control::placeholder { color: #94a3b8; }
-        .form-control:disabled { background-color: #f1f5f9; cursor: not-allowed; }
-
-        /* Toggle Switch - Premium Design */
-        .toggle-checkbox {
-            opacity: 0;
-            position: absolute;
-            width: 0;
-            height: 0;
-            cursor: pointer;
-        }
-        .toggle-slider {
-            position: relative;
-            display: inline-block;
-            width: 52px;
-            height: 28px;
-            background-color: #cbd5e1;
-            border-radius: 9999px;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-        .toggle-slider::before {
-            content: '';
-            position: absolute;
-            height: 22px;
-            width: 22px;
-            left: 3px;
-            bottom: 3px;
-            background: white;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-            transition: all 0.3s;
-        }
-        .toggle-checkbox:checked + .toggle-slider {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        }
-        .toggle-checkbox:checked + .toggle-slider::before {
-            transform: translateX(24px);
-        }
-        .toggle-checkbox:focus + .toggle-slider {
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
-        }
-
-        /* Tab Navigation */
-        .tab-link {
-            position: relative;
-            color: #64748b;
-            font-weight: 600;
-            font-size: 0.875rem;
-            padding: 0.75rem 0;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-        .tab-link::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: #3b82f6;
-            transition: width 0.3s;
-        }
-        .tab-link:hover { color: #1e293b; }
-        .tab-link.active {
-            color: #1d4ed8;
-            font-weight: 700;
-        }
-        .tab-link.active::after { width: 100%; }
-
-        /* Section Visibility */
-        .settings-section { display: none; animation: fadeIn 0.3s; }
-        .settings-section.active { display: block; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Form Error States */
-        .form-field-error { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
-        .error-message { color: #dc2626; font-size: 0.75rem; margin-top: 0.375rem; display: flex; align-items: center; gap: 0.25rem; font-weight: 500; }
-
-        /* Icon Style Button */
-        .icon-style-btn { transition: all 0.2s; }
-        .icon-style-btn.selected { border-color: #3b82f6 !important; color: #1d4ed8 !important; background-color: #eff6ff !important; }
-
-        /* Platform Checkbox Cards */
-        .platform-checkbox {
-            opacity: 0;
-            position: absolute;
-            width: 0;
-            height: 0;
-        }
-        .platform-card {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem;
-            background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .platform-card:hover {
-            border-color: #93c5fd;
-            background: #f1f5f9;
-        }
-        .platform-checkbox:checked + .platform-card {
-            border-color: #3b82f6;
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
-        }
-        .platform-checkbox:checked + .platform-card .platform-icon {
-            color: #1d4ed8;
-            transform: scale(1.1);
-        }
-        .platform-checkbox:checked + .platform-card .platform-name {
-            color: #1d4ed8;
-            font-weight: 700;
-        }
-        .platform-checkbox:checked + .platform-card .check-indicator {
-            opacity: 1;
-            transform: scale(1);
-        }
-        .platform-icon {
-            width: 2rem;
-            height: 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 0.75rem;
-            font-size: 1.25rem;
-            transition: all 0.2s;
-        }
-        .check-indicator {
-            margin-left: auto;
-            opacity: 0;
-            transform: scale(0);
-            transition: all 0.2s;
-        }
-        .check-indicator .material-symbols-outlined {
-            color: #1d4ed8;
-            font-size: 1.5rem;
-        }
-
-        /* Range Input */
-        input[type="range"] { -webkit-appearance: none; background: transparent; }
-        input[type="range"]::-webkit-slider-runnable-track { background: #3b82f6; height: 6px; border-radius: 3px; }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 20px;
-            width: 20px;
-            border-radius: 50%;
-            background: white;
-            border: 2px solid #e2e8f0;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            margin-top: -7px;
-            cursor: pointer;
-        }
-    </style>
-    {% endblock %}
 {% block content %}
-<div class="bg-surface-50 text-surface-900 font-body antialiased min-h-screen">
-
-<!-- Django Messages -->
-{% if messages %}
-<div class="fixed top-24 right-8 z-50 space-y-3">
-    {% for message in messages %}
-    <div class="flex items-center gap-3 px-5 py-4 rounded-2xl shadow-xl border"
-         style="background: {% if message.tags == 'success' %}#10B981{% elif message.tags == 'error' %}#ef4444{% else %}#ffffff{% endif %};
-                 color: {% if message.tags == 'error' %}#ffffff{% else %}#1e293b{% endif %};">
-        <span class="material-symbols-outlined text-lg">
-            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
-        </span>
-        <span class="font-semibold text-sm">{{ message }}</span>
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
-
-
-
-<!-- Tab Navigation -->
-<div class="sticky -top-9 z-40 bg-white border-b border-slate-200 shadow-sm">
-    <div class="max-w-7xl mx-auto px-6 lg:px-8">
-        <div class="flex gap-8 overflow-x-auto">
-            <button type="button" class="tab-link active" data-tab="social">Social Profiles</button>
-            <button type="button" class="tab-link" data-tab="sharing">Sharing</button>
-            <button type="button" class="tab-link" data-tab="instagram">Instagram</button>
-            <button type="button" class="tab-link" data-tab="visual">Visual Style</button>
-        </div>
-    </div>
+<!-- Page Header -->
+<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+  <div>
+    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Social Media Links</h2>
+    <p class="text-sm text-slate-600 dark:text-slate-400">Configure connected social channels, WhatsApp integration, and share button styling</p>
+  </div>
+  <div class="flex items-center gap-2">
+    <a
+      href="{% if prefix %}{% url 'dashboard:store_settings:manage_store_settings' prefix %}{% else %}/dashboard/admin/settings/{% endif %}"
+      class="inline-flex items-center justify-center gap-1.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-sm font-medium"
+    >
+      <span class="material-icons-outlined text-sm">settings</span>
+      <span>Store Settings</span>
+    </a>
+  </div>
 </div>
 
-<main class="max-w-7xl mx-auto px-6 lg:px-8 py-10">
+<!-- Tab Navigation Pill Bar -->
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-2 shadow-sm mb-6">
+  <div class="flex gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar scroll-smooth flex-nowrap">
+    <button type="button" class="tab-link active flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all bg-primary text-white shadow-sm" data-tab="social">
+      <span class="material-icons-outlined text-base">share</span>
+      <span>Social Profiles</span>
+    </button>
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="sharing">
+      <span class="material-icons-outlined text-base">share_reviews</span>
+      <span>Sharing</span>
+    </button>
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="instagram">
+      <span class="material-icons-outlined text-base">photo_camera</span>
+      <span>Instagram</span>
+    </button>
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="visual">
+      <span class="material-icons-outlined text-base">palette</span>
+      <span>Visual Style</span>
+    </button>
+  </div>
+</div>
     <form id="social-form" method="post" action="{{ action_url }}" novalidate>
         {% csrf_token %}
 
@@ -610,17 +390,21 @@
                     </div>
                 </div>
             </div>
-        </section>
+        <!-- Mobile-friendly sticky bottom save bar -->
+        <div class="sticky bottom-16 sm:bottom-0 z-20 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 px-3 py-2.5 sm:px-4 sm:py-3 sm:rounded-xl sm:border sm:shadow-sm sm:static sm:mt-6">
+            <div class="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
+                <button type="reset" class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    Reset
+                </button>
+                <button type="submit" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-hover active:scale-95 transition-all text-sm font-semibold shadow-sm">
+                    <span class="material-icons-outlined text-sm">save</span>
+                    <span>Save Social Links</span>
+                </button>
+            </div>
+        </div>
 
     </form>
-</main>
 
-<div class="h-16"></div>
-
-
-</div>
-
-<!-- JavaScript -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // === Tab Navigation ===
@@ -631,8 +415,12 @@
             tab.addEventListener('click', function() {
                 const targetTab = this.getAttribute('data-tab');
 
-                tabLinks.forEach(function(t) { t.classList.remove('active'); });
-                this.classList.add('active');
+                tabLinks.forEach(function(t) {
+                    t.classList.remove('active', 'bg-primary', 'text-white', 'shadow-sm');
+                    t.classList.add('text-slate-600', 'dark:text-slate-300');
+                });
+                this.classList.add('active', 'bg-primary', 'text-white', 'shadow-sm');
+                this.classList.remove('text-slate-600', 'dark:text-slate-300');
 
                 sections.forEach(function(section) {
                     section.classList.remove('active');
