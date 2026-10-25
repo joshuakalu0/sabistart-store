@@ -259,9 +259,6 @@ def payment_methods_view(request):
 
 
 def wishlist_view(request):
-    from dashboard.feature_marketplace.services import FeatureEntitlementEngine
-    if not FeatureEntitlementEngine().has_feature("wishlist"):
-        raise Http404("Wishlist is not enabled for this store.")
     if request.method == "POST":
         product_id = request.POST.get("product_id")
         if product_id:
@@ -332,9 +329,6 @@ def account_delete_view(request):
 
 @login_required(login_url="tenant:login")
 def user_reviews_view(request):
-    from dashboard.feature_marketplace.services import FeatureEntitlementEngine
-    if not FeatureEntitlementEngine().has_feature("reviews"):
-        raise Http404("Reviews are not enabled for this store.")
     customer = get_or_create_customer_profile(request.user)
     reviews = (
         ProductReview.objects.select_related("product")

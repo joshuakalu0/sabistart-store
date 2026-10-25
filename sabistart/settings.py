@@ -203,6 +203,7 @@ AUTHENTICATION_BACKENDS = [
 
 ROOT_URLCONF = "sabistart.urls"
 PUBLIC_SCHEMA_URLCONF = "sabistart.urls_public"
+LOGIN_URL = "/platform/login/"
 
 MIDDLEWARE = [
     "dashboard.domain.middleware.CustomDomainMiddleware",

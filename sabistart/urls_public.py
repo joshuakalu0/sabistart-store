@@ -63,6 +63,7 @@ urlpatterns = [
     path('platform/features/', include(('system.feature_marketplace.urls', 'system.feature_marketplace'), namespace='platform_features')),
     path('platform/themes/', include(('system.theme_marketplace.urls', 'system.theme_marketplace'), namespace='platform_themes')),
     path('platform/domains/', include(('dashboard.domain.platform_urls', 'dashboard.domain'), namespace='platform_domains')),
+    path('dashboard/', include('dashboard.urls')),
 
     # ── Internal monitoring ───────────────────────────────────────────────────
     path('__monitoring/', include(('public.monitoring.urls', 'public.monitoring'), namespace='monitoring')),
@@ -76,12 +77,15 @@ urlpatterns = [
     path('api/v1/tenants/migration-callback/', tenant_migration_webhook_callback, name='tenant_migration_callback'),
     path('api/v1/worker/migrate/', worker_migrate_endpoint, name='worker_migrate_endpoint'),
 
-    # ── Legacy /account/ redirects: redirect old platform links to /platform/
+    # ── Legacy /account/ and /accounts/ redirects: redirect old platform links to /platform/
     path('account/login/', RedirectView.as_view(pattern_name='platform:login', permanent=True), name='account_login_redirect'),
     path('account/logout/', RedirectView.as_view(pattern_name='platform:logout', permanent=False), name='account_logout_redirect'),
     path('account/register/', RedirectView.as_view(pattern_name='platform:register', permanent=True), name='account_register_redirect'),
     path('account/register/provisioning/', RedirectView.as_view(pattern_name='platform:onboarding_provisioning', permanent=True), name='account_provisioning_redirect'),
     path('account/', RedirectView.as_view(url='/platform/', permanent=False), name='account_catchall_redirect'),
+    path('accounts/login/', RedirectView.as_view(pattern_name='platform:login', permanent=False)),
+    path('accounts/logout/', RedirectView.as_view(pattern_name='platform:logout', permanent=False)),
+    path('accounts/', RedirectView.as_view(url='/platform/', permanent=False)),
 ]
 
 if settings.STORAGES.get("default", {}).get("BACKEND") == "sabistart.storage_backends.VercelBlobStorage":
