@@ -6,37 +6,201 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>{{ page_title|default:"Platform" }} - SABIStart</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300..700" rel="stylesheet" />
     <script>
       tailwind.config = {
         theme: {
           extend: {
             colors: {
-              primary: "#1d4ed8",
-              ink: "#0f172a"
+              primary: "#4F46E5",
+              "primary-hover": "#4338CA",
+              "primary-light": "#EEF2FF",
+              ink: "#111827",
+              brand: {
+                primary: "#4F46E5",
+                "primary-hover": "#4338CA",
+                "primary-light": "#EEF2FF",
+              },
+              gray: {
+                50: "#F9FAFB",
+                100: "#F3F4F6",
+                200: "#E5E7EB",
+                300: "#D1D5DB",
+                400: "#9CA3AF",
+                500: "#6B7280",
+                600: "#4B5563",
+                700: "#374151",
+                800: "#1F2937",
+                900: "#111827",
+              },
+              success: {
+                DEFAULT: "#16A34A",
+                bg: "#F0FDF4",
+              },
+              warning: {
+                DEFAULT: "#D97706",
+                bg: "#FFFBEB",
+              },
+              danger: {
+                DEFAULT: "#DC2626",
+                bg: "#FEF2F2",
+              },
+              info: {
+                DEFAULT: "#2563EB",
+                bg: "#EFF6FF",
+              },
             },
             fontFamily: {
-              sans: ["Manrope", "sans-serif"]
+              sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+              mono: ["IBM Plex Mono", "SFMono-Regular", "Menlo", "monospace"],
+            },
+            borderRadius: {
+              sm: "4px",
+              md: "8px",
+              lg: "12px",
+              full: "9999px",
             },
             boxShadow: {
-              shell: "0 24px 80px rgba(15, 23, 42, 0.10)"
+              shell: "0 24px 80px rgba(15, 23, 42, 0.10)",
+              sm: "0 1px 2px rgba(0,0,0,0.05)",
+              md: "0 4px 12px rgba(0,0,0,0.08)",
+              lg: "0 10px 30px rgba(0,0,0,0.12)",
             }
           }
         }
       };
     </script>
     <style type="text/tailwindcss">
+      :root {
+        /* ===========================================
+           BRAND — the only two colors actually in the logo
+           =========================================== */
+        --brand-primary: #4F46E5;        /* core indigo from the mark — primary actions, active nav, focus */
+        --brand-primary-hover: #4338CA;  /* darker step for hover/pressed states */
+        --brand-primary-light: #EEF2FF;  /* tint for selected rows, subtle highlight backgrounds */
+        --brand-on-primary: #FFFFFF;     /* text/icon color sitting on top of brand-primary */
+
+        /* ===========================================
+           NEUTRAL SCALE — invented; needed for any real UI
+           (logo has no gray scale, this is standard dashboard gray)
+           =========================================== */
+        --gray-50:  #F9FAFB;  /* page background */
+        --gray-100: #F3F4F6;  /* card/section background, subtle fills */
+        --gray-200: #E5E7EB;  /* borders, dividers */
+        --gray-300: #D1D5DB;  /* disabled borders/icons */
+        --gray-400: #9CA3AF;  /* placeholder text, muted icons */
+        --gray-500: #6B7280;  /* secondary/body-muted text */
+        --gray-600: #4B5563;  /* secondary text, stronger */
+        --gray-700: #374151;  /* body text */
+        --gray-800: #1F2937;  /* headings */
+        --gray-900: #111827;  /* highest-contrast text, near-black */
+
+        /* ===========================================
+           SEMANTIC COLORS — not in logo, standard dashboard needs
+           =========================================== */
+        --color-success: #16A34A;   /* positive states, upward metrics */
+        --color-success-bg: #F0FDF4;
+        --color-warning: #D97706;   /* caution states */
+        --color-warning-bg: #FFFBEB;
+        --color-danger: #DC2626;    /* errors, destructive actions, negative metrics */
+        --color-danger-bg: #FEF2F2;
+        --color-info: #2563EB;      /* informational banners, links distinct from brand */
+        --color-info-bg: #EFF6FF;
+
+        /* ===========================================
+           SURFACE / BACKGROUND
+           =========================================== */
+        --surface-page: var(--gray-50);     /* whole-app background */
+        --surface-card: #FFFFFF;            /* cards, panels, modals */
+        --surface-border: var(--gray-200);  /* default border color */
+        --surface-overlay: rgba(17, 24, 39, 0.5); /* modal/drawer backdrop */
+
+        /* ===========================================
+           TEXT
+           =========================================== */
+        --text-primary: var(--gray-900);    /* headings, key values */
+        --text-secondary: var(--gray-600);  /* body copy */
+        --text-muted: var(--gray-400);      /* timestamps, placeholders */
+        --text-inverse: #FFFFFF;            /* text on dark/brand backgrounds */
+
+        /* ===========================================
+           TYPOGRAPHY — not derivable from the logo (no wordmark present)
+           Inter chosen as a common, neutral dashboard default — swap freely
+           =========================================== */
+        --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace; /* for IDs, code, raw data cells */
+
+        /* Fluid type scale — scales smoothly across viewport widths instead of hard breakpoint jumps */
+        --font-size-xs:   clamp(0.72rem, 0.70rem + 0.1vw, 0.75rem);   /* small labels, badges */
+        --font-size-sm:   clamp(0.82rem, 0.80rem + 0.1vw, 0.875rem);  /* table text, captions */
+        --font-size-base: clamp(0.95rem, 0.92rem + 0.15vw, 1rem);     /* body text */
+        --font-size-lg:   clamp(1.05rem, 1.0rem + 0.25vw, 1.125rem);  /* section subheadings */
+        --font-size-xl:   clamp(1.2rem, 1.1rem + 0.4vw, 1.5rem);      /* card titles */
+        --font-size-2xl:  clamp(1.5rem, 1.3rem + 0.8vw, 2rem);        /* page titles */
+        --font-size-3xl:  clamp(1.9rem, 1.6rem + 1.2vw, 2.75rem);     /* dashboard headline metrics */
+
+        --font-weight-regular: 400;
+        --font-weight-medium: 500;   /* nav items, table headers */
+        --font-weight-semibold: 600; /* card titles, key numbers */
+        --font-weight-bold: 700;     /* page titles */
+
+        --line-height-tight: 1.2;   /* headings */
+        --line-height-normal: 1.5;  /* body text */
+        --line-height-relaxed: 1.7; /* long-form paragraphs */
+
+        /* ===========================================
+           SPACING — 4px base unit, standard for dashboard density
+           =========================================== */
+        --space-1: 0.25rem;  /* 4px  — tight icon/text gaps */
+        --space-2: 0.5rem;   /* 8px  — compact padding */
+        --space-3: 0.75rem;  /* 12px — default control padding */
+        --space-4: 1rem;     /* 16px — card internal padding */
+        --space-6: 1.5rem;   /* 24px — section gaps */
+        --space-8: 2rem;     /* 32px — major layout gaps */
+        --space-12: 3rem;    /* 48px — page-level separation */
+
+        /* ===========================================
+           RADIUS / SHADOW
+           =========================================== */
+        --radius-sm: 4px;    /* badges, small buttons */
+        --radius-md: 8px;    /* inputs, standard buttons */
+        --radius-lg: 12px;   /* cards, panels */
+        --radius-full: 9999px; /* pills, avatars */
+
+        --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);               /* subtle card lift */
+        --shadow-md: 0 4px 12px rgba(0,0,0,0.08);              /* dropdowns, popovers */
+        --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);             /* modals */
+
+        /* ===========================================
+           RESPONSIVE BREAKPOINTS (reference values — use in media queries)
+           =========================================== */
+        --bp-mobile: 480px;   /* phones */
+        --bp-tablet: 768px;   /* tablets, collapsed sidebar */
+        --bp-laptop: 1024px;  /* small laptops, sidebar appears */
+        --bp-desktop: 1280px; /* standard dashboard width */
+        --bp-wide: 1536px;    /* large monitors, max-width content centers */
+      }
+
+      @media (max-width: 768px) {
+        :root {
+          --space-6: 1rem;   /* tighten section gaps on tablet/mobile */
+          --space-8: 1.5rem;
+        }
+      }
+
       body {
-        @apply bg-slate-100 text-slate-900;
+        font-family: var(--font-sans);
+        background-color: var(--surface-page);
+        color: var(--text-primary);
       }
       .platform-scrollbar::-webkit-scrollbar {
         width: 8px;
         height: 8px;
       }
       .platform-scrollbar::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 9999px;
+        background: var(--gray-300);
+        border-radius: var(--radius-full);
       }
     </style>
   </head>

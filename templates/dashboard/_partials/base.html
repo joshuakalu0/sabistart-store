@@ -7,7 +7,7 @@
     <title>{{ page_title|default:"Dashboard" }} - SABIStart</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
     <link
@@ -24,37 +24,150 @@
         theme: {
           extend: {
             colors: {
-              primary: "#0059E3",
-              "background-light": "#F8FAFC",
+              primary: "#4F46E5",
+              "primary-hover": "#4338CA",
+              "primary-light": "#EEF2FF",
+              "background-light": "#F9FAFB",
               "background-dark": "#0F172A",
-              shell: "#E2E8F0",
+              shell: "#E5E7EB",
+              success: "#16A34A",
+              warning: "#D97706",
+              danger: "#DC2626",
+              info: "#2563EB",
             },
             fontFamily: {
               display: ["Inter", "sans-serif"],
               body: ["Inter", "sans-serif"],
+              mono: ["IBM Plex Mono", "SFMono-Regular", "Menlo", "monospace"],
             },
             borderRadius: {
               DEFAULT: "0.5rem",
-              lg: "0.75rem",
+              sm: "4px",
+              md: "8px",
+              lg: "12px",
+              full: "9999px",
             },
             boxShadow: {
               shell: "0 24px 80px rgba(15, 23, 42, 0.10)",
+              sm: "0 1px 2px rgba(0,0,0,0.05)",
+              md: "0 4px 12px rgba(0,0,0,0.08)",
+              lg: "0 10px 30px rgba(0,0,0,0.12)",
             },
           },
         },
       };
     </script>
     <style type="text/tailwindcss">
+      /* =============================================
+         DESIGN TOKENS — brand + neutral scale
+         ============================================= */
+      :root {
+        /* Brand */
+        --brand-primary: #4F46E5;
+        --brand-primary-hover: #4338CA;
+        --brand-primary-light: #EEF2FF;
+        --brand-on-primary: #FFFFFF;
+
+        /* Neutral scale */
+        --gray-50:  #F9FAFB;
+        --gray-100: #F3F4F6;
+        --gray-200: #E5E7EB;
+        --gray-300: #D1D5DB;
+        --gray-400: #9CA3AF;
+        --gray-500: #6B7280;
+        --gray-600: #4B5563;
+        --gray-700: #374151;
+        --gray-800: #1F2937;
+        --gray-900: #111827;
+
+        /* Semantic */
+        --color-success: #16A34A;
+        --color-success-bg: #F0FDF4;
+        --color-warning: #D97706;
+        --color-warning-bg: #FFFBEB;
+        --color-danger: #DC2626;
+        --color-danger-bg: #FEF2F2;
+        --color-info: #2563EB;
+        --color-info-bg: #EFF6FF;
+
+        /* Surfaces */
+        --surface-page: var(--gray-50);
+        --surface-card: #FFFFFF;
+        --surface-border: var(--gray-200);
+        --surface-overlay: rgba(17, 24, 39, 0.5);
+
+        /* Text */
+        --text-primary: var(--gray-900);
+        --text-secondary: var(--gray-600);
+        --text-muted: var(--gray-400);
+        --text-inverse: #FFFFFF;
+
+        /* Typography */
+        --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace;
+
+        --font-size-xs:   clamp(0.72rem, 0.70rem + 0.1vw,  0.75rem);
+        --font-size-sm:   clamp(0.82rem, 0.80rem + 0.1vw,  0.875rem);
+        --font-size-base: clamp(0.95rem, 0.92rem + 0.15vw, 1rem);
+        --font-size-lg:   clamp(1.05rem, 1.0rem  + 0.25vw, 1.125rem);
+        --font-size-xl:   clamp(1.2rem,  1.1rem  + 0.4vw,  1.5rem);
+        --font-size-2xl:  clamp(1.5rem,  1.3rem  + 0.8vw,  2rem);
+        --font-size-3xl:  clamp(1.9rem,  1.6rem  + 1.2vw,  2.75rem);
+
+        --font-weight-regular: 400;
+        --font-weight-medium: 500;
+        --font-weight-semibold: 600;
+        --font-weight-bold: 700;
+
+        --line-height-tight: 1.2;
+        --line-height-normal: 1.5;
+        --line-height-relaxed: 1.7;
+
+        /* Spacing (4px base unit) */
+        --space-1:  0.25rem;
+        --space-2:  0.5rem;
+        --space-3:  0.75rem;
+        --space-4:  1rem;
+        --space-6:  1.5rem;
+        --space-8:  2rem;
+        --space-12: 3rem;
+
+        /* Radius */
+        --radius-sm:   4px;
+        --radius-md:   8px;
+        --radius-lg:   12px;
+        --radius-full: 9999px;
+
+        /* Shadow */
+        --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+        --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+        --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);
+
+        /* Breakpoints (reference only — use in media queries) */
+        --bp-mobile:  480px;
+        --bp-tablet:  768px;
+        --bp-laptop:  1024px;
+        --bp-desktop: 1280px;
+        --bp-wide:    1536px;
+      }
+
+      @media (max-width: 768px) {
+        :root {
+          --space-6: 1rem;
+          --space-8: 1.5rem;
+        }
+      }
+
       body {
-        font-family: "Inter", sans-serif;
+        font-family: var(--font-sans);
       }
       .custom-scrollbar::-webkit-scrollbar {
         height: 4px;
         width: 4px;
       }
       .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 10px;
+        background: var(--gray-300);
+        border-radius: var(--radius-full);
       }
       .no-scrollbar::-webkit-scrollbar {
         display: none;
@@ -63,7 +176,7 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
       }
-      /* Prevent iOS auto-zoom on inputs & optimize touch targets */
+      /* Prevent iOS auto-zoom on inputs */
       @media (max-width: 768px) {
         input, select, textarea {
           font-size: 16px !important;
@@ -86,7 +199,7 @@
     {% if sidebar %}
     <aside
       id="sidebar"
-      class="fixed inset-y-0 left-0 z-50 flex h-screen w-80 max-w-[85vw] flex-shrink-0 -translate-x-full flex-col border-r border-slate-200 bg-white/98 text-slate-700 shadow-2xl transition-transform duration-300 ease-in-out lg:sticky lg:top-0 lg:w-72 lg:max-w-none lg:translate-x-0 lg:shadow-shell dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300"
+      class="fixed bg-white inset-y-0 left-0 z-50 flex h-screen w-80 max-w-[85vw] flex-shrink-0 -translate-x-full flex-col border-r border-slate-200 bg-white/98 text-slate-700 shadow-2xl transition-transform duration-300 ease-in-out lg:sticky lg:top-0 lg:w-72 lg:max-w-none lg:translate-x-0 lg:shadow-shell dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300"
     >
       <div class="flex items-center justify-between border-b border-slate-100 p-5 dark:border-slate-800/80">
         <div class="min-w-0 pr-2">
