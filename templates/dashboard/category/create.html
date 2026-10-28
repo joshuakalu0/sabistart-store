@@ -98,6 +98,7 @@
     </div>
 
     <!-- Advanced Settings Collapsible -->
+    {% if catalog_settings.enable_category_advanced %}
     <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
       <button type="button" onclick="toggleAdvanced()" class="flex items-center justify-between w-full px-6 py-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-slate-700 dark:to-slate-600 border-b border-slate-200 dark:border-slate-600 hover:from-green-100 hover:to-emerald-100 dark:hover:from-slate-600 dark:hover:to-slate-500 transition-colors">
         <div>
@@ -159,6 +160,7 @@
         </div>
       </div>
     </div>
+    {% endif %}
     <!-- Mobile-friendly sticky save bar -->
     <div class="sticky bottom-16 sm:bottom-0 z-20 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 px-3 py-2.5 sm:px-4 sm:py-3 sm:rounded-xl sm:border sm:shadow-sm sm:static sm:mt-4">
       <div class="flex items-center gap-2 sm:gap-3">

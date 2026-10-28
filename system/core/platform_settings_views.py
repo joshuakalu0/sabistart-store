@@ -22,11 +22,13 @@ from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
 
 from system.core.platform_settings import (
+    PlatformCatalogFeatureSetting,
     PlatformMessagingSetting,
     PlatformSmtpSetting,
     PlatformStorageSetting,
 )
 from system.core.platform_settings_forms import (
+    PlatformCatalogFeatureSettingForm,
     PlatformMessagingSettingForm,
     PlatformSmtpSettingForm,
     PlatformStorageSettingForm,
@@ -63,7 +65,7 @@ def _shared_context(request, **extra):
     }
 
 
-VALID_TABS = ("smtp", "storage", "messaging", "payments")
+VALID_TABS = ("smtp", "storage", "messaging", "payments", "catalog")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -109,9 +111,17 @@ def platform_settings(request):
         if not setup_warning:
             setup_warning = "Database tables for platform settings are not migrated yet. Please run 'python manage.py migrate --schema=public'."
 
+    try:
+        catalog_setting = PlatformCatalogFeatureSetting.load()
+    except Exception:
+        catalog_setting = PlatformCatalogFeatureSetting()
+        if not setup_warning:
+            setup_warning = "Database tables for platform settings are not migrated yet. Please run 'python manage.py migrate --schema=public'."
+
     smtp_form = PlatformSmtpSettingForm(instance=smtp_setting)
     storage_form = PlatformStorageSettingForm(instance=storage_setting)
     messaging_form = PlatformMessagingSettingForm(instance=messaging_setting)
+    catalog_form = PlatformCatalogFeatureSettingForm(instance=catalog_setting)
 
     active_gateway = get_active_onboarding_gateway_provider()
     gateways_info = []
@@ -173,6 +183,14 @@ def platform_settings(request):
             else:
                 messages.error(request, "Please select a valid payment gateway.")
                 return redirect(f"{request.path}?tab=payments")
+        elif active_tab == "catalog":
+            catalog_form = PlatformCatalogFeatureSettingForm(request.POST, instance=catalog_setting)
+            if catalog_form.is_valid():
+                setting = catalog_form.save(commit=False)
+                setting.updated_by = request.user
+                setting.save()
+                messages.success(request, "Catalog feature settings saved successfully.")
+                return redirect(f"{request.path}?tab=catalog")
 
     context = _shared_context(
         request,
@@ -186,6 +204,8 @@ def platform_settings(request):
         messaging_setting=messaging_setting,
         active_gateway=active_gateway,
         gateways_info=gateways_info,
+        catalog_form=catalog_form,
+        catalog_setting=catalog_setting,
     )
     return render(request, "core/platform_settings/settings.html", context)
 

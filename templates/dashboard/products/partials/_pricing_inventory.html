@@ -43,6 +43,7 @@
                 </p>
                 {% endif %}
               </div>
+              {% if catalog_settings.enable_product_compare_price %}
               <div>
                 <label
                   for="{{ form.pricing_form.compare_at_price.id_for_label }}"
@@ -83,9 +84,11 @@
                 </p>
                 {% endif %}
               </div>
+              {% endif %}
             </div>
 
             <!-- Tax Settings -->
+            {% if catalog_settings.enable_product_taxes %}
             <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label
@@ -114,6 +117,7 @@
                 {% endif %}
               </div>
             </div>
+            {% endif %}
           </div>
         </div>
 

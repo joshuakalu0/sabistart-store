@@ -234,3 +234,86 @@ class PlatformMessagingSetting(_SingletonModel):
         self.webhook_secret = new_secret
         self.save(update_fields=["webhook_secret", "updated_at"])
         return new_secret
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Catalog & Form Feature Toggles
+# ─────────────────────────────────────────────────────────────────────────────
+
+class PlatformCatalogFeatureSetting(_SingletonModel):
+    """
+    Platform-wide toggle settings for catalog and forms.
+    Controlled by platform superadmin.
+    """
+    enable_attributes = models.BooleanField(
+        default=False,
+        verbose_name="Enable Product Attributes & Groups",
+        help_text="Show attribute groups and attributes in sidebar and product variant configuration."
+    )
+    enable_category_advanced = models.BooleanField(
+        default=False,
+        verbose_name="Enable Advanced Category Settings",
+        help_text="Show advanced SEO, menu ordering, and visibility fields on category creation."
+    )
+    enable_brand_advanced = models.BooleanField(
+        default=False,
+        verbose_name="Enable Advanced Brand Settings",
+        help_text="Show brand story, banner, social links, and SEO fields on brand creation."
+    )
+    enable_product_videos = models.BooleanField(
+        default=False,
+        verbose_name="Enable Product Videos",
+        help_text="Allow adding video URLs or uploading video media during product creation."
+    )
+    enable_product_compare_price = models.BooleanField(
+        default=False,
+        verbose_name="Enable Compare-At & Cost Pricing",
+        help_text="Show compare-at price and cost price fields on product creation."
+    )
+    enable_product_taxes = models.BooleanField(
+        default=False,
+        verbose_name="Enable Product Tax Settings",
+        help_text="Show tax class and tax status settings on product creation."
+    )
+    enable_product_shipping = models.BooleanField(
+        default=False,
+        verbose_name="Enable Product Shipping Section",
+        help_text="Show shipping dimensions and weight fields on product creation."
+    )
+    enable_product_organization = models.BooleanField(
+        default=False,
+        verbose_name="Enable Product Organization Section",
+        help_text="Show category and tag assignment card on product creation."
+    )
+    enable_product_specifications = models.BooleanField(
+        default=False,
+        verbose_name="Enable Product Specifications & Features",
+        help_text="Show specifications and bullet-point features on product creation."
+    )
+    enable_product_seo_visibility = models.BooleanField(
+        default=False,
+        verbose_name="Enable Product Visibility & SEO",
+        help_text="Show meta tags and search engine preview on product creation."
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+
+    class Meta:
+        verbose_name = "Platform Catalog Feature Setting"
+        verbose_name_plural = "Platform Catalog Feature Settings"
+
+    def __str__(self):
+        return "Platform Catalog Feature Settings"
+
+    @classmethod
+    def get_settings(cls):
+        try:
+            return cls.load()
+        except Exception:
+            return cls()
+

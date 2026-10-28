@@ -9,6 +9,7 @@ from __future__ import annotations
 from django import forms
 
 from system.core.platform_settings import (
+    PlatformCatalogFeatureSetting,
     PlatformMessagingSetting,
     PlatformSmtpSetting,
     PlatformStorageSetting,
@@ -166,3 +167,33 @@ class PlatformMessagingSettingForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+
+class PlatformCatalogFeatureSettingForm(forms.ModelForm):
+    class Meta:
+        model = PlatformCatalogFeatureSetting
+        fields = [
+            "enable_attributes",
+            "enable_category_advanced",
+            "enable_brand_advanced",
+            "enable_product_videos",
+            "enable_product_compare_price",
+            "enable_product_taxes",
+            "enable_product_shipping",
+            "enable_product_organization",
+            "enable_product_specifications",
+            "enable_product_seo_visibility",
+        ]
+        widgets = {
+            "enable_attributes": forms.CheckboxInput(attrs={"class": "toggle-checkbox"}),
+            "enable_category_advanced": forms.CheckboxInput(attrs={"class": "toggle-checkbox"}),
+            "enable_brand_advanced": forms.CheckboxInput(attrs={"class": "toggle-checkbox"}),
+            "enable_product_videos": forms.CheckboxInput(attrs={"class": "toggle-checkbox"}),
+            "enable_product_compare_price": forms.CheckboxInput(attrs={"class": "toggle-checkbox"}),
+            "enable_product_taxes": forms.CheckboxInput(attrs={"class": "toggle-checkbox"}),
+            "enable_product_shipping": forms.CheckboxInput(attrs={"class": "toggle-checkbox"}),
+            "enable_product_organization": forms.CheckboxInput(attrs={"class": "toggle-checkbox"}),
+            "enable_product_specifications": forms.CheckboxInput(attrs={"class": "toggle-checkbox"}),
+            "enable_product_seo_visibility": forms.CheckboxInput(attrs={"class": "toggle-checkbox"}),
+        }
+

@@ -170,12 +170,22 @@
       {% include "dashboard/products/partials/_media.html" %}
 
       {% include "dashboard/products/partials/_pricing_inventory.html" %}
+
+      {% if catalog_settings.enable_product_shipping %}
       {% include "dashboard/products/partials/_shipping.html" %}
+      {% endif %}
 
+      {% if catalog_settings.enable_product_organization %}
       {% include "dashboard/products/partials/_categories_tags.html" %}
+      {% endif %}
 
+      {% if catalog_settings.enable_product_specifications %}
       {% include "dashboard/products/partials/_specifications_features.html" %}
+      {% endif %}
+
+      {% if catalog_settings.enable_product_seo_visibility %}
       {% include "dashboard/products/partials/_visibility_seo.html" %}
+      {% endif %}
       </div>
 
       {% include "dashboard/products/partials/_sidebar.html" %}
