@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from django.db import connection
 from django.urls import NoReverseMatch, reverse
 
 
@@ -62,8 +63,8 @@ TENANT_NAVIGATION = (
                 "active_keys": ("products", "attributes", "attribute_groups", "categories", "brands", "tags"),
                 "children": (
                     {"key": "products", "name": "Products", "icon": "inventory_2", "route": "dashboard:product_settings:product_list"},
-                    {"key": "attribute_groups", "name": "Attribute Groups", "icon": "view_module", "route": "dashboard:product_settings:attribute_group_list"},
-                    {"key": "attributes", "name": "Attributes", "icon": "tune", "route": "dashboard:product_settings:attribute_list"},
+                    {"key": "attribute_groups", "name": "Attribute Groups", "icon": "view_module", "route": "dashboard:product_settings:attribute_group_list", "catalog_flag": "enable_attributes"},
+                    {"key": "attributes", "name": "Attributes", "icon": "tune", "route": "dashboard:product_settings:attribute_list", "catalog_flag": "enable_attributes"},
                     {"key": "categories", "name": "Categories", "icon": "category", "route": "dashboard:dashboard_categories:list"},
                     {"key": "brands", "name": "Brands", "icon": "storefront", "route": "dashboard:dashboard_categories:brand_list"},
                     {"key": "tags", "name": "Tags", "icon": "local_offer", "route": "dashboard:dashboard_categories:tag_list"},
@@ -311,7 +312,23 @@ def build_platform_navigation(active_key: str | None = None):
     return sections
 
 
+def _load_catalog_settings():
+    """Load PlatformCatalogFeatureSetting from the public schema."""
+    try:
+        from system.core.platform_settings import PlatformCatalogFeatureSetting
+        current_schema = connection.schema_name
+        connection.set_schema_to_public()
+        try:
+            return PlatformCatalogFeatureSetting.get_settings()
+        finally:
+            connection.set_schema(current_schema)
+    except Exception:
+        return None
+
+
 def iter_tenant_navigation(prefix: str):
+    catalog_settings = _load_catalog_settings()
+
     for section in TENANT_NAVIGATION:
         built_items = []
         for item in section["items"]:
@@ -320,6 +337,11 @@ def iter_tenant_navigation(prefix: str):
                 continue
             children = []
             for child in item.get("children", ()):
+                # If this nav item is gated behind a catalog_flag, check it
+                catalog_flag = child.get("catalog_flag")
+                if catalog_flag and catalog_settings is not None:
+                    if not getattr(catalog_settings, catalog_flag, False):
+                        continue
                 child_url = _reverse_or_none(child["route"], prefix=prefix)
                 if not child_url:
                     continue

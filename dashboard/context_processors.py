@@ -29,7 +29,17 @@ def dashboard_feature_context(request):
 
     try:
         from system.core.platform_settings import PlatformCatalogFeatureSetting
-        ctx["catalog_settings"] = PlatformCatalogFeatureSetting.get_settings()
+        # PlatformCatalogFeatureSetting lives in the PUBLIC schema.
+        # When called from a tenant request, the DB connection is scoped to
+        # the tenant schema, so we must temporarily switch to public, read,
+        # then restore the tenant schema.
+        current_schema = connection.schema_name
+        connection.set_schema_to_public()
+        try:
+            catalog = PlatformCatalogFeatureSetting.get_settings()
+        finally:
+            connection.set_schema(current_schema)
+        ctx["catalog_settings"] = catalog
     except Exception as exc:
         logger.debug("[dashboard_feature_context] Error loading catalog settings: %s", exc)
         from system.core.platform_settings import PlatformCatalogFeatureSetting
