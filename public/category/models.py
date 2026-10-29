@@ -4,6 +4,27 @@ from dashboard.settings.models import AuditModel
 import uuid
 
 
+from django.utils.crypto import get_random_string
+
+
+def generate_unique_slug(model_cls, name, instance_pk=None, fallback='item'):
+    base_slug = slugify(name) if name else ''
+    if not base_slug:
+        base_slug = fallback
+    suffix = get_random_string(6, allowed_chars='abcdefghijklmnopqrstuvwxyz0123456789')
+    candidate = f"{base_slug}-{suffix}"
+    qs = model_cls.objects.filter(slug=candidate)
+    if instance_pk:
+        qs = qs.exclude(pk=instance_pk)
+    while qs.exists():
+        suffix = get_random_string(6, allowed_chars='abcdefghijklmnopqrstuvwxyz0123456789')
+        candidate = f"{base_slug}-{suffix}"
+        qs = model_cls.objects.filter(slug=candidate)
+        if instance_pk:
+            qs = qs.exclude(pk=instance_pk)
+    return candidate
+
+
 # ============================================================================
 # CORE: CATEGORIES & TAXONOMIES
 # ============================================================================
@@ -59,7 +80,7 @@ class Category(AuditModel):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            self.slug = generate_unique_slug(Category, self.name, instance_pk=self.pk, fallback='category')
         super().save(*args, **kwargs)
 
 
@@ -86,7 +107,7 @@ class Tag(AuditModel):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            self.slug = generate_unique_slug(Tag, self.name, instance_pk=self.pk, fallback='tag')
         super().save(*args, **kwargs)
 
 
@@ -138,5 +159,5 @@ class Brand(AuditModel):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            self.slug = generate_unique_slug(Brand, self.name, instance_pk=self.pk, fallback='brand')
         super().save(*args, **kwargs)

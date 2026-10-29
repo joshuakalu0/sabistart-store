@@ -294,28 +294,38 @@ class Product(AuditModel):
         return self.name
 
     def save(self, *args, **kwargs):
-        if not self.slug and self.name:
-            base_slug = slugify(self.name)
+        from django.utils.crypto import get_random_string
+
+        if not self.slug:
+            base_slug = slugify(self.name) if self.name else ''
             if not base_slug:
-                import uuid
-                base_slug = f'product-{str(uuid.uuid4())[:8]}'
+                base_slug = 'product'
+            suffix = get_random_string(6, allowed_chars='abcdefghijklmnopqrstuvwxyz0123456789')
+            candidate = f"{base_slug}-{suffix}"
+            qs = Product.objects.filter(slug=candidate)
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+            while qs.exists():
+                suffix = get_random_string(6, allowed_chars='abcdefghijklmnopqrstuvwxyz0123456789')
+                candidate = f"{base_slug}-{suffix}"
+                qs = Product.objects.filter(slug=candidate)
+                if self.pk:
+                    qs = qs.exclude(pk=self.pk)
+            self.slug = candidate
 
-            # Check for uniqueness
-            counter = 1
-            unique_slug = base_slug
-            while Product.objects.filter(slug=unique_slug).exclude(pk=self.pk).exists():
-                unique_slug = f"{base_slug}-{counter}"
-                counter += 1
-
-            self.slug = unique_slug
-        elif not self.slug:
-            import uuid
-            self.slug = f'product-{str(uuid.uuid4())[:8]}'
+        if not self.sku:
+            qs = Product.objects.all()
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+            while True:
+                candidate = f"SKU-{get_random_string(8, allowed_chars='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ')}"
+                if not qs.filter(sku=candidate).exists():
+                    self.sku = candidate
+                    break
 
         if self.status == 'published' and not self.published_at:
             self.published_at = timezone.now()
         super().save(*args, **kwargs)
-
 
 class ProductImage(AuditModel):
     """Product images with advanced features"""

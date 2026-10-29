@@ -60,11 +60,9 @@ TENANT_NAVIGATION = (
                 "name": "Catalog",
                 "icon": "inventory_2",
                 "route": "dashboard:product_settings:product_list",
-                "active_keys": ("products", "attributes", "attribute_groups", "categories", "brands", "tags"),
+                "active_keys": ("products", "categories", "brands", "tags"),
                 "children": (
                     {"key": "products", "name": "Products", "icon": "inventory_2", "route": "dashboard:product_settings:product_list"},
-                    {"key": "attribute_groups", "name": "Attribute Groups", "icon": "view_module", "route": "dashboard:product_settings:attribute_group_list", "catalog_flag": "enable_attributes"},
-                    {"key": "attributes", "name": "Attributes", "icon": "tune", "route": "dashboard:product_settings:attribute_list", "catalog_flag": "enable_attributes"},
                     {"key": "categories", "name": "Categories", "icon": "category", "route": "dashboard:dashboard_categories:list"},
                     {"key": "brands", "name": "Brands", "icon": "storefront", "route": "dashboard:dashboard_categories:brand_list"},
                     {"key": "tags", "name": "Tags", "icon": "local_offer", "route": "dashboard:dashboard_categories:tag_list"},

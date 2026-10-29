@@ -165,7 +165,6 @@
 
 
         {% include "dashboard/products/partials/_basic_info.html" %}
-        {% include "dashboard/products/partials/_variant_.html" %}
 
       {% include "dashboard/products/partials/_media.html" %}
 
@@ -288,16 +287,7 @@
 
 // Product Type Change Handler
   function handleProductTypeChange() {
-      productType = document.getElementById('productType').value;
-      const variantsSection = document.getElementById('variantsSection');
-      const generateVariantsSection = document.getElementById('generateVariantsSection');
-      if (productType === 'variable') {
-          variantsSection.style.display = selectedAttributes.length > 0 && variants.length > 0 ? 'block' : 'none';
-          generateVariantsSection.style.display = selectedAttributes.length > 0 ? 'block' : 'none';
-      } else {
-          variantsSection.style.display = 'none';
-          generateVariantsSection.style.display = 'none';
-      }
+      // Attributes and variants section removed
   }
 
   // Generate Slug from Product Name

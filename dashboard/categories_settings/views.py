@@ -56,7 +56,6 @@ def category_create(request, prefix):
             messages.error(request, 'Please correct the errors below.')
     else:
         form = CategoryForm()
-    form = CategoryForm()
 
     context = {
         'prefix': prefix,

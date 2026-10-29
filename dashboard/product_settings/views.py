@@ -581,6 +581,27 @@ def attribute_value_details(request, prefix, pk):
     return render(request, "dashboard/products/attribute_values/partials/details.html", context)
 
 
+def _redirect_attribute_feature(request, prefix, *args, **kwargs):
+    """Redirect disabled attribute features back to the dashboard home."""
+    return redirect('dashboard:dashboard_home:home', prefix=prefix)
+
+attribute_group_list = _redirect_attribute_feature
+attribute_group_create = _redirect_attribute_feature
+attribute_group_edit = _redirect_attribute_feature
+attribute_group_delete = _redirect_attribute_feature
+attribute_group_details = _redirect_attribute_feature
+attribute_list = _redirect_attribute_feature
+attribute_create = _redirect_attribute_feature
+attribute_edit = _redirect_attribute_feature
+attribute_delete = _redirect_attribute_feature
+attribute_details = _redirect_attribute_feature
+attribute_value_list = _redirect_attribute_feature
+attribute_value_create = _redirect_attribute_feature
+attribute_value_edit = _redirect_attribute_feature
+attribute_value_delete = _redirect_attribute_feature
+attribute_value_details = _redirect_attribute_feature
+
+
 @login_required
 @dashboard_prefix_required
 def product_list(request, prefix):

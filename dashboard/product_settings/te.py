@@ -121,29 +121,19 @@ class ProductBasicInfoForm(forms.ModelForm):
         label='Product Name *'
     )
 
-    # FIXED: Slug is now auto-generated, not user-editable
+    # Auto-generated slug & sku (hidden inputs)
     slug = forms.CharField(
         max_length=500,
         required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'flex-1 min-w-0 block w-full px-3 py-2 rounded-l-md sm:rounded-l-none rounded-r-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm border border-gray-300',
-            'placeholder': 'product-name',
-            'readonly': 'readonly'
-        }),
+        widget=forms.HiddenInput(),
         label='URL Slug'
     )
 
-    # FIXED: SKU validation improved
     sku = forms.CharField(
         max_length=100,
-        widget=forms.TextInput(attrs={
-            'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm border p-3',
-            'placeholder': 'e.g., PROD-001',
-        }),
-        label='SKU',
-        required=False,  # FIXED: Not required for Draft
-        validators=[RegexValidator(
-            r'^[A-Z0-9\-]+$', 'SKU must contain only uppercase letters, numbers, and hyphens')]
+        required=False,
+        widget=forms.HiddenInput(),
+        label='SKU'
     )
 
     product_type = forms.ChoiceField(
@@ -223,68 +213,55 @@ class ProductBasicInfoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # FIXED: Make SKU required only for Published products
-        if self.instance and self.instance.pk:
-            # Editing existing product
-            status = getattr(self.instance, 'status', 'draft')
-            if status != 'published':
-                self.fields['sku'].required = False
-        else:
-            # Creating new product - check POST data
-            if 'data' in kwargs and kwargs['data']:
-                status = kwargs['data'].get('status', 'draft')
-                if status != 'published':
-                    self.fields['sku'].required = False
+        # SKU and Slug are always auto-generated at backend
+        self.fields['sku'].required = False
+        self.fields['slug'].required = False
 
     def clean_slug(self):
-        """FIXED: Properly generate unique slug"""
+        """Auto-generate unique slug with random suffix"""
         slug = self.cleaned_data.get('slug')
         name = self.cleaned_data.get('name')
 
-        # Always generate slug from name
-        if name:
-            base_slug = slugify(name)
+        if not slug:
+            from django.utils.crypto import get_random_string
+            base_slug = slugify(name) if name else 'product'
             if not base_slug:
-                base_slug = f'product-{str(uuid.uuid4())[:8]}'
-
-            # Check for uniqueness
-            unique_slug = base_slug
-            counter = 1
-
-            # Build queryset excluding current instance if editing
-            queryset = Product.objects.filter(slug=unique_slug)
+                base_slug = 'product'
+            suffix = get_random_string(6, allowed_chars='abcdefghijklmnopqrstuvwxyz0123456789')
+            unique_slug = f"{base_slug}-{suffix}"
+            qs = Product.objects.filter(slug=unique_slug)
             if self.instance and self.instance.pk:
-                queryset = queryset.exclude(pk=self.instance.pk)
-
-            while queryset.exists():
-                unique_slug = f"{base_slug}-{counter}"
-                counter += 1
-                queryset = Product.objects.filter(slug=unique_slug)
+                qs = qs.exclude(pk=self.instance.pk)
+            while qs.exists():
+                suffix = get_random_string(6, allowed_chars='abcdefghijklmnopqrstuvwxyz0123456789')
+                unique_slug = f"{base_slug}-{suffix}"
+                qs = Product.objects.filter(slug=unique_slug)
                 if self.instance and self.instance.pk:
-                    queryset = queryset.exclude(pk=self.instance.pk)
-
+                    qs = qs.exclude(pk=self.instance.pk)
             slug = unique_slug
-        elif not slug:
-            # Fallback if no name
-            slug = f'product-{str(uuid.uuid4())[:8]}'
 
         return slug
 
     def clean_sku(self):
-        """FIXED: Properly check SKU uniqueness"""
+        """Auto-generate unique SKU if not provided"""
         sku = self.cleaned_data.get('sku')
 
-        # Skip validation if SKU is empty (allowed for Draft)
         if not sku:
-            return sku
-
-        # Check uniqueness excluding current instance if editing
-        queryset = Product.objects.filter(sku=sku)
-        if self.instance and self.instance.pk:
-            queryset = queryset.exclude(pk=self.instance.pk)
-
-        if queryset.exists():
-            raise forms.ValidationError('This SKU is already in use.')
+            from django.utils.crypto import get_random_string
+            qs = Product.objects.all()
+            if self.instance and self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            while True:
+                candidate = f"SKU-{get_random_string(8, allowed_chars='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ')}"
+                if not qs.filter(sku=candidate).exists():
+                    sku = candidate
+                    break
+        else:
+            qs = Product.objects.filter(sku=sku)
+            if self.instance and self.instance.pk:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                raise forms.ValidationError('This SKU is already in use.')
 
         return sku
 
@@ -1354,10 +1331,7 @@ class ProductCreationForm:
                     if hasattr(self.instance, 'attribute_values'):
                         print(f"DEBUG: Existing attribute_values count: {self.instance.attribute_values.count()}")
 
-                if not has_attributes and not (self.instance and hasattr(self.instance, 'attribute_values') and self.instance.attribute_values.exists()):
-                    print("DEBUG: No attributes found for variable product")
-                    self._custom_errors.append(
-                        "Variable products must have at least one attribute defined.")
+                pass
         else:
             print(f"DEBUG: Product status is {status}, skipping published product validation")
 

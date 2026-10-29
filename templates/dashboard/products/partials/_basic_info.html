@@ -34,35 +34,7 @@
                 {% endif %}
               </div>
 
-              <!-- URL Slug -->
-              <div>
-                <label
-                  for="{{ form.basic_form.slug.id_for_label }}"
-                  class="block text-sm font-medium text-gray-700"
-                  >URL Slug</label
-                >
-                <div class="mt-1 flex rounded-md shadow-sm w-full min-w-0">
-                  <span
-                    class="hidden sm:inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-xs sm:text-sm shrink-0"
-                    >yourstore.com/products/</span
-                  >
-                  <div class="flex-1 min-w-0 flex items-stretch">
-                    {{ form.basic_form.slug }}
-                    <button
-                    type="button"
-                    onclick="generateSlug()"
-                    class="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:text-sm"
-                    title="Generate Slug"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                  </button>
-                </div>
-                {% if form.basic_form.slug.errors %}
-                <p class="error-message">{{ form.basic_form.slug.errors.0 }}</p>
-                {% endif %}
-              </div>
+
                 <!-- Product Type Selection -->
             {% comment %} <div class="mb-6">
               <label
@@ -97,17 +69,7 @@
               </p>
             </div> {% endcomment %}
 
-              <!-- SKU -->
-              <div>
-                <label
-                  for="{{ form.basic_form.sku.id_for_label }}"
-                  class="block text-sm font-medium text-gray-700 required-field"
-                  >SKU</label
-                >
-                {{ form.basic_form.sku }} {% if form.basic_form.sku.errors %}
-                <p class="error-message">{{ form.basic_form.sku.errors.0 }}</p>
-                {% endif %}
-              </div>
+
 
               <!-- Short Description -->
               <div>

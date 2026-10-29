@@ -84,9 +84,9 @@ class ProductForm(forms.ModelForm):
         except:
             pass
 
-         # Make only name and slug required for multi-step form
+         # Make only name required
         for field_name, field in self.fields.items():
-            if field_name not in ['name', 'slug']:
+            if field_name not in ['name']:
                 field.required = False
 
     class Meta:
@@ -97,8 +97,8 @@ class ProductForm(forms.ModelForm):
         widgets = {
             # Basic Info
             'name': forms.TextInput(attrs={'class': BASE_INPUT, 'placeholder': 'Enter product name', 'id': 'id_name'}),
-            'slug': forms.TextInput(attrs={'class': BASE_INPUT, 'placeholder': 'product-slug', 'id': 'id_slug'}),
-            'sku': forms.TextInput(attrs={'class': BASE_INPUT, 'placeholder': 'SKU-001'}),
+            'slug': forms.HiddenInput(),
+            'sku': forms.HiddenInput(),
             'product_type': forms.Select(attrs={'class': BASE_SELECT}),
             'brand': forms.Select(attrs={'class': BASE_SELECT, 'empty_label': 'Select Brand'}),
 
