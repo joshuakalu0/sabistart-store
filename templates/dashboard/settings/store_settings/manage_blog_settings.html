@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
@@ -16,62 +16,62 @@
         theme: {
           extend: {
             colors: {
-              "inverse-surface": "#0b0f10",
-              "on-surface": "#2a3439",
-              "on-primary": "#f8f7ff",
-              "primary": "#0053db",
-              "error-dim": "#4e0309",
-              "on-secondary-fixed-variant": "#4d5d73",
-              "surface-tint": "#0053db",
-              "error": "#9f403d",
-              "surface-container-high": "#e1e9ee",
-              "outline-variant": "#a9b4b9",
-              "on-error-container": "#752121",
-              "primary-fixed": "#dbe1ff",
-              "tertiary": "#605c78",
-              "on-primary-container": "#0048bf",
-              "surface-variant": "#d9e4ea",
-              "background": "#f7f9fb",
-              "tertiary-fixed-dim": "#d4cdee",
-              "outline": "#717c82",
-              "surface-container-highest": "#d9e4ea",
-              "on-surface-variant": "#566166",
-              "tertiary-dim": "#54506b",
-              "surface-dim": "#cfdce3",
-              "secondary": "#506076",
-              "on-tertiary-container": "#514d68",
-              "secondary-container": "#d3e4fe",
-              "on-tertiary-fixed-variant": "#5b5672",
-              "secondary-dim": "#44546a",
-              "inverse-on-surface": "#9a9d9f",
-              "surface-container-lowest": "#ffffff",
-              "on-primary-fixed-variant": "#0050d4",
-              "inverse-primary": "#618bff",
-              "surface-container": "#e8eff3",
-              "primary-fixed-dim": "#c7d3ff",
-              "tertiary-fixed": "#e3dbfd",
-              "secondary-fixed": "#d3e4fe",
-              "error-container": "#fe8983",
-              "surface": "#f7f9fb",
-              "on-secondary-fixed": "#314055",
-              "on-primary-fixed": "#003798",
-              "primary-container": "#dbe1ff",
-              "on-background": "#2a3439",
-              "surface-container-low": "#f0f4f7",
-              "on-tertiary-fixed": "#3e3a54",
-              "on-tertiary": "#fcf7ff",
-              "on-secondary": "#f7f9ff",
-              "tertiary-container": "#e3dbfd",
-              "secondary-fixed-dim": "#c5d6f0",
-              "surface-bright": "#f7f9fb",
-              "primary-dim": "#0048c1",
-              "on-error": "#fff7f6",
-              "on-secondary-container": "#435368"
+"inverse-surface": "#0b0f10",
+"on-surface": "#2a3439",
+"on-primary": "#f8f7ff",
+"primary": "#0053db",
+"error-dim": "#4e0309",
+"on-secondary-fixed-variant": "#4d5d73",
+"surface-tint": "#0053db",
+"error": "#9f403d",
+"surface-container-high": "#e1e9ee",
+"outline-variant": "#a9b4b9",
+"on-error-container": "#752121",
+"primary-fixed": "#dbe1ff",
+"tertiary": "#605c78",
+"on-primary-container": "#0048bf",
+"surface-variant": "#d9e4ea",
+"background": "#f7f9fb",
+"tertiary-fixed-dim": "#d4cdee",
+"outline": "#717c82",
+"surface-container-highest": "#d9e4ea",
+"on-surface-variant": "#566166",
+"tertiary-dim": "#54506b",
+"surface-dim": "#cfdce3",
+"secondary": "#506076",
+"on-tertiary-container": "#514d68",
+"secondary-container": "#d3e4fe",
+"on-tertiary-fixed-variant": "#5b5672",
+"secondary-dim": "#44546a",
+"inverse-on-surface": "#9a9d9f",
+"surface-container-lowest": "#ffffff",
+"on-primary-fixed-variant": "#0050d4",
+"inverse-primary": "#618bff",
+"surface-container": "#e8eff3",
+"primary-fixed-dim": "#c7d3ff",
+"tertiary-fixed": "#e3dbfd",
+"secondary-fixed": "#d3e4fe",
+"error-container": "#fe8983",
+"surface": "#f7f9fb",
+"on-secondary-fixed": "#314055",
+"on-primary-fixed": "#003798",
+"primary-container": "#dbe1ff",
+"on-background": "#2a3439",
+"surface-container-low": "#f0f4f7",
+"on-tertiary-fixed": "#3e3a54",
+"on-tertiary": "#fcf7ff",
+"on-secondary": "#f7f9ff",
+"tertiary-container": "#e3dbfd",
+"secondary-fixed-dim": "#c5d6f0",
+"surface-bright": "#f7f9fb",
+"primary-dim": "#0048c1",
+"on-error": "#fff7f6",
+"on-secondary-container": "#435368"
             },
             fontFamily: {
-              "headline": ["Manrope"],
-              "body": ["Inter"],
-              "label": ["Inter"]
+"headline": ["Manrope"],
+"body": ["Inter"],
+"label": ["Inter"]
             },
             borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
           },
@@ -185,16 +185,16 @@
 {% endif %}
 
 <!-- TopNavBar -->
-<header class="sticky top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm dark:shadow-none transition-colors glass-nav">
+<header class="sticky top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm transition-colors glass-nav">
     <div class="flex items-center justify-between px-8 py-4 max-w-full mx-auto">
         <div class="flex items-center gap-8">
-            <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50 font-headline">{{ title }}</span>
+            <span class="text-xl font-bold tracking-tight text-slate-900 font-headline">{{ title }}</span>
             <nav class="hidden md:flex items-center gap-6 font-label text-sm font-medium">
-                <a class="text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-400 pb-1" href="#general">General</a>
-                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#layout">Layout</a>
-                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#posts">Post Display</a>
-                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#seo">SEO</a>
-                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#comments">Comments</a>
+                <a class="text-blue-700 border-b-2 border-blue-700 pb-1" href="#general">General</a>
+                <a class="text-slate-500 hover:text-slate-900 transition-colors" href="#layout">Layout</a>
+                <a class="text-slate-500 hover:text-slate-900 transition-colors" href="#posts">Post Display</a>
+                <a class="text-slate-500 hover:text-slate-900 transition-colors" href="#seo">SEO</a>
+                <a class="text-slate-500 hover:text-slate-900 transition-colors" href="#comments">Comments</a>
             </nav>
         </div>
         <div class="flex items-center gap-4">

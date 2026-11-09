@@ -1,147 +1,113 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
+{% load static %}
 
 {% block content %}
-<div class="flex items-center justify-between mb-6">
-    <div>
-        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Edit Tag</h2>
-        <p class="text-slate-600 dark:text-slate-400">Update tag information</p>
+<div class="max-w-3xl space-y-6">
+  <!-- Top Action Header & Breadcrumb -->
+  <div class="space-y-1">
+    <nav class="flex items-center gap-2 text-xs font-medium text-slate-400">
+      <a href="{% url 'dashboard:product_settings:product_list' prefix %}" class="hover:text-[#5850EC] transition-colors">Catalog</a>
+      <span class="material-icons-outlined text-xs">chevron_right</span>
+      <a href="{% url 'dashboard:dashboard_categories:tag_list' prefix %}" class="hover:text-[#5850EC] transition-colors">Tags</a>
+      <span class="material-icons-outlined text-xs">chevron_right</span>
+      <span class="text-[#5850EC] font-semibold">Edit Tag</span>
+    </nav>
+    <div class="flex items-center gap-3">
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900">Edit Tag</h1>
+      <span class="px-2.5 py-0.5 rounded-full bg-indigo-50 text-[#5850EC] text-[11px] font-bold uppercase tracking-wider">
+        Product Label
+      </span>
     </div>
-    <a href="{% url 'dashboard:dashboard_categories:tag_list' prefix %}"
-        class="bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors flex items-center space-x-2">
-        <span class="material-icons-outlined text-sm">arrow_back</span>
-        <span>Back to List</span>
-    </a>
-</div>
+    <p class="text-xs text-slate-500">Update the tag details for <span class="font-semibold text-slate-700">{{ tag.name }}</span>.</p>
+  </div>
 
-<div
-    class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-    <form method="post" enctype="multipart/form-data" class="p-6">
-        {% csrf_token %}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Name <span
-                        class="text-red-500">*</span></label>
-                {{ form.name }}
-                {% if form.name.errors %}
-                <span class="text-red-500 text-sm">{{ form.name.errors.0 }}</span>
-                {% endif %}
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Slug <span
-                        class="text-red-500">*</span></label>
-                <div class="flex space-x-2">
-                    {{ form.slug }}
-                    <button
-                        type="button"
-                        onclick="generateSlug()"
-                        class="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center"
-                        title="Generate slug from name"
-                    >
-                        <span class="material-icons-outlined text-sm">refresh</span>
-                    </button>
-                </div>
-                {% if form.slug.errors %}
-                <span class="text-red-500 text-sm">{{ form.slug.errors.0 }}</span>
-                {% endif %}
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Color</label>
-                {{ form.color }}
-                {% if form.color.errors %}
-                <span class="text-red-500 text-sm">{{ form.color.errors.0 }}</span>
-                {% endif %}
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Icon</label>
-                {{ form.icon }}
-                {% if form.icon.errors %}
-                <span class="text-red-500 text-sm">{{ form.icon.errors.0 }}</span>
-                {% endif %}
-            </div>
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Description</label>
-                {{ form.description }}
-                {% if form.description.errors %}
-                <span class="text-red-500 text-sm">{{ form.description.errors.0 }}</span>
-                {% endif %}
-            </div>
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Meta Title</label>
-                {{ form.meta_title }}
-                {% if form.meta_title.errors %}
-                <span class="text-red-500 text-sm">{{ form.meta_title.errors.0 }}</span>
-                {% endif %}
-            </div>
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Meta
-                    Description</label>
-                {{ form.meta_description }}
-                {% if form.meta_description.errors %}
-                <span class="text-red-500 text-sm">{{ form.meta_description.errors.0 }}</span>
-                {% endif %}
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Active</label>
-                {{ form.is_active }}
-                {% if form.is_active.errors %}
-                <span class="text-red-500 text-sm">{{ form.is_active.errors.0 }}</span>
-                {% endif %}
-            </div>
+  <form method="post" enctype="multipart/form-data" class="space-y-6">
+    {% csrf_token %}
+    {% include "dashboard/_partials/_error_message.html" %}
+
+    <section class="bg-white rounded-2xl border border-[#EEF2F6] p-5 sm:p-6 shadow-sm space-y-5">
+      <div class="flex items-center justify-between pb-1 border-b border-[#EEF2F6]">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-[#5850EC]">
+            <span class="material-icons-outlined text-lg">local_offer</span>
+          </span>
+          <div>
+            <h2 class="text-sm sm:text-base font-bold text-slate-900">Tag Details</h2>
+            <p class="text-xs text-slate-400">Update the tag label, description, and status</p>
+          </div>
         </div>
-        <div class="flex items-center justify-end space-x-4 mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
-            <button type="button"
-                class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                Cancel
-            </button>
-            <button type="submit"
-                class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2">
-                <span class="material-icons-outlined text-sm">save</span>
-                <span>Update Tag</span>
-            </button>
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Required Fields *</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Tag Name -->
+        <div class="sm:col-span-2">
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+            Tag Name <span class="text-rose-500">*</span>
+          </label>
+          <input
+            type="text"
+            name="{{ form.name.html_name }}"
+            id="{{ form.name.id_for_label }}"
+            value="{{ form.name.value|default:tag.name }}"
+            placeholder="e.g. New Arrivals, Summer Sale, Best Seller"
+            class="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-[#EEF2F6]/80 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-[#5850EC] focus:ring-2 focus:ring-[#5850EC]/20 focus:outline-none transition-all"
+            required
+          />
+          {% if form.name.errors %}
+            <p class="text-xs text-rose-500 mt-1 font-medium">{{ form.name.errors.0 }}</p>
+          {% endif %}
         </div>
-    </form>
+
+        <!-- Description -->
+        <div class="sm:col-span-2">
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+            Description
+          </label>
+          <textarea
+            name="{{ form.description.html_name }}"
+            id="{{ form.description.id_for_label }}"
+            rows="3"
+            placeholder="Briefly describe what this tag represents..."
+            class="w-full p-3.5 rounded-xl bg-slate-50 border border-[#EEF2F6]/80 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-[#5850EC] focus:ring-2 focus:ring-[#5850EC]/20 focus:outline-none transition-all resize-y"
+          >{{ form.description.value|default:tag.description }}</textarea>
+          {% if form.description.errors %}
+            <p class="text-xs text-rose-500 mt-1 font-medium">{{ form.description.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Active Status -->
+        <div class="flex items-center gap-2 pt-2">
+          <input
+            type="checkbox"
+            name="{{ form.is_active.html_name }}"
+            id="{{ form.is_active.id_for_label }}"
+            {% if form.is_active.value %}checked{% elif tag.is_active %}checked{% endif %}
+            class="w-4 h-4 rounded border-slate-300 text-[#5850EC] focus:ring-[#5850EC] cursor-pointer"
+          />
+          <label for="{{ form.is_active.id_for_label }}" class="text-xs font-semibold text-slate-700 cursor-pointer">
+            Tag is active on storefront
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Save Bar -->
+    <div class="flex items-center gap-3">
+      <a
+        href="{% url 'dashboard:dashboard_categories:tag_list' prefix %}"
+        class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-semibold hover:bg-slate-200 transition"
+      >
+        Cancel
+      </a>
+      <button
+        type="submit"
+        class="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-[#5850EC] text-white text-xs font-semibold shadow-md shadow-indigo-300/40 hover:bg-[#4F46E5] transition"
+      >
+        <span class="material-icons-outlined text-sm">save</span>
+        <span>Update Tag</span>
+      </button>
+    </div>
+  </form>
 </div>
-
-<script>
-  function slugify(text) {
-    return text
-      .toString()
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/[^\w\-]+/g, '')
-      .replace(/\-\-+/g, '-')
-      .replace(/^-+/, '')
-      .replace(/-+$/, '');
-  }
-
-  function generateSlug() {
-    const nameField = document.getElementById('id_name');
-    const slugField = document.getElementById('id_slug');
-    
-    if (nameField && slugField && nameField.value) {
-      slugField.value = slugify(nameField.value);
-    }
-  }
-
-  // Auto-generate slug as user types (only if slug is empty)
-  document.addEventListener('DOMContentLoaded', function() {
-    const nameField = document.getElementById('id_name');
-    const slugField = document.getElementById('id_slug');
-    
-    if (nameField && slugField) {
-      nameField.addEventListener('input', function() {
-        if (!slugField.value || slugField.dataset.autoGenerated !== 'false') {
-          slugField.value = slugify(this.value);
-          slugField.dataset.autoGenerated = 'true';
-        }
-      });
-      
-      // Mark as manually edited if user types in slug field
-      slugField.addEventListener('input', function() {
-        this.dataset.autoGenerated = 'false';
-      });
-    }
-  });
-</script>
 {% endblock %}

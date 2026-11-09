@@ -1,20 +1,20 @@
-<div class="space-y-6">
+﻿<div class="space-y-6">
   <!-- Basic Information -->
   <div>
-    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">Basic Information</h4>
+    <h4 class="text-sm font-medium text-slate-700 mb-4">Basic Information</h4>
     <div class="space-y-3">
       <div class="flex items-start">
-        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Name:</span>
-        <span class="text-sm text-slate-900 dark:text-white flex-1">{{ tag.name }}</span>
+        <span class="text-sm text-slate-500 w-24">Name:</span>
+        <span class="text-sm text-slate-900 flex-1">{{ tag.name }}</span>
       </div>
       <div class="flex items-start">
-        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Slug:</span>
-        <span class="text-sm text-slate-900 dark:text-white flex-1">{{ tag.slug }}</span>
+        <span class="text-sm text-slate-500 w-24">Slug:</span>
+        <span class="text-sm text-slate-900 flex-1">{{ tag.slug }}</span>
       </div>
       {% if tag.description %}
       <div class="flex items-start">
-        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Description:</span>
-        <span class="text-sm text-slate-900 dark:text-white flex-1">{{ tag.description }}</span>
+        <span class="text-sm text-slate-500 w-24">Description:</span>
+        <span class="text-sm text-slate-900 flex-1">{{ tag.description }}</span>
       </div>
       {% endif %}
     </div>
@@ -22,19 +22,19 @@
 
   <!-- Display Settings -->
   <div>
-    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">Display Settings</h4>
+    <h4 class="text-sm font-medium text-slate-700 mb-4">Display Settings</h4>
     <div class="space-y-3">
       <div class="flex items-start">
-        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Display Order:</span>
-        <span class="text-sm text-slate-900 dark:text-white flex-1">{{ tag.display_order }}</span>
+        <span class="text-sm text-slate-500 w-24">Display Order:</span>
+        <span class="text-sm text-slate-900 flex-1">{{ tag.display_order }}</span>
       </div>
       <div class="flex items-start">
-        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Status:</span>
-        <span class="text-sm text-slate-900 dark:text-white flex-1">
+        <span class="text-sm text-slate-500 w-24">Status:</span>
+        <span class="text-sm text-slate-900 flex-1">
           {% if tag.is_active %}
-            <span class="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 text-xs rounded-full">Active</span>
+            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Active</span>
           {% else %}
-            <span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 text-xs rounded-full">Inactive</span>
+            <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">Inactive</span>
           {% endif %}
         </span>
       </div>
@@ -43,15 +43,15 @@
 
   <!-- Dates -->
   <div>
-    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">Dates</h4>
+    <h4 class="text-sm font-medium text-slate-700 mb-4">Dates</h4>
     <div class="space-y-3">
       <div class="flex items-start">
-        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Created:</span>
-        <span class="text-sm text-slate-900 dark:text-white flex-1">{{ tag.created_at|date:"M d, Y H:i" }}</span>
+        <span class="text-sm text-slate-500 w-24">Created:</span>
+        <span class="text-sm text-slate-900 flex-1">{{ tag.created_at|date:"M d, Y H:i" }}</span>
       </div>
       <div class="flex items-start">
-        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Updated:</span>
-        <span class="text-sm text-slate-900 dark:text-white flex-1">{{ tag.updated_at|date:"M d, Y H:i" }}</span>
+        <span class="text-sm text-slate-500 w-24">Updated:</span>
+        <span class="text-sm text-slate-900 flex-1">{{ tag.updated_at|date:"M d, Y H:i" }}</span>
       </div>
     </div>
   </div>

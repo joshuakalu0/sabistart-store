@@ -1,29 +1,29 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 
 {% block content %}
 <div
-    class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 flex flex-col md:flex-row md:items-center justify-between shadow-sm">
+    class="bg-white rounded-xl border border-[#EEF2F6] p-6 flex flex-col md:flex-row md:items-center justify-between shadow-sm">
     <div class="mb-4 md:mb-0">
-        <h2 class="text-lg font-semibold text-slate-800 dark:text-white mb-1">Maintenance Mode</h2>
-        <p class="text-sm text-slate-500 dark:text-slate-400">Turn on the maintenance mode will temporarily deactivate
+        <h2 class="text-lg font-semibold text-slate-800 mb-1">Maintenance Mode</h2>
+        <p class="text-sm text-slate-500">Turn on the maintenance mode will temporarily deactivate
             your selected systems as of your chosen date and time.</p>
     </div>
     <div
-        class="flex items-center space-x-4 border border-slate-100 dark:border-slate-700 rounded-lg p-3 bg-slate-50 dark:bg-slate-900/50">
-        <span class="text-sm font-medium text-slate-600 dark:text-slate-400">Maintenance Mode</span>
+        class="flex items-center space-x-4 border border-slate-100 rounded-lg p-3 bg-slate-50">
+        <span class="text-sm font-medium text-slate-600">Maintenance Mode</span>
         <label class="relative inline-flex items-center cursor-pointer">
             {{ form.maintenance_mode }}
             <div
-                class="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
             </div>
         </label>
     </div>
 </div>
 <div
-    class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-    <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-        <h2 class="text-lg font-semibold text-slate-800 dark:text-white">Basic Information</h2>
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Here you setup your all business information.</p>
+    class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-[#EEF2F6]">
+        <h2 class="text-lg font-semibold text-slate-800">Basic Information</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Here you setup your all business information.</p>
     </div>
     <div class="p-6">
         <form id="form" method="post" enctype="multipart/form-data">
@@ -32,19 +32,19 @@
                 <div class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Store
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Store
                                 Name <span class="text-red-500">*</span></label>
                             {{ form.store_name }}
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Email
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Email
                                 <span class="text-red-500">*</span></label>
                             {{ form.contact_email }}
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Phone
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Phone
                                 <span class="text-red-500">*</span></label>
                             <div class="flex">
                                 <div class="relative">
@@ -53,7 +53,7 @@
                                             src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqlM4NY-2a3UqxBl0Uzz9xTSuSYdQ4UGtut4kqVm2ApCB3591t_0z9rTETDAcE8bwk_WWEbH412jnadxctaG7XnoKuDbfhAFCfVJafLbnodh8mm5XCiaXOOCrlMGt5KCO6YplE8EpV39yQeVP4jfiPcmtrApYEx6-N9DMhTEA9_zZsx3MwrFJ0Yq1gU7QoiuA9f2Ra-8SE_edekxp9TWq3z0dWDOy9QAtENEJ4_W1t-TCRk3Hwc0A3xsFY04La7cAVGoQyJ0xUHJQO">
                                     </div>
                                     <select
-                                        class="pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-r-0 border-slate-300 dark:border-slate-700 rounded-l-lg text-sm focus:ring-0 focus:border-slate-300">
+                                        class="pl-10 pr-4 py-2.5 bg-slate-50 border border-r-0 border-slate-300 rounded-l-lg text-sm focus:ring-0 focus:border-slate-300">
                                         <option>+234</option>
                                     </select>
                                 </div>
@@ -61,20 +61,20 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Country
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Country
                                 <span class="text-red-500">*</span></label>
                             {{ form.country }}
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Time Zone
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Time Zone
                                 <span class="text-red-500">*</span></label>
                             {{ form.time_zone }}
                         </div>
                         <div>
                             <label
-                                class="flex items-center text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                                class="flex items-center text-sm font-medium text-slate-700 mb-1.5">
                                 Pagination <span class="text-red-500 ml-1">*</span>
                                 <span
                                     class="material-icons-outlined text-slate-400 text-[16px] ml-1 cursor-help">info</span>
@@ -84,16 +84,16 @@
                     </div>
                     <div>
                         <label
-                            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Tagline</label>
+                            class="block text-sm font-medium text-slate-700 mb-1.5">Tagline</label>
                         {{ form.store_tagline }}
                     </div>
                     <div>
                         <label
-                            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Description</label>
+                            class="block text-sm font-medium text-slate-700 mb-1.5">Description</label>
                         {{ form.store_description }}
                     </div>
                     <div>
-                        <label class="flex items-center text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                        <label class="flex items-center text-sm font-medium text-slate-700 mb-1.5">
                             Address <span class="text-red-500 ml-1">*</span>
                             <span
                                 class="material-icons-outlined text-slate-400 text-[16px] ml-1 cursor-help">info</span>
@@ -101,50 +101,50 @@
                         {{ form.address_line1 }}
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Address Line
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Address Line
                             2</label>
                         {{ form.address_line2 }}
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label
-                                class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">City</label>
+                                class="block text-sm font-medium text-slate-700 mb-1.5">City</label>
                             {{ form.city }}
                         </div>
                         <div>
                             <label
-                                class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">State/Province</label>
+                                class="block text-sm font-medium text-slate-700 mb-1.5">State/Province</label>
                             {{ form.state }}
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Postal
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Postal
                                 Code</label>
                             {{ form.postal_code }}
                         </div>
                         <div>
                             <label
-                                class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Country</label>
+                                class="block text-sm font-medium text-slate-700 mb-1.5">Country</label>
                             {{ form.country }}
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label
-                                class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Latitude</label>
+                                class="block text-sm font-medium text-slate-700 mb-1.5">Latitude</label>
                             {{ form.latitude }}
                         </div>
                         <div>
                             <label
-                                class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Longitude</label>
+                                class="block text-sm font-medium text-slate-700 mb-1.5">Longitude</label>
                             {{ form.longitude }}
                         </div>
                     </div>
                 </div>
                 <div class="h-full min-h-[400px] flex flex-col">
                     <div
-                        class="relative flex-1 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-inner group">
+                        class="relative flex-1 rounded-xl overflow-hidden border border-[#EEF2F6] shadow-inner group">
                         <img alt="Map interface showing a city view" class="w-full h-full object-cover"
                             src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUPd-cr28x7-5EVF7Kv_dg9ExpC31wIn-BKSGsz0DU3JoQQr-4myeEysSYuQgp_1bCJ9NAp3oYH2TPFUS5Ozm2avcN1mlOqQuDK5FxYZiuTDIdpf8p3lq6OdpCx_F5GgmSeJqiyFFRbPRoP_LtiYVHW9JBZvjWvaTSsjFhKStZ6lwyT0Qft_kxYnAKeprN4ib_JOTWqiL5_8toP35uzfPl1eb_TJW-RJuXDAOPh8_FMwDN817CPFig-j8UG4usFkHt1wBOPTUo7Hly">
                         <div class="absolute top-4 left-4 right-4">
@@ -180,60 +180,60 @@
                 </div>
             </div>
             <div
-                class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mt-8">
-                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                    <h2 class="text-lg font-semibold text-slate-800 dark:text-white">Business Information</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Configuration of financial and
+                class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden mt-8">
+                <div class="px-6 py-4 border-b border-[#EEF2F6]">
+                    <h2 class="text-lg font-semibold text-slate-800">Business Information</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Configuration of financial and
                         operational model.</p>
                 </div>
                 <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Currency
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Currency
                                 <span class="text-red-500">*</span></label>
                             {{ form.default_currency }}
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Currency
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Currency
                                 Symbol Position <span class="text-red-500">*</span></label>
                             <div class="flex space-x-4 mt-2">
                                 <label class="flex items-center">
                                     <input {% if form.currency_position.value == 'left' %}checked{% endif %}
                                         class="text-primary focus:ring-primary" name="{{ form.currency_position.name }}"
                                         type="radio" value="left">
-                                    <span class="ml-2 text-sm text-slate-600 dark:text-slate-400">Left ($0.0)</span>
+                                    <span class="ml-2 text-sm text-slate-600">Left ($0.0)</span>
                                 </label>
                                 <label class="flex items-center">
                                     <input {% if form.currency_position.value == 'right' %}checked{% endif %}
                                         class="text-primary focus:ring-primary" name="{{ form.currency_position.name }}"
                                         type="radio" value="right">
-                                    <span class="ml-2 text-sm text-slate-600 dark:text-slate-400">Right (0.0$)</span>
+                                    <span class="ml-2 text-sm text-slate-600">Right (0.0$)</span>
                                 </label>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Business
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Business
                                 Model <span class="text-red-500">*</span></label>
                             <div class="grid grid-cols-2 gap-3">
                                 <div
-                                    class="border {% if form.business_model.value == 'multi' %}border-primary bg-blue-50 dark:bg-primary/10{% else %}border-slate-200 dark:border-slate-700{% endif %} rounded-lg p-3 cursor-pointer hover:border-primary/50 transition-colors">
+                                    class="border {% if form.business_model.value == 'multi' %}border-primary bg-indigo-50{% else %}border-[#EEF2F6]{% endif %} rounded-lg p-3 cursor-pointer hover:border-primary/50 transition-colors">
                                     <div class="flex items-center">
                                         <input {% if form.business_model.value == 'multi' %}checked{% endif %}
                                             class="text-primary focus:ring-primary"
                                             name="{{ form.business_model.name }}" type="radio" value="multi">
                                         <span
-                                            class="ml-2 text-xs font-semibold {% if form.business_model.value == 'multi' %}text-primary{% else %}text-slate-600 dark:text-slate-400{% endif %}">Multi
+                                            class="ml-2 text-xs font-semibold {% if form.business_model.value == 'multi' %}text-primary{% else %}text-slate-600{% endif %}">Multi
                                             Vendor</span>
                                     </div>
                                 </div>
                                 <div
-                                    class="border {% if form.business_model.value == 'single' %}border-primary bg-blue-50 dark:bg-primary/10{% else %}border-slate-200 dark:border-slate-700{% endif %} rounded-lg p-3 cursor-pointer hover:border-primary/50 transition-colors">
+                                    class="border {% if form.business_model.value == 'single' %}border-primary bg-indigo-50{% else %}border-[#EEF2F6]{% endif %} rounded-lg p-3 cursor-pointer hover:border-primary/50 transition-colors">
                                     <div class="flex items-center">
                                         <input {% if form.business_model.value == 'single' %}checked{% endif %}
                                             class="text-primary focus:ring-primary"
                                             name="{{ form.business_model.name }}" type="radio" value="single">
                                         <span
-                                            class="ml-2 text-xs font-semibold {% if form.business_model.value == 'single' %}text-primary{% else %}text-slate-600 dark:text-slate-400{% endif %}">Single
+                                            class="ml-2 text-xs font-semibold {% if form.business_model.value == 'single' %}text-primary{% else %}text-slate-600{% endif %}">Single
                                             Vendor</span>
                                     </div>
                                 </div>
@@ -243,59 +243,59 @@
                 </div>
             </div>
             <div
-                class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mt-8">
-                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                    <h2 class="text-lg font-semibold text-slate-800 dark:text-white">Business Color Settings</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Customize your brand identity across
+                class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden mt-8">
+                <div class="px-6 py-4 border-b border-[#EEF2F6]">
+                    <h2 class="text-lg font-semibold text-slate-800">Business Color Settings</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Customize your brand identity across
                         the platform.</p>
                 </div>
                 <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div
-                            class="flex items-center space-x-6 p-4 border border-slate-100 dark:border-slate-700 rounded-xl">
+                            class="flex items-center space-x-6 p-4 border border-slate-100 rounded-xl">
                             <div class="relative">
                                 {{ form.primary_color }}
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold text-slate-800 dark:text-white mb-1">Primary
+                                <label class="block text-sm font-semibold text-slate-800 mb-1">Primary
                                     Color</label>
                                 <p class="text-xs text-slate-500 mb-2">Applied to buttons, links, and active states.</p>
                                 <code
-                                    class="text-[10px] bg-slate-100 dark:bg-slate-900 px-2 py-1 rounded">{{ form.primary_color.value }}</code>
+                                    class="text-[10px] bg-slate-100 px-2 py-1 rounded">{{ form.primary_color.value }}</code>
                             </div>
                         </div>
                         <div
-                            class="flex items-center space-x-6 p-4 border border-slate-100 dark:border-slate-700 rounded-xl">
+                            class="flex items-center space-x-6 p-4 border border-slate-100 rounded-xl">
                             <div class="relative">
                                 {{ form.secondary_color }}
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold text-slate-800 dark:text-white mb-1">Secondary
+                                <label class="block text-sm font-semibold text-slate-800 mb-1">Secondary
                                     Color</label>
                                 <p class="text-xs text-slate-500 mb-2">Applied to highlights and secondary elements.</p>
                                 <code
-                                    class="text-[10px] bg-slate-100 dark:bg-slate-900 px-2 py-1 rounded">{{ form.secondary_color.value }}</code>
+                                    class="text-[10px] bg-slate-100 px-2 py-1 rounded">{{ form.secondary_color.value }}</code>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div
-                class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mt-8">
-                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                    <h2 class="text-lg font-semibold text-slate-800 dark:text-white">Company Logo & Favicon</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Manage your brand's visual identity on
+                class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden mt-8">
+                <div class="px-6 py-4 border-b border-[#EEF2F6]">
+                    <h2 class="text-lg font-semibold text-slate-800">Company Logo & Favicon</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Manage your brand's visual identity on
                         various platform modes.</p>
                 </div>
                 <div class="p-6">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         <!-- Main Logo -->
                         <div class="space-y-3">
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Main
+                            <label class="block text-sm font-medium text-slate-700">Main
                                 Logo</label>
                             {% if settings.logo %}
                             <div
-                                class="relative aspect-square rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                                class="relative aspect-square rounded-xl overflow-hidden border border-[#EEF2F6] bg-white">
                                 <img src="{{ settings.logo.url }}" alt="Main Logo"
                                     class="w-full h-full object-contain p-4">
                                 <button type="button"
@@ -307,12 +307,12 @@
                             </div>
                             {% else %}
                             <div
-                                class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-4 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 aspect-square hover:border-primary/50 transition-colors">
+                                class="border-2 border-dashed border-[#EEF2F6] rounded-xl p-4 flex flex-col items-center justify-center bg-slate-50 aspect-square hover:border-primary/50 transition-colors">
                                 <span class="material-icons-outlined text-slate-400 text-3xl mb-2">image</span>
                                 <span class="text-[10px] text-slate-500 mb-4 text-center">JPG, PNG or SVG (Max.
                                     2MB)</span>
                                 <label
-                                    class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                                    class="px-3 py-1.5 bg-white border border-[#EEF2F6] text-xs font-medium rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
                                     Upload Image
                                     {{ form.logo }}
                                 </label>
@@ -322,11 +322,11 @@
 
                         <!-- Dark Mode Logo -->
                         <div class="space-y-3">
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Dark Mode
+                            <label class="block text-sm font-medium text-slate-700">Dark Mode
                                 Logo</label>
                             {% if settings.logo_dark %}
                             <div
-                                class="relative aspect-square rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                                class="relative aspect-square rounded-xl overflow-hidden border border-[#EEF2F6] bg-white">
                                 <img src="{{ settings.logo_dark.url }}" alt="Dark Mode Logo"
                                     class="w-full h-full object-contain p-4">
                                 <button type="button"
@@ -339,12 +339,12 @@
                             </div>
                             {% else %}
                             <div
-                                class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-4 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 aspect-square hover:border-primary/50 transition-colors">
+                                class="border-2 border-dashed border-[#EEF2F6] rounded-xl p-4 flex flex-col items-center justify-center bg-slate-50 aspect-square hover:border-primary/50 transition-colors">
                                 <span class="material-icons-outlined text-slate-400 text-3xl mb-2">dark_mode</span>
                                 <span class="text-[10px] text-slate-500 mb-4 text-center">High contrast logo for dark
                                     UI</span>
                                 <label
-                                    class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                                    class="px-3 py-1.5 bg-white border border-[#EEF2F6] text-xs font-medium rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
                                     Upload Image
                                     {{ form.logo_dark }}
                                 </label>
@@ -354,10 +354,10 @@
 
                         <!-- Favicon -->
                         <div class="space-y-3">
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Favicon</label>
+                            <label class="block text-sm font-medium text-slate-700">Favicon</label>
                             {% if settings.favicon %}
                             <div
-                                class="relative aspect-square rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                                class="relative aspect-square rounded-xl overflow-hidden border border-[#EEF2F6] bg-white">
                                 <img src="{{ settings.favicon.url }}" alt="Favicon"
                                     class="w-full h-full object-contain p-4">
                                 <button type="button"
@@ -370,12 +370,12 @@
                             </div>
                             {% else %}
                             <div
-                                class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-4 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 aspect-square hover:border-primary/50 transition-colors">
+                                class="border-2 border-dashed border-[#EEF2F6] rounded-xl p-4 flex flex-col items-center justify-center bg-slate-50 aspect-square hover:border-primary/50 transition-colors">
                                 <span class="material-icons-outlined text-slate-400 text-3xl mb-2">tab</span>
                                 <span class="text-[10px] text-slate-500 mb-4 text-center">Standard 32x32 or 16x16
                                     px</span>
                                 <label
-                                    class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                                    class="px-3 py-1.5 bg-white border border-[#EEF2F6] text-xs font-medium rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
                                     Upload Icon
                                     {{ form.favicon }}
                                 </label>
@@ -386,53 +386,53 @@
                 </div>
             </div>
             <div
-                class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mt-8">
-                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                    <h2 class="text-lg font-semibold text-slate-800 dark:text-white">Social Media & Links</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Link your business social profiles to
+                class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden mt-8">
+                <div class="px-6 py-4 border-b border-[#EEF2F6]">
+                    <h2 class="text-lg font-semibold text-slate-800">Social Media & Links</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Link your business social profiles to
                         appear on the platform.</p>
                 </div>
                 <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Facebook
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Facebook
                                 URL</label>
                             <div class="flex">
                                 <span
-                                    class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-500 text-sm">
+                                    class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-300 bg-slate-50 text-slate-500 text-sm">
                                     <span class="material-icons-outlined text-base">facebook</span>
                                 </span>
                                 {{ form.facebook_url }}
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Instagram
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Instagram
                                 URL</label>
                             <div class="flex">
                                 <span
-                                    class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-500 text-sm">
+                                    class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-300 bg-slate-50 text-slate-500 text-sm">
                                     <span class="material-icons-outlined text-base">camera_alt</span>
                                 </span>
                                 {{ form.instagram_url }}
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Twitter
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Twitter
                                 URL</label>
                             <div class="flex">
                                 <span
-                                    class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-500 text-sm">
+                                    class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-300 bg-slate-50 text-slate-500 text-sm">
                                     <span class="material-icons-outlined text-base">alternate_email</span>
                                 </span>
                                 {{ form.twitter_url }}
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">LinkedIn
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">LinkedIn
                                 URL</label>
                             <div class="flex">
                                 <span
-                                    class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-500 text-sm">
+                                    class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-300 bg-slate-50 text-slate-500 text-sm">
                                     <span class="material-icons-outlined text-base">work_outline</span>
                                 </span>
                                 {{ form.linkedin_url }}
@@ -442,16 +442,16 @@
                 </div>
             </div>
             <div
-                class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mt-8">
-                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                    <h2 class="text-lg font-semibold text-slate-800 dark:text-white">Contact Information</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Dedicated contact details for customer
+                class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden mt-8">
+                <div class="px-6 py-4 border-b border-[#EEF2F6]">
+                    <h2 class="text-lg font-semibold text-slate-800">Contact Information</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Dedicated contact details for customer
                         support and inquiries.</p>
                 </div>
                 <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Support
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Support
                                 Email <span class="text-red-500">*</span></label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
@@ -461,7 +461,7 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Support
+                            <label class="block text-sm font-medium text-slate-700 mb-1.5">Support
                                 Phone Number <span class="text-red-500">*</span></label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
@@ -474,30 +474,30 @@
                 </div>
             </div>
             <div
-                class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mt-8">
-                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                    <h2 class="text-lg font-semibold text-slate-800 dark:text-white">Copyright Information</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Text that appears at the bottom of your
+                class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden mt-8">
+                <div class="px-6 py-4 border-b border-[#EEF2F6]">
+                    <h2 class="text-lg font-semibold text-slate-800">Copyright Information</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Text that appears at the bottom of your
                         emails and website footer.</p>
                 </div>
                 <div class="p-6">
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Copyright Text
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Copyright Text
                         <span class="text-red-500">*</span></label>
                     {{ form.copyright_text }}
                 </div>
             </div>
             <div
-                class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mt-8">
-                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                    <h2 class="text-lg font-semibold text-slate-800 dark:text-white">App Settings</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Configure your mobile application store
+                class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden mt-8">
+                <div class="px-6 py-4 border-b border-[#EEF2F6]">
+                    <h2 class="text-lg font-semibold text-slate-800">App Settings</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Configure your mobile application store
                         links.</p>
                 </div>
                 <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label
-                                class="flex items-center text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                                class="flex items-center text-sm font-medium text-slate-700 mb-1.5">
                                 <span class="material-icons-outlined mr-2 text-[18px] text-slate-400">apple</span>
                                 Apple Store Link
                             </label>
@@ -505,7 +505,7 @@
                         </div>
                         <div>
                             <label
-                                class="flex items-center text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                                class="flex items-center text-sm font-medium text-slate-700 mb-1.5">
                                 <span class="material-icons-outlined mr-2 text-[18px] text-slate-400">play_arrow</span>
                                 Play Store Link
                             </label>
@@ -515,11 +515,11 @@
                 </div>
             </div>
             <div id="buttom_submit"
-                class="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:justify-end gap-2 sm:gap-3 shadow-sm mb-12 sticky bottom-0 z-20 mt-8 sm:rounded-xl sm:border">
+                class="bg-white border-t border-[#EEF2F6] px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:justify-end gap-2 sm:gap-3 shadow-sm mb-12 sticky bottom-0 z-20 mt-8 sm:rounded-xl sm:border">
                 <button id="reset_button" type="button"
-                    class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-200 dark:hover:bg-slate-600 active:scale-95 transition-all text-sm">Reset</button>
+                    class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-slate-100 text-slate-600 font-medium hover:bg-slate-200 active:scale-95 transition-all text-sm">Reset</button>
                 <button id="submit_button" type="submit"
-                    class="w-full sm:w-auto px-8 py-2.5 rounded-xl bg-primary text-white font-semibold shadow-lg shadow-primary/20 hover:bg-blue-600 active:scale-95 transition-all flex items-center justify-center gap-1.5 text-sm">
+                    class="w-full sm:w-auto px-8 py-2.5 rounded-xl bg-primary text-white font-semibold shadow-lg shadow-primary/20 hover:bg-[#5850EC] active:scale-95 transition-all flex items-center justify-center gap-1.5 text-sm">
                     <span class="material-icons-outlined text-[18px]">save</span>
                     Save information
                 </button>
@@ -571,10 +571,10 @@
         }
 
         const placeholder = `
-        <div class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-4 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/50 aspect-square hover:border-primary/50 transition-colors">
+        <div class="border-2 border-dashed border-[#EEF2F6] rounded-xl p-4 flex flex-col items-center justify-center bg-slate-50 aspect-square hover:border-primary/50 transition-colors">
             <span class="material-icons-outlined text-slate-400 text-3xl mb-2">${icon}</span>
             <span class="text-[10px] text-slate-500 mb-4 text-center">${text}</span>
-            <label class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+            <label class="px-3 py-1.5 bg-white border border-[#EEF2F6] text-xs font-medium rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
                 ${label}
                 <input type="file" name="${fieldName}" id="${fieldName}" accept="${accept}" class="hidden">
             </label>
@@ -590,7 +590,7 @@
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     const imagePreview = `
-                    <div class="relative aspect-square rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                    <div class="relative aspect-square rounded-xl overflow-hidden border border-[#EEF2F6] bg-white">
                         <img src="${e.target.result}" alt="Preview" class="w-full h-full object-contain p-4">
                         <button type="button" class="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors" onclick="removeImage('${fieldName}')">
                             <span class="material-icons-outlined text-sm">close</span>
@@ -617,7 +617,7 @@
                         reader.onload = function (e) {
                             const container = fileInput.closest('.space-y-3');
                             const imagePreview = `
-                            <div class="relative aspect-square rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                            <div class="relative aspect-square rounded-xl overflow-hidden border border-[#EEF2F6] bg-white">
                                 <img src="${e.target.result}" alt="Preview" class="w-full h-full object-contain p-4">
                                 <button type="button" class="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors" onclick="removeImage('${fieldName}')">
                                     <span class="material-icons-outlined text-sm">close</span>

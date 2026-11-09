@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
@@ -16,62 +16,62 @@
         theme: {
           extend: {
             colors: {
-              "primary-dim": "#0048c1",
-              "primary-container": "#dbe1ff",
-              "on-tertiary": "#fcf7ff",
-              "error-container": "#fe8983",
-              "secondary-container": "#d3e4fe",
-              "on-surface": "#2a3439",
-              "on-tertiary-fixed": "#3e3a54",
-              "on-primary": "#f8f7ff",
-              "on-surface-variant": "#566166",
-              "tertiary-dim": "#54506b",
-              "primary-fixed-dim": "#c7d3ff",
-              "surface": "#f7f9fb",
-              "secondary-fixed-dim": "#c5d6f0",
-              "on-primary-fixed-variant": "#0050d4",
-              "tertiary": "#605c78",
-              "inverse-surface": "#0b0f10",
-              "inverse-primary": "#618bff",
-              "surface-container-lowest": "#ffffff",
-              "secondary-dim": "#44546a",
-              "surface-container-low": "#f0f4f7",
-              "secondary-fixed": "#d3e4fe",
-              "on-secondary": "#f7f9ff",
-              "on-secondary-fixed-variant": "#4d5d73",
-              "on-background": "#2a3439",
-              "outline-variant": "#a9b4b9",
-              "on-error": "#fff7f6",
-              "on-tertiary-container": "#514d68",
-              "tertiary-container": "#e3dbfd",
-              "surface-tint": "#0053db",
-              "inverse-on-surface": "#9a9d9f",
-              "tertiary-fixed": "#e3dbfd",
-              "primary": "#0053db",
-              "primary-fixed": "#dbe1ff",
-              "error-dim": "#4e0309",
-              "outline": "#717c82",
-              "background": "#f7f9fb",
-              "surface-dim": "#cfdce3",
-              "on-tertiary-fixed-variant": "#5b5672",
-              "on-secondary-container": "#435368",
-              "surface-variant": "#d9e4ea",
-              "surface-container-high": "#e1e9ee",
-              "surface-bright": "#f7f9fb",
-              "secondary": "#506076",
-              "on-primary-fixed": "#003798",
-              "on-primary-container": "#0048bf",
-              "surface-container": "#e8eff3",
-              "on-secondary-fixed": "#314055",
-              "error": "#9f403d",
-              "surface-container-highest": "#d9e4ea",
-              "on-error-container": "#752121",
-              "tertiary-fixed-dim": "#d4cdee"
+"primary-dim": "#0048c1",
+"primary-container": "#dbe1ff",
+"on-tertiary": "#fcf7ff",
+"error-container": "#fe8983",
+"secondary-container": "#d3e4fe",
+"on-surface": "#2a3439",
+"on-tertiary-fixed": "#3e3a54",
+"on-primary": "#f8f7ff",
+"on-surface-variant": "#566166",
+"tertiary-dim": "#54506b",
+"primary-fixed-dim": "#c7d3ff",
+"surface": "#f7f9fb",
+"secondary-fixed-dim": "#c5d6f0",
+"on-primary-fixed-variant": "#0050d4",
+"tertiary": "#605c78",
+"inverse-surface": "#0b0f10",
+"inverse-primary": "#618bff",
+"surface-container-lowest": "#ffffff",
+"secondary-dim": "#44546a",
+"surface-container-low": "#f0f4f7",
+"secondary-fixed": "#d3e4fe",
+"on-secondary": "#f7f9ff",
+"on-secondary-fixed-variant": "#4d5d73",
+"on-background": "#2a3439",
+"outline-variant": "#a9b4b9",
+"on-error": "#fff7f6",
+"on-tertiary-container": "#514d68",
+"tertiary-container": "#e3dbfd",
+"surface-tint": "#0053db",
+"inverse-on-surface": "#9a9d9f",
+"tertiary-fixed": "#e3dbfd",
+"primary": "#0053db",
+"primary-fixed": "#dbe1ff",
+"error-dim": "#4e0309",
+"outline": "#717c82",
+"background": "#f7f9fb",
+"surface-dim": "#cfdce3",
+"on-tertiary-fixed-variant": "#5b5672",
+"on-secondary-container": "#435368",
+"surface-variant": "#d9e4ea",
+"surface-container-high": "#e1e9ee",
+"surface-bright": "#f7f9fb",
+"secondary": "#506076",
+"on-primary-fixed": "#003798",
+"on-primary-container": "#0048bf",
+"surface-container": "#e8eff3",
+"on-secondary-fixed": "#314055",
+"error": "#9f403d",
+"surface-container-highest": "#d9e4ea",
+"on-error-container": "#752121",
+"tertiary-fixed-dim": "#d4cdee"
             },
             fontFamily: {
-              "headline": ["Manrope"],
-              "body": ["Inter"],
-              "label": ["Inter"]
+"headline": ["Manrope"],
+"body": ["Inter"],
+"label": ["Inter"]
             },
             borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
           },
@@ -153,15 +153,15 @@
 {% endif %}
 
 <!-- TopAppBar -->
-<header class="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+<header class="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
     <div class="flex justify-between items-center px-10 py-4 w-full">
         <div class="flex items-center gap-8">
-            <span class="text-lg font-bold text-slate-900 dark:text-slate-50 font-['Manrope'] tracking-tight">{{ title }}</span>
+            <span class="text-lg font-bold text-slate-900 font-['Manrope'] tracking-tight">{{ title }}</span>
             <nav class="hidden md:flex items-center gap-6">
-                <a class="text-slate-500 dark:text-slate-400 font-medium font-['Manrope'] hover:text-blue-600 transition-colors duration-200" href="#">Dashboard</a>
-                <a class="text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-400 pb-1 font-['Manrope'] font-semibold tracking-tight" href="{% url 'navigation_menu_list' %}">Menus</a>
-                <a class="text-slate-500 dark:text-slate-400 font-medium font-['Manrope'] hover:text-blue-600 transition-colors duration-200" href="#">Pages</a>
-                <a class="text-slate-500 dark:text-slate-400 font-medium font-['Manrope'] hover:text-blue-600 transition-colors duration-200" href="#">Settings</a>
+                <a class="text-slate-500 font-medium font-['Manrope'] hover:text-[#5850EC] transition-colors duration-200" href="#">Dashboard</a>
+                <a class="text-blue-700 border-b-2 border-blue-700 pb-1 font-['Manrope'] font-semibold tracking-tight" href="{% url 'navigation_menu_list' %}">Menus</a>
+                <a class="text-slate-500 font-medium font-['Manrope'] hover:text-[#5850EC] transition-colors duration-200" href="#">Pages</a>
+                <a class="text-slate-500 font-medium font-['Manrope'] hover:text-[#5850EC] transition-colors duration-200" href="#">Settings</a>
             </nav>
         </div>
         <div class="flex items-center gap-4">

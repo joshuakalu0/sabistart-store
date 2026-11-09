@@ -1,4 +1,4 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% load static %}
 
 {% block title %}{{ title|default:"Theme Preset" }}{% endblock %}
@@ -7,16 +7,16 @@
 <!-- Page Header -->
 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
   <div>
-    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+    <h2 class="text-xl font-bold text-slate-900">
       {% if is_edit %}Edit Theme Preset: {{ object.name }}{% else %}Create Theme Preset{% endif %}
     </h2>
-    <p class="text-sm text-slate-600 dark:text-slate-400">
+    <p class="text-sm text-slate-600">
       Configure reusable visual presets for storefront themes
     </p>
   </div>
   <a
     href="{% if prefix %}{% url 'dashboard:store_settings:theme_preset_list' prefix %}{% else %}#{% endif %}"
-    class="inline-flex items-center justify-center gap-1.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-sm font-medium w-full sm:w-auto"
+    class="inline-flex items-center justify-center gap-1.5 bg-slate-200 text-slate-800 px-4 py-2.5 rounded-xl hover:bg-slate-300 transition-colors text-sm font-medium w-full sm:w-auto"
   >
     <span class="material-icons-outlined text-sm">arrow_back</span>
     <span>Back to Presets</span>
@@ -28,18 +28,18 @@
   {% include "dashboard/_partials/_error_message.html" %}
 
   <!-- Basic Information Section -->
-  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
-      <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
-        <span class="material-icons-outlined text-lg mr-3 text-blue-600 dark:text-blue-400">info</span>
+  <div class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden">
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-[#EEF2F6]">
+      <h3 class="text-lg font-semibold text-slate-900 flex items-center">
+        <span class="material-icons-outlined text-lg mr-3 text-[#5850EC]">info</span>
         Basic Information
       </h3>
-      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Preset name, category tags, and descriptive copy</p>
+      <p class="text-sm text-slate-600 mt-1">Preset name, category tags, and descriptive copy</p>
     </div>
     <div class="p-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.name.id_for_label }}">
+          <label class="block text-sm font-medium text-slate-700 mb-2" for="{{ form.name.id_for_label }}">
             Preset Name <span class="text-red-500">*</span>
           </label>
           {{ form.name }}
@@ -47,7 +47,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.style.id_for_label }}">
+          <label class="block text-sm font-medium text-slate-700 mb-2" for="{{ form.style.id_for_label }}">
             Design Style
           </label>
           {{ form.style }}
@@ -55,7 +55,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.industry.id_for_label }}">
+          <label class="block text-sm font-medium text-slate-700 mb-2" for="{{ form.industry.id_for_label }}">
             Target Industry
           </label>
           {{ form.industry }}
@@ -65,16 +65,16 @@
         <div class="flex items-center gap-6 pt-7">
           <label class="inline-flex items-center gap-2 cursor-pointer">
             {{ form.is_default }}
-            <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Default Preset</span>
+            <span class="text-sm font-medium text-slate-700">Default Preset</span>
           </label>
           <label class="inline-flex items-center gap-2 cursor-pointer">
             {{ form.is_featured }}
-            <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Featured</span>
+            <span class="text-sm font-medium text-slate-700">Featured</span>
           </label>
         </div>
 
         <div class="md:col-span-2">
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.description.id_for_label }}">
+          <label class="block text-sm font-medium text-slate-700 mb-2" for="{{ form.description.id_for_label }}">
             Description
           </label>
           {{ form.description }}
@@ -85,22 +85,22 @@
   </div>
 
   <!-- Media Section -->
-  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-    <div class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
-      <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
-        <span class="material-icons-outlined text-lg mr-3 text-purple-600 dark:text-purple-400">image</span>
+  <div class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden">
+    <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-6 py-4 border-b border-[#EEF2F6]">
+      <h3 class="text-lg font-semibold text-slate-900 flex items-center">
+        <span class="material-icons-outlined text-lg mr-3 text-purple-600">image</span>
         Preview Thumbnail
       </h3>
-      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Upload a representative screenshot or banner of this theme preset</p>
+      <p class="text-sm text-slate-600 mt-1">Upload a representative screenshot or banner of this theme preset</p>
     </div>
     <div class="p-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
         <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Preset Image</label>
-          <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-6 text-center hover:border-primary transition-colors">
+          <label class="block text-sm font-medium text-slate-700 mb-2">Preset Image</label>
+          <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-primary transition-colors">
             <span class="material-icons-outlined text-slate-400 text-4xl mb-2">cloud_upload</span>
-            <p class="text-sm text-slate-600 dark:text-slate-400 mb-2">Click to select or drag and drop</p>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">PNG, JPG, WebP up to 5MB</p>
+            <p class="text-sm text-slate-600 mb-2">Click to select or drag and drop</p>
+            <p class="text-xs text-slate-500 mb-3">PNG, JPG, WebP up to 5MB</p>
             {{ form.preview_image }}
           </div>
           {% if form.preview_image.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.preview_image.errors.0 }}</span>{% endif %}
@@ -108,8 +108,8 @@
 
         {% if is_edit and object.preview_image %}
         <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Current Preview</label>
-          <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm max-h-48">
+          <label class="block text-sm font-medium text-slate-700 mb-2">Current Preview</label>
+          <div class="rounded-xl overflow-hidden border border-[#EEF2F6] shadow-sm max-h-48">
             <img src="{{ object.preview_image.url }}" alt="{{ object.name }}" class="w-full h-48 object-cover"/>
           </div>
         </div>
@@ -119,21 +119,21 @@
   </div>
 
   <!-- Theme JSON Configuration Section -->
-  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
-      <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
-        <span class="material-icons-outlined text-lg mr-3 text-emerald-600 dark:text-emerald-400">code</span>
+  <div class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden">
+    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 px-6 py-4 border-b border-[#EEF2F6]">
+      <h3 class="text-lg font-semibold text-slate-900 flex items-center">
+        <span class="material-icons-outlined text-lg mr-3 text-emerald-600">code</span>
         Theme Configuration (JSON)
       </h3>
-      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">JSON configuration mapping directly to ThemeSettings schema attributes</p>
+      <p class="text-sm text-slate-600 mt-1">JSON configuration mapping directly to ThemeSettings schema attributes</p>
     </div>
     <div class="p-6">
       <div>
-        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.theme_config.id_for_label }}">
+        <label class="block text-sm font-medium text-slate-700 mb-2" for="{{ form.theme_config.id_for_label }}">
           Preset Configuration Object
         </label>
         {{ form.theme_config }}
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-mono">
+        <p class="text-xs text-slate-500 mt-1.5 font-mono">
           Example: {"primary_color": "#4F46E5", "secondary_color": "#4338CA", "heading_font": "inter", "border_radius": 12}
         </p>
         {% if form.theme_config.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.theme_config.errors.0 }}</span>{% endif %}
@@ -142,11 +142,11 @@
   </div>
 
   <!-- Mobile-friendly sticky save bar -->
-  <div class="sticky bottom-16 sm:bottom-0 z-20 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 px-3 py-2.5 sm:px-4 sm:py-3 sm:rounded-xl sm:border sm:shadow-sm sm:static sm:mt-6">
+  <div class="sticky bottom-16 sm:bottom-0 z-20 bg-white/95 backdrop-blur-md border-t border-[#EEF2F6] px-3 py-2.5 sm:px-4 sm:py-3 sm:rounded-xl sm:border sm:shadow-sm sm:static sm:mt-6">
     <div class="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
       <a
         href="{% if prefix %}{% url 'dashboard:store_settings:theme_preset_list' prefix %}{% else %}#{% endif %}"
-        class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+        class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 border border-slate-300 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
       >
         Cancel
       </a>

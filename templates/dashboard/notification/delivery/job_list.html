@@ -1,4 +1,4 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% load static %}
 {% load i18n %}
 
@@ -26,10 +26,10 @@
     </div>
 
     <!-- Table -->
-    <div class="bg-white shadow-lg rounded-sm border border-slate-200">
+    <div class="bg-white shadow-lg rounded-sm border border-[#EEF2F6]">
         <div class="overflow-x-auto">
             <table class="table-auto w-full">
-                <thead class="text-xs font-semibold uppercase text-slate-500 bg-slate-50 border-t border-b border-slate-200">
+                <thead class="text-xs font-semibold uppercase text-slate-500 bg-slate-50 border-t border-b border-[#EEF2F6]">
                     <tr>
                         <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Job ID</div></th>
                         <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Template & Channel</div></th>
@@ -38,7 +38,7 @@
                         <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Dates</div></th>
                     </tr>
                 </thead>
-                <tbody class="text-sm divide-y divide-slate-200">
+                <tbody class="text-sm divide-y divide-[#EEF2F6]">
                     {% for job in jobs %}
                     <tr>
                         <td class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap font-mono text-xs text-slate-500">
@@ -55,7 +55,7 @@
                                 {% elif job.status == 'failed' %}
                                     <div class="text-xs inline-flex font-medium bg-rose-100 text-rose-600 rounded-full text-center px-2.5 py-0.5" title="{{ job.error_message }}">Failed</div>
                                 {% elif job.status == 'processing' %}
-                                    <div class="text-xs inline-flex font-medium bg-blue-100 text-blue-600 rounded-full text-center px-2.5 py-0.5 animate-pulse">Processing</div>
+                                    <div class="text-xs inline-flex font-medium bg-blue-100 text-[#5850EC] rounded-full text-center px-2.5 py-0.5 animate-pulse">Processing</div>
                                 {% elif job.status == 'pending' %}
                                     <div class="text-xs inline-flex font-medium bg-amber-100 text-amber-600 rounded-full text-center px-2.5 py-0.5">Pending</div>
                                 {% else %}

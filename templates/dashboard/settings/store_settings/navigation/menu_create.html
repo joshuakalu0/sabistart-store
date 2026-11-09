@@ -1,18 +1,18 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 
 {% block content %}
 <div class="flex items-center justify-between mb-6">
   <div>
-    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+    <h2 class="text-xl font-bold text-slate-900">
       Create Navigation Menu
     </h2>
-    <p class="text-slate-600 dark:text-slate-400">
+    <p class="text-slate-600">
       Create a new navigation menu for your store
     </p>
   </div>
   <a
     href="{% url 'dashboard:store_settings:navigation_menu_list' prefix %}"
-    class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+    class="bg-slate-100 text-slate-600 px-4 py-2 rounded-lg hover:bg-slate-200 transition-colors"
   >
     <span class="material-icons-outlined text-sm mr-2">arrow_back</span>
     Back to List
@@ -20,7 +20,7 @@
 </div>
 
 <div
-  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+  class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden"
 >
   <div class="p-6">
     <form method="post">
@@ -28,38 +28,38 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div class="space-y-6">
           <div>
-            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Menu Details</h3>
+            <h3 class="text-lg font-semibold text-slate-800 mb-4">Menu Details</h3>
             <div class="space-y-4">
               <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">
                   Menu Name
                 </label>
                 {{ form.name }}
               </div>
               <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">
                   Description
                 </label>
                 {{ form.description }}
               </div>
               <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">
                   Location
                 </label>
                 {{ form.location }}
               </div>
               <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">
                   Status
                 </label>
                 <div class="flex items-center space-x-4">
                   <label class="flex items-center space-x-2">
                     <input type="radio" name="{{ form.is_active.name }}" value="true" checked>
-                    <span class="text-sm text-slate-600 dark:text-slate-400">Active</span>
+                    <span class="text-sm text-slate-600">Active</span>
                   </label>
                   <label class="flex items-center space-x-2">
                     <input type="radio" name="{{ form.is_active.name }}" value="false">
-                    <span class="text-sm text-slate-600 dark:text-slate-400">Inactive</span>
+                    <span class="text-sm text-slate-600">Inactive</span>
                   </label>
                 </div>
               </div>
@@ -68,28 +68,28 @@
         </div>
         <div class="space-y-6">
           <div>
-            <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Menu Items</h3>
+            <h3 class="text-lg font-semibold text-slate-800 mb-4">Menu Items</h3>
             <div class="space-y-4">
               <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">
                   Add Menu Items
                 </label>
                 <div class="space-y-2">
                   <div class="flex items-center space-x-2">
-                    <input type="text" placeholder="Item name" class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white">
-                    <input type="text" placeholder="URL" class="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-white">
-                    <button type="button" class="px-3 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600">
+                    <input type="text" placeholder="Item name" class="flex-1 px-3 py-2 border border-slate-300 rounded-lg">
+                    <input type="text" placeholder="URL" class="flex-1 px-3 py-2 border border-slate-300 rounded-lg">
+                    <button type="button" class="px-3 py-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200">
                       Add
                     </button>
                   </div>
                 </div>
               </div>
               <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">
                   Menu Items Preview
                 </label>
-                <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-4">
-                  <p class="text-sm text-slate-600 dark:text-slate-400">Add menu items above to see them here</p>
+                <div class="bg-slate-50 rounded-lg p-4">
+                  <p class="text-sm text-slate-600">Add menu items above to see them here</p>
                 </div>
               </div>
             </div>
@@ -99,13 +99,13 @@
       <div class="mt-8 flex justify-end space-x-4">
         <a
           href="{% url 'dashboard:store_settings:navigation_menu_list' prefix %}"
-          class="px-6 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+          class="px-6 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
         >
           Cancel
         </a>
         <button
           type="submit"
-          class="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+          class="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-[#5850EC] transition-colors flex items-center space-x-2"
         >
           <span class="material-icons-outlined text-sm">save</span>
           <span>Create Menu</span>

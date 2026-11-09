@@ -1,4 +1,4 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% load static %}
 {% load i18n %}
 
@@ -21,14 +21,14 @@
     </div>
 
     <!-- Table -->
-    <div class="bg-white shadow-lg rounded-sm border border-slate-200 mb-8">
+    <div class="bg-white shadow-lg rounded-sm border border-[#EEF2F6] mb-8">
         <header class="px-5 py-4">
             <h2 class="font-semibold text-slate-800">All Channels <span class="text-slate-400 font-medium">({{ channels|length }})</span></h2>
         </header>
         <div>
             <div class="overflow-x-auto">
                 <table class="table-auto w-full">
-                    <thead class="text-xs font-semibold uppercase text-slate-500 bg-slate-50 border-t border-b border-slate-200">
+                    <thead class="text-xs font-semibold uppercase text-slate-500 bg-slate-50 border-t border-b border-[#EEF2F6]">
                         <tr>
                             <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Name</div></th>
                             <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Type</div></th>
@@ -38,7 +38,7 @@
                             <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Actions</div></th>
                         </tr>
                     </thead>
-                    <tbody class="text-sm divide-y divide-slate-200">
+                    <tbody class="text-sm divide-y divide-[#EEF2F6]">
                         {% for channel in channels %}
                         <tr>
                             <td class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
@@ -69,7 +69,7 @@
                                 <div class="text-left">
                                     Priority: {{ channel.priority }}
                                     {% if channel.is_default %}
-                                        <span class="text-xs font-semibold ml-2 px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-600">Default</span>
+                                        <span class="text-xs font-semibold ml-2 px-1.5 py-0.5 rounded-full bg-blue-100 text-[#5850EC]">Default</span>
                                     {% endif %}
                                 </div>
                             </td>

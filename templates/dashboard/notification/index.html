@@ -1,4 +1,4 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% load static %}
 {% load i18n %}
 
@@ -15,7 +15,7 @@
         <!-- Right: Actions -->
         <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
             <!-- Filter button -->
-            <button class="btn bg-white border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-600">
+            <button class="btn bg-white border-[#EEF2F6] hover:border-slate-300 text-slate-500 hover:text-slate-600">
                 <svg class="w-4 h-4 fill-current text-slate-500 shrink-0 mr-2" viewBox="0 0 16 16">
                     <path d="M9 15H7a1 1 0 010-2h2a1 1 0 010 2zM11 11H5a1 1 0 010-2h6a1 1 0 010 2zM13 7H3a1 1 0 010-2h10a1 1 0 010 2z" />
                 </svg>
@@ -52,7 +52,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 
         <!-- Sent Notifications -->
-        <div class="flex flex-col col-span-1 bg-white shadow-xl shadow-slate-200/40 rounded-sm border border-slate-200 p-5">
+        <div class="flex flex-col col-span-1 bg-white shadow-xl shadow-slate-200/40 rounded-sm border border-[#EEF2F6] p-5">
             <header class="flex justify-between items-start mb-2">
                 <h2 class="text-lg font-semibold text-slate-800 mb-2">Total Sent</h2>
                 <div class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
@@ -64,7 +64,7 @@
         </div>
 
         <!-- Open Rate -->
-        <div class="flex flex-col col-span-1 bg-white shadow-xl shadow-slate-200/40 rounded-sm border border-slate-200 p-5">
+        <div class="flex flex-col col-span-1 bg-white shadow-xl shadow-slate-200/40 rounded-sm border border-[#EEF2F6] p-5">
             <header class="flex justify-between items-start mb-2">
                 <h2 class="text-lg font-semibold text-slate-800 mb-2">Open Rate</h2>
                 {% if kpis.open_rate >= 20 %}
@@ -78,7 +78,7 @@
         </div>
 
         <!-- Deliverability / Bounce Rate -->
-        <div class="flex flex-col col-span-1 bg-white shadow-xl shadow-slate-200/40 rounded-sm border border-slate-200 p-5">
+        <div class="flex flex-col col-span-1 bg-white shadow-xl shadow-slate-200/40 rounded-sm border border-[#EEF2F6] p-5">
             <header class="flex justify-between items-start mb-2">
                 <h2 class="text-lg font-semibold text-slate-800 mb-2">Bounce Rate</h2>
                 <div class="text-xs font-semibold px-2 py-0.5 rounded-full {% if kpis.bounce_rate < 2 %}bg-emerald-100 text-emerald-700{% else %}bg-rose-100 text-rose-700{% endif %}">
@@ -90,7 +90,7 @@
         </div>
 
         <!-- Failed Jobs Queue -->
-        <div class="flex flex-col col-span-1 bg-white shadow-xl shadow-slate-200/40 rounded-sm border border-slate-200 p-5">
+        <div class="flex flex-col col-span-1 bg-white shadow-xl shadow-slate-200/40 rounded-sm border border-[#EEF2F6] p-5">
             <header class="flex justify-between items-start mb-2">
                 <h2 class="text-lg font-semibold text-slate-800 mb-2">Delivery Failures</h2>
             </header>
@@ -103,7 +103,7 @@
     <div class="grid grid-cols-12 gap-6">
 
         <!-- Channel Status Widget -->
-        <div class="col-span-12 xl:col-span-6 bg-white shadow-sm rounded-sm border border-slate-200">
+        <div class="col-span-12 xl:col-span-6 bg-white shadow-sm rounded-sm border border-[#EEF2F6]">
             <header class="px-5 py-4 border-b border-slate-100">
                 <h2 class="font-semibold text-slate-800">Channel Activity (30 Days)</h2>
             </header>
@@ -151,7 +151,7 @@
         </div>
 
         <!-- Recent Delivery Issues Widget -->
-        <div class="col-span-12 xl:col-span-6 bg-white shadow-sm rounded-sm border border-slate-200">
+        <div class="col-span-12 xl:col-span-6 bg-white shadow-sm rounded-sm border border-[#EEF2F6]">
             <header class="px-5 py-4 border-b border-slate-100">
                 <h2 class="font-semibold text-slate-800">Recent Delivery Log</h2>
             </header>

@@ -1,7 +1,7 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% block content %}
   <div class="space-y-6">
-    <section class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+    <section class="overflow-hidden rounded-[2rem] border border-[#EEF2F6] bg-white shadow-sm">
       <div class="bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.18),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(249,115,22,0.16),_transparent_30%)] p-8">
         <div class="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div>
@@ -12,7 +12,7 @@
             </p>
           </div>
           <div class="flex flex-wrap gap-3">
-            <a href="{{ analytics_json_url }}" class="inline-flex items-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-950">
+            <a href="{{ analytics_json_url }}" class="inline-flex items-center rounded-full border border-[#EEF2F6] bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:border-slate-300 hover:text-slate-950">
               JSON
             </a>
             <a href="{{ analytics_csv_url }}?start={{ analytics_bundle.filters.start }}&end={{ analytics_bundle.filters.end }}" class="inline-flex items-center rounded-full bg-slate-950 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-slate-950/10 hover:bg-slate-800">
@@ -23,7 +23,7 @@
       </div>
     </section>
 
-    <section class="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm">
+    <section class="rounded-[1.75rem] border border-[#EEF2F6] bg-white p-5 shadow-sm">
       <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h2 class="text-lg font-bold text-slate-950">Operate Promotions</h2>
@@ -31,7 +31,7 @@
         </div>
         <div class="flex flex-wrap gap-3">
           {% for link in operator_links %}
-          <a href="{{ link.url }}" class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:bg-white hover:text-slate-950">
+          <a href="{{ link.url }}" class="inline-flex items-center rounded-full border border-[#EEF2F6] bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:bg-white hover:text-slate-950">
             {{ link.label }}
           </a>
           {% endfor %}
@@ -39,16 +39,16 @@
       </div>
     </section>
 
-    <section class="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm">
+    <section class="rounded-[1.75rem] border border-[#EEF2F6] bg-white p-5 shadow-sm">
       <form method="get" class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <label class="block">
             <span class="mb-2 block text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Start</span>
-            <input type="date" name="start" value="{{ analytics_bundle.filters.start }}" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100">
+            <input type="date" name="start" value="{{ analytics_bundle.filters.start }}" class="w-full rounded-2xl border border-[#EEF2F6] bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100">
           </label>
           <label class="block">
             <span class="mb-2 block text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">End</span>
-            <input type="date" name="end" value="{{ analytics_bundle.filters.end }}" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100">
+            <input type="date" name="end" value="{{ analytics_bundle.filters.end }}" class="w-full rounded-2xl border border-[#EEF2F6] bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100">
           </label>
           <div class="flex items-end">
             <button type="submit" class="inline-flex w-full items-center justify-center rounded-2xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-600/20 hover:bg-sky-700">
@@ -56,7 +56,7 @@
             </button>
           </div>
         </div>
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+        <div class="rounded-2xl border border-[#EEF2F6] bg-slate-50 px-4 py-3 text-sm text-slate-600">
           Window: <span class="font-semibold text-slate-900">{{ analytics_bundle.filters.label }}</span>
         </div>
       </form>
@@ -64,7 +64,7 @@
 
     <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {% for kpi in analytics_bundle.kpis %}
-        <article class="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
+        <article class="rounded-[1.5rem] border border-[#EEF2F6] bg-white p-5 shadow-sm">
           <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">{{ kpi.label }}</p>
           <p class="mt-3 text-3xl font-extrabold text-slate-950" data-kpi-format="{{ kpi.format }}" data-kpi-value="{{ kpi.value }}"></p>
           <p class="mt-3 text-sm leading-6 text-slate-500">{{ kpi.helper }}</p>
@@ -73,7 +73,7 @@
     </section>
 
     <section class="grid gap-6 xl:grid-cols-2">
-      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <article class="rounded-[1.75rem] border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-lg font-bold text-slate-950">{{ analytics_bundle.charts.usage_trend.title }}</h2>
@@ -85,7 +85,7 @@
         </div>
       </article>
 
-      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <article class="rounded-[1.75rem] border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <div>
           <h2 class="text-lg font-bold text-slate-950">{{ analytics_bundle.charts.top_codes.title }}</h2>
           <p class="mt-1 text-sm text-slate-500">Highest-value codes by unreversed discount amount.</p>
@@ -97,7 +97,7 @@
     </section>
 
     <section class="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
-      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <article class="rounded-[1.75rem] border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-lg font-bold text-slate-950">{{ analytics_bundle.charts.top_products.title }}</h2>
@@ -109,7 +109,7 @@
         </div>
       </article>
 
-      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <article class="rounded-[1.75rem] border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <h2 class="text-lg font-bold text-slate-950">Fraud Signals</h2>
         <p class="mt-1 text-sm text-slate-500">Live heuristics based on repeated IP and alias patterns.</p>
 
@@ -152,15 +152,15 @@
     </section>
 
     <section class="grid gap-6 xl:grid-cols-2">
-      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <article class="rounded-[1.75rem] border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-lg font-bold text-slate-950">Top Codes</h2>
             <p class="mt-1 text-sm text-slate-500">Best-performing codes in the current window.</p>
           </div>
         </div>
-        <div class="mt-5 overflow-hidden rounded-[1.25rem] border border-slate-200">
-          <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <div class="mt-5 overflow-hidden rounded-[1.25rem] border border-[#EEF2F6]">
+          <table class="min-w-full divide-y divide-[#EEF2F6] text-sm">
             <thead class="bg-slate-50">
               <tr>
                 <th class="px-4 py-3 text-left font-semibold text-slate-500">Code</th>
@@ -185,15 +185,15 @@
         </div>
       </article>
 
-      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <article class="rounded-[1.75rem] border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-lg font-bold text-slate-950">Automatic Discounts</h2>
             <p class="mt-1 text-sm text-slate-500">Current-model automatic discount impact.</p>
           </div>
         </div>
-        <div class="mt-5 overflow-hidden rounded-[1.25rem] border border-slate-200">
-          <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <div class="mt-5 overflow-hidden rounded-[1.25rem] border border-[#EEF2F6]">
+          <table class="min-w-full divide-y divide-[#EEF2F6] text-sm">
             <thead class="bg-slate-50">
               <tr>
                 <th class="px-4 py-3 text-left font-semibold text-slate-500">Title</th>
@@ -218,7 +218,7 @@
     </section>
 
     <section class="grid gap-6 xl:grid-cols-2">
-      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <article class="rounded-[1.75rem] border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-lg font-bold text-slate-950">Experiment Scoreboard</h2>
@@ -227,7 +227,7 @@
         </div>
         <div class="mt-5 space-y-4">
           {% for row in analytics_bundle.tables.experiments %}
-            <article class="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+            <article class="rounded-[1.5rem] border border-[#EEF2F6] bg-slate-50 p-5">
               <div class="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <p class="font-semibold text-slate-900">{{ row.title }}</p>
@@ -240,7 +240,7 @@
               </div>
               <div class="mt-4 grid gap-3 md:grid-cols-2">
                 {% for variant in row.variants %}
-                  <div class="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                  <div class="rounded-2xl border border-[#EEF2F6] bg-white px-4 py-4">
                     <div class="flex items-center justify-between gap-3">
                       <div>
                         <p class="font-semibold text-slate-900">{{ variant.label }}</p>
@@ -265,15 +265,15 @@
         </div>
       </article>
 
-      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <article class="rounded-[1.75rem] border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-lg font-bold text-slate-950">Partner Attribution</h2>
             <p class="mt-1 text-sm text-slate-500">Commission and revenue credited to referral, affiliate, and creator partners.</p>
           </div>
         </div>
-        <div class="mt-5 overflow-hidden rounded-[1.25rem] border border-slate-200">
-          <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <div class="mt-5 overflow-hidden rounded-[1.25rem] border border-[#EEF2F6]">
+          <table class="min-w-full divide-y divide-[#EEF2F6] text-sm">
             <thead class="bg-slate-50">
               <tr>
                 <th class="px-4 py-3 text-left font-semibold text-slate-500">Partner</th>
@@ -300,15 +300,15 @@
     </section>
 
     <section class="grid gap-6 xl:grid-cols-2">
-      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <article class="rounded-[1.75rem] border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-lg font-bold text-slate-950">Bundle Uptake</h2>
             <p class="mt-1 text-sm text-slate-500">Orders and discount value attributed to bundle offers.</p>
           </div>
         </div>
-        <div class="mt-5 overflow-hidden rounded-[1.25rem] border border-slate-200">
-          <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <div class="mt-5 overflow-hidden rounded-[1.25rem] border border-[#EEF2F6]">
+          <table class="min-w-full divide-y divide-[#EEF2F6] text-sm">
             <thead class="bg-slate-50">
               <tr>
                 <th class="px-4 py-3 text-left font-semibold text-slate-500">Bundle</th>
@@ -333,15 +333,15 @@
         </div>
       </article>
 
-      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <article class="rounded-[1.75rem] border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-lg font-bold text-slate-950">Automation Rules</h2>
             <p class="mt-1 text-sm text-slate-500">Issued codes and delivery readiness for cron-driven promotion rules.</p>
           </div>
         </div>
-        <div class="mt-5 overflow-hidden rounded-[1.25rem] border border-slate-200">
-          <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <div class="mt-5 overflow-hidden rounded-[1.25rem] border border-[#EEF2F6]">
+          <table class="min-w-full divide-y divide-[#EEF2F6] text-sm">
             <thead class="bg-slate-50">
               <tr>
                 <th class="px-4 py-3 text-left font-semibold text-slate-500">Rule</th>
@@ -367,7 +367,7 @@
       </article>
     </section>
 
-    <section class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+    <section class="rounded-[1.75rem] border border-[#EEF2F6] bg-white p-6 shadow-sm">
       <div class="flex items-center justify-between">
         <div>
           <h2 class="text-lg font-bold text-slate-950">Customer Segments</h2>
@@ -376,7 +376,7 @@
       </div>
       <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {% for row in analytics_bundle.tables.segments %}
-          <article class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+          <article class="rounded-2xl border border-[#EEF2F6] bg-slate-50 px-4 py-4">
             <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{{ row.group_type|default:"group" }}</p>
             <h3 class="mt-3 font-semibold text-slate-900">{{ row.name }}</h3>
             <p class="mt-3 text-2xl font-extrabold text-slate-950">{{ row.live_customers }}</p>
@@ -389,12 +389,12 @@
     </section>
 
     <section class="grid gap-6 xl:grid-cols-2">
-      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <article class="rounded-[1.75rem] border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <h2 class="text-lg font-bold text-slate-950">Flash Sale Pressure</h2>
         <p class="mt-1 text-sm text-slate-500">Sell-through and revenue estimates from flash-sale items.</p>
         <div class="mt-5 space-y-3">
           {% for row in analytics_bundle.tables.flash_sales %}
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+            <div class="rounded-2xl border border-[#EEF2F6] bg-slate-50 px-4 py-4">
               <div class="flex items-center justify-between gap-4">
                 <div>
                   <p class="font-semibold text-slate-900">{{ row.name }}</p>
@@ -412,7 +412,7 @@
         </div>
       </article>
 
-      <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <article class="rounded-[1.75rem] border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <h2 class="text-lg font-bold text-slate-950">Pricing Health</h2>
         <p class="mt-1 text-sm text-slate-500">Configuration issues that can break pricing behavior or make analytics noisy.</p>
         <div class="mt-5 space-y-3">

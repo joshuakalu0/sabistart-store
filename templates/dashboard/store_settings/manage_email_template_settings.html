@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
@@ -14,62 +14,62 @@
         theme: {
           extend: {
             colors: {
-              "inverse-surface": "#0b0f10",
-              "inverse-primary": "#618bff",
-              "tertiary": "#605c78",
-              "surface": "#f7f9fb",
-              "secondary-fixed-dim": "#c5d6f0",
-              "on-primary-fixed-variant": "#0050d4",
-              "tertiary-dim": "#54506b",
-              "on-surface-variant": "#566166",
-              "primary-fixed-dim": "#c7d3ff",
-              "on-background": "#2a3439",
-              "outline-variant": "#a9b4b9",
-              "on-secondary": "#f7f9ff",
-              "secondary-fixed": "#d3e4fe",
-              "on-secondary-fixed-variant": "#4d5d73",
-              "surface-container-low": "#f0f4f7",
-              "surface-container-lowest": "#ffffff",
-              "secondary-dim": "#44546a",
-              "on-surface": "#2a3439",
-              "secondary-container": "#d3e4fe",
-              "primary-dim": "#0048c1",
-              "on-tertiary": "#fcf7ff",
-              "error-container": "#fe8983",
-              "primary-container": "#dbe1ff",
-              "on-tertiary-fixed": "#3e3a54",
-              "on-primary": "#f8f7ff",
-              "on-primary-container": "#0048bf",
-              "secondary": "#506076",
-              "on-primary-fixed": "#003798",
-              "surface-variant": "#d9e4ea",
-              "surface-container-high": "#e1e9ee",
-              "surface-bright": "#f7f9fb",
-              "on-secondary-container": "#435368",
-              "outline": "#717c82",
-              "background": "#f7f9fb",
-              "on-tertiary-fixed-variant": "#5b5672",
-              "surface-dim": "#cfdce3",
-              "tertiary-fixed-dim": "#d4cdee",
-              "surface-container": "#e8eff3",
-              "on-secondary-fixed": "#314055",
-              "surface-container-highest": "#d9e4ea",
-              "on-error-container": "#752121",
-              "error": "#9f403d",
-              "on-tertiary-container": "#514d68",
-              "on-error": "#fff7f6",
-              "error-dim": "#4e0309",
-              "primary-fixed": "#dbe1ff",
-              "tertiary-fixed": "#e3dbfd",
-              "primary": "#0053db",
-              "inverse-on-surface": "#9a9d9f",
-              "tertiary-container": "#e3dbfd",
-              "surface-tint": "#0053db"
+"inverse-surface": "#0b0f10",
+"inverse-primary": "#618bff",
+"tertiary": "#605c78",
+"surface": "#f7f9fb",
+"secondary-fixed-dim": "#c5d6f0",
+"on-primary-fixed-variant": "#0050d4",
+"tertiary-dim": "#54506b",
+"on-surface-variant": "#566166",
+"primary-fixed-dim": "#c7d3ff",
+"on-background": "#2a3439",
+"outline-variant": "#a9b4b9",
+"on-secondary": "#f7f9ff",
+"secondary-fixed": "#d3e4fe",
+"on-secondary-fixed-variant": "#4d5d73",
+"surface-container-low": "#f0f4f7",
+"surface-container-lowest": "#ffffff",
+"secondary-dim": "#44546a",
+"on-surface": "#2a3439",
+"secondary-container": "#d3e4fe",
+"primary-dim": "#0048c1",
+"on-tertiary": "#fcf7ff",
+"error-container": "#fe8983",
+"primary-container": "#dbe1ff",
+"on-tertiary-fixed": "#3e3a54",
+"on-primary": "#f8f7ff",
+"on-primary-container": "#0048bf",
+"secondary": "#506076",
+"on-primary-fixed": "#003798",
+"surface-variant": "#d9e4ea",
+"surface-container-high": "#e1e9ee",
+"surface-bright": "#f7f9fb",
+"on-secondary-container": "#435368",
+"outline": "#717c82",
+"background": "#f7f9fb",
+"on-tertiary-fixed-variant": "#5b5672",
+"surface-dim": "#cfdce3",
+"tertiary-fixed-dim": "#d4cdee",
+"surface-container": "#e8eff3",
+"on-secondary-fixed": "#314055",
+"surface-container-highest": "#d9e4ea",
+"on-error-container": "#752121",
+"error": "#9f403d",
+"on-tertiary-container": "#514d68",
+"on-error": "#fff7f6",
+"error-dim": "#4e0309",
+"primary-fixed": "#dbe1ff",
+"tertiary-fixed": "#e3dbfd",
+"primary": "#0053db",
+"inverse-on-surface": "#9a9d9f",
+"tertiary-container": "#e3dbfd",
+"surface-tint": "#0053db"
             },
             fontFamily: {
-              "headline": ["Manrope"],
-              "body": ["Inter"],
-              "label": ["Inter"]
+"headline": ["Manrope"],
+"body": ["Inter"],
+"label": ["Inter"]
             },
             borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
           },
@@ -184,7 +184,7 @@
 {% endif %}
 
 <!-- Top Navigation Bar -->
-<nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/50 shadow-sm shadow-slate-200/50 flex items-center justify-between px-8 h-16 max-w-full mx-auto">
+<nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-[#EEF2F6]/50 shadow-sm shadow-slate-200/50 flex items-center justify-between px-8 h-16 max-w-full mx-auto">
     <div class="flex items-center gap-8">
         <span class="text-xl font-extrabold font-manrope text-slate-900">{{ title }}</span>
         <div class="hidden md:flex items-center gap-6">
@@ -212,7 +212,7 @@
             <span class="material-symbols-outlined text-sm align-middle">refresh</span>
         </a>
         {% endif %}
-        <div class="w-8 h-8 rounded-full bg-slate-200 ml-2 overflow-hidden border border-slate-200">
+        <div class="w-8 h-8 rounded-full bg-slate-200 ml-2 overflow-hidden border border-[#EEF2F6]">
             <img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmMzehU-vI3jtLL7BwKUnjpwbyPtH1INi7STz5hxsepw8dso_KSVp9fiH7ZVn9q_T_fdKMqk5pPs96Zxojl0R-W7gToKVNK0OTA8Q6bPzG-Jg6d6Ok78haA1sddRldEZEfIhEDnhamhxqnYNAjTX3Fa8w4RItjqYZBgVwoBGGTPPDZyniTK9lEGo38IZO81v9l4-pnIqm67I-9JYJx1oM3A0cx6PP9PmqXjt3zGkn7im2h0o-JPo5sRMBOnkUybeswEuQ13JUZao4"/>
         </div>
     </div>
@@ -247,7 +247,7 @@
                     <div class="grid grid-cols-2 gap-8">
                         <div class="col-span-2">
                             <label class="block text-xs font-bold text-on-surface-variant uppercase mb-3" for="{{ form.logo.id_for_label }}">Brand Logo</label>
-                            <div class="file-upload-area flex items-center justify-center w-full h-32 px-4 transition bg-surface-container-lowest border-2 border-slate-200 border-dashed rounded-lg hover:border-primary" onclick="document.getElementById('{{ form.logo.id_for_label }}').click()">
+                            <div class="file-upload-area flex items-center justify-center w-full h-32 px-4 transition bg-surface-container-lowest border-2 border-[#EEF2F6] border-dashed rounded-lg hover:border-primary" onclick="document.getElementById('{{ form.logo.id_for_label }}').click()">
                                 {% if is_edit and object.logo %}
                                 <img src="{{ object.logo.url }}" alt="Current logo" class="h-20 w-auto object-contain mb-2"/>
                                 {% else %}
@@ -478,7 +478,7 @@
             <!-- Right Column: Sticky Live Preview -->
             <div class="w-2/5 sticky top-24">
                 <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/60 overflow-hidden border border-slate-100 flex flex-col max-h-[calc(100vh-120px)]">
-                    <div class="p-4 bg-surface-container-low border-b border-slate-200 flex items-center justify-between">
+                    <div class="p-4 bg-surface-container-low border-b border-[#EEF2F6] flex items-center justify-between">
                         <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Email Preview</span>
                         <div class="flex gap-2">
                             <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
@@ -540,7 +540,7 @@
                                 </div>
                                 {% endif %}
                                 {% if form.show_unsubscribe_link.value %}
-                                <a class="text-[10px] text-blue-600 font-bold uppercase tracking-widest" href="#">Unsubscribe</a>
+                                <a class="text-[10px] text-[#5850EC] font-bold uppercase tracking-widest" href="#">Unsubscribe</a>
                                 {% endif %}
                             </div>
                         </div>

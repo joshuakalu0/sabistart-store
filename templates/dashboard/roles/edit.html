@@ -1,8 +1,8 @@
-{% extends "dashboard/_partials/base.html" %} {% block content %}
+﻿{% extends "dashboard/_partials/base.html" %} {% block content %}
 <div class="flex items-center justify-between mb-6">
   <div>
-    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Edit Role</h2>
-    <p class="text-slate-600 dark:text-slate-400">
+    <h2 class="text-xl font-bold text-slate-900">Edit Role</h2>
+    <p class="text-slate-600">
       Edit role information and permissions
     </p>
   </div>
@@ -16,7 +16,7 @@
 </div>
 
 <div
-  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+  class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden"
 >
   <div class="p-6">
     <form method="POST">
@@ -25,13 +25,13 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Basic Information -->
         <div md:col-span-2>
-          <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-4">
+          <h3 class="text-lg font-medium text-slate-900 mb-4">
             Basic Information
           </h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label
-                class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+                class="block text-sm font-medium text-slate-700 mb-2"
               >
                 Role Name *
               </label>
@@ -42,7 +42,7 @@
             </div>
             <div>
               <label
-                class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+                class="block text-sm font-medium text-slate-700 mb-2"
               >
                 Slug *
               </label>
@@ -54,7 +54,7 @@
           </div>
           <div class="mt-4">
             <label
-              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              class="block text-sm font-medium text-slate-700 mb-2"
             >
               Description
             </label>
@@ -67,12 +67,12 @@
 
         <!-- Role Configuration -->
         <div>
-          <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-4">
+          <h3 class="text-lg font-medium text-slate-900 mb-4">
             Role Configuration
           </h3>
           <div>
             <label
-              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              class="block text-sm font-medium text-slate-700 mb-2"
             >
               Role Type *
             </label>
@@ -83,7 +83,7 @@
           </div>
           <div class="mt-4">
             <label
-              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              class="block text-sm font-medium text-slate-700 mb-2"
             >
               Level *
             </label>
@@ -94,7 +94,7 @@
           </div>
           <div class="mt-4">
             <label
-              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              class="block text-sm font-medium text-slate-700 mb-2"
             >
               Parent Role
             </label>
@@ -105,7 +105,7 @@
           </div>
           <div class="mt-4">
             <label
-              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              class="block text-sm font-medium text-slate-700 mb-2"
             >
               Max Users
             </label>
@@ -118,7 +118,7 @@
 
         <!-- Permissions -->
         <div md:col-span-2>
-          <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-4">
+          <h3 class="text-lg font-medium text-slate-900 mb-4">
             Permissions
           </h3>
           <div>
@@ -131,13 +131,13 @@
 
         <!-- Status -->
         <div md:col-span-2>
-          <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-4">
+          <h3 class="text-lg font-medium text-slate-900 mb-4">
             Status
           </h3>
           <div class="flex items-center space-x-3">
             {{ form.is_active }}
             <label
-              class="text-sm font-medium text-slate-700 dark:text-slate-300"
+              class="text-sm font-medium text-slate-700"
             >
               Active
             </label>
@@ -153,7 +153,7 @@
       <div class="mt-8 flex items-center space-x-4">
         <button
           type="submit"
-          class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+          class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-[#5850EC] transition-colors flex items-center space-x-2"
         >
           <span class="material-icons-outlined text-sm">save</span>
           <span>Save Changes</span>

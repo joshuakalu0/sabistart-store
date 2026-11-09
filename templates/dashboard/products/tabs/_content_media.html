@@ -1,5 +1,5 @@
-<section
-  class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
+﻿<section
+  class="bg-white rounded-xl border border-[#EEF2F6] p-6 shadow-sm"
 >
   <div class="flex items-center gap-2 mb-6">
     <span class="material-symbols-outlined text-slate-400">subject</span>
@@ -9,7 +9,7 @@
     <div>
       <div class="flex justify-between items-end mb-2">
         <label
-          class="text-sm font-bold text-slate-700 dark:text-slate-300"
+          class="text-sm font-bold text-slate-700"
           >Short Description</label
         >
         <span class="text-xs text-slate-400 font-medium">124 / 500 characters</span>
@@ -21,12 +21,12 @@
     </div>
     <div>
       <label
-        class="text-sm font-bold text-slate-700 dark:text-slate-300 block mb-2"
+        class="text-sm font-bold text-slate-700 block mb-2"
         >Product Description</label
       >
-      <div class="border-0 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg shadow-slate-200/20 dark:shadow-slate-900/20">
+      <div class="border-0 bg-white/60 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg shadow-slate-200/20">
         <!-- Quill Editor Container -->
-        <div id="quill-editor" class="min-h-[200px] p-4 text-slate-700 dark:text-slate-300"></div>
+        <div id="quill-editor" class="min-h-[200px] p-4 text-slate-700"></div>
         <!-- Hidden textarea for form submission -->
         <textarea name="description" id="id_description" style="display: none;">{{ form.description.value|default:'' }}</textarea>
       </div>
@@ -39,7 +39,7 @@
 
 <!-- Specifications Section -->
 <section
-  class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
+  class="bg-white rounded-xl border border-[#EEF2F6] p-6 shadow-sm"
 >
   <div class="flex items-center justify-between mb-6">
     <div class="flex items-center gap-2">
@@ -55,14 +55,14 @@
       {% for label, value in specifications.items %}
       <div class="flex gap-2">
         <input
-          class="flex-1 rounded-lg border-slate-200 text-xs dark:bg-slate-800 dark:border-slate-700"
+          class="flex-1 rounded-lg border-[#EEF2F6] text-xs"
           placeholder="Label"
           type="text"
           name="spec_label"
           value="{{ label }}"
         />
         <input
-          class="flex-[1.5] rounded-lg border-slate-200 text-xs dark:bg-slate-800 dark:border-slate-700"
+          class="flex-[1.5] rounded-lg border-[#EEF2F6] text-xs"
           placeholder="Value"
           type="text"
           name="spec_value"
@@ -76,7 +76,7 @@
     {% endif %}
     <button
       type="button"
-      class="w-full py-2 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-500 hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-1 mt-2"
+      class="w-full py-2 border-2 border-dashed border-[#EEF2F6] rounded-lg text-xs font-bold text-slate-500 hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-1 mt-2"
       onclick="addSpecification(event)"
     >
       <span class="material-symbols-outlined text-[16px]">add</span>
@@ -87,7 +87,7 @@
 
 <!-- Features Section -->
 <section
-  class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
+  class="bg-white rounded-xl border border-[#EEF2F6] p-6 shadow-sm"
 >
   <div class="flex items-center gap-2 mb-6">
     <span class="material-symbols-outlined text-slate-400">verified</span>
@@ -97,7 +97,7 @@
     <div class="relative">
       <input
         id="feature-input"
-        class="w-full rounded-lg border-slate-200 pr-20 text-sm dark:bg-slate-800 dark:border-slate-700"
+        class="w-full rounded-lg border-[#EEF2F6] pr-20 text-sm"
         placeholder="Enter feature and press Enter..."
         type="text"
         onkeypress="handleFeatureInput(event)"
@@ -127,7 +127,7 @@
 
 <!-- Product Media Section -->
 <section
-  class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
+  class="bg-white rounded-xl border border-[#EEF2F6] p-6 shadow-sm"
 >
   <div class="flex items-center justify-between mb-6">
     <div class="flex items-center gap-2">
@@ -167,7 +167,7 @@
         
         <!-- Drag & Drop Zone -->
         <div
-          class="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-lg aspect-square flex flex-col items-center justify-center p-4 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer group"
+          class="border-2 border-dashed border-[#EEF2F6] rounded-lg aspect-square flex flex-col items-center justify-center p-4 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer group"
           onclick="document.getElementById('image-upload').click()"
         >
           <span class="material-symbols-outlined text-primary text-3xl mb-2 group-hover:scale-110 transition-transform">cloud_upload</span>
@@ -182,7 +182,7 @@
               {{ form.as_p }}
             </div>
             {% if form.instance.image %}
-            <div class="relative aspect-square group rounded-lg overflow-hidden border {% if form.instance.is_primary %}border-2 border-primary shadow-lg{% else %}border-slate-200 dark:border-slate-800{% endif %}" data-form-index="{{ forloop.counter0 }}">
+            <div class="relative aspect-square group rounded-lg overflow-hidden border {% if form.instance.is_primary %}border-2 border-primary shadow-lg{% else %}border-[#EEF2F6]{% endif %}" data-form-index="{{ forloop.counter0 }}">
               <img alt="{{ form.instance.alt_text|default:'Product image' }}" class="w-full h-full object-cover" src="{{ form.instance.image.url }}" />
               <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                 <button type="button" class="bg-white/90 text-slate-900 px-3 py-1 text-[10px] font-bold rounded" onclick="setPrimaryImage(this)">
@@ -204,7 +204,7 @@
 
         <!-- Primary Image -->
         <div
-          class="relative aspect-square group rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 hidden"
+          class="relative aspect-square group rounded-lg overflow-hidden border border-[#EEF2F6] hidden"
         >
           <img
             alt="Main product"
@@ -229,7 +229,7 @@
 
         <!-- Regular Image -->
         <div
-          class="relative aspect-square group rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 hidden"
+          class="relative aspect-square group rounded-lg overflow-hidden border border-[#EEF2F6] hidden"
         >
           <img
             alt="Side view"
@@ -251,7 +251,7 @@
 
         <!-- Regular Image 2 -->
         <div
-          class="relative aspect-square group rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 hidden"
+          class="relative aspect-square group rounded-lg overflow-hidden border border-[#EEF2F6] hidden"
         >
           <img
             alt="Bottom view"
@@ -278,19 +278,19 @@
   <div class="mt-6 flex items-center justify-between">
     <div class="flex gap-2">
       <button
-        class="text-xs font-bold flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded hover:bg-slate-50"
+        class="text-xs font-bold flex items-center gap-1 px-3 py-1.5 border border-[#EEF2F6] rounded hover:bg-slate-50"
       >
         <span class="material-symbols-outlined text-[16px]">zoom_in</span>
         Zoom
       </button>
       <button
-        class="text-xs font-bold flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded hover:bg-slate-50"
+        class="text-xs font-bold flex items-center gap-1 px-3 py-1.5 border border-[#EEF2F6] rounded hover:bg-slate-50"
       >
         <span class="material-symbols-outlined text-[16px]">grid_view</span>
         Gallery Toggle
       </button>
       <button
-        class="text-xs font-bold flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded hover:bg-slate-50"
+        class="text-xs font-bold flex items-center gap-1 px-3 py-1.5 border border-[#EEF2F6] rounded hover:bg-slate-50"
       >
         <span class="material-symbols-outlined text-[16px]">sort</span>
         Reorder
@@ -416,13 +416,13 @@
     newSpec.className = 'flex gap-2';
     newSpec.innerHTML = `
       <input
-        class="flex-1 rounded-lg border-slate-200 text-xs dark:bg-slate-800 dark:border-slate-700"
+        class="flex-1 rounded-lg border-[#EEF2F6] text-xs"
         placeholder="Label"
         type="text"
         name="spec_label"
       />
       <input
-        class="flex-[1.5] rounded-lg border-slate-200 text-xs dark:bg-slate-800 dark:border-slate-700"
+        class="flex-[1.5] rounded-lg border-[#EEF2F6] text-xs"
         placeholder="Value"
         type="text"
         name="spec_value"
@@ -517,7 +517,7 @@
         const reader = new FileReader();
         reader.onload = function(e) {
           const imageDiv = document.createElement('div');
-          imageDiv.className = 'relative aspect-square group rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800';
+          imageDiv.className = 'relative aspect-square group rounded-lg overflow-hidden border border-[#EEF2F6]';
           imageDiv.setAttribute('data-form-index', totalForms);
           imageDiv.innerHTML = `
             <img alt="${file.name}" class="w-full h-full object-cover" src="${e.target.result}" />
@@ -554,12 +554,12 @@
   function setPrimaryImage(button) {
     document.querySelectorAll('.border-primary').forEach(el => {
       el.classList.remove('border-primary', 'border-2', 'shadow-lg');
-      el.classList.add('border-slate-200', 'dark:border-slate-800');
+      el.classList.add('border-[#EEF2F6]', '');
       el.querySelector('.absolute.top-2.left-2')?.remove();
     });
     
     const imageDiv = button.closest('.relative');
-    imageDiv.classList.remove('border-slate-200', 'dark:border-slate-800');
+    imageDiv.classList.remove('border-[#EEF2F6]', '');
     imageDiv.classList.add('border-primary', 'border-2', 'shadow-lg');
     
     const primaryBadge = document.createElement('div');

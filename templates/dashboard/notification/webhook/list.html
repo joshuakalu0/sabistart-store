@@ -1,4 +1,4 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% load static %}
 {% load i18n %}
 
@@ -21,10 +21,10 @@
     </div>
 
     <!-- Table -->
-    <div class="bg-white shadow-lg rounded-sm border border-slate-200">
+    <div class="bg-white shadow-lg rounded-sm border border-[#EEF2F6]">
         <div class="overflow-x-auto">
             <table class="table-auto w-full">
-                <thead class="text-xs font-semibold uppercase text-slate-500 bg-slate-50 border-t border-b border-slate-200">
+                <thead class="text-xs font-semibold uppercase text-slate-500 bg-slate-50 border-t border-b border-[#EEF2F6]">
                     <tr>
                         <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Endpoint URL</div></th>
                         <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-center">Status</div></th>
@@ -33,7 +33,7 @@
                         <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Actions</div></th>
                     </tr>
                 </thead>
-                <tbody class="text-sm divide-y divide-slate-200">
+                <tbody class="text-sm divide-y divide-[#EEF2F6]">
                     {% for endpoint in endpoints %}
                     <tr>
                         <td class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
@@ -52,7 +52,7 @@
                         <td class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
                             <div class="text-slate-800">
                                 {% if '*' in endpoint.topics %}
-                                    <span class="text-xs bg-slate-100 border border-slate-200 px-2 py-0.5 rounded text-slate-600">All Events</span>
+                                    <span class="text-xs bg-slate-100 border border-[#EEF2F6] px-2 py-0.5 rounded text-slate-600">All Events</span>
                                 {% else %}
                                     {{ endpoint.topics|length }} topics
                                 {% endif %}

@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
@@ -14,62 +14,62 @@
             theme: {
                 extend: {
                     colors: {
-                        "background": "#f7f9fb",
-                        "tertiary-container": "#e3dbfd",
-                        "primary-fixed-dim": "#c7d3ff",
-                        "outline-variant": "#a9b4b9",
-                        "on-secondary-container": "#435368",
-                        "on-primary-fixed": "#003798",
-                        "secondary-fixed-dim": "#c5d6f0",
-                        "on-tertiary-fixed-variant": "#5b5672",
-                        "error-container": "#fe8983",
-                        "tertiary-dim": "#54506b",
-                        "error": "#9f403d",
-                        "secondary-fixed": "#d3e4fe",
-                        "tertiary": "#605c78",
-                        "outline": "#717c82",
-                        "on-error": "#fff7f6",
-                        "inverse-primary": "#618bff",
-                        "surface-dim": "#cfdce3",
-                        "on-tertiary-fixed": "#3e3a54",
-                        "on-surface-variant": "#566166",
-                        "on-tertiary-container": "#514d68",
-                        "surface-container": "#e8eff3",
-                        "on-secondary-fixed": "#314055",
-                        "secondary-dim": "#44546a",
-                        "secondary-container": "#d3e4fe",
-                        "on-primary-container": "#0048bf",
-                        "surface-container-high": "#e1e9ee",
-                        "secondary": "#506076",
-                        "primary-fixed": "#dbe1ff",
-                        "surface": "#f7f9fb",
-                        "inverse-on-surface": "#9a9d9f",
-                        "tertiary-fixed": "#e3dbfd",
-                        "surface-bright": "#f7f9fb",
-                        "on-tertiary": "#fcf7ff",
-                        "primary": "#0053db",
-                        "on-primary": "#f8f7ff",
-                        "primary-container": "#dbe1ff",
-                        "on-surface": "#2a3439",
-                        "surface-container-low": "#f0f4f7",
-                        "surface-container-lowest": "#ffffff",
-                        "on-secondary-fixed-variant": "#4d5d73",
-                        "on-error-container": "#752121",
-                        "on-primary-fixed-variant": "#0050d4",
-                        "surface-tint": "#0053db",
-                        "on-secondary": "#f7f9ff",
-                        "on-background": "#2a3439",
-                        "tertiary-fixed-dim": "#d4cdee",
-                        "primary-dim": "#0048c1",
-                        "inverse-surface": "#0b0f10",
-                        "error-dim": "#4e0309",
-                        "surface-container-highest": "#d9e4ea",
-                        "surface-variant": "#d9e4ea"
+"background": "#f7f9fb",
+"tertiary-container": "#e3dbfd",
+"primary-fixed-dim": "#c7d3ff",
+"outline-variant": "#a9b4b9",
+"on-secondary-container": "#435368",
+"on-primary-fixed": "#003798",
+"secondary-fixed-dim": "#c5d6f0",
+"on-tertiary-fixed-variant": "#5b5672",
+"error-container": "#fe8983",
+"tertiary-dim": "#54506b",
+"error": "#9f403d",
+"secondary-fixed": "#d3e4fe",
+"tertiary": "#605c78",
+"outline": "#717c82",
+"on-error": "#fff7f6",
+"inverse-primary": "#618bff",
+"surface-dim": "#cfdce3",
+"on-tertiary-fixed": "#3e3a54",
+"on-surface-variant": "#566166",
+"on-tertiary-container": "#514d68",
+"surface-container": "#e8eff3",
+"on-secondary-fixed": "#314055",
+"secondary-dim": "#44546a",
+"secondary-container": "#d3e4fe",
+"on-primary-container": "#0048bf",
+"surface-container-high": "#e1e9ee",
+"secondary": "#506076",
+"primary-fixed": "#dbe1ff",
+"surface": "#f7f9fb",
+"inverse-on-surface": "#9a9d9f",
+"tertiary-fixed": "#e3dbfd",
+"surface-bright": "#f7f9fb",
+"on-tertiary": "#fcf7ff",
+"primary": "#0053db",
+"on-primary": "#f8f7ff",
+"primary-container": "#dbe1ff",
+"on-surface": "#2a3439",
+"surface-container-low": "#f0f4f7",
+"surface-container-lowest": "#ffffff",
+"on-secondary-fixed-variant": "#4d5d73",
+"on-error-container": "#752121",
+"on-primary-fixed-variant": "#0050d4",
+"surface-tint": "#0053db",
+"on-secondary": "#f7f9ff",
+"on-background": "#2a3439",
+"tertiary-fixed-dim": "#d4cdee",
+"primary-dim": "#0048c1",
+"inverse-surface": "#0b0f10",
+"error-dim": "#4e0309",
+"surface-container-highest": "#d9e4ea",
+"surface-variant": "#d9e4ea"
                     },
                     fontFamily: {
-                        "headline": ["Manrope"],
-                        "body": ["Inter"],
-                        "label": ["Inter"]
+"headline": ["Manrope"],
+"body": ["Inter"],
+"label": ["Inter"]
                     },
                     borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
                 },
@@ -157,16 +157,16 @@
 {% endif %}
 
 <!-- TopAppBar -->
-<nav class="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm glass-nav">
+<nav class="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md shadow-sm glass-nav">
     <div class="flex items-center justify-between px-8 py-4 max-w-full mx-auto">
         <div class="flex items-center gap-8">
-            <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{{ title }}</span>
+            <span class="text-xl font-bold tracking-tight text-slate-900">{{ title }}</span>
             <div class="hidden md:flex items-center gap-6">
-                <a class="text-blue-700 dark:text-blue-400 font-bold border-b-2 border-blue-700 dark:border-blue-400 pb-1 hover:text-blue-600 transition-colors" href="#caching">Caching</a>
-                <a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 transition-colors" href="#images">Images</a>
-                <a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 transition-colors" href="#minification">Minification</a>
-                <a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 transition-colors" href="#cdn">CDN</a>
-                <a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 transition-colors" href="#database">Database</a>
+                <a class="text-blue-700 font-bold border-b-2 border-blue-700 pb-1 hover:text-[#5850EC] transition-colors" href="#caching">Caching</a>
+                <a class="text-slate-500 font-medium hover:text-[#5850EC] transition-colors" href="#images">Images</a>
+                <a class="text-slate-500 font-medium hover:text-[#5850EC] transition-colors" href="#minification">Minification</a>
+                <a class="text-slate-500 font-medium hover:text-[#5850EC] transition-colors" href="#cdn">CDN</a>
+                <a class="text-slate-500 font-medium hover:text-[#5850EC] transition-colors" href="#database">Database</a>
             </div>
             {% if is_edit %}
             <span class="px-3 py-1 bg-{% if performance_grade_color == 'emerald' %}emerald{% elif performance_grade_color == 'green' %}green{% elif performance_grade_color == 'yellow' %}yellow{% elif performance_grade_color == 'orange' %}orange{% else %}red{% endif %}-100 text-{% if performance_grade_color == 'emerald' %}emerald{% elif performance_grade_color == 'green' %}green{% elif performance_grade_color == 'yellow' %}yellow{% elif performance_grade_color == 'orange' %}orange{% else %}red{% endif %}-700 text-xs font-bold rounded-full">

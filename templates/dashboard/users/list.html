@@ -1,4 +1,4 @@
-{% extends "dashboard/_partials/base.html" %} {% block content %}
+﻿{% extends "dashboard/_partials/base.html" %} {% block content %}
 <style>
   @media (max-width: 639px) {
     .usr-table-wrap { display: none; }
@@ -13,12 +13,12 @@
 <!-- Page Header -->
 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
   <div>
-    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Users</h2>
-    <p class="text-sm text-slate-600 dark:text-slate-400">Manage users, staff members, and customer accounts</p>
+    <h2 class="text-xl font-bold text-slate-900">Users</h2>
+    <p class="text-sm text-slate-600">Manage users, staff members, and customer accounts</p>
   </div>
   <a
     href="{% url 'dashboard:user_settings:user_create' prefix %}"
-    class="inline-flex items-center justify-center gap-1.5 bg-primary text-white px-4 py-2.5 rounded-xl hover:bg-blue-600 active:scale-95 transition-all text-sm font-medium w-full sm:w-auto"
+    class="inline-flex items-center justify-center gap-1.5 bg-primary text-white px-4 py-2.5 rounded-xl hover:bg-[#5850EC] active:scale-95 transition-all text-sm font-medium w-full sm:w-auto"
   >
     <span class="material-icons-outlined text-base">add</span>
     <span>Add User</span>
@@ -26,9 +26,9 @@
 </div>
 
 <div
-  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+  class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden"
 >
-  <div class="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700">
+  <div class="p-4 sm:p-6 border-b border-[#EEF2F6]">
     <div class="flex flex-col gap-3">
       <div class="relative">
         <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -40,17 +40,17 @@
           value="{{ search_query }}"
           placeholder="Search users by name, email, or phone..."
           style="font-size:16px"
-          class="w-full pl-10 pr-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-700 dark:text-white"
+          class="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
         />
       </div>
       <div class="grid grid-cols-2 gap-2">
-        <select name="user_type" class="w-full px-3 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl dark:bg-slate-700 dark:text-white text-sm" style="font-size:16px">
+        <select name="user_type" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm" style="font-size:16px">
           <option value="">All Types</option>
           {% for value, label in user_types %}
           <option value="{{ value }}" {% if user_type_filter == value %}selected{% endif %}>{{ label }}</option>
           {% endfor %}
         </select>
-        <select name="status" class="w-full px-3 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl dark:bg-slate-700 dark:text-white text-sm" style="font-size:16px">
+        <select name="status" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm" style="font-size:16px">
           <option value="">All Statuses</option>
           {% for value, label in statuses %}
           <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
@@ -58,11 +58,11 @@
         </select>
       </div>
       <div class="flex gap-2">
-        <button type="submit" class="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 active:scale-95 transition-all">
+        <button type="submit" class="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#5850EC] text-white rounded-xl text-sm font-medium hover:bg-[#4F46E5] active:scale-95 transition-all">
           <span class="material-icons-outlined text-sm">filter_list</span>
           Apply Filters
         </button>
-        <a href="{% url 'dashboard:user_settings:user_list' prefix %}" class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+        <a href="{% url 'dashboard:user_settings:user_list' prefix %}" class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 border border-slate-300 rounded-xl text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition-colors">
           <span class="material-icons-outlined text-sm">clear</span>
           Clear
         </a>
@@ -73,59 +73,59 @@
   <!-- Desktop table -->
   <div class="usr-table-wrap overflow-x-auto">
     <table class="w-full">
-      <thead class="bg-slate-50 dark:bg-slate-700">
+      <thead class="bg-slate-50">
         <tr>
           <th
-            class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
           >
             User
           </th>
           <th
-            class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
           >
             Type
           </th>
           <th
-            class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
           >
             Status
           </th>
           <th
-            class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
           >
             Email
           </th>
           <th
-            class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
           >
             Phone
           </th>
           <th
-            class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
           >
             Actions
           </th>
         </tr>
       </thead>
       <tbody
-        class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700"
+        class="bg-white divide-y divide-[#EEF2F6]"
       >
         {% if page_obj %} {% for user in page_obj %}
-        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+        <tr class="hover:bg-slate-50 transition-colors">
           <td class="px-6 py-4 whitespace-nowrap">
             <div class="flex items-center">
               <div
-                class="w-10 h-10 bg-slate-200 dark:bg-slate-600 rounded-lg flex items-center justify-center mr-3"
+                class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center mr-3"
               >
                 <span class="material-icons-outlined text-slate-400"
                   >person</span
                 >
               </div>
               <div>
-                <div class="text-sm font-medium text-slate-900 dark:text-white">
+                <div class="text-sm font-medium text-slate-900">
                   {{ user.user.get_full_name }}
                 </div>
-                <div class="text-sm text-slate-500 dark:text-slate-400">
+                <div class="text-sm text-slate-500">
                   {{ user.user.username }}
                 </div>
               </div>
@@ -133,32 +133,32 @@
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
             <span
-              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if user.user_type == 'staff' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 {% elif user.user_type == 'customer' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 {% else %}bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200{% endif %}"
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if user.user_type == 'staff' %}bg-blue-100 text-blue-800 {% elif user.user_type == 'customer' %}bg-green-100 text-green-800 {% else %}bg-gray-100 text-gray-800{% endif %}"
             >
               {{ user.get_user_type_display }}
             </span>
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
             <span
-              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if user.status == 'active' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 {% elif user.status == 'inactive' %}bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 {% elif user.status == 'suspended' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 {% elif user.status == 'pending' %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 {% else %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% endif %}"
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if user.status == 'active' %}bg-green-100 text-green-800 {% elif user.status == 'inactive' %}bg-gray-100 text-gray-800 {% elif user.status == 'suspended' %}bg-yellow-100 text-yellow-800 {% elif user.status == 'pending' %}bg-blue-100 text-blue-800 {% else %}bg-red-100 text-red-800{% endif %}"
             >
               {{ user.get_status_display }}
             </span>
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
-            <span class="text-sm text-slate-600 dark:text-slate-400">
+            <span class="text-sm text-slate-600">
               {{ user.user.email }}
             </span>
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
-            <span class="text-sm text-slate-600 dark:text-slate-400">
+            <span class="text-sm text-slate-600">
               {{ user.phone|default:"-" }}
             </span>
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
             <a
               href="{% url 'dashboard:user_settings:user_edit' prefix user.id %}"
-              class="text-primary hover:text-blue-600"
+              class="text-primary hover:text-[#5850EC]"
               >Edit</a
             >
             <button
@@ -174,7 +174,7 @@
         <tr>
           <td
             colspan="6"
-            class="px-6 py-4 text-center text-slate-600 dark:text-slate-400"
+            class="px-6 py-4 text-center text-slate-600"
           >
             No users found
           </td>
@@ -185,23 +185,23 @@
   </div><!-- end usr-table-wrap -->
 
   <!-- Mobile user cards -->
-  <div class="usr-cards-wrap divide-y divide-slate-200 dark:divide-slate-700">
+  <div class="usr-cards-wrap divide-y divide-[#EEF2F6]">
     {% if page_obj %}{% for user in page_obj %}
     <div class="p-4 flex items-start gap-3">
-      <div class="w-12 h-12 shrink-0 bg-slate-100 dark:bg-slate-700 rounded-xl flex items-center justify-center">
+      <div class="w-12 h-12 shrink-0 bg-slate-100 rounded-xl flex items-center justify-center">
         <span class="material-icons-outlined text-slate-400">person</span>
       </div>
       <div class="flex-1 min-w-0">
         <div class="flex items-start justify-between gap-2">
           <div class="min-w-0">
-            <p class="text-sm font-semibold text-slate-900 dark:text-white truncate">{{ user.user.get_full_name }}</p>
-            <p class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ user.user.username }}</p>
+            <p class="text-sm font-semibold text-slate-900 truncate">{{ user.user.get_full_name }}</p>
+            <p class="text-xs text-slate-500 truncate">{{ user.user.username }}</p>
           </div>
-          <span class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {% if user.status == 'active' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200{% elif user.status == 'suspended' %}bg-yellow-100 text-yellow-800{% elif user.status == 'pending' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-700{% endif %}">
+          <span class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {% if user.status == 'active' %}bg-green-100 text-green-800{% elif user.status == 'suspended' %}bg-yellow-100 text-yellow-800{% elif user.status == 'pending' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-700{% endif %}">
             {{ user.get_status_display }}
           </span>
         </div>
-        <div class="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500 dark:text-slate-400">
+        <div class="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500">
           <span>{{ user.user.email }}</span>
           {% if user.phone %}<span>· {{ user.phone }}</span>{% endif %}
           <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs {% if user.user_type == 'staff' %}bg-blue-100 text-blue-700{% elif user.user_type == 'customer' %}bg-green-100 text-green-700{% else %}bg-gray-100 text-gray-600{% endif %}">{{ user.get_user_type_display }}</span>
@@ -213,16 +213,16 @@
       </div>
     </div>
     {% endfor %}{% else %}
-    <div class="p-8 text-center text-slate-500 dark:text-slate-400 text-sm">No users found</div>
+    <div class="p-8 text-center text-slate-500 text-sm">No users found</div>
     {% endif %}
   </div><!-- end usr-cards-wrap -->
 
 
   {% if page_obj.has_other_pages %}
   <div
-    class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between"
+    class="px-6 py-4 border-t border-[#EEF2F6] flex items-center justify-between"
   >
-    <div class="text-sm text-slate-600 dark:text-slate-400">
+    <div class="text-sm text-slate-600">
       Showing <span class="font-medium">{{ page_obj.start_index }}</span> to
       <span class="font-medium">{{ page_obj.end_index }}</span> of
       <span class="font-medium">{{ page_obj.paginator.count }}</span> users
@@ -232,28 +232,28 @@
         {% if page_obj.has_previous %}
         <a
           href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if user_type_filter %}&user_type={{ user_type_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"
-          class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
+          class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50"
         >
           <span class="material-icons-outlined text-sm">chevron_left</span>
         </a>
         {% endif %} {% for num in page_obj.paginator.page_range %}
          {% if page_obj.number == num %}
         <span
-          class="relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 dark:bg-blue-900 text-sm font-medium text-blue-600 dark:text-blue-200"
+          class="relative inline-flex items-center px-4 py-2 border border-blue-500 bg-indigo-50 text-sm font-medium text-[#5850EC]"
         >
           {{ num }}
         </span>
         {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
         <a
           href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if user_type_filter %}&user_type={{ user_type_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"
-          class="relative inline-flex items-center px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+          class="relative inline-flex items-center px-4 py-2 border border-slate-300 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50"
         >
           {{ num }}
         </a>
         {% endif %} {% endfor %} {% if page_obj.has_next %}
         <a
           href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if user_type_filter %}&user_type={{ user_type_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"
-          class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
+          class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50"
         >
           <span class="material-icons-outlined text-sm">chevron_right</span>
         </a>
@@ -272,14 +272,14 @@
         const url = this.dataset.url;
 
         openDeleteModal(
-          "Deactivate User",
+"Deactivate User",
           `Are you sure you want to deactivate "${name}"? This will disable their account and prevent them from logging in.`,
           function () {
             fetch(url, {
               method: "POST",
               headers: {
-                "X-CSRFToken": "{{ csrf_token }}",
-                "Content-Type": "application/x-www-form-urlencoded",
+"X-CSRFToken": "{{ csrf_token }}",
+"Content-Type": "application/x-www-form-urlencoded",
               },
             }).then(() => location.reload());
           },

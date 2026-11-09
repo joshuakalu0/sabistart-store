@@ -1,108 +1,162 @@
 {% extends "dashboard/_partials/base.html" %}
 {% block content %}
-<div class="flex items-center justify-between mb-6">
-  <div>
-    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Customers</h2>
-    <p class="text-slate-500 dark:text-slate-400 text-sm">Manage customer profiles, groups and commerce data</p>
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <nav class="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
+        <a href="{% url 'dashboard:dashboard_home:home' prefix %}" class="hover:text-[#5850EC]">Home</a>
+        <span class="material-icons-outlined text-xs">chevron_right</span>
+        <span>Users & Staff</span>
+        <span class="material-icons-outlined text-xs">chevron_right</span>
+        <span class="text-[#5850EC] font-semibold">Customers</span>
+      </nav>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900">Customer Profiles</h1>
+      <p class="text-xs text-slate-500 mt-0.5">Manage registered shoppers, VIP groups, tiers, and purchase records.</p>
+    </div>
+    <div class="flex items-center gap-2.5">
+      <a href="{% url 'dashboard:user_settings:group_list' prefix %}"
+         class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-[#EEF2F6] bg-white text-xs font-semibold text-slate-700 shadow-sm hover:border-[#5850EC] hover:text-[#5850EC] transition">
+        <span class="material-icons-outlined text-base">group</span>
+        <span>Customer Groups</span>
+      </a>
+    </div>
   </div>
-  <a href="{% url 'dashboard:user_settings:group_list' prefix %}" class="text-sm text-slate-500 hover:text-primary flex items-center space-x-1 border border-slate-300 dark:border-slate-600 px-3 py-2 rounded-lg">
-    <span class="material-icons-outlined text-sm">group</span><span>Groups</span>
-  </a>
-</div>
 
-<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-  <div class="p-4 border-b border-slate-200 dark:border-slate-700">
-    <form method="get" class="flex flex-wrap gap-3">
-      <input type="text" name="q" value="{{ q }}" placeholder="Search by name, email or company…"
-             class="flex-1 min-w-[200px] px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary"/>
-      <select name="status" class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white">
-        <option value="">All Statuses</option>
-        {% for val, label in status_choices %}
-        <option value="{{ val }}" {% if status == val %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
-      <select name="group" class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white">
-        <option value="">All Groups</option>
-        {% for g in groups %}
-        <option value="{{ g.id }}" {% if group_id == g.id|stringformat:"s" %}selected{% endif %}>{{ g.name }}</option>
-        {% endfor %}
-      </select>
-      <select name="tier" class="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-700 dark:text-white">
-        <option value="">All Tiers</option>
-        {% for val, label in tier_choices %}
-        <option value="{{ val }}" {% if tier == val %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
-      <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg text-sm">Filter</button>
+  <!-- Filters -->
+  <div class="rounded-2xl border border-[#EEF2F6] bg-white p-4 shadow-sm">
+    <form method="get" class="flex flex-wrap items-center gap-3">
+      <div class="relative flex-1 min-w-[220px]">
+        <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+        <input type="text" name="q" value="{{ q }}" placeholder="Search by name, email or company…"
+               class="w-full h-10 pl-9 pr-3 rounded-xl bg-slate-50 border border-[#EEF2F6]/80 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-[#5850EC] focus:ring-2 focus:ring-[#5850EC]/20 focus:outline-none transition"/>
+      </div>
+      <div class="relative min-w-[130px]">
+        <select name="status" class="w-full h-10 pl-3 pr-8 rounded-xl bg-slate-50 border border-[#EEF2F6]/80 text-xs text-slate-800 appearance-none focus:bg-white focus:border-[#5850EC] focus:outline-none transition">
+          <option value="">All Statuses</option>
+          {% for val, label in status_choices %}
+          <option value="{{ val }}" {% if status == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <span class="material-icons-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">expand_more</span>
+      </div>
+      <div class="relative min-w-[130px]">
+        <select name="group" class="w-full h-10 pl-3 pr-8 rounded-xl bg-slate-50 border border-[#EEF2F6]/80 text-xs text-slate-800 appearance-none focus:bg-white focus:border-[#5850EC] focus:outline-none transition">
+          <option value="">All Groups</option>
+          {% for g in groups %}
+          <option value="{{ g.id }}" {% if group_id == g.id|stringformat:"s" %}selected{% endif %}>{{ g.name }}</option>
+          {% endfor %}
+        </select>
+        <span class="material-icons-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">expand_more</span>
+      </div>
+      <div class="relative min-w-[130px]">
+        <select name="tier" class="w-full h-10 pl-3 pr-8 rounded-xl bg-slate-50 border border-[#EEF2F6]/80 text-xs text-slate-800 appearance-none focus:bg-white focus:border-[#5850EC] focus:outline-none transition">
+          <option value="">All Tiers</option>
+          {% for val, label in tier_choices %}
+          <option value="{{ val }}" {% if tier == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <span class="material-icons-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">expand_more</span>
+      </div>
+      <button type="submit" class="h-10 px-4 rounded-xl bg-[#5850EC] text-white text-xs font-semibold hover:bg-[#4F46E5] transition">Filter</button>
       {% if q or status or group_id or tier %}
-      <a href="{% url 'dashboard:user_settings:customer_list' prefix %}" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700">Clear</a>
+      <a href="{% url 'dashboard:user_settings:customer_list' prefix %}" class="h-10 px-3 flex items-center rounded-xl bg-slate-100 text-slate-600 text-xs font-semibold hover:bg-slate-200 transition">Clear</a>
       {% endif %}
     </form>
   </div>
 
-  <div class="overflow-x-auto">
-    <table class="w-full text-sm">
-      <thead class="bg-slate-50 dark:bg-slate-700">
-        <tr>
-          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Customer</th>
-          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Tier</th>
-          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
-          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Orders</th>
-          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Total Spent</th>
-          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Last Order</th>
-          <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Actions</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-        {% for c in customers %}
-        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
-          <td class="px-4 py-3">
-            <a href="{% url 'dashboard:user_settings:customer_detail' prefix c.pk %}" class="font-medium text-slate-900 dark:text-white hover:text-primary">
-              {{ c.display_name }}
-            </a>
-            {% if c.user %}<div class="text-xs text-slate-500 dark:text-slate-400">{{ c.user.email }}</div>{% else %}<div class="text-xs text-slate-400 italic">Guest</div>{% endif %}
-            {% for g in c.groups.all %}<span class="mr-1 text-xs px-1.5 py-0.5 rounded-full" style="background:{{ g.color }}22;color:{{ g.color }}">{{ g.name }}</span>{% endfor %}
-          </td>
-          <td class="px-4 py-3">
-            {% if c.tier %}
-            <span class="px-2 py-0.5 rounded-full text-xs
-              {% if c.tier == 'vip' %}bg-purple-100 text-purple-700
-              {% elif c.tier == 'platinum' %}bg-slate-200 text-slate-700
-              {% elif c.tier == 'gold' %}bg-yellow-100 text-yellow-700
-              {% elif c.tier == 'silver' %}bg-slate-100 text-slate-500
-              {% else %}bg-blue-50 text-blue-600{% endif %}">
-              {{ c.get_tier_display }}
-            </span>
-            {% else %}<span class="text-slate-400 text-xs">—</span>{% endif %}
-          </td>
-          <td class="px-4 py-3">
-            <span class="px-2 py-0.5 rounded-full text-xs {% if c.status == 'ACTIVE' %}bg-green-100 text-green-700{% elif c.status == 'BLOCKED' %}bg-red-100 text-red-700{% else %}bg-slate-100 text-slate-500{% endif %}">
-              {{ c.get_status_display }}
-            </span>
-          </td>
-          <td class="px-4 py-3 text-slate-600 dark:text-slate-400 font-mono text-xs">{{ c.total_orders }}</td>
-          <td class="px-4 py-3 text-slate-900 dark:text-white font-mono text-xs">{{ c.total_spent|floatformat:2 }}</td>
-          <td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap">{{ c.last_order_at|date:"M d, Y"|default:"—" }}</td>
-          <td class="px-4 py-3 space-x-2 whitespace-nowrap">
-            <a href="{% url 'dashboard:user_settings:customer_detail' prefix c.pk %}" class="text-primary hover:text-blue-700 text-xs">View</a>
-            <a href="{% url 'dashboard:user_settings:customer_edit' prefix c.pk %}" class="text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 text-xs">Edit</a>
-          </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="7" class="px-6 py-10 text-center text-slate-400">No customers found.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  {% if customers.has_other_pages %}
-  <div class="px-4 py-3 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
-    <span class="text-sm text-slate-500">Page {{ customers.number }} of {{ customers.paginator.num_pages }} — {{ customers.paginator.count }} customers</span>
-    <div class="flex space-x-2">
-      {% if customers.has_previous %}<a href="?page={{ customers.previous_page_number }}&q={{ q }}&status={{ status }}&group={{ group_id }}&tier={{ tier }}" class="px-3 py-1 border border-slate-300 dark:border-slate-600 rounded text-sm hover:bg-slate-50 dark:hover:bg-slate-700">Prev</a>{% endif %}
-      {% if customers.has_next %}<a href="?page={{ customers.next_page_number }}&q={{ q }}&status={{ status }}&group={{ group_id }}&tier={{ tier }}" class="px-3 py-1 border border-slate-300 dark:border-slate-600 rounded text-sm hover:bg-slate-50 dark:hover:bg-slate-700">Next</a>{% endif %}
+  <!-- Table -->
+  <div class="rounded-2xl border border-[#EEF2F6] bg-white shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-[#F8F9FC] border-b border-[#EEF2F6]">
+          <tr>
+            <th class="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Customer</th>
+            <th class="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Tier</th>
+            <th class="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Status</th>
+            <th class="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 text-center">Orders</th>
+            <th class="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Spent</th>
+            <th class="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Last Order</th>
+            <th class="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#EEF2F6]">
+          {% for c in customers %}
+          <tr class="hover:bg-[#FBFBFE] transition-colors">
+            <td class="px-5 py-4">
+              <a href="{% url 'dashboard:user_settings:customer_detail' prefix c.pk %}" class="text-xs font-bold text-slate-900 hover:text-[#5850EC] transition">
+                {{ c.display_name }}
+              </a>
+              {% if c.user %}
+              <div class="text-[11px] text-slate-400">{{ c.user.email }}</div>
+              {% else %}
+              <div class="text-[11px] text-slate-400 italic">Guest Checkout</div>
+              {% endif %}
+              <div class="flex flex-wrap gap-1 mt-1">
+                {% for g in c.groups.all %}
+                <span class="text-[10px] px-1.5 py-0.5 rounded-full font-medium" style="background:{{ g.color }}15; color:{{ g.color|default:'#5850EC' }}">{{ g.name }}</span>
+                {% endfor %}
+              </div>
+            </td>
+            <td class="px-5 py-4">
+              {% if c.tier %}
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold
+                {% if c.tier == 'vip' %}bg-purple-50 text-purple-700 border border-purple-100
+                {% elif c.tier == 'platinum' %}bg-slate-100 text-slate-700
+                {% elif c.tier == 'gold' %}bg-amber-50 text-amber-700 border border-amber-100
+                {% elif c.tier == 'silver' %}bg-slate-50 text-slate-600
+                {% else %}bg-indigo-50 text-[#5850EC]{% endif %}">
+                {{ c.get_tier_display }}
+              </span>
+              {% else %}
+              <span class="text-slate-300 text-xs">—</span>
+              {% endif %}
+            </td>
+            <td class="px-5 py-4">
+              {% if c.status == 'ACTIVE' %}
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active
+              </span>
+              {% elif c.status == 'BLOCKED' %}
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-100">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Blocked
+              </span>
+              {% else %}
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600">
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> {{ c.get_status_display }}
+              </span>
+              {% endif %}
+            </td>
+            <td class="px-5 py-4 text-center font-mono text-xs text-slate-700">{{ c.total_orders }}</td>
+            <td class="px-5 py-4 font-mono text-xs font-semibold text-slate-900">{{ c.total_spent|floatformat:2 }}</td>
+            <td class="px-5 py-4 text-xs text-slate-500 whitespace-nowrap">{{ c.last_order_at|date:"M d, Y"|default:"—" }}</td>
+            <td class="px-5 py-4 text-right space-x-2 whitespace-nowrap">
+              <a href="{% url 'dashboard:user_settings:customer_detail' prefix c.pk %}" class="inline-flex items-center px-2.5 py-1 rounded-lg bg-indigo-50 text-[#5850EC] text-[11px] font-semibold hover:bg-indigo-100 transition">View</a>
+              <a href="{% url 'dashboard:user_settings:customer_edit' prefix c.pk %}" class="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-[11px] font-semibold hover:bg-slate-200 transition">Edit</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="px-6 py-12 text-center text-xs text-slate-400">No customers found matching your criteria.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+
+    {% if customers.has_other_pages %}
+    <div class="px-5 py-3 border-t border-[#EEF2F6] flex flex-col sm:flex-row items-center justify-between gap-3">
+      <span class="text-xs text-slate-400">Page {{ customers.number }} of {{ customers.paginator.num_pages }} — {{ customers.paginator.count }} customers</span>
+      <div class="flex gap-1.5">
+        {% if customers.has_previous %}
+        <a href="?page={{ customers.previous_page_number }}&q={{ q }}&status={{ status }}&group={{ group_id }}&tier={{ tier }}" class="px-3 py-1.5 rounded-xl border border-[#EEF2F6] bg-white text-xs font-semibold text-slate-600 hover:border-[#5850EC] hover:text-[#5850EC] transition">Prev</a>
+        {% endif %}
+        {% if customers.has_next %}
+        <a href="?page={{ customers.next_page_number }}&q={{ q }}&status={{ status }}&group={{ group_id }}&tier={{ tier }}" class="px-3 py-1.5 rounded-xl bg-[#5850EC] text-white text-xs font-semibold hover:bg-[#4F46E5] transition">Next</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
   </div>
-  {% endif %}
 </div>
 {% endblock %}

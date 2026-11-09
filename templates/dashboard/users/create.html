@@ -1,8 +1,8 @@
-{% extends "dashboard/_partials/base.html" %} {% block content %}
+﻿{% extends "dashboard/_partials/base.html" %} {% block content %}
 <div class="flex items-center justify-between mb-6">
   <div>
-    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Create User</h2>
-    <p class="text-slate-600 dark:text-slate-400">
+    <h2 class="text-xl font-bold text-slate-900">Create User</h2>
+    <p class="text-slate-600">
       Create a new user account with the appropriate role and permissions
     </p>
   </div>
@@ -15,7 +15,7 @@
   </a>
 </div>
 
-<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+<div class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden">
   <div class="p-6">
     <form method="POST">
       {% csrf_token %}
@@ -23,12 +23,12 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Basic Information -->
         <div class="md:col-span-2">
-          <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-4">
+          <h3 class="text-lg font-medium text-slate-900 mb-4">
             Basic Information
           </h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label class="block text-sm font-medium text-slate-700 mb-2">
                 First Name *
               </label>
               {{ form.first_name }}
@@ -39,7 +39,7 @@
               {% endif %}
             </div>
             <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label class="block text-sm font-medium text-slate-700 mb-2">
                 Last Name *
               </label>
               {{ form.last_name }}
@@ -50,7 +50,7 @@
               {% endif %}
             </div>
             <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label class="block text-sm font-medium text-slate-700 mb-2">
                 Email *
               </label>
               {{ form.email }}
@@ -61,7 +61,7 @@
               {% endif %}
             </div>
             <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label class="block text-sm font-medium text-slate-700 mb-2">
                 Username *
               </label>
               {{ form.username }}
@@ -72,7 +72,7 @@
               {% endif %}
             </div>
             <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label class="block text-sm font-medium text-slate-700 mb-2">
                 Password *
               </label>
               {{ form.password }}
@@ -83,7 +83,7 @@
               {% endif %}
             </div>
             <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <label class="block text-sm font-medium text-slate-700 mb-2">
                 Confirm Password *
               </label>
               {{ form.confirm_password }}
@@ -98,11 +98,11 @@
 
         <!-- User Type & Status -->
         <div>
-          <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-4">
+          <h3 class="text-lg font-medium text-slate-900 mb-4">
             User Settings
           </h3>
           <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label class="block text-sm font-medium text-slate-700 mb-2">
               User Type *
             </label>
             {{ form.user_type }}
@@ -113,7 +113,7 @@
             {% endif %}
           </div>
           <div class="mt-4">
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label class="block text-sm font-medium text-slate-700 mb-2">
               Status *
             </label>
             {{ form.status }}
@@ -124,7 +124,7 @@
             {% endif %}
           </div>
           <div class="mt-4">
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label class="block text-sm font-medium text-slate-700 mb-2">
               Phone Number
             </label>
             {{ form.phone }}
@@ -135,7 +135,7 @@
             {% endif %}
           </div>
           <div class="mt-4">
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label class="block text-sm font-medium text-slate-700 mb-2">
               Date of Birth
             </label>
             {{ form.date_of_birth }}
@@ -146,7 +146,7 @@
             {% endif %}
           </div>
           <div class="mt-4">
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label class="block text-sm font-medium text-slate-700 mb-2">
               Gender
             </label>
             {{ form.gender }}
@@ -160,11 +160,11 @@
 
         <!-- Roles & Permissions -->
         <div>
-          <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-4">
+          <h3 class="text-lg font-medium text-slate-900 mb-4">
             Roles & Permissions
           </h3>
           <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label class="block text-sm font-medium text-slate-700 mb-2">
               Roles
             </label>
             {% comment %} {{ form.roles }} {% endcomment %}
@@ -175,7 +175,7 @@
             {% endif %}
           </div>
           <div class="mt-4">
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <label class="block text-sm font-medium text-slate-700 mb-2">
               Custom Permissions
             </label>
             {% comment %} {{ form.custom_permissions }} {% endcomment %}
@@ -189,37 +189,37 @@
 
         <!-- Verification & Preferences -->
         <div md:col-span-2>
-          <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-4">
+          <h3 class="text-lg font-medium text-slate-900 mb-4">
             Verification & Preferences
           </h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="flex items-center space-x-3">
               {{ form.email_verified }}
-              <label class="text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label class="text-sm font-medium text-slate-700">
                 Email Verified
               </label>
             </div>
             <div class="flex items-center space-x-3">
               {{ form.phone_verified }}
-              <label class="text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label class="text-sm font-medium text-slate-700">
                 Phone Verified
               </label>
             </div>
             <div class="flex items-center space-x-3">
               {{ form.two_factor_enabled }}
-              <label class="text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label class="text-sm font-medium text-slate-700">
                 Two-Factor Authentication
               </label>
             </div>
             <div class="flex items-center space-x-3">
               {{ form.marketing_consent }}
-              <label class="text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label class="text-sm font-medium text-slate-700">
                 Marketing Consent
               </label>
             </div>
             <div class="flex items-center space-x-3">
               {{ form.newsletter_subscription }}
-              <label class="text-sm font-medium text-slate-700 dark:text-slate-300">
+              <label class="text-sm font-medium text-slate-700">
                 Newsletter Subscription
               </label>
             </div>
@@ -228,7 +228,7 @@
 
         <!-- Notes -->
         <div md:col-span-2>
-          <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-4">
+          <h3 class="text-lg font-medium text-slate-900 mb-4">
             Notes
           </h3>
           <div>
@@ -246,7 +246,7 @@
       <div class="mt-8 flex items-center space-x-4">
         <button
           type="submit"
-          class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+          class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-[#5850EC] transition-colors flex items-center space-x-2"
         >
           <span class="material-icons-outlined text-sm">save</span>
           <span>Create User</span>

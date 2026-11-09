@@ -1,22 +1,22 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% load string_utils %}
 {% block content %}
 <div class="flex items-center justify-between mb-6">
   <div>
-    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Automatic Discounts</h2>
-    <p class="text-slate-600 dark:text-slate-400">Manage discounts that apply automatically when conditions are met</p>
+    <h2 class="text-xl font-bold text-slate-900">Automatic Discounts</h2>
+    <p class="text-slate-600">Manage discounts that apply automatically when conditions are met</p>
   </div>
   <div class="flex flex-wrap gap-3">
-    <a href="{% url 'dashboard:pricing:promotion_conflict_list' prefix %}" class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center space-x-2">
+    <a href="{% url 'dashboard:pricing:promotion_conflict_list' prefix %}" class="bg-white text-slate-700 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 transition-colors flex items-center space-x-2">
       <span class="material-icons-outlined text-sm">warning</span><span>Conflicts</span>
     </a>
-    <a href="{{ create_url }}" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2">
+    <a href="{{ create_url }}" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-[#5850EC] transition-colors flex items-center space-x-2">
       <span class="material-icons-outlined text-sm">add</span><span>Create Auto-Discount</span>
     </a>
   </div>
 </div>
 
-<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mb-6">
+<div class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden mb-6">
   <div class="p-6">
     <form method="get" class="flex flex-col sm:flex-row gap-4">
       <div class="relative flex-1">
@@ -24,51 +24,51 @@
           <span class="material-icons-outlined text-slate-400 text-sm">search</span>
         </span>
         <input type="text" name="q" value="{{ q }}" placeholder="Search by name..."
-               class="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-primary dark:bg-slate-700 dark:text-white"/>
+               class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary"/>
       </div>
       <div class="w-full sm:w-48">
-        <select name="status" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary">
+        <select name="status" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-primary">
           <option value="">All Statuses</option>
           <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
           <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
         </select>
       </div>
-      <button type="submit" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+      <button type="submit" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-200 transition-colors">
         Filter
       </button>
     </form>
   </div>
 </div>
 
-<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+<div class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden">
   <div class="overflow-x-auto">
     <table class="w-full">
-      <thead class="bg-slate-50 dark:bg-slate-700">
+      <thead class="bg-slate-50">
         <tr>
           {% for col in "Name,Status,Priority,Combinable,Times Configured,Scheduling,Actions"|split:"," %}
-          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ col }}</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ col }}</th>
           {% endfor %}
         </tr>
       </thead>
-      <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+      <tbody class="bg-white divide-y divide-[#EEF2F6]">
         {% for ad in discounts %}
-        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+        <tr class="hover:bg-slate-50 transition-colors">
           <td class="px-6 py-4">
-            <div class="font-bold text-slate-900 dark:text-white text-base">{{ ad.name }}</div>
+            <div class="font-bold text-slate-900 text-base">{{ ad.name }}</div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
             {% if ad.is_active %}
-            <span class="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 text-xs rounded-full">Active</span>
+            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Active</span>
             {% else %}
-            <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-xs rounded-full">Inactive</span>
+            <span class="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded-full">Inactive</span>
             {% endif %}
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700 dark:text-slate-300 font-mono">
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700 font-mono">
             {{ ad.priority }}
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
             {% if ad.is_combinable %}
-            <span class="text-blue-600 dark:text-blue-400 text-sm font-medium"><span class="material-icons-outlined text-[16px] align-middle -mt-1">merge_type</span> Yes</span>
+            <span class="text-[#5850EC] text-sm font-medium"><span class="material-icons-outlined text-[16px] align-middle -mt-1">merge_type</span> Yes</span>
             {% else %}
             <span class="text-slate-500 text-sm">No</span>
             {% endif %}
@@ -77,7 +77,7 @@
             <div class="mb-1">{{ ad.conditions.count }} Condition(s)</div>
             <div>{{ ad.benefits.count }} Benefit(s)</div>
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-xs text-slate-600 dark:text-slate-400">
+          <td class="px-6 py-4 whitespace-nowrap text-xs text-slate-600">
             {% if ad.starts_at or ad.ends_at %}
               {% if ad.starts_at %}From: {{ ad.starts_at|date:"M d, Y" }}<br>{% endif %}
               {% if ad.ends_at %}Until: {{ ad.ends_at|date:"M d, Y" }}{% endif %}
@@ -86,30 +86,30 @@
             {% endif %}
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
-            <a href="{% url 'dashboard:pricing:automatic_discount_detail' prefix ad.id %}" class="text-primary hover:text-blue-700">Manage</a>
+            <a href="{% url 'dashboard:pricing:automatic_discount_detail' prefix ad.id %}" class="text-primary hover:text-[#4F46E5]">Manage</a>
             <button class="text-red-600 hover:text-red-800 delete-btn"
                     data-name="{{ ad.name }}"
                     data-url="{% url 'dashboard:pricing:automatic_discount_delete' prefix ad.id %}">Delete</button>
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" class="px-6 py-10 text-center text-slate-400 dark:text-slate-500">No automatic discounts found.</td></tr>
+        <tr><td colspan="7" class="px-6 py-10 text-center text-slate-400">No automatic discounts found.</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 
   {% if discounts.has_other_pages %}
-  <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800">
+  <div class="px-6 py-4 border-t border-[#EEF2F6] flex justify-between items-center bg-slate-50">
     <div class="text-sm text-slate-500">
       Showing {{ discounts.start_index }} to {{ discounts.end_index }} of {{ discounts.paginator.count }} items
     </div>
     <div class="flex space-x-2">
       {% if discounts.has_previous %}
-      <a href="?q={{ q|default:'' }}&status={{ status }}&page={{ discounts.previous_page_number }}" class="px-3 py-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-md hover:bg-slate-50 dark:hover:bg-slate-600">Prev</a>
+      <a href="?q={{ q|default:'' }}&status={{ status }}&page={{ discounts.previous_page_number }}" class="px-3 py-1 bg-white border border-slate-300 text-slate-600 rounded-md hover:bg-slate-50">Prev</a>
       {% endif %}
       {% if discounts.has_next %}
-      <a href="?q={{ q|default:'' }}&status={{ status }}&page={{ discounts.next_page_number }}" class="px-3 py-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-md hover:bg-slate-50 dark:hover:bg-slate-600">Next</a>
+      <a href="?q={{ q|default:'' }}&status={{ status }}&page={{ discounts.next_page_number }}" class="px-3 py-1 bg-white border border-slate-300 text-slate-600 rounded-md hover:bg-slate-50">Next</a>
       {% endif %}
     </div>
   </div>

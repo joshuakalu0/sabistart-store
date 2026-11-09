@@ -1,356 +1,437 @@
-{% extends "dashboard/_partials/base.html" %} {% load static %}  {% block content %}
-<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-  <div>
-    <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-      {{ title }}
-    </h2>
-    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-0.5">
-      Manage your product catalog
-    </p>
-  </div>
-  <a
-    href="{% url 'dashboard:product_settings:product_create' prefix %}"
-    class="bg-primary text-white px-4 py-2.5 rounded-xl hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2 text-xs sm:text-sm font-semibold w-full sm:w-auto shadow-sm"
-  >
-    <span class="material-icons-outlined text-sm">add</span>
-    <span>Add Product</span>
-  </a>
-</div>
+﻿{% extends "dashboard/_partials/base.html" %}
+{% load static %}
 
-<div
-  class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
->
-  <div class="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700">
-    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
-      <div class="flex-1">
-        <div class="relative">
-          <span
-            class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-          >
-            <span class="material-icons-outlined text-slate-400 text-sm"
-              >search</span
-            >
+{% block content %}
+<div class="space-y-7">
+  <!-- BEGIN: Page Header & Quick Controls -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-2 text-xs font-medium text-slate-400 mb-1">
+        <a href="{% url 'dashboard:product_settings:product_list' prefix %}" class="hover:text-[#5850EC] transition-colors">Products</a>
+        <span class="material-icons-outlined text-xs">chevron_right</span>
+        <span class="text-slate-600 font-semibold">Catalog</span>
+      </div>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900">
+        {{ title|default:"Products Catalog" }}
+      </h1>
+      <p class="text-xs text-slate-500 mt-1">
+        Manage, sort, and oversee inventory items, stock levels, and active channel pricing.
+      </p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2.5">
+      <a
+        href="{% url 'dashboard:product_settings:product_create' prefix %}"
+        class="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-white bg-[#5850EC] hover:bg-[#4F46E5] rounded-xl shadow-md shadow-indigo-300/40 transition-all active:scale-[0.98]"
+      >
+        <span class="material-icons-outlined text-base">add</span>
+        <span>Add Product</span>
+      </a>
+    </div>
+  </div>
+  <!-- END: Page Header -->
+
+  <!-- BEGIN: KPI Summary Cards -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-purpose="metric-cards">
+    <!-- Card 1: Catalog Volume -->
+    <div class="bg-white p-5 rounded-2xl border border-[#EEF2F6] shadow-sm flex flex-col justify-between">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-slate-500">Total Products</span>
+        <span class="inline-flex items-center text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+          Catalog
+        </span>
+      </div>
+      <div class="mt-3 flex items-baseline justify-between">
+        <div class="text-2xl font-extrabold text-slate-900 tracking-tight font-sans">
+          {{ page_obj.paginator.count|default:"0" }}
+        </div>
+      </div>
+      <div class="mt-2 text-[11px] text-slate-400 font-medium">Items listed across catalog</div>
+    </div>
+
+    <!-- Card 2: Active / Published -->
+    <div class="bg-white p-5 rounded-2xl border border-[#EEF2F6] shadow-sm flex flex-col justify-between">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-slate-500">Channel Status</span>
+        <span class="inline-flex items-center text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+          Live Store
+        </span>
+      </div>
+      <div class="mt-3 flex items-baseline justify-between">
+        <div class="text-2xl font-extrabold text-slate-900 tracking-tight font-sans">
+          Ready
+        </div>
+      </div>
+      <div class="mt-2 text-[11px] text-slate-400 font-medium">Syncing with storefront</div>
+    </div>
+
+    <!-- Card 3: Filter Query Status -->
+    <div class="bg-white p-5 rounded-2xl border border-[#EEF2F6] shadow-sm flex flex-col justify-between">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-slate-500">Current View</span>
+        <span class="inline-flex items-center text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+          Page {{ page_obj.number|default:"1" }}
+        </span>
+      </div>
+      <div class="mt-3 flex items-baseline justify-between">
+        <div class="text-2xl font-extrabold text-slate-900 tracking-tight font-sans">
+          {{ page_obj|length|default:"0" }} items
+        </div>
+      </div>
+      <div class="mt-2 text-[11px] text-slate-400 font-medium">Showing on this page</div>
+    </div>
+
+    <!-- Card 4: Storefront Integration -->
+    <div class="bg-white p-5 rounded-2xl border border-[#EEF2F6] shadow-sm flex flex-col justify-between">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-slate-500">Catalog Health</span>
+        <span class="inline-flex items-center text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+          100% Active
+        </span>
+      </div>
+      <div class="mt-3 flex items-baseline justify-between">
+        <div class="text-2xl font-extrabold text-slate-900 tracking-tight font-sans">
+          Optimal
+        </div>
+      </div>
+      <div class="mt-2 text-[11px] text-slate-400 font-medium">All systems synchronized</div>
+    </div>
+  </section>
+  <!-- END: KPI Summary Cards -->
+
+  <!-- BEGIN: ProductCatalogCard -->
+  <section class="bg-white rounded-2xl border border-[#EEF2F6] shadow-sm overflow-hidden">
+    <!-- Filter Row & Search Form -->
+    <form method="GET" class="p-5 border-b border-[#EEF2F6] space-y-4">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        <!-- Search input -->
+        <div class="relative flex-1 max-w-md">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <span class="material-icons-outlined text-base">search</span>
           </span>
           <input
             type="text"
             name="search"
-            value="{{ search_query }}"
-            placeholder="Search products, SKU, description..."
-            class="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-700 dark:text-white text-xs sm:text-sm"
+            value="{{ search_query|default:'' }}"
+            placeholder="Search products by title, SKU..."
+            class="w-full pl-10 pr-4 py-2 text-xs font-medium bg-slate-50 border border-[#EEF2F6]/80 rounded-xl focus:bg-white focus:border-[#5850EC] focus:ring-2 focus:ring-[#5850EC]/20 focus:outline-none text-slate-800 placeholder-slate-400 transition"
           />
         </div>
-      </div>
-      <div class="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:space-x-2">
-        <select
-          name="status"
-          class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-xl dark:bg-slate-700 dark:text-white text-xs sm:text-sm"
-        >
-          <option value="">All Statuses</option>
-          {% for value, label in statuses %}
-          <option
-            value="{{ value }}"
-            {% if status_filter == "value" %}selected{% endif %}
-          >
-            {{ label }}
-          </option>
-          {% endfor %}
-        </select>
-        <select
-          name="type"
-          class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-xl dark:bg-slate-700 dark:text-white text-xs sm:text-sm"
-        >
-          <option value="">All Types</option>
-          {% for value, label in types %}
-          <option
-            value="{{ value }}"
-            {% if type_filter == "value" %}selected{% endif %}
-          >
-            {{ label }}
-          </option>
-          {% endfor %}
-        </select>
-      </div>
-    </div>
-    <div class="flex items-center gap-2.5 mt-3 sm:mt-4">
-      <button
-        type="submit"
-        class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-xl text-xs sm:text-sm font-medium hover:bg-blue-700 transition-colors"
-      >
-        <span class="material-icons-outlined text-sm mr-1.5 sm:mr-2">filter_list</span>
-        Apply Filters
-      </button>
-      <a
-        href="{% url 'dashboard:product_settings:product_list' prefix %}"
-        class="inline-flex items-center justify-center px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-xl text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-      >
-        <span class="material-icons-outlined text-sm mr-1.5 sm:mr-2">clear</span>
-        Clear
-      </a>
-    </div>
-  </div>
 
-  <!-- Mobile Swipe Indicator -->
-  <div class="sm:hidden px-4 py-2 bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-    <span class="flex items-center gap-1.5">
-      <span class="material-icons-outlined text-[15px]">swipe</span>
-      <span>Swipe horizontally to view full table</span>
-    </span>
-    <span class="material-icons-outlined text-xs">arrow_forward</span>
-  </div>
+        <!-- Filter Dropdown Pills -->
+        <div class="flex flex-wrap items-center gap-2.5">
+          <div class="relative min-w-[140px]">
+            <select
+              name="status"
+              class="w-full px-3 py-2 text-xs font-medium bg-slate-50 border border-[#EEF2F6]/80 rounded-xl focus:bg-white focus:border-[#5850EC] focus:ring-2 focus:ring-[#5850EC]/20 focus:outline-none text-slate-700 transition cursor-pointer"
+            >
+              <option value="">All Statuses</option>
+              {% for value, label in statuses %}
+              <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>
+                {{ label }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
 
-  <div class="overflow-x-auto">
-    <table class="w-full min-w-[700px]">
-      <thead class="bg-slate-50 dark:bg-slate-700">
-        <tr>
-          <th
-            class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+          <div class="relative min-w-[140px]">
+            <select
+              name="type"
+              class="w-full px-3 py-2 text-xs font-medium bg-slate-50 border border-[#EEF2F6]/80 rounded-xl focus:bg-white focus:border-[#5850EC] focus:ring-2 focus:ring-[#5850EC]/20 focus:outline-none text-slate-700 transition cursor-pointer"
+            >
+              <option value="">All Types</option>
+              {% for value, label in types %}
+              <option value="{{ value }}" {% if type_filter == value %}selected{% endif %}>
+                {{ label }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#5850EC] hover:bg-[#4F46E5] text-white rounded-xl text-xs font-semibold shadow-xs transition"
           >
-            Product
-          </th>
-          <th
-            class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            <span class="material-icons-outlined text-sm">filter_list</span>
+            <span>Filter</span>
+          </button>
+
+          {% if search_query or status_filter or type_filter %}
+          <a
+            href="{% url 'dashboard:product_settings:product_list' prefix %}"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-50 hover:bg-slate-100 border border-[#EEF2F6]/80 rounded-xl text-xs font-semibold text-slate-600 transition"
           >
-            SKU
-          </th>
-          <th
-            class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
-          >
-            Type
-          </th>
-          <th
-            class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
-          >
-            Price
-          </th>
-          <th
-            class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
-          >
-            Stock
-          </th>
-          <th
-            class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
-          >
-            Status
-          </th>
-          <th
-            class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
-          >
-            Actions
-          </th>
-        </tr>
-      </thead>
-      <tbody
-        class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700"
-      >
-        {% if page_obj %} {% for product in page_obj %}
-        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-          <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-            <div class="flex items-center">
-              <div
-                class="w-10 h-10 bg-slate-200 dark:bg-slate-600 rounded-lg flex items-center justify-center mr-3"
-              >
-                {% if product.images.first %}
-                <img
-                  src="{{ product.images.first.image.url }}"
-                  alt="{{ product.name }}"
-                  class="w-10 h-10 object-cover rounded-lg"
-                />
+            <span class="material-icons-outlined text-sm">clear</span>
+            <span>Clear</span>
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </form>
+
+    <!-- Mobile swipe note -->
+    <div class="sm:hidden px-4 py-2 bg-slate-50 border-b border-[#EEF2F6] flex items-center justify-between text-[11px] text-slate-500">
+      <span class="flex items-center gap-1.5">
+        <span class="material-icons-outlined text-sm">swipe</span>
+        <span>Swipe horizontally to view full table</span>
+      </span>
+      <span class="material-icons-outlined text-xs">arrow_forward</span>
+    </div>
+
+    <!-- Product Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs min-w-[760px]">
+        <thead class="bg-slate-50/80 text-slate-400 font-semibold uppercase text-[10px] tracking-wider border-b border-[#EEF2F6]">
+          <tr>
+            <th class="pl-6 pr-3 py-3.5" scope="col">Product</th>
+            <th class="px-4 py-3.5" scope="col">SKU</th>
+            <th class="px-4 py-3.5" scope="col">Type</th>
+            <th class="px-4 py-3.5 text-right" scope="col">Price</th>
+            <th class="px-4 py-3.5 text-center" scope="col">Stock</th>
+            <th class="px-4 py-3.5 text-center" scope="col">Status</th>
+            <th class="pr-6 pl-3 py-3.5 text-right" scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#EEF2F6] font-medium text-slate-700">
+          {% if page_obj %}
+            {% for product in page_obj %}
+            <tr class="hover:bg-[#FBFBFE] transition">
+              <!-- Product Column: Thumbnail Square + Name + Brand -->
+              <td class="pl-6 pr-3 py-3.5">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-slate-100 border border-[#EEF2F6]/60 flex-shrink-0 overflow-hidden flex items-center justify-center text-slate-400 shadow-xs">
+                    {% if product.images.first %}
+                      <img
+                        src="{{ product.images.first.image.url }}"
+                        alt="{{ product.name }}"
+                        class="w-full h-full object-cover"
+                      />
+                    {% else %}
+                      <span class="material-icons-outlined text-slate-300 text-lg">image</span>
+                    {% endif %}
+                  </div>
+                  <div class="flex flex-col min-w-0">
+                    <span class="font-bold text-slate-800 hover:text-[#5850EC] transition truncate max-w-[220px]">
+                      {{ product.name }}
+                    </span>
+                    <div class="flex items-center gap-2 mt-0.5">
+                      {% if product.brand %}
+                        <span class="text-[11px] text-slate-400 truncate">{{ product.brand.name }}</span>
+                      {% endif %}
+                      {% if product.is_pos_available %}
+                        <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                          POS
+                        </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </td>
+
+              <!-- SKU Column -->
+              <td class="px-4 py-3.5 text-slate-500 font-mono text-[11px]">
+                {{ product.sku|default:"—" }}
+              </td>
+
+              <!-- Type Column -->
+              <td class="px-4 py-3.5">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-[11px] font-semibold bg-slate-100 text-slate-600">
+                  {{ product.get_product_type_display }}
+                </span>
+              </td>
+
+              <!-- Price Column -->
+              <td class="px-4 py-3.5 text-right font-semibold text-slate-900">
+                {% if product.price %}
+                  ${{ product.price }}
+                  {% if product.compare_at_price %}
+                    <span class="text-slate-400 line-through text-[11px] ml-1.5">${{ product.compare_at_price }}</span>
+                  {% endif %}
                 {% else %}
-                <span class="material-icons-outlined text-slate-400"
-                  >image</span
-                >
+                  <span class="text-slate-400">—</span>
                 {% endif %}
-              </div>
-              <div>
-                <div class="text-sm font-medium text-slate-900 dark:text-white">
-                  {{ product.name }}
-                </div>
-                <div class="text-sm text-slate-500 dark:text-slate-400">
-                  {% if product.brand %}{{ product.brand.name }}{% endif %}
-                </div>
-                <div class="mt-2">
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {% if product.is_pos_available %}bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200{% else %}bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300{% endif %}">
-                    {% if product.is_pos_available %}POS Ready{% else %}POS Locked{% endif %}
+              </td>
+
+              <!-- Stock Column -->
+              <td class="px-4 py-3.5 text-center">
+                {% if product.manage_stock %}
+                  <div class="font-semibold text-slate-800">{{ product.stock_quantity }}</div>
+                  <div class="mt-0.5">
+                    {% if product.stock_status == 'in_stock' %}
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700">
+                        In Stock
+                      </span>
+                    {% elif product.stock_status == 'out_of_stock' %}
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700">
+                        Out of Stock
+                      </span>
+                    {% else %}
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700">
+                        {{ product.get_stock_status_display }}
+                      </span>
+                    {% endif %}
+                  </div>
+                {% else %}
+                  <span class="text-slate-400 text-[11px]">Unmanaged</span>
+                {% endif %}
+              </td>
+
+              <!-- Status Column with Shodai dot pill -->
+              <td class="px-4 py-3.5 text-center">
+                {% if product.status == 'published' %}
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#ECFDF5] text-[#059669] border border-[#D1FAE5] text-[11px] font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    <span>Published</span>
                   </span>
+                {% elif product.status == 'draft' %}
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 border border-[#EEF2F6] text-[11px] font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                    <span>Draft</span>
+                  </span>
+                {% elif product.status == 'pending' %}
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                    <span>Pending</span>
+                  </span>
+                {% else %}
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                    <span>{{ product.get_status_display }}</span>
+                  </span>
+                {% endif %}
+              </td>
+
+              <!-- Actions Column -->
+              <td class="pr-6 pl-3 py-3.5 text-right">
+                <div class="flex items-center justify-end gap-1.5">
+                  <a
+                    href="{% url 'dashboard:product_settings:product_edit' prefix product.pk %}"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#5850EC] text-white hover:bg-[#4F46E5] text-[11px] font-semibold shadow-xs transition"
+                  >
+                    <span class="material-icons-outlined text-xs">edit</span>
+                    <span>Edit</span>
+                  </a>
+                  <button
+                    type="button"
+                    class="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition delete-btn"
+                    title="Delete product"
+                    data-name="{{ product.name }}"
+                    data-url="{% url 'dashboard:product_settings:product_delete' prefix product.pk %}"
+                  >
+                    <span class="material-icons-outlined text-sm">delete</span>
+                  </button>
                 </div>
-              </div>
-            </div>
-          </td>
-          <td
-            class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400 font-mono"
-          >
-            {{ product.sku }}
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <span
-              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-            >
-              {{ product.get_product_type_display }}
-            </span>
-          </td>
-          <td
-            class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400"
-          >
-            {% if product.price %} ${{ product.price }}
-            {% if roduct.compare_at_price %}
-            <span class="text-slate-500 line-through ml-2"
-              >${{ product.compare_at_price }}</span
-            >
-            {% endif %}
-
-            {% else %}
-            <span class="text-slate-500">-</span>
-            {% endif %}
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            {% if product.manage_stock %}
-            <div class="text-sm text-slate-600 dark:text-slate-400">
-              {{ product.stock_quantity }}
-            </div>
-            <div class="text-xs text-slate-500">
-              <span
-                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {% if product.stock_status == 'in_stock' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 {% elif product.stock_status == 'out_of_stock' %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 {% else %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200{% endif %}"
-              >
-                {{ product.get_stock_status_display }}
-              </span>
-            </div>
-            {% else %}
-            <span class="text-slate-500">Not managed</span>
-            {% endif %}
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <span
-              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if product.status == 'published' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 {% elif product.status == 'draft' %}bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 {% elif product.status == 'pending' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 {% else %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200{% endif %}"
-            >
-              {{ product.get_status_display }}
-            </span>
-            <div class="flex items-center mt-1 space-x-1">
-              {% if product.is_featured %}
-              <span
-                class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
-                >Featured</span
-              >
-              {% endif %} {% if product.is_on_sale %}
-              <span
-                class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
-                >Sale</span
-              >
-              {% endif %}
-            </div>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-            <button
-              class="text-blue-600 hover:text-blue-800 cursor-pointer view-details-btn"
-              data-url="{% url 'dashboard:product_settings:product_details' prefix product.pk %}"
-            >
-              View Details
-            </button>
-            <a
-              href="{% url 'dashboard:product_settings:product_edit'  prefix product.pk %}"
-              class="text-primary hover:text-blue-600"
-              >Edit</a
-            >
-            <button
-              class="text-red-600 hover:text-red-800 cursor-pointer delete-btn"
-              data-name="{{ product.name }}"
-              data-url="{% url 'dashboard:product_settings:product_delete' prefix product.pk %}"
-            >
-              Delete
-            </button>
-          </td>
-        </tr>
-        {% endfor %} {% else %}
-        <tr>
-          <td
-            colspan="7"
-            class="px-6 py-4 text-center text-slate-600 dark:text-slate-400"
-          >
-            No products found
-          </td>
-        </tr>
-        {% endif %}
-      </tbody>
-    </table>
-  </div>
-
-  {% if page_obj.has_other_pages %}
-  <div
-    class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between"
-  >
-    <div class="text-sm text-slate-600 dark:text-slate-400">
-      Showing <span class="font-medium">{{ page_obj.start_index }}</span> to
-      <span class="font-medium">{{ page_obj.end_index }}</span> of
-      <span class="font-medium">{{ page_obj.paginator.count }}</span> results
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="7" class="px-6 py-12 text-center text-slate-500">
+                <div class="flex flex-col items-center justify-center max-w-sm mx-auto">
+                  <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-[#5850EC] flex items-center justify-center mb-3">
+                    <span class="material-icons-outlined text-2xl">inventory_2</span>
+                  </div>
+                  <h3 class="text-sm font-bold text-slate-800">No products found</h3>
+                  <p class="text-xs text-slate-400 mt-1">Get started by creating your first product or try clearing your active filters.</p>
+                  <a
+                    href="{% url 'dashboard:product_settings:product_create' prefix %}"
+                    class="mt-4 inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-[#5850EC] hover:bg-[#4F46E5] rounded-xl shadow-xs transition"
+                  >
+                    <span class="material-icons-outlined text-sm">add</span>
+                    <span>Add Product</span>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
     </div>
-    <div>
-      <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+
+    <!-- Shodai Pagination Footer -->
+    {% if page_obj.has_other_pages %}
+    <div class="px-6 py-4 border-t border-[#EEF2F6] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+      <span class="text-slate-400">
+        Showing <span class="font-semibold text-slate-700">{{ page_obj.start_index }}</span> to
+        <span class="font-semibold text-slate-700">{{ page_obj.end_index }}</span> of
+        <span class="font-semibold text-slate-700">{{ page_obj.paginator.count }}</span> items
+      </span>
+      <div class="flex items-center gap-1 font-medium">
         {% if page_obj.has_previous %}
         <a
-          href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if brand_filter %}&brand={{ brand_filter }}{% endif %}"
-          class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
+          href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}"
+          class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition"
+          title="Previous Page"
         >
           <span class="material-icons-outlined text-sm">chevron_left</span>
         </a>
-        {% endif %} {% for num in page_obj.paginator.page_range %}
-         {% if page_obj.number == num %}
-        <span
-          class="relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 dark:bg-blue-900 text-sm font-medium text-blue-600 dark:text-blue-200"
-        >
-          {{ num }}
-        </span>
-        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#5850EC]/10 text-[#5850EC] font-bold">
+              {{ num }}
+            </span>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a
+              href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}"
+              class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-600 transition"
+            >
+              {{ num }}
+            </a>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
         <a
-          href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if brand_filter %}&brand={{ brand_filter }}{% endif %}"
-          class="relative inline-flex items-center px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-        >
-          {{ num }}
-        </a>
-        {% endif %} {% endfor %} {% if page_obj.has_next %}
-        <a
-          href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if brand_filter %}&brand={{ brand_filter }}{% endif %}"
-          class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700"
+          href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}"
+          class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition"
+          title="Next Page"
         >
           <span class="material-icons-outlined text-sm">chevron_right</span>
         </a>
         {% endif %}
-      </nav>
+      </div>
     </div>
-  </div>
-  {% endif %}
+    {% endif %}
+  </section>
+  <!-- END: ProductCatalogCard -->
 </div>
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    // View details functionality
-    document.querySelectorAll(".view-details-btn").forEach((btn) => {
-      btn.addEventListener("click", function () {
-        const url = this.dataset.url;
-        loadDetails(url);
-      });
-    });
-
-    // Delete functionality
+    // Delete action handler
     document.querySelectorAll(".delete-btn").forEach((btn) => {
       btn.addEventListener("click", function () {
         const name = this.dataset.name;
         const url = this.dataset.url;
 
-        openDeleteModal(
-          "Delete Product",
-          `Are you sure you want to delete "${name}"? This action cannot be undone.`,
-          function () {
+        if (typeof openDeleteModal === "function") {
+          openDeleteModal(
+"Delete Product",
+            `Are you sure you want to delete "${name}"? This action cannot be undone.`,
+            function () {
+              fetch(url, {
+                method: "POST",
+                headers: {
+"X-CSRFToken": "{{ csrf_token }}",
+"Content-Type": "application/x-www-form-urlencoded",
+                },
+              }).then(() => location.reload());
+            }
+          );
+        } else {
+          if (confirm(`Are you sure you want to delete "${name}"?`)) {
             fetch(url, {
               method: "POST",
               headers: {
-                "X-CSRFToken": "{{ csrf_token }}",
-                "Content-Type": "application/x-www-form-urlencoded",
+"X-CSRFToken": "{{ csrf_token }}",
+"Content-Type": "application/x-www-form-urlencoded",
               },
             }).then(() => location.reload());
-          },
-        );
+          }
+        }
       });
     });
   });
 </script>
-
 {% endblock %}

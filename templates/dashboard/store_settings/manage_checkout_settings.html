@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
@@ -19,62 +19,62 @@
         theme: {
           extend: {
             colors: {
-              "on-error": "#fff7f6",
-              "error-container": "#fe8983",
-              "on-surface-variant": "#566166",
-              "outline": "#717c82",
-              "surface-bright": "#f7f9fb",
-              "on-background": "#2a3439",
-              "inverse-surface": "#0b0f10",
-              "primary-fixed": "#dbe1ff",
-              "surface": "#f7f9fb",
-              "surface-container-highest": "#d9e4ea",
-              "tertiary-fixed-dim": "#d4cdee",
-              "secondary-dim": "#44546a",
-              "secondary-container": "#d3e4fe",
-              "on-secondary-fixed-variant": "#4d5d73",
-              "on-error-container": "#752121",
-              "secondary-fixed-dim": "#c5d6f0",
-              "on-surface": "#2a3439",
-              "tertiary-fixed": "#e3dbfd",
-              "inverse-primary": "#618bff",
-              "surface-container-high": "#e1e9ee",
-              "on-secondary-fixed": "#314055",
-              "primary": "#0053db",
-              "on-tertiary-fixed-variant": "#5b5672",
-              "on-tertiary": "#fcf7ff",
-              "background": "#f7f9fb",
-              "primary-container": "#dbe1ff",
-              "on-secondary-container": "#435368",
-              "on-primary": "#f8f7ff",
-              "inverse-on-surface": "#9a9d9f",
-              "secondary-fixed": "#d3e4fe",
-              "primary-fixed-dim": "#c7d3ff",
-              "primary-dim": "#0048c1",
-              "on-secondary": "#f7f9ff",
-              "error-dim": "#4e0309",
-              "tertiary-container": "#e3dbfd",
-              "surface-variant": "#d9e4ea",
-              "on-tertiary-container": "#514d68",
-              "tertiary-dim": "#54506b",
-              "surface-container": "#e8eff3",
-              "tertiary": "#605c78",
-              "surface-dim": "#cfdce3",
-              "surface-container-lowest": "#ffffff",
-              "error": "#9f403d",
-              "surface-tint": "#0053db",
-              "on-tertiary-fixed": "#3e3a54",
-              "secondary": "#506076",
-              "outline-variant": "#a9b4b9",
-              "on-primary-container": "#0048bf",
-              "surface-container-low": "#f0f4f7",
-              "on-primary-fixed-variant": "#0050d4",
-              "on-primary-fixed": "#003798"
+"on-error": "#fff7f6",
+"error-container": "#fe8983",
+"on-surface-variant": "#566166",
+"outline": "#717c82",
+"surface-bright": "#f7f9fb",
+"on-background": "#2a3439",
+"inverse-surface": "#0b0f10",
+"primary-fixed": "#dbe1ff",
+"surface": "#f7f9fb",
+"surface-container-highest": "#d9e4ea",
+"tertiary-fixed-dim": "#d4cdee",
+"secondary-dim": "#44546a",
+"secondary-container": "#d3e4fe",
+"on-secondary-fixed-variant": "#4d5d73",
+"on-error-container": "#752121",
+"secondary-fixed-dim": "#c5d6f0",
+"on-surface": "#2a3439",
+"tertiary-fixed": "#e3dbfd",
+"inverse-primary": "#618bff",
+"surface-container-high": "#e1e9ee",
+"on-secondary-fixed": "#314055",
+"primary": "#0053db",
+"on-tertiary-fixed-variant": "#5b5672",
+"on-tertiary": "#fcf7ff",
+"background": "#f7f9fb",
+"primary-container": "#dbe1ff",
+"on-secondary-container": "#435368",
+"on-primary": "#f8f7ff",
+"inverse-on-surface": "#9a9d9f",
+"secondary-fixed": "#d3e4fe",
+"primary-fixed-dim": "#c7d3ff",
+"primary-dim": "#0048c1",
+"on-secondary": "#f7f9ff",
+"error-dim": "#4e0309",
+"tertiary-container": "#e3dbfd",
+"surface-variant": "#d9e4ea",
+"on-tertiary-container": "#514d68",
+"tertiary-dim": "#54506b",
+"surface-container": "#e8eff3",
+"tertiary": "#605c78",
+"surface-dim": "#cfdce3",
+"surface-container-lowest": "#ffffff",
+"error": "#9f403d",
+"surface-tint": "#0053db",
+"on-tertiary-fixed": "#3e3a54",
+"secondary": "#506076",
+"outline-variant": "#a9b4b9",
+"on-primary-container": "#0048bf",
+"surface-container-low": "#f0f4f7",
+"on-primary-fixed-variant": "#0050d4",
+"on-primary-fixed": "#003798"
             },
             fontFamily: {
-              "headline": ["Manrope"],
-              "body": ["Inter"],
-              "label": ["Inter"]
+"headline": ["Manrope"],
+"body": ["Inter"],
+"label": ["Inter"]
             },
             borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
           },
@@ -159,14 +159,14 @@
 {% endif %}
 
 <!-- TopAppBar -->
-<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm flex items-center justify-between px-8 h-16">
+<header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm flex items-center justify-between px-8 h-16">
     <div class="flex items-center gap-8">
-        <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{{ title }}</span>
+        <span class="text-xl font-bold tracking-tight text-slate-900">{{ title }}</span>
         <nav class="hidden md:flex gap-6">
-            <a class="text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 pb-1 font-medium" href="{% url 'manage_checkout_settings' %}">Editor</a>
-            <a class="text-slate-500 dark:text-slate-400 hover:text-slate-700 font-medium transition-colors" href="{% url 'checkout_preview' %}">Preview</a>
-            <a class="text-slate-500 dark:text-slate-400 hover:text-slate-700 font-medium transition-colors" href="#">History</a>
-            <a class="text-slate-500 dark:text-slate-400 hover:text-slate-700 font-medium transition-colors" href="#">Analytics</a>
+            <a class="text-blue-700 border-b-2 border-blue-700 pb-1 font-medium" href="{% url 'manage_checkout_settings' %}">Editor</a>
+            <a class="text-slate-500 hover:text-slate-700 font-medium transition-colors" href="{% url 'checkout_preview' %}">Preview</a>
+            <a class="text-slate-500 hover:text-slate-700 font-medium transition-colors" href="#">History</a>
+            <a class="text-slate-500 hover:text-slate-700 font-medium transition-colors" href="#">Analytics</a>
         </nav>
     </div>
     <div class="flex items-center gap-4">

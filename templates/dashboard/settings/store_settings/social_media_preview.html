@@ -1,18 +1,18 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 
 {% block content %}
 <div class="flex items-center justify-between mb-6">
   <div>
-    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+    <h2 class="text-xl font-bold text-slate-900">
       Social Media Preview
     </h2>
-    <p class="text-slate-600 dark:text-slate-400">
+    <p class="text-slate-600">
       Preview how social media links will appear on your storefront
     </p>
   </div>
   <a
     href="{% url 'dashboard:store_settings:manage_social_media_links' prefix %}"
-    class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+    class="bg-slate-100 text-slate-600 px-4 py-2 rounded-lg hover:bg-slate-200 transition-colors"
   >
     <span class="material-icons-outlined text-sm mr-2">arrow_back</span>
     Back to Settings
@@ -20,16 +20,16 @@
 </div>
 
 <div
-  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+  class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden"
 >
   <div class="p-6">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <div>
-        <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Social Media Links Preview</h3>
-        <div class="bg-slate-50 dark:bg-slate-900 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-slate-800 mb-4">Social Media Links Preview</h3>
+        <div class="bg-slate-50 rounded-lg p-6">
           <div class="flex items-center space-x-4">
             {% if object.facebook_url %}
-            <a href="{{ object.facebook_url }}" target="_blank" class="text-slate-600 hover:text-blue-600">
+            <a href="{{ object.facebook_url }}" target="_blank" class="text-slate-600 hover:text-[#5850EC]">
               <span class="material-icons-outlined text-2xl">facebook</span>
             </a>
             {% endif %}
@@ -54,7 +54,7 @@
             </a>
             {% endif %}
             {% if object.linkedin_url %}
-            <a href="{{ object.linkedin_url }}" target="_blank" class="text-slate-600 hover:text-blue-700">
+            <a href="{{ object.linkedin_url }}" target="_blank" class="text-slate-600 hover:text-[#4F46E5]">
               <span class="material-icons-outlined text-2xl">work_outline</span>
             </a>
             {% endif %}
@@ -67,27 +67,27 @@
         </div>
       </div>
       <div>
-        <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Configuration Summary</h3>
+        <h3 class="text-lg font-semibold text-slate-800 mb-4">Configuration Summary</h3>
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Active Platforms</label>
-            <p class="mt-1 text-slate-600 dark:text-slate-400">{{ active_platforms|length }} platforms configured</p>
+            <label class="block text-sm font-medium text-slate-700">Active Platforms</label>
+            <p class="mt-1 text-slate-600">{{ active_platforms|length }} platforms configured</p>
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Icon Style</label>
-            <p class="mt-1 text-slate-600 dark:text-slate-400">{{ object.get_icon_style_display }}</p>
+            <label class="block text-sm font-medium text-slate-700">Icon Style</label>
+            <p class="mt-1 text-slate-600">{{ object.get_icon_style_display }}</p>
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Icon Size</label>
-            <p class="mt-1 text-slate-600 dark:text-slate-400">{{ object.icon_size }}px</p>
+            <label class="block text-sm font-medium text-slate-700">Icon Size</label>
+            <p class="mt-1 text-slate-600">{{ object.icon_size }}px</p>
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">WhatsApp Number</label>
-            <p class="mt-1 text-slate-600 dark:text-slate-400">{{ object.whatsapp_number|default:"Not configured" }}</p>
+            <label class="block text-sm font-medium text-slate-700">WhatsApp Number</label>
+            <p class="mt-1 text-slate-600">{{ object.whatsapp_number|default:"Not configured" }}</p>
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Product Sharing</label>
-            <p class="mt-1 text-slate-600 dark:text-slate-400">
+            <label class="block text-sm font-medium text-slate-700">Product Sharing</label>
+            <p class="mt-1 text-slate-600">
               {% if object.enable_product_sharing %}
               Enabled with {{ object.sharing_platforms|length }} platforms
               {% else %}

@@ -1,108 +1,121 @@
- <!-- Shipping -->
-        <div
-          class="bg-white rounded-xl shadow-sm border border-gray-200 section-card"
-        >
-          <div class="p-6">
-            <h2
-              class="text-lg font-semibold text-gray-900 mb-4 flex items-center"
-            >
-              <svg
-                class="w-5 h-5 mr-2 text-primary-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-                ></path>
-              </svg>
-              Shipping
-            </h2>
-            <div class="space-y-4">
-              <div class="flex items-center justify-between">
-                <label class="text-sm font-medium text-gray-700"
-                  >Requires Shipping</label
-                >
-                <div
-                  class="relative inline-block w-12 mr-2 align-middle select-none"
-                >
-                  {{ form.shipping_form.requires_shipping }}
+﻿<!-- 4. Card: Shipping -->
+<section class="bg-white rounded-2xl border border-[#EEF2F6] p-5 sm:p-6 shadow-sm space-y-5">
+  <div class="flex items-center justify-between pb-1 border-b border-[#EEF2F6]">
+    <div class="flex items-center gap-2.5">
+      <span class="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-[#5850EC]">
+        <span class="material-icons-outlined text-lg">local_shipping</span>
+      </span>
+      <div>
+        <h2 class="text-sm sm:text-base font-bold text-slate-900">Shipping & Delivery</h2>
+        <p class="text-xs text-slate-400">Configure package dimensions, weight, and delivery handling class</p>
+      </div>
+    </div>
+    <label class="inline-flex items-center gap-2 cursor-pointer">
+      <span class="text-xs font-semibold text-slate-700">Requires Shipping</span>
+      <input
+        type="checkbox"
+        name="{{ form.shipping_form.requires_shipping.html_name }}"
+        id="{{ form.shipping_form.requires_shipping.id_for_label }}"
+        {% if form.shipping_form.requires_shipping.value %}checked{% endif %}
+        class="w-4 h-4 rounded border-slate-300 text-[#5850EC] focus:ring-[#5850EC] cursor-pointer"
+      />
+    </label>
+  </div>
 
-                </div>
-              </div>
-              <div id="shippingFields" class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div>
-                    <label
-                      for="{{ form.shipping_form.weight.id_for_label }}"
-                      class="block text-sm font-medium text-gray-700"
-                      >Weight (kg)</label
-                    >
-                    {{ form.shipping_form.weight }}
-                    {% if form.shipping_form.weight.errors %}
-                    <p class="error-message">
-                      {{ form.shipping_form.weight.errors.0 }}
-                    </p>
-                    {% endif %}
-                  </div>
-                  <div>
-                    <label
-                      for="{{ form.shipping_form.length.id_for_label }}"
-                      class="block text-sm font-medium text-gray-700"
-                      >Length (cm)</label
-                    >
-                    {{ form.shipping_form.length }}
-                    {% if form.shipping_form.length.errors %}
-                    <p class="error-message">
-                      {{ form.shipping_form.length.errors.0 }}
-                    </p>
-                    {% endif %}
-                  </div>
-                  <div>
-                    <label
-                      for="{{ form.shipping_form.width.id_for_label }}"
-                      class="block text-sm font-medium text-gray-700"
-                      >Width (cm)</label
-                    >
-                    {{ form.shipping_form.width }}
-                     {% if  form.shipping_form.width.errors %}
-                    <p class="error-message">
-                      {{ form.shipping_form.width.errors.0 }}
-                    </p>
-                    {% endif %}
-                  </div>
-                  <div>
-                    <label
-                      for="{{ form.shipping_form.height.id_for_label }}"
-                      class="block text-sm font-medium text-gray-700"
-                      >Height (cm)</label
-                    >
-                    {{ form.shipping_form.height }}
-                    {% if form.shipping_form.height.errors %}
-                    <p class="error-message">
-                      {{ form.shipping_form.height.errors.0 }}
-                    </p>
-                    {% endif %}
-                  </div>
-                </div>
-                <div>
-                  <label
-                    for="{{ form.shipping_form.shipping_class.id_for_label }}"
-                    class="block text-sm font-medium text-gray-700"
-                    >Shipping Class</label
-                  >
-                  {{ form.shipping_form.shipping_class }}
-                   {% if form.shipping_form.shipping_class.errors %}
-                  <p class="error-message">
-                    {{ form.shipping_form.shipping_class.errors.0 }}
-                  </p>
-                  {% endif %}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+  <div id="shippingFields" class="space-y-4">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div>
+        <label for="{{ form.shipping_form.weight.id_for_label }}" class="block text-xs font-semibold text-slate-700 mb-1.5">
+          Weight (kg)
+        </label>
+        <input
+          type="number"
+          step="0.001"
+          min="0"
+          name="{{ form.shipping_form.weight.html_name }}"
+          id="{{ form.shipping_form.weight.id_for_label }}"
+          value="{{ form.shipping_form.weight.value|default:'' }}"
+          placeholder="0.000"
+          class="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-[#EEF2F6]/80 text-xs font-semibold text-slate-800 focus:bg-white focus:border-[#5850EC] focus:outline-none transition"
+        />
+        {% if form.shipping_form.weight.errors %}
+          <p class="text-xs text-rose-500 mt-1 font-medium">{{ form.shipping_form.weight.errors.0 }}</p>
+        {% endif %}
+      </div>
 
+      <div>
+        <label for="{{ form.shipping_form.length.id_for_label }}" class="block text-xs font-semibold text-slate-700 mb-1.5">
+          Length (cm)
+        </label>
+        <input
+          type="number"
+          step="0.01"
+          min="0"
+          name="{{ form.shipping_form.length.html_name }}"
+          id="{{ form.shipping_form.length.id_for_label }}"
+          value="{{ form.shipping_form.length.value|default:'' }}"
+          placeholder="0.0"
+          class="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-[#EEF2F6]/80 text-xs font-semibold text-slate-800 focus:bg-white focus:border-[#5850EC] focus:outline-none transition"
+        />
+        {% if form.shipping_form.length.errors %}
+          <p class="text-xs text-rose-500 mt-1 font-medium">{{ form.shipping_form.length.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label for="{{ form.shipping_form.width.id_for_label }}" class="block text-xs font-semibold text-slate-700 mb-1.5">
+          Width (cm)
+        </label>
+        <input
+          type="number"
+          step="0.01"
+          min="0"
+          name="{{ form.shipping_form.width.html_name }}"
+          id="{{ form.shipping_form.width.id_for_label }}"
+          value="{{ form.shipping_form.width.value|default:'' }}"
+          placeholder="0.0"
+          class="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-[#EEF2F6]/80 text-xs font-semibold text-slate-800 focus:bg-white focus:border-[#5850EC] focus:outline-none transition"
+        />
+        {% if form.shipping_form.width.errors %}
+          <p class="text-xs text-rose-500 mt-1 font-medium">{{ form.shipping_form.width.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label for="{{ form.shipping_form.height.id_for_label }}" class="block text-xs font-semibold text-slate-700 mb-1.5">
+          Height (cm)
+        </label>
+        <input
+          type="number"
+          step="0.01"
+          min="0"
+          name="{{ form.shipping_form.height.html_name }}"
+          id="{{ form.shipping_form.height.id_for_label }}"
+          value="{{ form.shipping_form.height.value|default:'' }}"
+          placeholder="0.0"
+          class="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-[#EEF2F6]/80 text-xs font-semibold text-slate-800 focus:bg-white focus:border-[#5850EC] focus:outline-none transition"
+        />
+        {% if form.shipping_form.height.errors %}
+          <p class="text-xs text-rose-500 mt-1 font-medium">{{ form.shipping_form.height.errors.0 }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div>
+      <label for="{{ form.shipping_form.shipping_class.id_for_label }}" class="block text-xs font-semibold text-slate-700 mb-1.5">
+        Shipping Class
+      </label>
+      <input
+        type="text"
+        name="{{ form.shipping_form.shipping_class.html_name }}"
+        id="{{ form.shipping_form.shipping_class.id_for_label }}"
+        value="{{ form.shipping_form.shipping_class.value|default:'' }}"
+        placeholder="Standard parcel delivery"
+        class="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-[#EEF2F6]/80 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-[#5850EC] focus:outline-none transition"
+      />
+      {% if form.shipping_form.shipping_class.errors %}
+        <p class="text-xs text-rose-500 mt-1 font-medium">{{ form.shipping_form.shipping_class.errors.0 }}</p>
+      {% endif %}
+    </div>
+  </div>
+</section>

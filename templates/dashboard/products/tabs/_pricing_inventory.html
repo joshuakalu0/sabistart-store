@@ -1,13 +1,13 @@
-<div class="mx-auto px-8 py-8 space-y-8">
+﻿<div class="mx-auto px-8 py-8 space-y-8">
   <!-- Pricing Card -->
   <section
-    class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden"
+    class="bg-white rounded-xl shadow-sm border border-[#EEF2F6] overflow-hidden"
   >
     <div
-      class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3"
+      class="p-6 border-b border-slate-100 flex items-center gap-3"
     >
       <div
-        class="size-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center"
+        class="size-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center"
       >
         <span class="material-symbols-outlined text-lg">payments</span>
       </div>
@@ -15,7 +15,7 @@
     </div>
     <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="space-y-2">
-        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300"
+        <label class="text-sm font-semibold text-slate-700"
           >Price ($)</label
         >
         <div class="relative">
@@ -29,7 +29,7 @@
         </div>
       </div>
       <div class="space-y-2">
-        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300"
+        <label class="text-sm font-semibold text-slate-700"
           >Compare at price ($)</label
         >
         <div class="relative">
@@ -46,7 +46,7 @@
       </div>
       <div class="space-y-2">
         <label
-          class="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1"
+          class="text-sm font-semibold text-slate-700 flex items-center gap-1"
           >Cost Price ($)
           <span
             class="material-symbols-outlined text-xs text-slate-400 cursor-help"
@@ -65,7 +65,7 @@
         </div>
       </div>
       <div class="space-y-2 md:col-span-1">
-        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300"
+        <label class="text-sm font-semibold text-slate-700"
           >Tax Class</label
         >
         {{ form.tax_class }} {% if form.tax_class.errors %}
@@ -73,7 +73,7 @@
         {% endif %}
       </div>
       <div class="space-y-2 md:col-span-2">
-        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300"
+        <label class="text-sm font-semibold text-slate-700"
           >Tax Status</label
         >
         <div class="flex gap-4 items-center h-10">
@@ -83,13 +83,13 @@
               {% if forloop.first %}checked=""
               {% endif %}
 
-              class="text-primary focus:ring-primary size-4 border-slate-300 dark:border-slate-700 dark:bg-slate-800"
+              class="text-primary focus:ring-primary size-4 border-slate-300"
               name="tax_status"
               type="radio"
               value="{{ choice.0 }}"
             />
             <span
-              class="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors"
+              class="text-sm font-medium text-slate-600 group-hover:text-primary transition-colors"
               >{{ choice.1 }}</span
             >
           </label>
@@ -104,14 +104,14 @@
 
   <!-- Inventory Card -->
   <section
-    class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden"
+    class="bg-white rounded-xl shadow-sm border border-[#EEF2F6] overflow-hidden"
   >
     <div
-      class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between"
+      class="p-6 border-b border-slate-100 flex items-center justify-between"
     >
       <div class="flex items-center gap-3">
         <div
-          class="size-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center"
+          class="size-8 rounded-lg bg-indigo-50 text-[#5850EC] flex items-center justify-center"
         >
           <span class="material-symbols-outlined text-lg">inventory_2</span>
         </div>
@@ -122,7 +122,7 @@
         <label class="relative inline-flex items-center cursor-pointer">
           <input checked="" class="sr-only peer" type="checkbox" />
           <div
-            class="w-11 h-6 bg-slate-300 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"
+            class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"
           ></div>
         </label>
       </div>
@@ -131,7 +131,7 @@
       <div class="space-y-6">
         <div class="space-y-2">
           <label
-            class="text-sm font-semibold text-slate-700 dark:text-slate-300"
+            class="text-sm font-semibold text-slate-700"
             >Stock Quantity</label
           >
           {{ form.stock_quantity }} {% if form.stock_quantity.errors %}
@@ -142,7 +142,7 @@
         </div>
         <div class="space-y-2">
           <label
-            class="text-sm font-semibold text-slate-700 dark:text-slate-300"
+            class="text-sm font-semibold text-slate-700"
             >Stock Status</label
           >
           {{ form.stock_status }} {% if form.stock_status.errors %}
@@ -155,7 +155,7 @@
       <div class="space-y-6">
         <div class="space-y-2">
           <label
-            class="text-sm font-semibold text-slate-700 dark:text-slate-300"
+            class="text-sm font-semibold text-slate-700"
             >Low Stock Threshold</label
           >
           {{ form.low_stock_threshold }} {% if form.low_stock_threshold.errors %}
@@ -167,7 +167,7 @@
             You'll be notified when stock hits this number.
           </p>
         </div>
-        <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg space-y-3">
+        <div class="p-4 bg-slate-50 rounded-lg space-y-3">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-semibold">Allow Backorders</p>
@@ -178,7 +178,7 @@
             <label class="relative inline-flex items-center cursor-pointer">
               <input class="sr-only peer" type="checkbox" />
               <div
-                class="w-11 h-6 bg-slate-300 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"
+                class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"
               ></div>
             </label>
           </div>
@@ -191,10 +191,10 @@
   <div class="bg-primary/5 border border-primary/20 rounded-xl p-6 flex gap-4">
     <span class="material-symbols-outlined text-primary">analytics</span>
     <div>
-      <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">
+      <h4 class="text-sm font-bold text-slate-900">
         Margin Calculation
       </h4>
-      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+      <p class="text-sm text-slate-600 mt-1">
         Based on your price of
         <span class="font-semibold">$0.00</span> and cost of
         <span class="font-semibold">$0.00</span>, your profit margin will be

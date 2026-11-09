@@ -1,4 +1,4 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% load static %}
 
 {% block title %}{{ title }}{% endblock %}
@@ -18,13 +18,13 @@
 <!-- Page Header -->
 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
   <div>
-    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Store Settings</h2>
-    <p class="text-sm text-slate-600 dark:text-slate-400">Configure global storefront identity, branding, checkout, SEO, and operations</p>
+    <h2 class="text-xl font-bold text-slate-900">Store Settings</h2>
+    <p class="text-sm text-slate-600">Configure global storefront identity, branding, checkout, SEO, and operations</p>
   </div>
   <div class="flex items-center gap-2">
     <a
       href="{% if prefix %}{% url 'dashboard:store_settings:manage_theme_settings' prefix %}{% else %}/dashboard/admin/theme_settings/{% endif %}"
-      class="inline-flex items-center justify-center gap-1.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-sm font-medium"
+      class="inline-flex items-center justify-center gap-1.5 bg-slate-200 text-slate-800 px-4 py-2.5 rounded-xl hover:bg-slate-300 transition-colors text-sm font-medium"
     >
       <span class="material-icons-outlined text-sm">palette</span>
       <span>Theme Settings</span>
@@ -33,33 +33,33 @@
 </div>
 
 <!-- Tab Navigation Pill Bar -->
-<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-2 shadow-sm mb-6">
+<div class="bg-white rounded-xl border border-[#EEF2F6] p-2 shadow-sm mb-6">
   <div class="flex gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar scroll-smooth flex-nowrap">
     <button type="button" class="tab-link active flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all bg-primary text-white shadow-sm" data-tab="general">
       <span class="material-icons-outlined text-base">settings</span>
       <span>General</span>
     </button>
-    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="branding">
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 hover:bg-slate-100" data-tab="branding">
       <span class="material-icons-outlined text-base">palette</span>
       <span>Branding</span>
     </button>
-    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="seo">
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 hover:bg-slate-100" data-tab="seo">
       <span class="material-icons-outlined text-base">search</span>
       <span>SEO</span>
     </button>
-    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="shipping">
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 hover:bg-slate-100" data-tab="shipping">
       <span class="material-icons-outlined text-base">local_shipping</span>
       <span>Shipping</span>
     </button>
-    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="taxes">
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 hover:bg-slate-100" data-tab="taxes">
       <span class="material-icons-outlined text-base">account_balance</span>
       <span>Taxes</span>
     </button>
-    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="checkout">
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 hover:bg-slate-100" data-tab="checkout">
       <span class="material-icons-outlined text-base">shopping_cart_checkout</span>
       <span>Checkout</span>
     </button>
-    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="features">
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 hover:bg-slate-100" data-tab="features">
       <span class="material-icons-outlined text-base">bolt</span>
       <span>Features</span>
     </button>
@@ -75,11 +75,11 @@
             <section class="settings-section active space-y-8 animate-fade-in" id="general-section">
 
                 <!-- Store Identity Card -->
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
+                <div class="bg-white rounded-2xl shadow-sm border border-[#EEF2F6]/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-[#EEF2F6]/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                                <span class="material-symbols-outlined text-blue-600">store</span>
+                                <span class="material-symbols-outlined text-[#5850EC]">store</span>
                             </div>
                             <div>
                                 <h2 class="text-lg font-bold text-slate-900 font-display">Store Identity</h2>
@@ -123,8 +123,8 @@
                 </div>
 
                 <!-- Contact Information Card -->
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
+                <div class="bg-white rounded-2xl shadow-sm border border-[#EEF2F6]/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-[#EEF2F6]/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-emerald-600">mail</span>
@@ -178,8 +178,8 @@
                 </div>
 
                 <!-- Physical Address Card -->
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
+                <div class="bg-white rounded-2xl shadow-sm border border-[#EEF2F6]/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-[#EEF2F6]/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-amber-600">location_on</span>
@@ -236,7 +236,7 @@
                             </div>
                             <div class="lg:col-span-1 space-y-4">
                                 <label class="block text-sm font-semibold text-slate-700">Location Preview</label>
-                                <div class="w-full aspect-square bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl overflow-hidden relative border border-slate-200 shadow-inner">
+                                <div class="w-full aspect-square bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl overflow-hidden relative border border-[#EEF2F6] shadow-inner">
                                     <img alt="Map" class="w-full h-full object-cover grayscale opacity-50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdP0D8KVhWMiCj3EJ4_yzLurF7KULuB4i18ku7zpsujKts43GBMPNVyWrMseyRO_gb5Ml4A_xwzODVFOH1UMRQSzibfLiZZhVBJreK9ULp50B9gsW1Cfq3QiZJDrWxf3QbCnN1DPG_5X8H8llzGUw3YOwO2Ifs60f4z6iDFeoiBJqBE3m0Ln5e5B8sNCqPN5JZnFchA3nnpKhMa7maMDTN34NKSFesu-fNuBlcK0pm3Pbx6Oj8bQ-qnkWYZp51Prk12PQSYFXUS64"/>
                                     <div class="absolute inset-0 flex items-center justify-center">
                                         <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center shadow-lg animate-bounce">
@@ -268,8 +268,8 @@
                 </div>
 
                 <!-- Maintenance Mode Card -->
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
+                <div class="bg-white rounded-2xl shadow-sm border border-[#EEF2F6]/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-[#EEF2F6]/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-purple-600">build</span>
@@ -282,7 +282,7 @@
                     </div>
                     <div class="p-4 sm:p-6 lg:p-8">
                         <div class="space-y-6">
-                            <div class="flex items-center justify-between p-5 bg-slate-50 rounded-2xl border border-slate-200">
+                            <div class="flex items-center justify-between p-5 bg-slate-50 rounded-2xl border border-[#EEF2F6]">
                                 <div>
                                     <span class="text-sm font-bold text-slate-900">Maintenance Mode</span>
                                     <p class="text-xs text-slate-500 mt-0.5">Take your store offline for maintenance</p>
@@ -292,7 +292,7 @@
                                     <span class="toggle-slider absolute inset-0 bg-slate-300 rounded-full transition-colors duration-300" style="background-color: {% if form.maintenance_mode.value %}#3b82f6{% else %}#cbd5e1{% endif %};">
                                         <span class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 flex items-center justify-center" style="transform: {% if form.maintenance_mode.value %}translateX(1.5rem){% else %}translateX(0){% endif %};">
                                             {% if form.maintenance_mode.value %}
-                                            <span class="material-symbols-outlined text-xs text-blue-600">check</span>
+                                            <span class="material-symbols-outlined text-xs text-[#5850EC]">check</span>
                                             {% endif %}
                                         </span>
                                     </span>
@@ -308,8 +308,8 @@
                 </div>
 
                 <!-- App Links Card -->
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-cyan-50 to-blue-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
+                <div class="bg-white rounded-2xl shadow-sm border border-[#EEF2F6]/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-cyan-50 to-blue-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-[#EEF2F6]/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-cyan-600">phone_android</span>
@@ -339,8 +339,8 @@
             <!-- ==================== BRANDING SECTION ==================== -->
             <section class="settings-section space-y-8 animate-fade-in" id="branding-section">
 
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-pink-50 to-rose-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
+                <div class="bg-white rounded-2xl shadow-sm border border-[#EEF2F6]/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-pink-50 to-rose-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-[#EEF2F6]/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-pink-600">palette</span>
@@ -358,12 +358,12 @@
                                 <label class="block text-sm font-semibold text-slate-700" for="{{ form.logo.id_for_label }}">Main Logo</label>
                                 {% if is_edit and object.logo %}
                                 <div class="mb-3">
-                                    <img src="{{ object.logo.url }}" alt="Current logo" class="w-24 h-24 object-contain rounded-xl border border-slate-200 shadow-sm bg-white"/>
+                                    <img src="{{ object.logo.url }}" alt="Current logo" class="w-24 h-24 object-contain rounded-xl border border-[#EEF2F6] shadow-sm bg-white"/>
                                 </div>
                                 {% endif %}
                                 <div class="w-24 h-24 rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 hover:from-blue-50 hover:to-indigo-50 hover:border-blue-400 cursor-pointer transition-all duration-300 group" onclick="document.getElementById('{{ form.logo.id_for_label }}').click()">
                                     <span class="material-symbols-outlined text-slate-400 group-hover:text-blue-500 transition-colors">upload_file</span>
-                                    <span class="text-xs text-slate-500 mt-1.5 group-hover:text-blue-600 transition-colors">Upload</span>
+                                    <span class="text-xs text-slate-500 mt-1.5 group-hover:text-[#5850EC] transition-colors">Upload</span>
                                 </div>
                                 {{ form.logo }}
                                 {% if form.logo.errors %}
@@ -378,7 +378,7 @@
                                 <label class="block text-sm font-semibold text-slate-700" for="{{ form.logo_dark.id_for_label }}">Dark Mode Logo</label>
                                 {% if is_edit and object.logo_dark %}
                                 <div class="mb-3">
-                                    <img src="{{ object.logo_dark.url }}" alt="Current dark logo" class="w-24 h-24 object-contain rounded-xl border border-slate-200 shadow-sm bg-slate-900"/>
+                                    <img src="{{ object.logo_dark.url }}" alt="Current dark logo" class="w-24 h-24 object-contain rounded-xl border border-[#EEF2F6] shadow-sm bg-slate-900"/>
                                 </div>
                                 {% endif %}
                                 <div class="w-24 h-24 rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 hover:border-blue-400 cursor-pointer transition-all duration-300 group" onclick="document.getElementById('{{ form.logo_dark.id_for_label }}').click()">
@@ -398,7 +398,7 @@
                                 <label class="block text-sm font-semibold text-slate-700" for="{{ form.favicon.id_for_label }}">Favicon</label>
                                 {% if is_edit and object.favicon %}
                                 <div class="mb-3">
-                                    <img src="{{ object.favicon.url }}" alt="Current favicon" class="w-16 h-16 object-contain rounded-lg border border-slate-200 shadow-sm bg-white"/>
+                                    <img src="{{ object.favicon.url }}" alt="Current favicon" class="w-16 h-16 object-contain rounded-lg border border-[#EEF2F6] shadow-sm bg-white"/>
                                 </div>
                                 {% endif %}
                                 <div class="w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 hover:from-blue-50 hover:to-indigo-50 hover:border-blue-400 cursor-pointer transition-all duration-300 group" onclick="document.getElementById('{{ form.favicon.id_for_label }}').click()">
@@ -418,7 +418,7 @@
                                 <label class="block text-sm font-semibold text-slate-700" for="{{ form.loading_gif.id_for_label }}">Loading Animation</label>
                                 {% if is_edit and object.loading_gif %}
                                 <div class="mb-3">
-                                    <img src="{{ object.loading_gif.url }}" alt="Current loading" class="w-16 h-16 object-contain rounded-lg border border-slate-200 shadow-sm bg-white"/>
+                                    <img src="{{ object.loading_gif.url }}" alt="Current loading" class="w-16 h-16 object-contain rounded-lg border border-[#EEF2F6] shadow-sm bg-white"/>
                                 </div>
                                 {% endif %}
                                 <div class="w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 hover:from-blue-50 hover:to-indigo-50 hover:border-blue-400 cursor-pointer transition-all duration-300 group" onclick="document.getElementById('{{ form.loading_gif.id_for_label }}').click()">
@@ -441,8 +441,8 @@
             <!-- ==================== SEO SECTION ==================== -->
             <section class="settings-section space-y-8 animate-fade-in" id="seo-section">
 
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-violet-50 to-purple-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
+                <div class="bg-white rounded-2xl shadow-sm border border-[#EEF2F6]/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-violet-50 to-purple-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-[#EEF2F6]/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-violet-600">search</span>
@@ -456,7 +456,7 @@
                     <div class="p-4 sm:p-6 lg:p-8">
                         <div class="space-y-8">
                             <!-- Google Search Preview -->
-                            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                            <div class="bg-white border border-[#EEF2F6] rounded-2xl p-6 shadow-sm">
                                 <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                                     <span class="material-symbols-outlined text-sm">visibility</span>
                                     Google Search Preview
@@ -498,7 +498,7 @@
 
                             <!-- SEO Toggles -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-slate-100">
-                                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-[#EEF2F6]">
                                     <div>
                                         <span class="text-sm font-bold text-slate-900">Allow Search Indexing</span>
                                         <p class="text-xs text-slate-500 mt-0.5">Let search engines index your store</p>
@@ -510,7 +510,7 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-[#EEF2F6]">
                                     <div>
                                         <span class="text-sm font-bold text-slate-900">XML Sitemap</span>
                                         <p class="text-xs text-slate-500 mt-0.5">Generate sitemap.xml automatically</p>
@@ -550,12 +550,12 @@
             <!-- ==================== SHIPPING SECTION ==================== -->
             <section class="settings-section space-y-8 animate-fade-in" id="shipping-section">
 
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-blue-50 to-cyan-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
+                <div class="bg-white rounded-2xl shadow-sm border border-[#EEF2F6]/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-blue-50 to-cyan-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-[#EEF2F6]/60">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                                    <span class="material-symbols-outlined text-blue-600">local_shipping</span>
+                                    <span class="material-symbols-outlined text-[#5850EC]">local_shipping</span>
                                 </div>
                                 <div>
                                     <h2 class="text-lg font-bold text-slate-900 font-display">Shipping Settings</h2>
@@ -591,19 +591,19 @@
                             </div>
 
                             <div class="md:col-span-2 space-y-4">
-                                <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-[#EEF2F6]">
                                     {{ form.allow_local_pickup }}
                                     <span class="text-sm font-semibold text-slate-700">Allow local pickup</span>
                                 </div>
-                                <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-[#EEF2F6]">
                                     {{ form.ship_to_po_boxes }}
                                     <span class="text-sm font-semibold text-slate-700">Ship to PO boxes</span>
                                 </div>
-                                <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-[#EEF2F6]">
                                     {{ form.require_signature }}
                                     <span class="text-sm font-semibold text-slate-700">Require signature on delivery</span>
                                 </div>
-                                <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-[#EEF2F6]">
                                     {{ form.use_live_rates }}
                                     <span class="text-sm font-semibold text-slate-700">Use carrier API for real-time rates</span>
                                 </div>
@@ -617,8 +617,8 @@
             <!-- ==================== TAXES SECTION ==================== -->
             <section class="settings-section space-y-8 animate-fade-in" id="taxes-section">
 
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-emerald-50 to-green-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
+                <div class="bg-white rounded-2xl shadow-sm border border-[#EEF2F6]/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-emerald-50 to-green-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-[#EEF2F6]/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-emerald-600">account_balance</span>
@@ -632,7 +632,7 @@
                     <div class="p-4 sm:p-6 lg:p-8">
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
                             <div class="space-y-6">
-                                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-[#EEF2F6]">
                                     <span class="text-sm font-bold text-slate-900">Enable Tax Calculations</span>
                                     <div class="relative inline-block w-14 h-8">
                                         {{ form.tax_enabled }}
@@ -645,7 +645,7 @@
                                     <label class="block text-sm font-semibold text-slate-700" for="{{ form.tax_id_number.id_for_label }}">Tax ID / VAT Number</label>
                                     {{ form.tax_id_number }}
                                 </div>
-                                <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-[#EEF2F6]">
                                     {{ form.prices_include_tax }}
                                     <span class="text-sm font-semibold text-slate-700">Prices already include tax</span>
                                 </div>
@@ -662,14 +662,14 @@
                                         {% endfor %}
                                     {% endif %}
                                 </div>
-                                <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-[#EEF2F6]">
                                     {{ form.charge_tax_on_shipping }}
                                     <span class="text-sm font-semibold text-slate-700">Charge tax on shipping</span>
                                 </div>
                             </div>
 
                             <!-- Calculation Preview -->
-                            <div class="bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-2xl p-6">
+                            <div class="bg-gradient-to-br from-slate-50 to-slate-100 border border-[#EEF2F6] rounded-2xl p-6">
                                 <h4 class="text-xs font-bold text-slate-500 uppercase mb-4 flex items-center gap-2">
                                     <span class="material-symbols-outlined text-sm">calculate</span>
                                     Calculation Preview
@@ -683,11 +683,11 @@
                                         <span class="text-slate-500">Shipping (Flat Rate)</span>
                                         <span class="font-semibold text-slate-900">$10.00</span>
                                     </div>
-                                    <div class="flex justify-between font-semibold text-slate-900 pt-3 border-t border-slate-200">
+                                    <div class="flex justify-between font-semibold text-slate-900 pt-3 border-t border-[#EEF2F6]">
                                         <span>Estimated Tax (8.5%)</span>
                                         <span>$9.35</span>
                                     </div>
-                                    <div class="flex justify-between font-bold text-blue-600 text-lg pt-3">
+                                    <div class="flex justify-between font-bold text-[#5850EC] text-lg pt-3">
                                         <span>Total</span>
                                         <span>$119.35</span>
                                     </div>
@@ -697,19 +697,19 @@
 
                         <!-- Policy Display Toggles -->
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-6 border-t border-slate-100">
-                            <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                            <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-[#EEF2F6]">
                                 {{ form.show_privacy_policy }}
                                 <span class="text-sm font-semibold text-slate-700">Privacy Policy</span>
                             </div>
-                            <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                            <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-[#EEF2F6]">
                                 {{ form.show_terms_of_service }}
                                 <span class="text-sm font-semibold text-slate-700">Terms of Service</span>
                             </div>
-                            <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                            <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-[#EEF2F6]">
                                 {{ form.show_refund_policy }}
                                 <span class="text-sm font-semibold text-slate-700">Refund Policy</span>
                             </div>
-                            <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                            <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-[#EEF2F6]">
                                 {{ form.show_shipping_policy }}
                                 <span class="text-sm font-semibold text-slate-700">Shipping Policy</span>
                             </div>
@@ -722,8 +722,8 @@
             <!-- ==================== CHECKOUT SECTION ==================== -->
             <section class="settings-section space-y-8 animate-fade-in" id="checkout-section">
 
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-indigo-50 to-blue-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
+                <div class="bg-white rounded-2xl shadow-sm border border-[#EEF2F6]/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-indigo-50 to-blue-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-[#EEF2F6]/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-indigo-600">shopping_cart_checkout</span>
@@ -736,7 +736,7 @@
                     </div>
                     <div class="p-4 sm:p-6 lg:p-8">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div class="flex items-center justify-between p-5 bg-slate-50 rounded-xl border border-slate-200">
+                            <div class="flex items-center justify-between p-5 bg-slate-50 rounded-xl border border-[#EEF2F6]">
                                 <div>
                                     <span class="text-sm font-bold text-slate-900">Guest Checkout</span>
                                     <p class="text-xs text-slate-500 mt-0.5">Allow purchases without account</p>
@@ -752,7 +752,7 @@
                                 <label class="block text-sm font-semibold text-slate-700" for="{{ form.cart_expiry_days.id_for_label }}">Cart Expiry (Days)</label>
                                 {{ form.cart_expiry_days }}
                             </div>
-                            <div class="flex items-center justify-between p-5 bg-slate-50 rounded-xl border border-slate-200">
+                            <div class="flex items-center justify-between p-5 bg-slate-50 rounded-xl border border-[#EEF2F6]">
                                 <div>
                                     <span class="text-sm font-bold text-slate-900">Address Validation</span>
                                     <p class="text-xs text-slate-500 mt-0.5">Validate shipping addresses</p>
@@ -778,8 +778,8 @@
             <!-- ==================== FEATURES SECTION ==================== -->
             <section class="settings-section space-y-8 pb-20 animate-fade-in" id="features-section">
 
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-slate-200/60">
+                <div class="bg-white rounded-2xl shadow-sm border border-[#EEF2F6]/60 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-4 sm:px-8 sm:py-6 border-b border-[#EEF2F6]/60">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
                                 <span class="material-symbols-outlined text-amber-600">bolt</span>
@@ -810,7 +810,7 @@
 
                             {% if feature_access_map.reviews.active %}
                             <!-- Product Reviews -->
-                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-[#EEF2F6] hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
                                     <span class="text-sm font-bold text-slate-900">Product Reviews</span>
                                     <span class="text-xs text-slate-500 mt-1">Allow customers to leave ratings</span>
@@ -826,7 +826,7 @@
 
                             {% if feature_access_map.wishlist.active %}
                             <!-- Wishlist -->
-                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-[#EEF2F6] hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
                                     <span class="text-sm font-bold text-slate-900">Wishlist</span>
                                     <span class="text-xs text-slate-500 mt-1">Save items for later</span>
@@ -842,7 +842,7 @@
 
                             {% if feature_access_map.compare.active %}
                             <!-- Product Compare -->
-                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-[#EEF2F6] hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
                                     <span class="text-sm font-bold text-slate-900">Product Compare</span>
                                     <span class="text-xs text-slate-500 mt-1">Compare multiple products</span>
@@ -858,7 +858,7 @@
 
                             {% if feature_access_map.gift_cards.active %}
                             <!-- Gift Cards -->
-                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-[#EEF2F6] hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
                                     <span class="text-sm font-bold text-slate-900">Gift Cards</span>
                                     <span class="text-xs text-slate-500 mt-1">Enable gift card purchases</span>
@@ -874,7 +874,7 @@
 
                             {% if feature_access_map.subscriptions.active %}
                             <!-- Subscriptions -->
-                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-[#EEF2F6] hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
                                     <span class="text-sm font-bold text-slate-900">Subscriptions</span>
                                     <span class="text-xs text-slate-500 mt-1">Enable recurring payments</span>
@@ -890,7 +890,7 @@
 
                             {% if feature_access_map.social_login.active %}
                             <!-- Social Login -->
-                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-[#EEF2F6] hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
                                     <span class="text-sm font-bold text-slate-900">Social Login</span>
                                     <span class="text-xs text-slate-500 mt-1">Google/Facebook authentication</span>
@@ -905,7 +905,7 @@
                             {% endif %}
 
                             <!-- Social Sharing -->
-                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-[#EEF2F6] hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
                                     <span class="text-sm font-bold text-slate-900">Social Sharing</span>
                                     <span class="text-xs text-slate-500 mt-1">Share products on social media</span>
@@ -919,7 +919,7 @@
                             </div>
 
                             <!-- Marketing Popup -->
-                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-[#EEF2F6] hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
                                     <span class="text-sm font-bold text-slate-900">Marketing Popup</span>
                                     <span class="text-xs text-slate-500 mt-1">Enable promotional popups</span>
@@ -934,7 +934,7 @@
 
                             {% if feature_access_map.discount_codes.active %}
                             <!-- Discount Codes -->
-                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-[#EEF2F6] hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
                                     <span class="text-sm font-bold text-slate-900">Discount Codes</span>
                                     <span class="text-xs text-slate-500 mt-1">Enable coupon system</span>
@@ -950,7 +950,7 @@
 
                             {% if feature_access_map.live_chat.active %}
                             <!-- Live Chat -->
-                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-[#EEF2F6] hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
                                     <span class="text-sm font-bold text-slate-900">Live Chat</span>
                                     <span class="text-xs text-slate-500 mt-1">Enable support bubble</span>
@@ -966,7 +966,7 @@
 
                             {% if feature_access_map.api_access.active %}
                             <!-- API Access -->
-                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-[#EEF2F6] hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
                                     <span class="text-sm font-bold text-slate-900">API Access</span>
                                     <span class="text-xs text-slate-500 mt-1">Expose webhooks & endpoints</span>
@@ -982,7 +982,7 @@
 
                             {% if feature_access_map.webhooks.active %}
                             <!-- Webhooks -->
-                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-md transition-all duration-300">
+                            <div class="flex items-center justify-between p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-[#EEF2F6] hover:shadow-md transition-all duration-300">
                                 <div class="flex flex-col">
                                     <span class="text-sm font-bold text-slate-900">Webhooks</span>
                                     <span class="text-xs text-slate-500 mt-1">Enable webhook notifications</span>
@@ -1012,9 +1012,9 @@
             </section>
 
             <!-- Mobile-friendly sticky bottom save bar -->
-            <div class="sticky bottom-16 sm:bottom-0 z-20 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 px-3 py-2.5 sm:px-4 sm:py-3 sm:rounded-xl sm:border sm:shadow-sm sm:static sm:mt-6">
+            <div class="sticky bottom-16 sm:bottom-0 z-20 bg-white/95 backdrop-blur-md border-t border-[#EEF2F6] px-3 py-2.5 sm:px-4 sm:py-3 sm:rounded-xl sm:border sm:shadow-sm sm:static sm:mt-6">
                 <div class="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
-                    <button type="reset" class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    <button type="reset" class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 border border-slate-300 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
                         Reset
                     </button>
                     <button type="submit" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-hover active:scale-95 transition-all text-sm font-semibold shadow-sm">
@@ -1040,10 +1040,10 @@
                 // Update tab styles
                 tabLinks.forEach(function(t) {
                     t.classList.remove('active', 'bg-primary', 'text-white', 'shadow-sm');
-                    t.classList.add('text-slate-600', 'dark:text-slate-300');
+                    t.classList.add('text-slate-600', '');
                 });
                 this.classList.add('active', 'bg-primary', 'text-white', 'shadow-sm');
-                this.classList.remove('text-slate-600', 'dark:text-slate-300');
+                this.classList.remove('text-slate-600', '');
 
                 // Show corresponding section
                 sections.forEach(function(section) {
@@ -1059,7 +1059,7 @@
         // Initialize active tab styling
         document.querySelectorAll('.tab-link.active').forEach(function(tab) {
             tab.classList.add('bg-primary', 'text-white', 'shadow-sm');
-            tab.classList.remove('text-slate-600', 'dark:text-slate-300');
+            tab.classList.remove('text-slate-600', '');
         });
 
         // === Toggle Switch Styling ===

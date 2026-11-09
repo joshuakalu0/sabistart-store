@@ -1,10 +1,10 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% block content %}
 <section class="space-y-6">
   <div class="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-slate-200">
     <div class="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
       <div>
-        <a href="{% url 'dashboard:domain:portfolio' prefix=prefix %}" class="text-sm font-medium text-blue-600 hover:text-blue-700">Back to portfolio</a>
+        <a href="{% url 'dashboard:domain:portfolio' prefix=prefix %}" class="text-sm font-medium text-[#5850EC] hover:text-[#4F46E5]">Back to portfolio</a>
         <h1 class="mt-4 text-3xl font-bold text-slate-950">{{ managed_domain.domain_name }}</h1>
         <div class="mt-4 flex flex-wrap gap-2">
           <span class="rounded-full px-3 py-1 text-xs font-semibold {% if managed_domain.status == 'active' %}bg-emerald-100 text-emerald-700{% elif managed_domain.status == 'failed' %}bg-rose-100 text-rose-700{% else %}bg-slate-100 text-slate-700{% endif %}">{{ managed_domain.get_status_display }}</span>
@@ -17,7 +17,7 @@
           <form method="post" action="{% url 'dashboard:domain:managed_connect' prefix=prefix managed_domain_id=managed_domain.id %}">
             {% csrf_token %}
             <input type="hidden" name="use_provider_dns" value="1" />
-            <button type="submit" class="rounded-full bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700">Connect to storefront</button>
+            <button type="submit" class="rounded-full bg-[#5850EC] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#4F46E5]">Connect to storefront</button>
           </form>
         {% else %}
           <a href="{% url 'dashboard:domain:detail' prefix=prefix domain_id=linked_custom_domain.id %}" class="rounded-full bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-800">Open storefront domain</a>
@@ -28,7 +28,7 @@
 
   <div class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
     <div class="space-y-6">
-      <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <article class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <h2 class="text-xl font-semibold text-slate-950">Portfolio health</h2>
         <dl class="mt-5 grid gap-4 md:grid-cols-2">
           <div class="rounded-2xl bg-slate-50 px-4 py-3">
@@ -50,17 +50,17 @@
         </dl>
       </article>
 
-      <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <article class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <div class="flex items-center justify-between gap-4">
           <h2 class="text-xl font-semibold text-slate-950">DNS records</h2>
           <form method="post" action="{% url 'dashboard:domain:managed_dns' prefix=prefix managed_domain_id=managed_domain.id %}">
             {% csrf_token %}
-            <button type="submit" class="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Refresh from provider</button>
+            <button type="submit" class="rounded-full border border-[#EEF2F6] px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Refresh from provider</button>
           </form>
         </div>
         <div class="mt-5 overflow-x-auto">
           <table class="min-w-full text-sm">
-            <thead class="border-b border-slate-200 text-left text-slate-500">
+            <thead class="border-b border-[#EEF2F6] text-left text-slate-500">
               <tr>
                 <th class="pb-3 pr-4 font-medium">Host</th>
                 <th class="pb-3 pr-4 font-medium">Type</th>
@@ -84,7 +84,7 @@
         </div>
       </article>
 
-      <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <article class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <h2 class="text-xl font-semibold text-slate-950">Recent activity</h2>
         <div class="mt-5 space-y-3">
           {% for event in activity %}
@@ -105,13 +105,13 @@
     </div>
 
     <div class="space-y-6">
-      <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <article class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <h2 class="text-xl font-semibold text-slate-950">Renew now</h2>
         <form method="post" action="{% url 'dashboard:domain:managed_renew' prefix=prefix managed_domain_id=managed_domain.id %}" class="mt-5 space-y-4">
           {% csrf_token %}
           <div>
             <label class="mb-2 block text-sm font-medium text-slate-700">Years</label>
-            <select name="years" class="block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+            <select name="years" class="block w-full rounded-2xl border border-[#EEF2F6] bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
               <option value="1">1 year</option>
               <option value="2">2 years</option>
               <option value="3">3 years</option>
@@ -119,28 +119,28 @@
           </div>
           <div>
             <label class="mb-2 block text-sm font-medium text-slate-700">Gateway</label>
-            <select name="gateway_provider" class="block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+            <select name="gateway_provider" class="block w-full rounded-2xl border border-[#EEF2F6] bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
               <option value="">Select a payment gateway</option>
               {% for gateway in renewal_gateways %}
                 <option value="{{ gateway.provider }}">{{ gateway.name }}</option>
               {% endfor %}
             </select>
           </div>
-          <button type="submit" class="rounded-full bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700">Start renewal</button>
+          <button type="submit" class="rounded-full bg-[#5850EC] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#4F46E5]">Start renewal</button>
         </form>
       </article>
 
-      <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <article class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <h2 class="text-xl font-semibold text-slate-950">Update nameservers</h2>
         <form method="post" action="{% url 'dashboard:domain:managed_dns' prefix=prefix managed_domain_id=managed_domain.id %}" class="mt-5 space-y-4">
           {% csrf_token %}
           {{ nameserver_form.nameservers }}
           <input type="hidden" name="save_nameservers" value="1" />
-          <button type="submit" class="rounded-full border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Save nameservers</button>
+          <button type="submit" class="rounded-full border border-[#EEF2F6] px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Save nameservers</button>
         </form>
       </article>
 
-      <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <article class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <h2 class="text-xl font-semibold text-slate-950">Add DNS record</h2>
         <form method="post" action="{% url 'dashboard:domain:managed_dns' prefix=prefix managed_domain_id=managed_domain.id %}" class="mt-5 space-y-4">
           {% csrf_token %}
@@ -153,7 +153,7 @@
               </div>
             {% endfor %}
           </div>
-          <button type="submit" class="rounded-full border border-slate-200 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Push DNS record</button>
+          <button type="submit" class="rounded-full border border-[#EEF2F6] px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Push DNS record</button>
         </form>
       </article>
     </div>

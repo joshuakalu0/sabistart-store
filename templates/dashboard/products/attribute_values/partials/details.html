@@ -1,24 +1,24 @@
-<div class="space-y-6">
+﻿<div class="space-y-6">
   <!-- Basic Information -->
   <div>
-    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">Basic Information</h4>
+    <h4 class="text-sm font-medium text-slate-700 mb-4">Basic Information</h4>
     <div class="space-y-3">
       <div class="flex items-start">
-        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Attribute:</span>
-        <span class="text-sm text-slate-900 dark:text-white flex-1">{{ value.attribute.name }}</span>
+        <span class="text-sm text-slate-500 w-24">Attribute:</span>
+        <span class="text-sm text-slate-900 flex-1">{{ value.attribute.name }}</span>
       </div>
       <div class="flex items-start">
-        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Value:</span>
-        <span class="text-sm text-slate-900 dark:text-white flex-1">{{ value.value }}</span>
+        <span class="text-sm text-slate-500 w-24">Value:</span>
+        <span class="text-sm text-slate-900 flex-1">{{ value.value }}</span>
       </div>
       <div class="flex items-start">
-        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Slug:</span>
-        <span class="text-sm text-slate-900 dark:text-white flex-1">{{ value.slug }}</span>
+        <span class="text-sm text-slate-500 w-24">Slug:</span>
+        <span class="text-sm text-slate-900 flex-1">{{ value.slug }}</span>
       </div>
       {% if value.description %}
       <div class="flex items-start">
-        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Description:</span>
-        <span class="text-sm text-slate-900 dark:text-white flex-1">{{ value.description }}</span>
+        <span class="text-sm text-slate-500 w-24">Description:</span>
+        <span class="text-sm text-slate-900 flex-1">{{ value.description }}</span>
       </div>
       {% endif %}
     </div>
@@ -26,25 +26,25 @@
 
   <!-- Configuration -->
   <div>
-    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">Configuration</h4>
+    <h4 class="text-sm font-medium text-slate-700 mb-4">Configuration</h4>
     <div class="space-y-3">
       <div class="flex items-start">
-        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Display Order:</span>
-        <span class="text-sm text-slate-900 dark:text-white flex-1">{{ value.display_order }}</span>
+        <span class="text-sm text-slate-500 w-24">Display Order:</span>
+        <span class="text-sm text-slate-900 flex-1">{{ value.display_order }}</span>
       </div>
       {% if value.extra_price > 0 %}
       <div class="flex items-start">
-        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Extra Price:</span>
-        <span class="text-sm text-slate-900 dark:text-white flex-1">${{ value.extra_price }}</span>
+        <span class="text-sm text-slate-500 w-24">Extra Price:</span>
+        <span class="text-sm text-slate-900 flex-1">${{ value.extra_price }}</span>
       </div>
       {% endif %}
       <div class="flex items-start">
-        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Active:</span>
-        <span class="text-sm text-slate-900 dark:text-white flex-1">
+        <span class="text-sm text-slate-500 w-24">Active:</span>
+        <span class="text-sm text-slate-900 flex-1">
           {% if value.is_active %}
-            <span class="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 text-xs rounded-full">Yes</span>
+            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Yes</span>
           {% else %}
-            <span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 text-xs rounded-full">No</span>
+            <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">No</span>
           {% endif %}
         </span>
       </div>
@@ -53,12 +53,12 @@
 
   <!-- Visual Representation -->
   <div>
-    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">Visual Representation</h4>
+    <h4 class="text-sm font-medium text-slate-700 mb-4">Visual Representation</h4>
     <div class="space-y-3">
       {% if value.color_hex %}
       <div class="flex items-start">
-        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Color:</span>
-        <span class="text-sm text-slate-900 dark:text-white flex-1">
+        <span class="text-sm text-slate-500 w-24">Color:</span>
+        <span class="text-sm text-slate-900 flex-1">
           <div class="flex items-center space-x-2">
             <div class="w-6 h-6 rounded-full" style="background-color: {{ value.color_hex }};"></div>
             <span>{{ value.color_hex }}</span>
@@ -68,17 +68,17 @@
       {% endif %}
       {% if value.image %}
       <div class="flex items-start">
-        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Image:</span>
-        <span class="text-sm text-slate-900 dark:text-white flex-1">
-          <img src="{{ value.image.url }}" alt="{{ value.value }}" class="w-32 h-24 object-cover rounded-lg border border-slate-200 dark:border-slate-700">
+        <span class="text-sm text-slate-500 w-24">Image:</span>
+        <span class="text-sm text-slate-900 flex-1">
+          <img src="{{ value.image.url }}" alt="{{ value.value }}" class="w-32 h-24 object-cover rounded-lg border border-[#EEF2F6]">
         </span>
       </div>
       {% endif %}
       {% if value.swatch %}
       <div class="flex items-start">
-        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Swatch:</span>
-        <span class="text-sm text-slate-900 dark:text-white flex-1">
-          <img src="{{ value.swatch.url }}" alt="{{ value.value }}" class="w-32 h-24 object-cover rounded-lg border border-slate-200 dark:border-slate-700">
+        <span class="text-sm text-slate-500 w-24">Swatch:</span>
+        <span class="text-sm text-slate-900 flex-1">
+          <img src="{{ value.swatch.url }}" alt="{{ value.value }}" class="w-32 h-24 object-cover rounded-lg border border-[#EEF2F6]">
         </span>
       </div>
       {% endif %}
@@ -87,15 +87,15 @@
 
   <!-- Dates -->
   <div>
-    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">Dates</h4>
+    <h4 class="text-sm font-medium text-slate-700 mb-4">Dates</h4>
     <div class="space-y-3">
       <div class="flex items-start">
-        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Created:</span>
-        <span class="text-sm text-slate-900 dark:text-white flex-1">{{ value.created_at|date:"M d, Y H:i" }}</span>
+        <span class="text-sm text-slate-500 w-24">Created:</span>
+        <span class="text-sm text-slate-900 flex-1">{{ value.created_at|date:"M d, Y H:i" }}</span>
       </div>
       <div class="flex items-start">
-        <span class="text-sm text-slate-500 dark:text-slate-400 w-24">Updated:</span>
-        <span class="text-sm text-slate-900 dark:text-white flex-1">{{ value.updated_at|date:"M d, Y H:i" }}</span>
+        <span class="text-sm text-slate-500 w-24">Updated:</span>
+        <span class="text-sm text-slate-900 flex-1">{{ value.updated_at|date:"M d, Y H:i" }}</span>
       </div>
     </div>
   </div>

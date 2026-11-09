@@ -1,4 +1,4 @@
-<h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+﻿<h3 class="text-xl font-bold mb-6 flex items-center gap-2">
   <span class="material-symbols-outlined text-primary">badge</span>
   Identity & Categorization
 </h3>
@@ -15,7 +15,7 @@
     <label class="block text-sm font-semibold mb-2">URL Slug</label>
     <div class="flex">
       <span
-        class="hidden sm:inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 text-xs sm:text-sm shrink-0"
+        class="hidden sm:inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-300 bg-slate-50 text-slate-500 text-xs sm:text-sm shrink-0"
         >site.com/p/</span
       >
       {{ form.slug }}
@@ -49,12 +49,12 @@
   <div class="col-span-2">
     <label class="block text-sm font-semibold mb-2">Categories</label>
     <div class="relative">
-      <div id="categories-container" class="flex flex-wrap gap-2 p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-lg min-h-[50px] cursor-text" onclick="focusCategoryInput()">
+      <div id="categories-container" class="flex flex-wrap gap-2 p-3 bg-slate-50 border border-slate-300 rounded-lg min-h-[50px] cursor-text" onclick="focusCategoryInput()">
         <input type="text" id="category-input" class="border-none outline-none bg-transparent text-sm flex-1 min-w-[120px]" placeholder="Search categories..." onkeyup="filterCategories(event)" onkeydown="handleCategoryKeydown(event)" onfocus="showCategoryDropdown()">
       </div>
-      <div id="category-dropdown" class="absolute z-10 w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto hidden">
+      <div id="category-dropdown" class="absolute z-10 w-full bg-white border border-slate-300 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto hidden">
         {% for category in form.categories.field.queryset %}
-        <div class="category-option px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer text-sm" data-value="{{ category.id }}" data-name="{{ category.name }}">
+        <div class="category-option px-3 py-2 hover:bg-slate-100 cursor-pointer text-sm" data-value="{{ category.id }}" data-name="{{ category.name }}">
           {{ category.name }}
         </div>
         {% endfor %}
@@ -69,12 +69,12 @@
   <div class="col-span-2">
     <label class="block text-sm font-semibold mb-2">Tags</label>
     <div class="relative">
-      <div id="tags-container" class="flex flex-wrap gap-2 p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-lg min-h-[50px] cursor-text" onclick="focusTagInput()">
+      <div id="tags-container" class="flex flex-wrap gap-2 p-3 bg-slate-50 border border-slate-300 rounded-lg min-h-[50px] cursor-text" onclick="focusTagInput()">
         <input type="text" id="tag-input" class="border-none outline-none bg-transparent text-sm flex-1 min-w-[120px]" placeholder="Search tags..." onkeyup="filterTags(event)" onkeydown="handleTagKeydown(event)" onfocus="showTagDropdown()">
       </div>
-      <div id="tag-dropdown" class="absolute z-10 w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto hidden">
+      <div id="tag-dropdown" class="absolute z-10 w-full bg-white border border-slate-300 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto hidden">
         {% for tag in form.tags.field.queryset %}
-        <div class="tag-option px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer text-sm" data-value="{{ tag.id }}" data-name="{{ tag.name }}">
+        <div class="tag-option px-3 py-2 hover:bg-slate-100 cursor-pointer text-sm" data-value="{{ tag.id }}" data-name="{{ tag.name }}">
           {{ tag.name }}
         </div>
         {% endfor %}

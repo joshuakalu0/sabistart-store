@@ -1,135 +1,164 @@
 {% extends "dashboard/_partials/base.html" %}
 {% load string_utils %}
 {% block content %}
-<div class="flex items-center justify-between mb-6">
-  <div>
-    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Discount Codes</h2>
-    <p class="text-slate-600 dark:text-slate-400">Manage manual promo codes for checkout</p>
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <nav class="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
+        <a href="{% url 'dashboard:dashboard_home:home' prefix %}" class="hover:text-[#5850EC]">Home</a>
+        <span class="material-icons-outlined text-xs">chevron_right</span>
+        <span>Pricing & Promotions</span>
+        <span class="material-icons-outlined text-xs">chevron_right</span>
+        <span class="text-[#5850EC] font-semibold">Discount Codes</span>
+      </nav>
+      <h1 class="text-2xl font-bold tracking-tight text-slate-900">Discount Codes</h1>
+      <p class="text-xs text-slate-500 mt-0.5">Create and manage coupon vouchers, percentage cuts, and checkout promo codes.</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2.5">
+      <a href="{% url 'dashboard:pricing:discount_import_batch_list' prefix %}"
+         class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-[#EEF2F6] bg-white text-xs font-semibold text-slate-700 shadow-sm hover:border-[#5850EC] hover:text-[#5850EC] transition">
+        <span class="material-icons-outlined text-base">upload_file</span>
+        <span>Import / Export</span>
+      </a>
+      <a href="{% url 'dashboard:pricing:discount_experiment_list' prefix %}"
+         class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-[#EEF2F6] bg-white text-xs font-semibold text-slate-700 shadow-sm hover:border-[#5850EC] hover:text-[#5850EC] transition">
+        <span class="material-icons-outlined text-base">science</span>
+        <span>A/B Tests</span>
+      </a>
+      <a href="{{ create_url }}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#5850EC] px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-[#4F46E5] transition">
+        <span class="material-icons-outlined text-base">add</span>
+        <span>Create Discount</span>
+      </a>
+    </div>
   </div>
-  <div class="flex flex-wrap gap-3">
-    <a href="{% url 'dashboard:pricing:discount_import_batch_list' prefix %}" class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center space-x-2">
-      <span class="material-icons-outlined text-sm">upload_file</span><span>Import / Export</span>
-    </a>
-    <a href="{% url 'dashboard:pricing:discount_experiment_list' prefix %}" class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center space-x-2">
-      <span class="material-icons-outlined text-sm">science</span><span>Experiments</span>
-    </a>
-    <a href="{{ create_url }}" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2">
-      <span class="material-icons-outlined text-sm">add</span><span>Create Discount</span>
-    </a>
-  </div>
-</div>
 
-<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden mb-6">
-  <div class="p-6">
-    <form method="get" class="flex flex-col sm:flex-row gap-4">
-      <div class="relative flex-1">
-        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-          <span class="material-icons-outlined text-slate-400 text-sm">search</span>
-        </span>
-        <input type="text" name="q" value="{{ q }}" placeholder="Search by code or internal name..."
-               class="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-primary dark:bg-slate-700 dark:text-white"/>
+  <!-- Filter Card -->
+  <div class="rounded-2xl border border-[#EEF2F6] bg-white p-4 shadow-sm">
+    <form method="get" class="flex flex-wrap items-center gap-3">
+      <div class="relative flex-1 min-w-[220px]">
+        <span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+        <input type="text" name="q" value="{{ q }}" placeholder="Search by discount code or campaign name…"
+               class="w-full h-10 pl-9 pr-3 rounded-xl bg-slate-50 border border-[#EEF2F6]/80 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-[#5850EC] focus:ring-2 focus:ring-[#5850EC]/20 focus:outline-none transition"/>
       </div>
-      <div class="w-full sm:w-48">
-        <select name="status" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary">
+      <div class="relative min-w-[140px]">
+        <select name="status" class="w-full h-10 pl-3 pr-8 rounded-xl bg-slate-50 border border-[#EEF2F6]/80 text-xs text-slate-800 appearance-none focus:bg-white focus:border-[#5850EC] focus:outline-none transition">
           <option value="">All Statuses</option>
           <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
           <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
         </select>
+        <span class="material-icons-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">expand_more</span>
       </div>
-      <button type="submit" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
-        Filter
-      </button>
+      <button type="submit" class="h-10 px-4 rounded-xl bg-[#5850EC] text-white text-xs font-semibold hover:bg-[#4F46E5] transition">Filter</button>
+      {% if q or status %}
+      <a href="{% url 'dashboard:pricing:discount_code_list' prefix %}" class="h-10 px-3 flex items-center rounded-xl bg-slate-100 text-slate-600 text-xs font-semibold hover:bg-slate-200 transition">Clear</a>
+      {% endif %}
     </form>
   </div>
-</div>
 
-<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-  <div class="overflow-x-auto">
-    <table class="w-full">
-      <thead class="bg-slate-50 dark:bg-slate-700">
-        <tr>
-          {% for col in "Code & Type,Status,Usage Limit,Times Used,Scheduling,Actions"|split:"," %}
-          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ col }}</th>
-          {% endfor %}
-        </tr>
-      </thead>
-      <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
-        {% for dc in codes %}
-        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-          <td class="px-6 py-4">
-            <div class="font-bold font-mono text-slate-900 dark:text-white text-base">{{ dc.code }}</div>
-            <div class="text-xs text-slate-500 mt-1 pb-1">Type: {{ dc.get_discount_type_display }}</div>
-            <div class="text-sm font-medium text-blue-700 dark:text-blue-400">
-              {% if dc.discount_type == 'percentage' %}{{ dc.discount_value|floatformat:0 }}% Off
-              {% elif dc.discount_type == 'fixed' %}<span class="text-slate-400">Fixed:</span> {{ dc.discount_value }}
-              {% elif dc.discount_type == 'free_shipping' %}<span class="material-icons-outlined text-[14px] align-middle -mt-0.5">local_shipping</span> Free Shipping
+  <!-- Table Card -->
+  <div class="rounded-2xl border border-[#EEF2F6] bg-white shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-[#F8F9FC] border-b border-[#EEF2F6]">
+          <tr>
+            <th class="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Code & Type</th>
+            <th class="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Status</th>
+            <th class="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 text-center">Usage Limit</th>
+            <th class="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 text-center">Times Used</th>
+            <th class="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Scheduling</th>
+            <th class="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#EEF2F6]">
+          {% for dc in codes %}
+          <tr class="hover:bg-[#FBFBFE] transition-colors">
+            <td class="px-5 py-4">
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-xs font-bold text-slate-900 bg-indigo-50 text-[#5850EC] px-2 py-0.5 rounded-md border border-indigo-100">{{ dc.code }}</span>
+                <span class="text-[11px] font-medium text-slate-500">{{ dc.get_discount_type_display }}</span>
+              </div>
+              <div class="text-xs font-semibold text-[#5850EC] mt-1">
+                {% if dc.discount_type == 'percentage' %}{{ dc.discount_value|floatformat:0 }}% Off Entire Order
+                {% elif dc.discount_type == 'fixed' %}Fixed discount of {{ dc.discount_value }}
+                {% elif dc.discount_type == 'free_shipping' %}Free Shipping Voucher
+                {% endif %}
+              </div>
+            </td>
+            <td class="px-5 py-4 whitespace-nowrap">
+              {% if dc.is_active %}
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active
+              </span>
+              {% else %}
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-500">
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Inactive
+              </span>
               {% endif %}
-            </div>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            {% if dc.is_active %}
-            <span class="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 text-xs rounded-full">Active</span>
-            {% else %}
-            <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-xs rounded-full">Inactive</span>
-            {% endif %}
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700 dark:text-slate-300">
-            {% if dc.usage_limit %}{{ dc.usage_limit }}{% else %}<span class="text-slate-400">Unlimited</span>{% endif %}
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <span class="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-mono rounded-lg">
-              {{ dc.times_used }}
-            </span>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-xs text-slate-600 dark:text-slate-400">
-            {% if dc.starts_at or dc.ends_at %}
-              {% if dc.starts_at %}From: {{ dc.starts_at|date:"M d, Y" }}<br>{% endif %}
-              {% if dc.ends_at %}Until: {{ dc.ends_at|date:"M d, Y" }}{% endif %}
-            {% else %}
-              <span class="text-slate-400">None</span>
-            {% endif %}
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
-            <a href="{% url 'dashboard:pricing:discount_code_detail' prefix dc.id %}" class="text-primary hover:text-blue-700">Manage</a>
-            <button class="text-red-600 hover:text-red-800 delete-btn"
-                    data-name="{{ dc.code }}"
-                    data-url="{% url 'dashboard:pricing:discount_code_delete' prefix dc.id %}">Delete</button>
-          </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="6" class="px-6 py-10 text-center text-slate-400 dark:text-slate-500">No discount codes found.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+            </td>
+            <td class="px-5 py-4 text-center text-xs text-slate-600 font-medium">
+              {% if dc.usage_limit %}{{ dc.usage_limit }}{% else %}<span class="text-slate-400">Unlimited</span>{% endif %}
+            </td>
+            <td class="px-5 py-4 text-center">
+              <span class="px-2 py-0.5 bg-slate-100 text-slate-700 text-xs font-mono rounded-md font-semibold">{{ dc.times_used }}</span>
+            </td>
+            <td class="px-5 py-4 whitespace-nowrap text-xs text-slate-500">
+              {% if dc.starts_at or dc.ends_at %}
+                {% if dc.starts_at %}<div class="text-[11px] text-slate-400">From: {{ dc.starts_at|date:"M d, Y" }}</div>{% endif %}
+                {% if dc.ends_at %}<div class="text-[11px] font-semibold text-slate-700">Until: {{ dc.ends_at|date:"M d, Y" }}</div>{% endif %}
+              {% else %}
+                <span class="text-slate-300">—</span>
+              {% endif %}
+            </td>
+            <td class="px-5 py-4 text-right space-x-2 whitespace-nowrap">
+              <a href="{% url 'dashboard:pricing:discount_code_detail' prefix dc.id %}" class="inline-flex items-center px-2.5 py-1 rounded-lg bg-indigo-50 text-[#5850EC] text-[11px] font-semibold hover:bg-indigo-100 transition">Manage</a>
+              <button class="delete-btn inline-flex items-center px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 text-[11px] font-semibold hover:bg-rose-100 transition"
+                      data-name="{{ dc.code }}"
+                      data-url="{% url 'dashboard:pricing:discount_code_delete' prefix dc.id %}">Delete</button>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="px-6 py-12 text-center text-xs text-slate-400">No discount codes configured yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
 
-  {% if codes.has_other_pages %}
-  <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800">
-    <div class="text-sm text-slate-500">
-      Showing {{ codes.start_index }} to {{ codes.end_index }} of {{ codes.paginator.count }} codes
+    {% if codes.has_other_pages %}
+    <div class="px-5 py-3 border-t border-[#EEF2F6] flex flex-col sm:flex-row items-center justify-between gap-3">
+      <span class="text-xs text-slate-400">Showing {{ codes.start_index }} to {{ codes.end_index }} of {{ codes.paginator.count }} codes</span>
+      <div class="flex gap-1.5">
+        {% if codes.has_previous %}
+        <a href="?q={{ q|default:'' }}&status={{ status }}&page={{ codes.previous_page_number }}" class="px-3 py-1.5 rounded-xl border border-[#EEF2F6] bg-white text-xs font-semibold text-slate-600 hover:border-[#5850EC] hover:text-[#5850EC] transition">Prev</a>
+        {% endif %}
+        {% if codes.has_next %}
+        <a href="?q={{ q|default:'' }}&status={{ status }}&page={{ codes.next_page_number }}" class="px-3 py-1.5 rounded-xl bg-[#5850EC] text-white text-xs font-semibold hover:bg-[#4F46E5] transition">Next</a>
+        {% endif %}
+      </div>
     </div>
-    <div class="flex space-x-2">
-      {% if codes.has_previous %}
-      <a href="?q={{ q|default:'' }}&status={{ status }}&page={{ codes.previous_page_number }}" class="px-3 py-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-md hover:bg-slate-50 dark:hover:bg-slate-600">Prev</a>
-      {% endif %}
-      {% if codes.has_next %}
-      <a href="?q={{ q|default:'' }}&status={{ status }}&page={{ codes.next_page_number }}" class="px-3 py-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-md hover:bg-slate-50 dark:hover:bg-slate-600">Next</a>
-      {% endif %}
-    </div>
+    {% endif %}
   </div>
-  {% endif %}
 </div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll(".delete-btn").forEach(btn => {
     btn.addEventListener("click", function () {
-      openDeleteModal("Delete Discount Code",
-        `Are you sure you want to delete "${this.dataset.name}"? This will also remove its rules. Existing transaction history will be preserved if the code was used.`,
-        () => {
-          fetch(this.dataset.url, {method:"POST", headers:{"X-CSRFToken":"{{ csrf_token }}","Content-Type":"application/x-www-form-urlencoded"}})
-            .then(() => location.reload());
-        });
+      const url = this.dataset.url;
+      const name = this.dataset.name;
+      if (typeof openDeleteModal === "function") {
+        openDeleteModal("Delete Discount Code",
+          `Are you sure you want to delete "${name}"? This removes its rules and future eligibility. Past transactions remain unaffected.`,
+          () => {
+            fetch(url, {method:"POST", headers:{"X-CSRFToken":"{{ csrf_token }}","Content-Type":"application/x-www-form-urlencoded"}})
+              .then(() => location.reload());
+          });
+      } else if (confirm(`Delete code "${name}"?`)) {
+        fetch(url, {method:"POST", headers:{"X-CSRFToken":"{{ csrf_token }}","Content-Type":"application/x-www-form-urlencoded"}})
+          .then(() => location.reload());
+      }
     });
   });
 });

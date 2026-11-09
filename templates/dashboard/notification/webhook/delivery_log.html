@@ -1,4 +1,4 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% load static %}
 {% load i18n %}
 
@@ -18,10 +18,10 @@
     </div>
 
     <!-- Table -->
-    <div class="bg-white shadow-lg rounded-sm border border-slate-200">
+    <div class="bg-white shadow-lg rounded-sm border border-[#EEF2F6]">
         <div class="overflow-x-auto">
             <table class="table-auto w-full">
-                <thead class="text-xs font-semibold uppercase text-slate-500 bg-slate-50 border-t border-b border-slate-200">
+                <thead class="text-xs font-semibold uppercase text-slate-500 bg-slate-50 border-t border-b border-[#EEF2F6]">
                     <tr>
                         <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Date</div></th>
                         <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-center">Status</div></th>
@@ -30,7 +30,7 @@
                         <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Duration</div></th>
                     </tr>
                 </thead>
-                <tbody class="text-sm divide-y divide-slate-200">
+                <tbody class="text-sm divide-y divide-[#EEF2F6]">
                     {% for log in logs %}
                     <tr class="hover:bg-slate-50 cursor-pointer" onclick="toggleRow('row-{{ log.pk }}')">
                         <td class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">
@@ -60,7 +60,7 @@
                     </tr>
                     <!-- Drawer -->
                     <tr id="row-{{ log.pk }}" class="hidden">
-                        <td colspan="5" class="bg-slate-50 p-4 border-b border-slate-200">
+                        <td colspan="5" class="bg-slate-50 p-4 border-b border-[#EEF2F6]">
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="bg-slate-800 text-emerald-400 p-3 rounded font-mono text-xs overflow-auto max-h-64">
                                     <div class="text-slate-400 mb-1 border-b border-slate-700 pb-1 uppercase font-bold text-xs track-wider">Request Payload</div>

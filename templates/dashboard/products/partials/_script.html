@@ -1,4 +1,4 @@
-<script>
+﻿<script>
   // CSRF Token for AJAX
   const csrfToken = '{{ csrf_token }}';
 
@@ -50,9 +50,9 @@
     const activeButton = document.querySelector(`[data-tab="${tabIndex}"]`);
     if (activeButton) {
       activeButton.classList.remove(
-        "border-transparent",
-        "text-slate-500",
-        "font-medium",
+"border-transparent",
+"text-slate-500",
+"font-medium",
       );
       activeButton.classList.add("border-primary", "text-primary", "font-bold");
     } else {
@@ -205,11 +205,11 @@
 
   function updateSummary() {
     const summaryItems = [
-      "summary-basic",
-      "summary-content",
-      "summary-pricing",
-      "summary-shipping",
-      "summary-variants",
+"summary-basic",
+"summary-content",
+"summary-pricing",
+"summary-shipping",
+"summary-variants",
     ];
 
     summaryItems.forEach((itemId, index) => {
@@ -223,12 +223,12 @@
           icon.classList.remove("text-slate-300");
           icon.classList.add("text-emerald-500");
           text.classList.remove("text-slate-400");
-          text.classList.add("text-slate-600", "dark:text-slate-400");
+          text.classList.add("text-slate-600", "");
         } else {
           icon.textContent = "radio_button_unchecked";
           icon.classList.remove("text-emerald-500");
           icon.classList.add("text-slate-300");
-          text.classList.remove("text-slate-600", "dark:text-slate-400");
+          text.classList.remove("text-slate-600", "");
           text.classList.add("text-slate-400");
         }
       }

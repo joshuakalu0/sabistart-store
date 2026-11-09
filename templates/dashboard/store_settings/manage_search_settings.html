@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,62 +14,62 @@
             theme: {
                 extend: {
                     colors: {
-                        "on-primary-fixed": "#003798",
-                        "on-primary-fixed-variant": "#0050d4",
-                        "surface-container-low": "#f0f4f7",
-                        "on-primary-container": "#0048bf",
-                        "outline-variant": "#a9b4b9",
-                        "secondary": "#506076",
-                        "on-tertiary-fixed": "#3e3a54",
-                        "surface-tint": "#0053db",
-                        "error": "#9f403d",
-                        "surface-container-lowest": "#ffffff",
-                        "surface-dim": "#cfdce3",
-                        "tertiary": "#605c78",
-                        "surface-container": "#e8eff3",
-                        "tertiary-dim": "#54506b",
-                        "on-tertiary-container": "#514d68",
-                        "tertiary-container": "#e3dbfd",
-                        "surface-variant": "#d9e4ea",
-                        "on-secondary": "#f7f9ff",
-                        "error-dim": "#4e0309",
-                        "primary-fixed-dim": "#c7d3ff",
-                        "primary-dim": "#0048c1",
-                        "secondary-fixed": "#d3e4fe",
-                        "on-primary": "#f8f7ff",
-                        "inverse-on-surface": "#9a9d9f",
-                        "on-secondary-container": "#435368",
-                        "primary-container": "#dbe1ff",
-                        "background": "#f7f9fb",
-                        "on-tertiary-fixed-variant": "#5b5672",
-                        "on-tertiary": "#fcf7ff",
-                        "primary": "#0053db",
-                        "on-secondary-fixed": "#314055",
-                        "surface-container-high": "#e1e9ee",
-                        "tertiary-fixed": "#e3dbfd",
-                        "inverse-primary": "#618bff",
-                        "secondary-fixed-dim": "#c5d6f0",
-                        "on-surface": "#2a3439",
-                        "on-error-container": "#752121",
-                        "on-secondary-fixed-variant": "#4d5d73",
-                        "secondary-container": "#d3e4fe",
-                        "secondary-dim": "#44546a",
-                        "tertiary-fixed-dim": "#d4cdee",
-                        "surface-container-highest": "#d9e4ea",
-                        "surface": "#f7f9fb",
-                        "primary-fixed": "#dbe1ff",
-                        "on-background": "#2a3439",
-                        "inverse-surface": "#0b0f10",
-                        "surface-bright": "#f7f9fb",
-                        "outline": "#717c82",
-                        "on-surface-variant": "#566166",
-                        "on-error": "#fff7f6",
-                        "error-container": "#fe8983"
+"on-primary-fixed": "#003798",
+"on-primary-fixed-variant": "#0050d4",
+"surface-container-low": "#f0f4f7",
+"on-primary-container": "#0048bf",
+"outline-variant": "#a9b4b9",
+"secondary": "#506076",
+"on-tertiary-fixed": "#3e3a54",
+"surface-tint": "#0053db",
+"error": "#9f403d",
+"surface-container-lowest": "#ffffff",
+"surface-dim": "#cfdce3",
+"tertiary": "#605c78",
+"surface-container": "#e8eff3",
+"tertiary-dim": "#54506b",
+"on-tertiary-container": "#514d68",
+"tertiary-container": "#e3dbfd",
+"surface-variant": "#d9e4ea",
+"on-secondary": "#f7f9ff",
+"error-dim": "#4e0309",
+"primary-fixed-dim": "#c7d3ff",
+"primary-dim": "#0048c1",
+"secondary-fixed": "#d3e4fe",
+"on-primary": "#f8f7ff",
+"inverse-on-surface": "#9a9d9f",
+"on-secondary-container": "#435368",
+"primary-container": "#dbe1ff",
+"background": "#f7f9fb",
+"on-tertiary-fixed-variant": "#5b5672",
+"on-tertiary": "#fcf7ff",
+"primary": "#0053db",
+"on-secondary-fixed": "#314055",
+"surface-container-high": "#e1e9ee",
+"tertiary-fixed": "#e3dbfd",
+"inverse-primary": "#618bff",
+"secondary-fixed-dim": "#c5d6f0",
+"on-surface": "#2a3439",
+"on-error-container": "#752121",
+"on-secondary-fixed-variant": "#4d5d73",
+"secondary-container": "#d3e4fe",
+"secondary-dim": "#44546a",
+"tertiary-fixed-dim": "#d4cdee",
+"surface-container-highest": "#d9e4ea",
+"surface": "#f7f9fb",
+"primary-fixed": "#dbe1ff",
+"on-background": "#2a3439",
+"inverse-surface": "#0b0f10",
+"surface-bright": "#f7f9fb",
+"outline": "#717c82",
+"on-surface-variant": "#566166",
+"on-error": "#fff7f6",
+"error-container": "#fe8983"
                     },
                     fontFamily: {
-                        "headline": ["Manrope"],
-                        "body": ["Inter"],
-                        "label": ["Inter"]
+"headline": ["Manrope"],
+"body": ["Inter"],
+"label": ["Inter"]
                     },
                     borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
                 },
@@ -160,15 +160,15 @@
 {% endif %}
 
 <!-- TopNavBar -->
-<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm dark:shadow-none glass-nav">
+<header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm glass-nav">
     <nav class="flex justify-between items-center w-full px-8 h-16 max-w-full">
         <div class="flex items-center gap-12">
-            <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50 font-manrope">{{ title }}</span>
+            <span class="text-xl font-bold tracking-tight text-slate-900 font-manrope">{{ title }}</span>
             <div class="hidden md:flex items-center gap-8 font-manrope text-sm font-medium">
-                <a class="text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-400 pb-1" href="#behavior">Behavior</a>
-                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#scope">Scope</a>
-                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#results">Results</a>
-                <a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors" href="#analytics">Analytics</a>
+                <a class="text-blue-700 border-b-2 border-blue-700 pb-1" href="#behavior">Behavior</a>
+                <a class="text-slate-500 hover:text-slate-900 transition-colors" href="#scope">Scope</a>
+                <a class="text-slate-500 hover:text-slate-900 transition-colors" href="#results">Results</a>
+                <a class="text-slate-500 hover:text-slate-900 transition-colors" href="#analytics">Analytics</a>
             </div>
         </div>
         <div class="flex items-center gap-4">

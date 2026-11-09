@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
@@ -14,62 +14,62 @@
             theme: {
                 extend: {
                     colors: {
-                        "surface-container-high": "#e1e9ee",
-                        "inverse-on-surface": "#9a9d9f",
-                        "on-background": "#2a3439",
-                        "inverse-surface": "#0b0f10",
-                        "outline-variant": "#a9b4b9",
-                        "surface-container-lowest": "#ffffff",
-                        "error-dim": "#4e0309",
-                        "inverse-primary": "#618bff",
-                        "on-secondary-fixed-variant": "#4d5d73",
-                        "primary": "#0053db",
-                        "surface": "#f7f9fb",
-                        "tertiary-fixed": "#e3dbfd",
-                        "on-primary": "#f8f7ff",
-                        "on-secondary-fixed": "#314055",
-                        "error": "#9f403d",
-                        "secondary-dim": "#44546a",
-                        "on-tertiary": "#fcf7ff",
-                        "surface-container-highest": "#d9e4ea",
-                        "secondary-fixed-dim": "#c5d6f0",
-                        "surface-bright": "#f7f9fb",
-                        "on-tertiary-fixed": "#3e3a54",
-                        "on-primary-fixed": "#003798",
-                        "surface-dim": "#cfdce3",
-                        "on-primary-container": "#0048bf",
-                        "on-secondary": "#f7f9ff",
-                        "on-error-container": "#752121",
-                        "on-error": "#fff7f6",
-                        "surface-container": "#e8eff3",
-                        "primary-container": "#dbe1ff",
-                        "on-primary-fixed-variant": "#0050d4",
-                        "primary-fixed": "#dbe1ff",
-                        "on-tertiary-container": "#514d68",
-                        "secondary-container": "#d3e4fe",
-                        "tertiary-dim": "#54506b",
-                        "surface-container-low": "#f0f4f7",
-                        "on-tertiary-fixed-variant": "#5b5672",
-                        "on-secondary-container": "#435368",
-                        "tertiary-container": "#e3dbfd",
-                        "on-surface-variant": "#566166",
-                        "surface-variant": "#d9e4ea",
-                        "on-surface": "#2a3439",
-                        "secondary": "#506076",
-                        "primary-dim": "#0048c1",
-                        "primary-fixed-dim": "#c7d3ff",
-                        "error-container": "#fe8983",
-                        "secondary-fixed": "#d3e4fe",
-                        "outline": "#717c82",
-                        "tertiary": "#605c78",
-                        "background": "#f7f9fb",
-                        "tertiary-fixed-dim": "#d4cdee",
-                        "surface-tint": "#0053db"
+"surface-container-high": "#e1e9ee",
+"inverse-on-surface": "#9a9d9f",
+"on-background": "#2a3439",
+"inverse-surface": "#0b0f10",
+"outline-variant": "#a9b4b9",
+"surface-container-lowest": "#ffffff",
+"error-dim": "#4e0309",
+"inverse-primary": "#618bff",
+"on-secondary-fixed-variant": "#4d5d73",
+"primary": "#0053db",
+"surface": "#f7f9fb",
+"tertiary-fixed": "#e3dbfd",
+"on-primary": "#f8f7ff",
+"on-secondary-fixed": "#314055",
+"error": "#9f403d",
+"secondary-dim": "#44546a",
+"on-tertiary": "#fcf7ff",
+"surface-container-highest": "#d9e4ea",
+"secondary-fixed-dim": "#c5d6f0",
+"surface-bright": "#f7f9fb",
+"on-tertiary-fixed": "#3e3a54",
+"on-primary-fixed": "#003798",
+"surface-dim": "#cfdce3",
+"on-primary-container": "#0048bf",
+"on-secondary": "#f7f9ff",
+"on-error-container": "#752121",
+"on-error": "#fff7f6",
+"surface-container": "#e8eff3",
+"primary-container": "#dbe1ff",
+"on-primary-fixed-variant": "#0050d4",
+"primary-fixed": "#dbe1ff",
+"on-tertiary-container": "#514d68",
+"secondary-container": "#d3e4fe",
+"tertiary-dim": "#54506b",
+"surface-container-low": "#f0f4f7",
+"on-tertiary-fixed-variant": "#5b5672",
+"on-secondary-container": "#435368",
+"tertiary-container": "#e3dbfd",
+"on-surface-variant": "#566166",
+"surface-variant": "#d9e4ea",
+"on-surface": "#2a3439",
+"secondary": "#506076",
+"primary-dim": "#0048c1",
+"primary-fixed-dim": "#c7d3ff",
+"error-container": "#fe8983",
+"secondary-fixed": "#d3e4fe",
+"outline": "#717c82",
+"tertiary": "#605c78",
+"background": "#f7f9fb",
+"tertiary-fixed-dim": "#d4cdee",
+"surface-tint": "#0053db"
                     },
                     fontFamily: {
-                        "headline": ["Manrope"],
-                        "body": ["Inter"],
-                        "label": ["Inter"]
+"headline": ["Manrope"],
+"body": ["Inter"],
+"label": ["Inter"]
                     },
                     borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
                 },
@@ -144,10 +144,10 @@
 {% endif %}
 
 <!-- TopNavBar -->
-<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex justify-between items-center px-8 h-20 max-w-full mx-auto">
+<nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex justify-between items-center px-8 h-20 max-w-full mx-auto">
     <div class="flex items-center gap-2">
         <span class="material-symbols-outlined text-primary text-2xl">settings</span>
-        <span class="text-xl font-bold font-manrope text-slate-900 dark:text-slate-50 tracking-tight">{{ title }}</span>
+        <span class="text-xl font-bold font-manrope text-slate-900 tracking-tight">{{ title }}</span>
     </div>
     <div class="flex items-center gap-6">
         <button type="button" class="text-slate-500 font-medium hover:text-[#0053db] transition-all duration-200 active:scale-95 transform" onclick="window.location.href='{% url 'manage_product_display_settings' %}'">Discard</button>

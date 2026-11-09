@@ -1,4 +1,4 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% load i18n %}
 
 {% block content %}
@@ -17,7 +17,7 @@
                 </p>
             </div>
             <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
-                <a href="{% url 'dashboard:notification_channel_update' prefix=prefix pk=channel.pk %}" class="btn bg-white border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-600">
+                <a href="{% url 'dashboard:notification_channel_update' prefix=prefix pk=channel.pk %}" class="btn bg-white border-[#EEF2F6] hover:border-slate-300 text-slate-500 hover:text-slate-600">
                     <span>Edit Channel</span>
                 </a>
             </div>
@@ -26,7 +26,7 @@
 
     <div class="grid grid-cols-12 gap-6">
         <div class="col-span-12 xl:col-span-4">
-            <div class="bg-white shadow-lg rounded-sm border border-slate-200 p-5">
+            <div class="bg-white shadow-lg rounded-sm border border-[#EEF2F6] p-5">
                 <h2 class="text-lg font-semibold text-slate-800 mb-4">Current SMTP Config</h2>
                 <dl class="space-y-3 text-sm">
                     <div>
@@ -65,8 +65,8 @@
         </div>
 
         <div class="col-span-12 xl:col-span-8">
-            <div class="bg-white shadow-lg rounded-sm border border-slate-200">
-                <div class="px-6 py-5 border-b border-slate-200">
+            <div class="bg-white shadow-lg rounded-sm border border-[#EEF2F6]">
+                <div class="px-6 py-5 border-b border-[#EEF2F6]">
                     <h2 class="text-lg font-semibold text-slate-800">Run SMTP Test</h2>
                     <p class="text-sm text-slate-500 mt-1">We’ll send one test message and report the result directly on this page.</p>
                 </div>
@@ -113,7 +113,7 @@
                         <button type="submit" class="btn bg-indigo-500 hover:bg-indigo-600 text-white">
                             <span>Send Test Email</span>
                         </button>
-                        <a href="{% url 'dashboard:notification_channel_detail' prefix=prefix pk=channel.pk %}" class="btn bg-white border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-600">
+                        <a href="{% url 'dashboard:notification_channel_detail' prefix=prefix pk=channel.pk %}" class="btn bg-white border-[#EEF2F6] hover:border-slate-300 text-slate-500 hover:text-slate-600">
                             <span>Cancel</span>
                         </a>
                     </div>
@@ -147,7 +147,7 @@
                     </div>
                     <div class="md:col-span-2">
                         <div class="text-slate-500">Provider Response</div>
-                        <div class="mt-1 rounded-lg bg-white/80 border border-slate-200 px-3 py-2 font-mono text-xs text-slate-700 break-words">
+                        <div class="mt-1 rounded-lg bg-white/80 border border-[#EEF2F6] px-3 py-2 font-mono text-xs text-slate-700 break-words">
                             {{ test_result.provider_response|default:"No provider response returned." }}
                         </div>
                     </div>

@@ -1,4 +1,4 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% load static %}
 {% load i18n %}
 
@@ -16,7 +16,7 @@
                 <div class="text-sm text-slate-500 mt-1">Webhook Endpoint Detail</div>
             </div>
             <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
-                <a href="{% url 'dashboard:notification_webhook_update' prefix=prefix pk=endpoint.pk %}" class="btn bg-white border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-600">
+                <a href="{% url 'dashboard:notification_webhook_update' prefix=prefix pk=endpoint.pk %}" class="btn bg-white border-[#EEF2F6] hover:border-slate-300 text-slate-500 hover:text-slate-600">
                     <svg class="w-4 h-4 fill-current text-slate-500 shrink-0 mr-2" viewBox="0 0 16 16">
                         <path d="M11.7.3c-.4-.4-1-.4-1.4 0l-10 10c-.2.2-.3.4-.3.7v4c0 .6.4 1 1 1h4c.3 0 .5-.1.7-.3l10-10c.4-.4.4-1 0-1.4l-4-4zM4.6 14H2v-2.6l6-6L10.6 8l-6 6zM12 6.6L9.4 4 11 2.4 13.6 5 12 6.6z" />
                     </svg>
@@ -30,7 +30,7 @@
     <!-- Health & Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <!-- Status -->
-        <div class="bg-white p-5 rounded-sm border border-slate-200 shadow-sm flex items-center">
+        <div class="bg-white p-5 rounded-sm border border-[#EEF2F6] shadow-sm flex items-center">
             <div class="w-12 h-12 rounded-full mr-4 flex items-center justify-center {% if endpoint.is_active and endpoint.consecutive_failures == 0 %}bg-emerald-100 text-emerald-500{% elif endpoint.is_active %}bg-amber-100 text-amber-500{% else %}bg-slate-100 text-slate-500{% endif %}">
                 <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
                     {% if endpoint.is_active and endpoint.consecutive_failures == 0 %}
@@ -54,7 +54,7 @@
             </div>
         </div>
         <!-- Error Rate -->
-        <div class="bg-white p-5 rounded-sm border border-slate-200 shadow-sm flex flex-col justify-center">
+        <div class="bg-white p-5 rounded-sm border border-[#EEF2F6] shadow-sm flex flex-col justify-center">
             <div class="text-sm font-medium text-slate-400 uppercase mb-1">Error Rate</div>
             <div class="text-2xl font-bold {% if endpoint.error_rate > 10 %}text-rose-600{% elif endpoint.error_rate > 0 %}text-amber-600{% else %}text-emerald-600{% endif %}">
                 {{ endpoint.error_rate|default:"0.00" }}%
@@ -62,7 +62,7 @@
             <div class="text-xs text-slate-500 mt-1">{{ endpoint.consecutive_failures }} consecutive errors</div>
         </div>
         <!-- Total Successes -->
-        <div class="bg-white p-5 rounded-sm border border-slate-200 shadow-sm flex flex-col justify-center">
+        <div class="bg-white p-5 rounded-sm border border-[#EEF2F6] shadow-sm flex flex-col justify-center">
             <div class="text-sm font-medium text-slate-400 uppercase mb-1">Success Ratio</div>
             <div class="text-2xl font-bold text-slate-800">
                 {{ endpoint.total_successes }} / <span class="text-slate-500 font-medium text-lg">{{ endpoint.total_successes|add:endpoint.total_failures }}</span>
@@ -75,7 +75,7 @@
 
         <!-- Endpoint Configuration Details -->
         <div class="col-span-12 lg:col-span-4 space-y-6">
-            <div class="bg-white shadow-sm rounded-sm border border-slate-200 p-5">
+            <div class="bg-white shadow-sm rounded-sm border border-[#EEF2F6] p-5">
                 <h2 class="font-semibold text-slate-800 mb-4">Configuration</h2>
                 <ul class="space-y-3 text-sm">
                     <li>
@@ -112,7 +112,7 @@
         </div>
 
         <!-- Recent Logs Table -->
-        <div class="col-span-12 lg:col-span-8 bg-white shadow-sm rounded-sm border border-slate-200">
+        <div class="col-span-12 lg:col-span-8 bg-white shadow-sm rounded-sm border border-[#EEF2F6]">
             <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center">
                 <h2 class="font-semibold text-slate-800">Recent Delivery Logs</h2>
                 <a href="{% url 'dashboard:notification_webhook_delivery_log' prefix=prefix pk=endpoint.pk %}" class="text-sm text-indigo-500 hover:text-indigo-600 font-medium">View All</a>

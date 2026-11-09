@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 <!doctype html>
 <html class="light" lang="en">
   <head>
@@ -6,8 +6,10 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>{{ page_title|default:"Dashboard" }} - SABIStart</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
     <link
@@ -24,151 +26,113 @@
         theme: {
           extend: {
             colors: {
-              primary: "#4F46E5",
-              "primary-hover": "#4338CA",
-              "primary-light": "#EEF2FF",
-              "background-light": "#F9FAFB",
-              "background-dark": "#0F172A",
-              shell: "#E5E7EB",
-              success: "#16A34A",
-              warning: "#D97706",
-              danger: "#DC2626",
+              brand: {
+                50: '#F5F3FF',
+                100: '#EDE9FE',
+                200: '#DDD6FE',
+                500: '#635BFF',
+                600: '#5850EC',
+                700: '#4F46E5',
+              },
+              primary: "#5850EC",
+"primary-hover": "#4F46E5",
+"primary-light": "#EEF2FF",
+"primary-container": "#5850EC",
+"on-primary": "#FFFFFF",
+"background-light": "#F8F9FD",
+"background-dark": "#0F172A",
+              surface: {
+                bg: '#F8F9FD',
+                card: '#FFFFFF',
+                border: '#EEF2F6',
+                muted: '#6B7280',
+              },
+              shell: "#EEF2F6",
+              success: "#10B981",
+              warning: "#F59E0B",
+              danger: "#EF4444",
               info: "#2563EB",
             },
             fontFamily: {
-              display: ["Inter", "sans-serif"],
-              body: ["Inter", "sans-serif"],
+              sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+              display: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+              body: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
               mono: ["IBM Plex Mono", "SFMono-Regular", "Menlo", "monospace"],
             },
             borderRadius: {
               DEFAULT: "0.5rem",
-              sm: "4px",
+              sm: "6px",
               md: "8px",
               lg: "12px",
+              xl: "16px",
+"2xl": "20px",
               full: "9999px",
             },
             boxShadow: {
-              shell: "0 24px 80px rgba(15, 23, 42, 0.10)",
+              soft: "0 2px 14px rgba(0, 0, 0, 0.035)",
+              card: "0 1px 3px rgba(0,0,0,0.03), 0 10px 24px -10px rgba(100, 116, 139, 0.08)",
               sm: "0 1px 2px rgba(0,0,0,0.05)",
-              md: "0 4px 12px rgba(0,0,0,0.08)",
-              lg: "0 10px 30px rgba(0,0,0,0.12)",
+              md: "0 4px 12px rgba(88, 80, 236, 0.08)",
+              lg: "0 10px 30px rgba(0,0,0,0.08)",
             },
           },
         },
       };
     </script>
     <style type="text/tailwindcss">
-      /* =============================================
-         DESIGN TOKENS — brand + neutral scale
-         ============================================= */
       :root {
-        /* Brand */
-        --brand-primary: #4F46E5;
-        --brand-primary-hover: #4338CA;
-        --brand-primary-light: #EEF2FF;
+        --brand-primary: #5850EC;
+        --brand-primary-hover: #4F46E5;
+        --brand-primary-light: #EDE9FE;
         --brand-on-primary: #FFFFFF;
 
-        /* Neutral scale */
-        --gray-50:  #F9FAFB;
-        --gray-100: #F3F4F6;
-        --gray-200: #E5E7EB;
-        --gray-300: #D1D5DB;
+        --gray-50:  #F8F9FD;
+        --gray-100: #F1F4F9;
+        --gray-200: #EEF2F6;
+        --gray-300: #CBD5E1;
         --gray-400: #9CA3AF;
         --gray-500: #6B7280;
         --gray-600: #4B5563;
-        --gray-700: #374151;
-        --gray-800: #1F2937;
-        --gray-900: #111827;
+        --gray-700: #334155;
+        --gray-800: #1E293B;
+        --gray-900: #0F172A;
 
-        /* Semantic */
-        --color-success: #16A34A;
-        --color-success-bg: #F0FDF4;
-        --color-warning: #D97706;
+        --color-success: #10B981;
+        --color-success-bg: #ECFDF5;
+        --color-warning: #F59E0B;
         --color-warning-bg: #FFFBEB;
-        --color-danger: #DC2626;
+        --color-danger: #EF4444;
         --color-danger-bg: #FEF2F2;
-        --color-info: #2563EB;
-        --color-info-bg: #EFF6FF;
 
-        /* Surfaces */
-        --surface-page: var(--gray-50);
+        --surface-page: #F8F9FD;
         --surface-card: #FFFFFF;
-        --surface-border: var(--gray-200);
-        --surface-overlay: rgba(17, 24, 39, 0.5);
+        --surface-border: #EEF2F6;
 
-        /* Text */
-        --text-primary: var(--gray-900);
-        --text-secondary: var(--gray-600);
-        --text-muted: var(--gray-400);
-        --text-inverse: #FFFFFF;
-
-        /* Typography */
-        --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace;
-
-        --font-size-xs:   clamp(0.72rem, 0.70rem + 0.1vw,  0.75rem);
-        --font-size-sm:   clamp(0.82rem, 0.80rem + 0.1vw,  0.875rem);
-        --font-size-base: clamp(0.95rem, 0.92rem + 0.15vw, 1rem);
-        --font-size-lg:   clamp(1.05rem, 1.0rem  + 0.25vw, 1.125rem);
-        --font-size-xl:   clamp(1.2rem,  1.1rem  + 0.4vw,  1.5rem);
-        --font-size-2xl:  clamp(1.5rem,  1.3rem  + 0.8vw,  2rem);
-        --font-size-3xl:  clamp(1.9rem,  1.6rem  + 1.2vw,  2.75rem);
-
-        --font-weight-regular: 400;
-        --font-weight-medium: 500;
-        --font-weight-semibold: 600;
-        --font-weight-bold: 700;
-
-        --line-height-tight: 1.2;
-        --line-height-normal: 1.5;
-        --line-height-relaxed: 1.7;
-
-        /* Spacing (4px base unit) */
-        --space-1:  0.25rem;
-        --space-2:  0.5rem;
-        --space-3:  0.75rem;
-        --space-4:  1rem;
-        --space-6:  1.5rem;
-        --space-8:  2rem;
-        --space-12: 3rem;
-
-        /* Radius */
-        --radius-sm:   4px;
-        --radius-md:   8px;
-        --radius-lg:   12px;
-        --radius-full: 9999px;
-
-        /* Shadow */
-        --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-        --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-        --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);
-
-        /* Breakpoints (reference only — use in media queries) */
-        --bp-mobile:  480px;
-        --bp-tablet:  768px;
-        --bp-laptop:  1024px;
-        --bp-desktop: 1280px;
-        --bp-wide:    1536px;
-      }
-
-      @media (max-width: 768px) {
-        :root {
-          --space-6: 1rem;
-          --space-8: 1.5rem;
-        }
+        --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       }
 
       body {
         font-family: var(--font-sans);
+        background-color: #F8F9FD;
+        color: #1E293B;
+        -webkit-font-smoothing: antialiased;
       }
+
       .custom-scrollbar::-webkit-scrollbar {
-        height: 4px;
-        width: 4px;
+        height: 6px;
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
       }
       .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: var(--gray-300);
-        border-radius: var(--radius-full);
+        background: #E2E8F0;
+        border-radius: 9999px;
       }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #CBD5E1;
+      }
+
       .no-scrollbar::-webkit-scrollbar {
         display: none;
       }
@@ -176,7 +140,7 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
       }
-      /* Prevent iOS auto-zoom on inputs */
+
       @media (max-width: 768px) {
         input, select, textarea {
           font-size: 16px !important;
@@ -188,95 +152,136 @@
       .safe-area-bottom {
         padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
       }
+
+      .nav-item-active {
+        background-color: #5850EC;
+        color: #FFFFFF;
+        box-shadow: 0 4px 14px rgba(88, 80, 236, 0.35);
+      }
+      .badge-pill-active {
+        background-color: #ECFDF5;
+        color: #059669;
+        border: 1px solid #D1FAE5;
+      }
+      .table-row-hover:hover {
+        background-color: #FBFBFE;
+      }
     </style>
-    {% comment %} {% block extra_css %}{% endblock %} {% endcomment %}
   </head>
 
   <body
-    class="min-h-screen overflow-hidden bg-slate-100 text-slate-900 dark:bg-background-dark dark:text-slate-100"
+    class="min-h-screen overflow-hidden bg-[#F8F9FD] text-slate-900 selection:bg-indigo-100 selection:text-indigo-700"
   >
     <div class="flex h-screen">
     {% if sidebar %}
+    <!-- Modern Hyper-SaaS Shodai Sidebar -->
     <aside
       id="sidebar"
-      class="fixed bg-white inset-y-0 left-0 z-50 flex h-screen w-80 max-w-[85vw] flex-shrink-0 -translate-x-full flex-col border-r border-slate-200 bg-white/98 text-slate-700 shadow-2xl transition-transform duration-300 ease-in-out lg:sticky lg:top-0 lg:w-72 lg:max-w-none lg:translate-x-0 lg:shadow-shell dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300"
+      class="fixed inset-y-0 left-0 z-50 flex h-screen w-80 max-w-[85vw] flex-shrink-0 -translate-x-full flex-col border-r border-[#EEF2F6] bg-white text-slate-700 shadow-2xl transition-transform duration-300 ease-in-out lg:sticky lg:top-0 lg:w-64 lg:max-w-none lg:translate-x-0 lg:shadow-none"
     >
-      <div class="flex items-center justify-between border-b border-slate-100 p-5 dark:border-slate-800/80">
-        <div class="min-w-0 pr-2">
-          <span class="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.24em] text-primary dark:bg-primary/20 dark:text-blue-300">Tenant Store</span>
-          <h2 class="mt-1 truncate text-lg font-extrabold text-slate-950 dark:text-white">{{ request.tenant.name|default:"Store Workspace" }}</h2>
+      <!-- Logo & Brand Header -->
+      <div class="flex h-16 items-center justify-between border-b border-[#EEF2F6] px-5">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#5850EC] text-white shadow-md shadow-indigo-200">
+            <span class="material-icons-outlined text-xl">shopping_bag</span>
+          </div>
+          <div class="min-w-0">
+            <h2 class="truncate text-base font-bold tracking-tight text-slate-900">{{ request.tenant.name|default:"Shodai Store" }}</h2>
+            <span class="inline-flex items-center text-[10px] font-semibold text-slate-400">Merchant Workspace</span>
+          </div>
         </div>
         <button
           id="sidebarClose"
           type="button"
-          class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900 active:scale-95 dark:bg-slate-800 dark:text-slate-400 lg:hidden"
+          class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900 active:scale-95 lg:hidden"
           aria-label="Close navigation"
         >
-          <span class="material-icons-outlined text-xl">close</span>
+          <span class="material-icons-outlined text-lg">close</span>
         </button>
       </div>
-      <nav class="flex-1 px-4 py-3 space-y-1 overflow-y-auto custom-scrollbar">
+
+      <!-- Navigation List -->
+      <nav class="flex-1 space-y-1 overflow-y-auto px-4 py-4 custom-scrollbar">
         {% for items in sidebar %}
-        <p
-          class="px-3 pt-4 pb-2 text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400"
-        >
-          {{ items.0 }}
-        </p>
-        {% for key , values in items.1.items %} {% if values.sub_menu %}
+        <div class="pt-3 pb-1.5 first:pt-0">
+          <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            {{ items.0 }}
+          </p>
+        </div>
+        {% for key , values in items.1.items %}
+        {% if values.sub_menu %}
         <div class="group">
           <button
-            class="sidebar-collapse-btn flex w-full items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium transition-colors {% if values.active %}bg-primary text-white shadow-lg shadow-primary/20{% else %}text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white{% endif %}"
+            class="sidebar-collapse-btn flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-xs font-semibold transition-all {% if values.active %}bg-[#5850EC] text-white shadow-md shadow-indigo-300/40{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900{% endif %}"
             data-menu="{{ key }}"
           >
-            <div class="flex items-center">
-              <span
-                class="material-icons-outlined mr-3 {% if values.active %}text-white{% else %}text-slate-400 group-hover:text-slate-950 dark:group-hover:text-white{% endif %}"
-              >
-                {{ values.icon }}</span
-              >
-              {{ values.name }}
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="material-icons-outlined text-[19px] {% if values.active %}text-white{% else %}text-slate-400 group-hover:text-slate-700{% endif %}">
+                {{ values.icon }}
+              </span>
+              <span class="truncate">{{ values.name }}</span>
             </div>
-            <span class="sidebar-collapse-icon material-icons-outlined text-xs"
-              >{% if values.active %}expand_less{% else %}expand_more{% endif %}</span
-            >
+            <span class="sidebar-collapse-icon material-icons-outlined text-sm opacity-70">
+              {% if values.active %}expand_less{% else %}expand_more{% endif %}
+            </span>
           </button>
           <div
-            class="sidebar-submenu space-y-1 pl-4 {% if not values.active %}hidden{% endif %}"
+            class="sidebar-submenu space-y-1 pl-3 pt-1 {% if not values.active %}hidden{% endif %}"
             id="submenu-{{ key }}"
           >
             {% for sub_item in values.sub_menu %}
             <a
               href="{{ sub_item.url }}"
-              class="flex items-center rounded-2xl px-4 py-2.5 text-sm font-medium transition-colors {% if sub_item.active %}bg-slate-900 text-white dark:bg-slate-700{% else %}text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white{% endif %}"
+              class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-all {% if sub_item.active %}bg-[#EDE9FE] text-[#5850EC] font-semibold{% else %}text-slate-500 hover:bg-slate-50 hover:text-slate-900{% endif %}"
             >
-              <span class="material-icons-outlined mr-3 text-sm {% if sub_item.active %}text-primary dark:text-blue-300{% else %}text-slate-400{% endif %}"
-                >{{ sub_item.icon }}</span
-              >
-              {{ sub_item.name }}
+              <span class="w-1.5 h-1.5 rounded-full {% if sub_item.active %}bg-[#5850EC]{% else %}bg-slate-300{% endif %}"></span>
+              <span class="truncate">{{ sub_item.name }}</span>
             </a>
             {% endfor %}
           </div>
         </div>
         {% else %}
         <a
-          class="flex items-center rounded-2xl px-4 py-3 text-sm font-medium {% if values.active %}bg-primary text-white shadow-lg shadow-primary/20{% else %}text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white{% endif %}"
+          class="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-semibold transition-all {% if values.active %}bg-[#5850EC] text-white shadow-md shadow-indigo-300/40{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900{% endif %}"
           href="{{ values.url }}"
         >
-          <span
-            class="material-icons-outlined mr-3 {% if values.active %}text-white{% else %}text-slate-400{% endif %}"
-          >
-            {{ values.icon }}</span
-          >
-          {{ values.name }}
+          <span class="material-icons-outlined text-[19px] {% if values.active %}text-white{% else %}text-slate-400{% endif %}">
+            {{ values.icon }}
+          </span>
+          <span class="truncate">{{ values.name }}</span>
         </a>
-        {% endif %} {% endfor %} {% endfor %}
+        {% endif %}
+        {% endfor %}
+        {% endfor %}
       </nav>
+
+      <!-- Bottom User/Store Card -->
+      <div class="border-t border-[#EEF2F6] p-3">
+        <div class="flex items-center justify-between rounded-xl bg-slate-50 p-2 hover:bg-slate-100 transition-colors cursor-pointer">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#5850EC] text-xs font-bold text-white shadow-xs">
+              {{ request.user.email|slice:":1"|upper|default:"U" }}
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-xs font-bold text-slate-800 leading-tight">
+                {{ request.user.get_full_name|default:request.user.email|default:"Store User" }}
+              </p>
+              <p class="truncate text-[10px] text-slate-400 leading-tight">
+                {{ request.tenant.name|default:"Admin" }}
+              </p>
+            </div>
+          </div>
+          <a href="/logout/" title="Log out" class="text-slate-400 hover:text-slate-600 p-1">
+            <span class="material-icons-outlined text-sm">logout</span>
+          </a>
+        </div>
+      </div>
     </aside>
 
-    <!-- Sidebar overlay -->
+    <!-- Sidebar overlay for mobile -->
     <div
       id="sidebarOverlay"
-      class="fixed inset-0 z-40 hidden bg-slate-950/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden"
+      class="fixed inset-0 z-40 hidden bg-slate-950/40 backdrop-blur-xs transition-opacity duration-300 lg:hidden"
     ></div>
     {% endif %}
 
@@ -284,7 +289,7 @@
       // Sidebar collapse functionality
       document.addEventListener("DOMContentLoaded", function () {
         const collapseButtons = document.querySelectorAll(
-          ".sidebar-collapse-btn",
+".sidebar-collapse-btn",
         );
 
         collapseButtons.forEach((button) => {
@@ -336,86 +341,117 @@
 
     {% if sub_sidebar %}
     <aside
-      class="w-56 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 flex-shrink-0 hidden md:flex flex-col border-r border-slate-200 dark:border-slate-800"
+      class="w-56 bg-white text-slate-700 flex-shrink-0 hidden md:flex flex-col border-r border-[#EEF2F6]"
     >
-      <div class="p-6 border-b border-slate-200 dark:border-slate-800">
-        <h2 class="text-lg font-semibold text-slate-800 dark:text-white">
+      <div class="p-5 border-b border-[#EEF2F6]">
+        <h2 class="text-sm font-bold text-slate-900">
           {{ sub_sidebar.0.0 }}
         </h2>
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+        <p class="text-[11px] text-slate-400 mt-0.5">
           {{ sub_sidebar.0.1 }}
         </p>
       </div>
-      <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
+      <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto custom-scrollbar">
         {% for key,values in sub_sidebar.1.items %}
         <a
           href="{{ values.url }}"
-          class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg {% if values.active %}bg-primary text-white shadow-sm{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800{% endif %} transition-colors"
+          class="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl {% if values.active %}bg-[#5850EC] text-white shadow-xs{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900{% endif %} transition-colors"
         >
-          <span class="material-icons-outlined mr-3 text-sm"
+          <span class="material-icons-outlined text-base"
             >{{ values.icon }}</span
           >
-          {{ values.name }}
+          <span class="truncate">{{ values.name }}</span>
         </a>
         {% endfor %}
       </nav>
     </aside>
     {% endif %}
 
-    <main class="flex min-h-0 min-w-0 flex-1 flex-col">
-      <!-- Sticky Mobile Top App Bar (Native App Style) -->
-      <header class="sticky top-0 z-30 flex h-14 w-full flex-shrink-0 items-center justify-between border-b border-slate-200/80 bg-white/95 px-3 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/95 sm:px-4 lg:hidden">
-        <div class="flex items-center gap-2.5 min-w-0">
+    <main class="flex min-h-0 min-w-0 flex-1 flex-col bg-[#F8F9FD]">
+      <!-- Shodai Modern Top Navbar (Desktop & Mobile) -->
+      <header class="sticky top-0 z-30 flex h-16 w-full flex-shrink-0 items-center justify-between border-b border-[#EEF2F6] bg-white/90 px-4 sm:px-6 backdrop-blur-md">
+        <!-- Left: Mobile Toggle & Global Search Bar -->
+        <div class="flex items-center gap-3 flex-1 max-w-xl">
           <button
             id="sidebarToggle"
             type="button"
-            class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700 transition hover:bg-slate-200 active:scale-95 dark:bg-slate-800 dark:text-slate-200"
+            class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 active:scale-95 lg:hidden"
             aria-label="Open Navigation Menu"
           >
-            <span class="material-icons-outlined text-2xl">menu</span>
+            <span class="material-icons-outlined text-xl">menu</span>
           </button>
-          <div class="min-w-0">
-            <h1 class="truncate text-sm font-bold text-slate-900 dark:text-white sm:text-base">
+
+          <!-- Search Bar with ⌘K Badge -->
+          <div class="relative w-full max-w-md hidden sm:block">
+            <span class="material-icons-outlined absolute left-3 top-2.5 text-slate-400 text-lg">search</span>
+            <input
+              type="text"
+              placeholder="Search products, orders, customers... ⌘K"
+              class="w-full h-9 pl-9 pr-12 rounded-xl bg-slate-50 text-xs text-slate-800 placeholder:text-slate-400 border border-[#EEF2F6]/80 focus:border-[#5850EC] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5850EC]/20 transition-all"
+            />
+            <span class="absolute right-2 top-2 px-1.5 py-0.5 rounded text-[10px] bg-slate-200/60 text-slate-500 font-medium">⌘K</span>
+          </div>
+
+          <div class="sm:hidden min-w-0">
+            <h1 class="truncate text-xs font-bold text-slate-900">
               {{ request.tenant.name|default:"Store Dashboard" }}
             </h1>
-            <p class="truncate text-[11px] font-medium text-slate-500 dark:text-slate-400">
-              {{ page_title|default:"Store Control" }}
-            </p>
           </div>
         </div>
 
-        <div class="flex items-center gap-2 flex-shrink-0">
+        <!-- Right: Actions, Live Storefront, Notifications & Profile -->
+        <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
           <a
             href="/"
             target="_blank"
             title="View Live Storefront"
-            class="flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+            class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#EEF2F6]/80 bg-white px-3 text-xs font-semibold text-slate-700 shadow-xs transition hover:border-[#5850EC] hover:text-[#5850EC]"
           >
-            <span class="material-icons-outlined text-[16px] text-primary">storefront</span>
-            <span class="hidden sm:inline">Storefront</span>
+            <span class="material-icons-outlined text-[16px] text-[#5850EC]">storefront</span>
+            <span class="hidden md:inline">Storefront</span>
           </a>
-          {% if request.user.is_authenticated %}
-          <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-xs font-bold text-white shadow-sm shadow-primary/30">
-            {{ request.user.email|slice:":1"|upper }}
+
+          <!-- Notifications with Red Alert Dot -->
+          <a
+            href="{% if prefix %}{% url 'dashboard:notification_dashboard_index' prefix %}{% else %}#{% endif %}"
+            title="Notifications"
+            class="relative flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition"
+          >
+            <span class="material-icons-outlined text-lg">notifications</span>
+            <span class="absolute top-2 right-2 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
+          </a>
+
+          <div class="h-5 w-px bg-slate-200 hidden sm:block"></div>
+
+          <!-- User Identity Badge -->
+          <div class="flex items-center gap-2.5 pl-1">
+            <div class="hidden sm:flex flex-col text-right">
+              <span class="text-xs font-bold text-slate-800 leading-tight">
+                {{ request.user.first_name|default:request.user.email|truncatechars:18 }}
+              </span>
+              <span class="text-[10px] text-slate-400 leading-tight">Store Admin</span>
+            </div>
+            <div class="flex h-8 w-8 items-center justify-center rounded-xl bg-[#5850EC] text-xs font-bold text-white shadow-xs">
+              {{ request.user.email|slice:":1"|upper|default:"A" }}
+            </div>
           </div>
-          {% endif %}
         </div>
       </header>
 
       {% if sub_sidebar %}
       <!-- Mobile Sub-sidebar Pill Bar -->
       <div
-        class="flex-shrink-0 border-b border-slate-200 bg-white/95 px-3 py-2.5 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/95 md:hidden"
+        class="flex-shrink-0 border-b border-[#EEF2F6] bg-white px-3 py-2 md:hidden"
       >
         <div
-          class="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-0.5"
+          class="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth"
         >
           {% for key,values in sub_sidebar.1.items %}
           <a
             href="{{ values.url }}"
-            class="flex items-center gap-1.5 whitespace-nowrap rounded-xl px-3.5 py-2 text-xs font-semibold transition {% if values.active %}bg-primary text-white shadow-sm{% else %}bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300{% endif %}"
+            class="flex items-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-1.5 text-xs font-semibold transition {% if values.active %}bg-[#5850EC] text-white shadow-xs{% else %}bg-slate-100 text-slate-600 hover:bg-slate-200{% endif %}"
           >
-            <span class="material-icons-outlined text-[15px]">{{ values.icon }}</span>
+            <span class="material-icons-outlined text-sm">{{ values.icon }}</span>
             <span>{{ values.name }}</span>
           </a>
           {% endfor %}
@@ -425,56 +461,51 @@
 
       <div
         id="scrollable"
-        class="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-3 sm:px-6 md:px-8 py-4 sm:py-6 md:py-8 pb-24 lg:pb-8"
+        class="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-4 sm:px-6 md:px-8 py-5 sm:py-6 md:py-8 pb-24 lg:pb-8"
       >
-      {% include 'dashboard/_partials/messages.html' %}
+        {% include 'dashboard/_partials/messages.html' %}
         {% block content %}{% endblock %}
       </div>
     </main>
 
-
-
     <!-- Reusable Delete Modal -->
     <div
       id="deleteModal"
-      class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4"
+      class="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4"
     >
       <div
-        class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-95 opacity-0"
+        class="bg-white rounded-2xl shadow-xl border border-[#EEF2F6] max-w-md w-full transform transition-all duration-200 scale-95 opacity-0 overflow-hidden"
         id="deleteModalContent"
       >
         <div class="p-6">
           <div
-            class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 dark:bg-red-900/20 rounded-full mb-4"
+            class="flex items-center justify-center w-12 h-12 mx-auto bg-rose-50 text-rose-600 rounded-xl mb-4"
           >
-            <span class="material-icons-outlined text-red-600 dark:text-red-400"
-              >delete</span
-            >
+            <span class="material-icons-outlined text-2xl">delete</span>
           </div>
           <h3
-            class="text-lg font-semibold text-center text-slate-900 dark:text-white mb-2"
+            class="text-base font-bold text-center text-slate-900 mb-1"
             id="deleteModalTitle"
           >
             Delete Item
           </h3>
           <p
-            class="text-sm text-slate-600 dark:text-slate-400 text-center mb-6"
+            class="text-xs text-slate-500 text-center mb-6"
             id="deleteModalMessage"
           >
-            Are you sure you want to delete this item? This action cannot be
-            undone.
+            Are you sure you want to delete this item? This action cannot be undone.
           </p>
-          <div class="flex gap-3">
+          <div class="flex gap-2.5">
             <button
               type="button"
-              class="flex-1 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors"
+              class="flex-1 px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
               onclick="closeDeleteModal()"
             >
               Cancel
             </button>
             <button
               type="button"
-              class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+              class="flex-1 px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs transition-colors"
               id="confirmDeleteBtn"
             >
               Delete
@@ -487,15 +518,14 @@
     <!-- Reusable Right Side Details Overlay -->
     <div
       id="detailsOverlay"
-      class="fixed inset-y-0 right-0 w-96 bg-white dark:bg-slate-800 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out border-l border-slate-200 dark:border-slate-700"
+      class="fixed inset-y-0 right-0 w-96 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out border-l border-[#EEF2F6]"
     >
       <div class="h-full flex flex-col">
-        <!-- Header -->
         <div
-          class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between"
+          class="px-6 py-4 border-b border-[#EEF2F6] flex items-center justify-between"
         >
           <h3
-            class="text-lg font-semibold text-slate-900 dark:text-white"
+            class="text-base font-bold text-slate-900"
             id="detailsOverlayTitle"
           >
             Details
@@ -503,36 +533,24 @@
           <button
             type="button"
             onclick="closeDetailsOverlay()"
-            class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            class="p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
           >
-            <span
-              class="material-icons-outlined text-slate-500 dark:text-slate-400"
-              >close</span
-            >
+            <span class="material-icons-outlined text-slate-400">close</span>
           </button>
         </div>
-
-        <!-- Content -->
         <div
           class="flex-1 overflow-y-auto custom-scrollbar px-6 py-4"
           id="detailsOverlayContent"
-        >
-          <!-- Content will be loaded here -->
-        </div>
-
-        <!-- Footer -->
-        <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
-          <div class="flex gap-3" id="detailsOverlayActions">
-            <!-- Action buttons will be loaded here -->
-          </div>
+        ></div>
+        <div class="px-6 py-4 border-t border-[#EEF2F6]">
+          <div class="flex gap-2" id="detailsOverlayActions"></div>
         </div>
       </div>
     </div>
 
-    <!-- Overlay Backdrop -->
     <div
       id="detailsOverlayBackdrop"
-      class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"
+      class="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 hidden"
       onclick="closeDetailsOverlay()"
     ></div>
 
@@ -547,13 +565,11 @@
         titleEl.textContent = title || "Delete Item";
         messageEl.textContent =
           message ||
-          "Are you sure you want to delete this item? This action cannot be undone.";
+"Are you sure you want to delete this item? This action cannot be undone.";
 
-        // Remove existing event listeners
         const newConfirmBtn = confirmBtn.cloneNode(true);
         confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
 
-        // Add new event listener
         newConfirmBtn.addEventListener("click", function () {
           if (confirmCallback) confirmCallback();
           closeDeleteModal();
@@ -577,130 +593,6 @@
           modal.classList.add("hidden");
         }, 300);
       }
-
-      // Close modal when clicking outside
-      document
-        .getElementById("deleteModal")
-        .addEventListener("click", function (e) {
-          if (e.target === this) {
-            closeDeleteModal();
-          }
-        });
-
-      // Details Overlay functions
-      function openDetailsOverlay(title, content, actions = []) {
-        const overlay = document.getElementById("detailsOverlay");
-        const backdrop = document.getElementById("detailsOverlayBackdrop");
-        const titleEl = document.getElementById("detailsOverlayTitle");
-        const contentEl = document.getElementById("detailsOverlayContent");
-        const actionsEl = document.getElementById("detailsOverlayActions");
-
-        // Set title and content
-        titleEl.textContent = title || "Details";
-        contentEl.innerHTML = content;
-
-        // Clear existing actions and add new ones
-        actionsEl.innerHTML = "";
-        actions.forEach((action) => {
-          const button = document.createElement("button");
-          button.type = "button";
-          button.className =
-            action.className ||
-            "px-4 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors";
-          button.textContent = action.label;
-          if (action.callback) {
-            button.addEventListener("click", action.callback);
-          }
-          actionsEl.appendChild(button);
-        });
-
-        // Show overlay
-        backdrop.classList.remove("hidden");
-        overlay.classList.remove("translate-x-full");
-      }
-
-      function closeDetailsOverlay() {
-        const overlay = document.getElementById("detailsOverlay");
-        const backdrop = document.getElementById("detailsOverlayBackdrop");
-
-        overlay.classList.add("translate-x-full");
-        setTimeout(() => {
-          backdrop.classList.add("hidden");
-        }, 300);
-      }
-
-      // Function to load details from server
-      function loadDetails(url) {
-        const contentEl = document.getElementById("detailsOverlayContent");
-        const actionsEl = document.getElementById("detailsOverlayActions");
-
-        // Show loading state
-        contentEl.innerHTML = `
-          <div class="flex items-center justify-center h-32">
-            <span class="material-icons-outlined text-slate-400 animate-spin">refresh</span>
-            <span class="ml-2 text-slate-500">Loading details...</span>
-          </div>
-        `;
-        actionsEl.innerHTML = "";
-
-        // Open overlay
-        document
-          .getElementById("detailsOverlayBackdrop")
-          .classList.remove("hidden");
-        document
-          .getElementById("detailsOverlay")
-          .classList.remove("translate-x-full");
-
-        // Fetch details
-        fetch(url)
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.text();
-          })
-          .then((html) => {
-            contentEl.innerHTML = html;
-          })
-          .catch((error) => {
-            console.error("Error loading details:", error);
-            contentEl.innerHTML = `
-              <div class="flex flex-col items-center justify-center h-32 text-center">
-                <span class="material-icons-outlined text-red-400">error</span>
-                <span class="ml-2 text-red-500">Failed to load details</span>
-                <button
-                  class="mt-2 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
-                  onclick="closeDetailsOverlay()"
-                >
-                  Close
-                </button>
-              </div>
-            `;
-          });
-      }
-    </script>
-
-    <script>
-      (function () {
-        const startedAt = Date.now();
-        const send = () => {
-          const payload = JSON.stringify({
-            path: window.location.pathname,
-            title: document.title,
-            duration_ms: Date.now() - startedAt,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
-            language: navigator.language || "",
-            visibility_state: document.visibilityState || "",
-            screen: { width: window.innerWidth, height: window.innerHeight },
-          });
-          if (navigator.sendBeacon) {
-            navigator.sendBeacon("{% url 'monitoring:beacon' %}", new Blob([payload], { type: "application/json" }));
-            return;
-          }
-          fetch("{% url 'monitoring:beacon' %}", { method: "POST", headers: { "Content-Type": "application/json" }, body: payload, keepalive: true }).catch(() => {});
-        };
-        window.addEventListener("pagehide", send, { once: true });
-      }());
     </script>
 
     <script>
@@ -719,7 +611,7 @@
           search.type = "search";
           search.placeholder = select.getAttribute("data-search-placeholder") || "Search options...";
           search.className =
-            "mb-2 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-transparent focus:ring-2 focus:ring-primary dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-500";
+"mb-2 block w-full rounded-xl border border-[#EEF2F6] bg-white px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:border-[#5850EC] focus:ring-2 focus:ring-[#5850EC]/20";
 
           select.parentNode.insertBefore(search, select);
           select.dataset.searchableBound = "true";
@@ -728,12 +620,8 @@
             const normalizedQuery = (query || "").trim().toLowerCase();
             const currentValue = select.value;
             const filtered = originalOptions.filter((option) => {
-              if (!normalizedQuery) {
-                return true;
-              }
-              if (!option.value) {
-                return true;
-              }
+              if (!normalizedQuery) return true;
+              if (!option.value) return true;
               return option.label.toLowerCase().includes(normalizedQuery);
             });
 
@@ -770,11 +658,11 @@
 
     {% block js %} {% endblock %}
 
-    <!-- Mobile Bottom Navigation Bar (Thumb Navigation) -->
-    <nav class="fixed inset-x-0 bottom-0 z-40 flex h-16 items-center justify-around border-t border-slate-200/90 bg-white/95 px-1 backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/95 lg:hidden safe-area-bottom shadow-lg">
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="fixed inset-x-0 bottom-0 z-40 flex h-16 items-center justify-around border-t border-[#EEF2F6] bg-white/95 px-1 backdrop-blur-lg lg:hidden safe-area-bottom shadow-lg">
       <a
         href="{% if prefix %}{% url 'dashboard:dashboard_home:home' prefix %}{% else %}/dashboard/admin/{% endif %}"
-        class="flex flex-1 flex-col items-center justify-center py-1 text-center transition {% if '/dashboard/admin/' == request.path or request.path == '/dashboard/admin' or request.path == '/dashboard/' %}text-primary font-bold{% else %}text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white{% endif %}"
+        class="flex flex-1 flex-col items-center justify-center py-1 text-center transition {% if '/dashboard/admin/' == request.path or request.path == '/dashboard/admin' or request.path == '/dashboard/' %}text-[#5850EC] font-bold{% else %}text-slate-400 hover:text-slate-900{% endif %}"
       >
         <span class="material-icons-outlined text-xl leading-none">dashboard</span>
         <span class="mt-1 text-[10px] tracking-tight">Home</span>
@@ -782,7 +670,7 @@
 
       <a
         href="{% if prefix %}{% url 'dashboard:product_settings:product_list' prefix %}{% else %}/dashboard/admin/products/{% endif %}"
-        class="flex flex-1 flex-col items-center justify-center py-1 text-center transition {% if '/products' in request.path or '/category' in request.path %}text-primary font-bold{% else %}text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white{% endif %}"
+        class="flex flex-1 flex-col items-center justify-center py-1 text-center transition {% if '/products' in request.path or '/category' in request.path %}text-[#5850EC] font-bold{% else %}text-slate-400 hover:text-slate-900{% endif %}"
       >
         <span class="material-icons-outlined text-xl leading-none">inventory_2</span>
         <span class="mt-1 text-[10px] tracking-tight">Products</span>
@@ -791,7 +679,7 @@
       {% if feature_access_map.max_pos_locations and feature_access_map.max_pos_locations.active %}
       <a
         href="{% if prefix %}{% url 'dashboard:pos:dashboard' prefix %}{% else %}/dashboard/admin/pos/{% endif %}"
-        class="flex flex-1 flex-col items-center justify-center py-1 text-center transition {% if '/pos' in request.path %}text-primary font-bold{% else %}text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white{% endif %}"
+        class="flex flex-1 flex-col items-center justify-center py-1 text-center transition {% if '/pos' in request.path %}text-[#5850EC] font-bold{% else %}text-slate-400 hover:text-slate-900{% endif %}"
       >
         <span class="material-icons-outlined text-xl leading-none">point_of_sale</span>
         <span class="mt-1 text-[10px] tracking-tight">POS</span>
@@ -800,7 +688,7 @@
 
       <a
         href="{% if prefix %}{% url 'dashboard:store_settings:manage_theme_settings' prefix %}{% else %}/dashboard/admin/theme_settings/{% endif %}"
-        class="flex flex-1 flex-col items-center justify-center py-1 text-center transition {% if '/theme_settings' in request.path or '/settings' in request.path %}text-primary font-bold{% else %}text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white{% endif %}"
+        class="flex flex-1 flex-col items-center justify-center py-1 text-center transition {% if '/theme_settings' in request.path or '/settings' in request.path %}text-[#5850EC] font-bold{% else %}text-slate-400 hover:text-slate-900{% endif %}"
       >
         <span class="material-icons-outlined text-xl leading-none">tune</span>
         <span class="mt-1 text-[10px] tracking-tight">Settings</span>
@@ -808,7 +696,7 @@
 
       <a
         href="{% if prefix %}{% url 'dashboard:payments_tenant:tenant_home' prefix %}{% else %}/dashboard/admin/payments/{% endif %}"
-        class="flex flex-1 flex-col items-center justify-center py-1 text-center transition {% if '/payments' in request.path %}text-primary font-bold{% else %}text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white{% endif %}"
+        class="flex flex-1 flex-col items-center justify-center py-1 text-center transition {% if '/payments' in request.path %}text-[#5850EC] font-bold{% else %}text-slate-400 hover:text-slate-900{% endif %}"
       >
         <span class="material-icons-outlined text-xl leading-none">payments</span>
         <span class="mt-1 text-[10px] tracking-tight">Payments</span>

@@ -1,13 +1,13 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% block content %}
-<section class="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
+<section class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
   <h1 class="text-3xl font-semibold text-slate-900">Marketplace Purchases</h1>
   <div class="mt-6 overflow-x-auto">
-    <table class="min-w-full divide-y divide-slate-200 text-sm">
+    <table class="min-w-full divide-y divide-[#EEF2F6] text-sm">
       <thead class="bg-slate-50">
         <tr><th class="px-4 py-3 text-left">Reference</th><th class="px-4 py-3 text-left">Item</th><th class="px-4 py-3 text-left">Status</th><th class="px-4 py-3 text-left">Amount</th></tr>
       </thead>
-      <tbody class="divide-y divide-slate-200">
+      <tbody class="divide-y divide-[#EEF2F6]">
         {% for purchase in purchases %}
         <tr>
           <td class="px-4 py-3">{{ purchase.purchase_reference }}</td>

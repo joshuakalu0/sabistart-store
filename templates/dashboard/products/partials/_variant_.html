@@ -1,10 +1,10 @@
-{% load static %}
+﻿{% load static %}
 
 <!-- Attributes & Variants Section -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 section-card w-full max-w-full min-w-0 overflow-hidden" id="attributesVariantsSection">
+<div class="bg-white rounded-xl shadow-sm border border-[#EEF2F6] section-card w-full max-w-full min-w-0 overflow-hidden" id="attributesVariantsSection">
     <div class="p-4 sm:p-6">
         <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <svg class="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 mr-2 text-[#5850EC]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
             </svg>
             Attributes & Variants
@@ -50,7 +50,7 @@
             </div>
 
             <!-- Info Box -->
-            <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div class="mb-4 p-3 bg-indigo-50 border border-blue-200 rounded-lg">
                 <p class="text-sm text-blue-700 flex items-start">
                     <svg class="w-4 h-4 inline mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -64,7 +64,7 @@
                 {% if is_edit and product.attribute_values.all %}
                     {% for attr_value in product.attribute_values.all %}
                         {% if attr_value.attribute.is_variant_option %}
-                            <div class="border border-gray-200 rounded-lg p-4 animate-fade-in" data-attribute-id="{{ attr_value.attribute.id }}">
+                            <div class="border border-[#EEF2F6] rounded-lg p-4 animate-fade-in" data-attribute-id="{{ attr_value.attribute.id }}">
                                 <div class="flex items-center justify-between mb-3">
                                     <div class="flex items-center space-x-3">
                                         <h4 class="font-medium text-gray-900">{{ attr_value.attribute.name }}</h4>
@@ -89,7 +89,7 @@
                                                     <input type="{% if attr_value.attribute.attribute_type == 'multiselect' %}checkbox{% else %}radio{% endif %}"
                                                            name="attribute_{{ attr_value.attribute.id }}[]"
                                                            value="{{ available_value.id }}"
-                                                           class="form-checkbox h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                                                           class="form-checkbox h-4 w-4 text-[#5850EC] border-gray-300 rounded focus:ring-primary-500"
                                                            {% if attr_value.value_option_id == available_value.id %}checked{% endif %}
                                                            onchange="updateAttributeValues()">
                                                     <span class="ml-2 text-sm text-gray-700">{{ available_value.value }}</span>
@@ -103,14 +103,14 @@
                                         <div class="flex items-center space-x-4">
                                             <label class="inline-flex items-center">
                                                 <input type="radio" name="attribute_{{ attr_value.attribute.id }}" value="true"
-                                                       class="form-radio h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500"
+                                                       class="form-radio h-4 w-4 text-[#5850EC] border-gray-300 focus:ring-primary-500"
                                                        {% if attr_value.value_boolean %}checked{% endif %}
                                                        onchange="updateAttributeValues()">
                                                 <span class="ml-2 text-sm text-gray-700">Yes</span>
                                             </label>
                                             <label class="inline-flex items-center">
                                                 <input type="radio" name="attribute_{{ attr_value.attribute.id }}" value="false"
-                                                       class="form-radio h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500"
+                                                       class="form-radio h-4 w-4 text-[#5850EC] border-gray-300 focus:ring-primary-500"
                                                        {% if not attr_value.value_boolean %}checked{% endif %}
                                                        onchange="updateAttributeValues()">
                                                 <span class="ml-2 text-sm text-gray-700">No</span>
@@ -124,7 +124,7 @@
                                                            class="sr-only"
                                                            {% if attr_value.value_option_id == available_value.id %}checked{% endif %}
                                                            onchange="updateAttributeValues()">
-                                                    <div class="w-10 h-10 rounded-full border-2 {% if attr_value.value_option_id == available_value.id %}border-primary-600{% else %}border-gray-300{% endif %}"
+                                                    <div class="w-10 h-10 rounded-full border-2 {% if attr_value.value_option_id == available_value.id %}border-[#5850EC]{% else %}border-gray-300{% endif %}"
                                                          style="background-color: {{ available_value.color_hex|default:'#000000' }}"></div>
                                                 </label>
                                             {% endfor %}
@@ -177,7 +177,7 @@
 
         <!-- Generate Variants Button -->
         <div class="mb-4" id="generateVariantsSection" style="display: none;">
-            <button type="button" onclick="generateVariants()" class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
+            <button type="button" onclick="generateVariants()" class="w-full py-3 bg-[#5850EC] text-white rounded-lg hover:bg-[#4F46E5] transition-colors flex items-center justify-center space-x-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                 </svg>
@@ -200,12 +200,12 @@
                 </div>
             </div>
 
-            <div class="overflow-x-auto w-full max-w-full rounded-xl border border-gray-200">
-                <table class="min-w-full divide-y divide-gray-200">
+            <div class="overflow-x-auto w-full max-w-full rounded-xl border border-[#EEF2F6]">
+                <table class="min-w-full divide-y divide-[#EEF2F6]">
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-8">
-                                <input type="checkbox" id="selectAllVariants" class="rounded border-gray-300 text-primary-600 shadow-sm focus:border-primary-500 focus:ring-primary-500" onchange="toggleSelectAllVariants()">
+                                <input type="checkbox" id="selectAllVariants" class="rounded border-gray-300 text-[#5850EC] shadow-sm focus:border-primary-500 focus:ring-primary-500" onchange="toggleSelectAllVariants()">
                             </th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variant</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
@@ -217,14 +217,14 @@
                             <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="variantsTableBody" class="bg-white divide-y divide-gray-200">
+                    <tbody id="variantsTableBody" class="bg-white divide-y divide-[#EEF2F6]">
                         {% if is_edit and form.variant_formset %}
                             {{ form.variant_formset.management_form }}
                             {% for variant_form in form.variant_formset %}
                                 {% if variant_form.instance.pk %}
                                     <tr class="variant-row" data-variant-id="{{ variant_form.instance.id }}">
                                         <td class="px-4 py-3">
-                                            <input type="checkbox" name="variant_select" value="{{ variant_form.instance.id }}" class="variant-checkbox rounded border-gray-300 text-primary-600 shadow-sm focus:border-primary-500 focus:ring-primary-500" onchange="updateVariantSelection()">
+                                            <input type="checkbox" name="variant_select" value="{{ variant_form.instance.id }}" class="variant-checkbox rounded border-gray-300 text-[#5850EC] shadow-sm focus:border-primary-500 focus:ring-primary-500" onchange="updateVariantSelection()">
                                         </td>
                                         <td class="px-4 py-3">
                                             <div class="flex flex-wrap gap-1">
@@ -272,12 +272,12 @@
                                         <td class="px-4 py-3">
                                             <label class="relative inline-flex items-center cursor-pointer">
                                                 {{ variant_form.is_active }}
-                                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#5850EC]"></div>
                                             </label>
                                         </td>
                                         <td class="px-4 py-3 text-right">
                                             <div class="flex items-center justify-end space-x-2">
-                                                <button type="button" onclick="editVariant('{{ variant_form.instance.id }}')" class="p-2 text-gray-400 hover:text-primary-600 transition-colors" title="Edit">
+                                                <button type="button" onclick="editVariant('{{ variant_form.instance.id }}')" class="p-2 text-gray-400 hover:text-[#5850EC] transition-colors" title="Edit">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                     </svg>
@@ -318,7 +318,7 @@
 
         <!-- Existing Variants (for edit mode) -->
         {% if is_edit and product.variants.exists %}
-            <div class="mt-6 pt-6 border-t border-gray-200">
+            <div class="mt-6 pt-6 border-t border-[#EEF2F6]">
                 <h3 class="text-md font-semibold text-gray-900 mb-4">Existing Variants</h3>
                 <div class="space-y-3">
                     {% for variant in product.variants.all %}
@@ -338,7 +338,7 @@
                                 <span class="px-2 py-1 {% if variant.is_active %}bg-green-100 text-green-700{% else %}bg-gray-100 text-gray-700{% endif %} text-xs rounded">
                                     {% if variant.is_active %}Active{% else %}Inactive{% endif %}
                                 </span>
-                                <a href="{ url 'variant_edit' variant.id %}" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                                <a href="{ url 'variant_edit' variant.id %}" class="px-3 py-1.5 bg-[#5850EC] text-white rounded-lg hover:bg-[#4F46E5] transition-colors text-sm">
                                     Edit
                                 </a>
                             </div>
@@ -368,7 +368,7 @@
             <button type="button" onclick="closeVariantModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm">
                 Cancel
             </button>
-            <button type="button" onclick="saveVariantEdit()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+            <button type="button" onclick="saveVariantEdit()" class="px-4 py-2 bg-[#5850EC] text-white rounded-lg hover:bg-[#4F46E5] transition-colors text-sm">
                 Save Changes
             </button>
         </div>
@@ -387,7 +387,7 @@
                 <button type="button" onclick="closeBulkEditModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm">
                     Cancel
                 </button>
-                <button type="button" onclick="applyBulkEdit()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                <button type="button" onclick="applyBulkEdit()" class="px-4 py-2 bg-[#5850EC] text-white rounded-lg hover:bg-[#4F46E5] transition-colors text-sm">
                     Apply
                 </button>
             </div>
@@ -549,7 +549,7 @@
                 }).catch(error=>console.log(error));
 
             return `
-                <div class="border border-gray-200 rounded-lg p-4 animate-fade-in" data-attribute-id="${attr.id}">
+                <div class="border border-[#EEF2F6] rounded-lg p-4 animate-fade-in" data-attribute-id="${attr.id}">
                     <div class="flex items-center justify-between mb-3">
                         <div class="flex items-center space-x-3">
                             <h4 class="font-medium text-gray-900">${attr.name}</h4>
@@ -583,7 +583,7 @@
                         ${values.map(v => `
                             <label class="inline-flex items-center">
                                 <input type="radio" name="attribute_${attr.id}" value="${v.id}"
-                                       class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                       class="form-radio h-4 w-4 text-[#5850EC] border-gray-300 focus:ring-blue-500"
                                        onchange="updateAttributeValues()">
                                 <span class="ml-2 text-sm text-gray-700">${v.value}</span>
                                 ${v.color_hex ? `<span class="ml-1 w-4 h-4 rounded-full border border-gray-300" style="background-color: ${v.color_hex}"></span>` : ''}
@@ -598,7 +598,7 @@
                         ${values.map(v => `
                             <label class="inline-flex items-center">
                                 <input type="checkbox" name="attribute_${attr.id}[]" value="${v.id}"
-                                       class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                       class="form-checkbox h-4 w-4 text-[#5850EC] border-gray-300 rounded focus:ring-blue-500"
                                        onchange="updateAttributeValues()">
                                 <span class="ml-2 text-sm text-gray-700">${v.value}</span>
                                 ${v.color_hex ? `<span class="ml-1 w-4 h-4 rounded-full border border-gray-300" style="background-color: ${v.color_hex}"></span>` : ''}
@@ -612,13 +612,13 @@
                     <div class="flex items-center space-x-4">
                         <label class="inline-flex items-center">
                             <input type="radio" name="attribute_${attr.id}" value="true"
-                                   class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                   class="form-radio h-4 w-4 text-[#5850EC] border-gray-300 focus:ring-blue-500"
                                    onchange="updateAttributeValues()">
                             <span class="ml-2 text-sm text-gray-700">Yes</span>
                         </label>
                         <label class="inline-flex items-center">
                             <input type="radio" name="attribute_${attr.id}" value="false"
-                                   class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                   class="form-radio h-4 w-4 text-[#5850EC] border-gray-300 focus:ring-blue-500"
                                    onchange="updateAttributeValues()">
                             <span class="ml-2 text-sm text-gray-700">No</span>
                         </label>
@@ -808,7 +808,7 @@
             <tr class="variant-row" data-variant-id="${variant.id}">
                 <td class="px-4 py-3">
                     <input type="checkbox" name="variant_select" value="${variant.id}"
-                           class="variant-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                           class="variant-checkbox rounded border-gray-300 text-[#5850EC] shadow-sm focus:border-blue-500 focus:ring-blue-500"
                            onchange="updateVariantSelection()">
                 </td>
                 <td class="px-4 py-3">
@@ -860,12 +860,12 @@
                         <input type="checkbox" ${variant.is_active ? 'checked' : ''}
                                onchange="updateVariant(${index}, 'is_active', this.checked)"
                                class="sr-only peer">
-                        <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                        <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#5850EC]"></div>
                     </label>
                 </td>
                 <td class="px-4 py-3 text-right">
                     <div class="flex items-center justify-end space-x-2">
-                        <button type="button" onclick="editVariant('${variant.id}')" class="p-2 text-gray-400 hover:text-blue-600 transition-colors" title="Edit">
+                        <button type="button" onclick="editVariant('${variant.id}')" class="p-2 text-gray-400 hover:text-[#5850EC] transition-colors" title="Edit">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                             </svg>
@@ -945,7 +945,7 @@
             </div>
             <div class="mt-4">
                 <label class="flex items-center">
-                    <input type="checkbox" id="editVariantActive" ${variant.is_active ? 'checked' : ''} class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <input type="checkbox" id="editVariantActive" ${variant.is_active ? 'checked' : ''} class="rounded border-gray-300 text-[#5850EC] shadow-sm focus:border-blue-500 focus:ring-blue-500">
                     <span class="ml-2 text-sm text-gray-700">Active</span>
                 </label>
             </div>
@@ -1014,7 +1014,7 @@
                 </div>
                 <div class="mt-4">
                     <label class="flex items-center">
-                        <input type="checkbox" id="bulkPriceAdjust" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <input type="checkbox" id="bulkPriceAdjust" class="rounded border-gray-300 text-[#5850EC] shadow-sm focus:border-blue-500 focus:ring-blue-500">
                         <span class="ml-2 text-sm text-gray-700">Adjust existing price (check to add/subtract, uncheck to replace)</span>
                     </label>
                 </div>
@@ -1028,7 +1028,7 @@
                 </div>
                 <div class="mt-4">
                     <label class="flex items-center">
-                        <input type="checkbox" id="bulkStockAdjust" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <input type="checkbox" id="bulkStockAdjust" class="rounded border-gray-300 text-[#5850EC] shadow-sm focus:border-blue-500 focus:ring-blue-500">
                         <span class="ml-2 text-sm text-gray-700">Adjust existing stock (check to add/subtract, uncheck to replace)</span>
                     </label>
                 </div>

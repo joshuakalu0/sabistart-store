@@ -1,4 +1,4 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% load static %}
 
 {% block title %}{{ title }}{% endblock %}
@@ -18,13 +18,13 @@
 <!-- Page Header -->
 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
   <div>
-    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Social Media Links</h2>
-    <p class="text-sm text-slate-600 dark:text-slate-400">Configure connected social channels, WhatsApp integration, and share button styling</p>
+    <h2 class="text-xl font-bold text-slate-900">Social Media Links</h2>
+    <p class="text-sm text-slate-600">Configure connected social channels, WhatsApp integration, and share button styling</p>
   </div>
   <div class="flex items-center gap-2">
     <a
       href="{% if prefix %}{% url 'dashboard:store_settings:manage_store_settings' prefix %}{% else %}/dashboard/admin/settings/{% endif %}"
-      class="inline-flex items-center justify-center gap-1.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-sm font-medium"
+      class="inline-flex items-center justify-center gap-1.5 bg-slate-200 text-slate-800 px-4 py-2.5 rounded-xl hover:bg-slate-300 transition-colors text-sm font-medium"
     >
       <span class="material-icons-outlined text-sm">settings</span>
       <span>Store Settings</span>
@@ -33,21 +33,21 @@
 </div>
 
 <!-- Tab Navigation Pill Bar -->
-<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-2 shadow-sm mb-6">
+<div class="bg-white rounded-xl border border-[#EEF2F6] p-2 shadow-sm mb-6">
   <div class="flex gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar scroll-smooth flex-nowrap">
     <button type="button" class="tab-link active flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all bg-primary text-white shadow-sm" data-tab="social">
       <span class="material-icons-outlined text-base">share</span>
       <span>Social Profiles</span>
     </button>
-    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="sharing">
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 hover:bg-slate-100" data-tab="sharing">
       <span class="material-icons-outlined text-base">share_reviews</span>
       <span>Sharing</span>
     </button>
-    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="instagram">
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 hover:bg-slate-100" data-tab="instagram">
       <span class="material-icons-outlined text-base">photo_camera</span>
       <span>Instagram</span>
     </button>
-    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700" data-tab="visual">
+    <button type="button" class="tab-link flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold text-xs sm:text-sm whitespace-nowrap transition-all text-slate-600 hover:bg-slate-100" data-tab="visual">
       <span class="material-icons-outlined text-base">palette</span>
       <span>Visual Style</span>
     </button>
@@ -58,8 +58,8 @@
 
         <!-- ==================== SOCIAL PROFILES TAB ==================== -->
         <section class="settings-section active" id="social-section">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="px-8 py-6 border-b border-slate-200">
+            <div class="bg-white rounded-2xl shadow-sm border border-[#EEF2F6] overflow-hidden">
+                <div class="px-8 py-6 border-b border-[#EEF2F6]">
                     <h2 class="text-lg font-bold text-slate-900 font-manrope">Social Media Profiles</h2>
                     <p class="text-sm text-slate-500 mt-1">Connect your store's social media accounts</p>
                 </div>
@@ -83,8 +83,8 @@
             </div>
 
             <!-- WhatsApp Section -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mt-8">
-                <div class="px-8 py-6 border-b border-slate-200">
+            <div class="bg-white rounded-2xl shadow-sm border border-[#EEF2F6] overflow-hidden mt-8">
+                <div class="px-8 py-6 border-b border-[#EEF2F6]">
                     <h2 class="text-lg font-bold text-slate-900 font-manrope">WhatsApp Business</h2>
                     <p class="text-sm text-slate-500 mt-1">Enable customer communication via WhatsApp</p>
                 </div>
@@ -92,7 +92,7 @@
                     <div class="max-w-md">
                         <label class="block text-sm font-semibold text-slate-700 mb-2" for="{{ whatsapp_field.id_for_label }}">{{ whatsapp_field.label }}</label>
                         <div class="flex items-center gap-3">
-                            <div class="flex-shrink-0 bg-slate-100 border border-slate-200 py-2.5 px-4 text-slate-700 font-semibold rounded-xl">+</div>
+                            <div class="flex-shrink-0 bg-slate-100 border border-[#EEF2F6] py-2.5 px-4 text-slate-700 font-semibold rounded-xl">+</div>
                             {{ whatsapp_field }}
                         </div>
                         {% if whatsapp_field.errors %}
@@ -108,14 +108,14 @@
 
         <!-- ==================== SHARING TAB ==================== -->
         <section class="settings-section" id="sharing-section">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="px-8 py-6 border-b border-slate-200">
+            <div class="bg-white rounded-2xl shadow-sm border border-[#EEF2F6] overflow-hidden">
+                <div class="px-8 py-6 border-b border-[#EEF2F6]">
                     <h2 class="text-lg font-bold text-slate-900 font-manrope">Product Sharing</h2>
                     <p class="text-sm text-slate-500 mt-1">Configure social sharing for your products</p>
                 </div>
                 <div class="p-8 space-y-8">
                     <!-- Enable Product Sharing Toggle -->
-                    <div class="flex items-center justify-between p-5 bg-slate-50 rounded-xl border border-slate-200">
+                    <div class="flex items-center justify-between p-5 bg-slate-50 rounded-xl border border-[#EEF2F6]">
                         <div>
                             <h4 class="font-bold font-manrope text-slate-900">Enable Product Sharing</h4>
                             <p class="text-sm text-slate-500 mt-0.5">Allow users to share products on social media</p>
@@ -247,7 +247,7 @@
                     </div>
 
                     <!-- Facebook App ID -->
-                    <div class="max-w-md pt-6 border-t border-slate-200">
+                    <div class="max-w-md pt-6 border-t border-[#EEF2F6]">
                         <label class="block text-sm font-semibold text-slate-700 mb-2" for="{{ sharing_fields.facebook_app_id.id_for_label }}">Facebook App ID</label>
                         {{ sharing_fields.facebook_app_id }}
                         {% if sharing_fields.facebook_app_id.errors %}
@@ -263,8 +263,8 @@
 
         <!-- ==================== INSTAGRAM TAB ==================== -->
         <section class="settings-section" id="instagram-section">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="px-8 py-6 border-b border-slate-200 flex items-center justify-between">
+            <div class="bg-white rounded-2xl shadow-sm border border-[#EEF2F6] overflow-hidden">
+                <div class="px-8 py-6 border-b border-[#EEF2F6] flex items-center justify-between">
                     <div>
                         <h2 class="text-lg font-bold text-slate-900 font-manrope">Instagram Feed</h2>
                         <p class="text-sm text-slate-500 mt-1">Display your Instagram content on the storefront</p>
@@ -288,7 +288,7 @@
                         <label class="block text-sm font-semibold text-slate-700 mb-2" for="{{ instagram_fields.instagram_access_token.id_for_label }}">Instagram Access Token</label>
                         <div class="flex gap-3">
                             {{ instagram_fields.instagram_access_token }}
-                            <button type="button" class="px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors" onclick="alert('In production, this would open Instagram OAuth flow')">
+                            <button type="button" class="px-4 py-2 text-xs font-bold text-[#5850EC] bg-indigo-50 hover:bg-blue-100 rounded-xl transition-colors" onclick="alert('In production, this would open Instagram OAuth flow')">
                                 <span class="material-symbols-outlined text-sm align-middle mr-1">refresh</span>
                                 Refresh
                             </button>
@@ -304,7 +304,7 @@
                     <div>
                         <div class="flex justify-between items-center mb-4">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Feed Item Count</label>
-                            <span class="text-sm font-bold text-blue-600 font-manrope" id="feed-count-display">{{ instagram_fields.instagram_feed_count.value|default:8 }} Items</span>
+                            <span class="text-sm font-bold text-[#5850EC] font-manrope" id="feed-count-display">{{ instagram_fields.instagram_feed_count.value|default:8 }} Items</span>
                         </div>
                         {{ instagram_fields.instagram_feed_count }}
                         <div class="flex justify-between text-xs text-slate-500 font-bold mt-2">
@@ -313,9 +313,9 @@
                     </div>
 
                     <!-- Feed Preview -->
-                    <div class="pt-6 border-t border-slate-200">
+                    <div class="pt-6 border-t border-[#EEF2F6]">
                         <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Feed Preview</h4>
-                        <div class="grid grid-cols-4 gap-2 aspect-video overflow-hidden rounded-xl border border-slate-200">
+                        <div class="grid grid-cols-4 gap-2 aspect-video overflow-hidden rounded-xl border border-[#EEF2F6]">
                             {% for i in "12345678" %}
                             <div class="bg-slate-100">
                                 <img class="w-full h-full object-cover" src="https://picsum.photos/300/300?random={{ forloop.counter }}" alt="Preview"/>
@@ -329,8 +329,8 @@
 
         <!-- ==================== VISUAL STYLE TAB ==================== -->
         <section class="settings-section" id="visual-section">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="px-8 py-6 border-b border-slate-200">
+            <div class="bg-white rounded-2xl shadow-sm border border-[#EEF2F6] overflow-hidden">
+                <div class="px-8 py-6 border-b border-[#EEF2F6]">
                     <h2 class="text-lg font-bold text-slate-900 font-manrope">Visual Preferences</h2>
                     <p class="text-sm text-slate-500 mt-1">Customize how social icons appear</p>
                 </div>
@@ -339,7 +339,7 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Icon Style</label>
                         <div class="grid grid-cols-2 gap-3">
-                            <button type="button" class="icon-style-btn selected py-3 px-4 rounded-xl bg-blue-50 border-2 border-blue-500 text-blue-700 text-sm font-bold flex flex-col items-center gap-2" data-style="filled">
+                            <button type="button" class="icon-style-btn selected py-3 px-4 rounded-xl bg-indigo-50 border-2 border-blue-500 text-blue-700 text-sm font-bold flex flex-col items-center gap-2" data-style="filled">
                                 <span class="material-symbols-outlined filled text-xl">square</span>
                                 Filled
                             </button>
@@ -364,26 +364,26 @@
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Icon Size</label>
                         <div class="flex p-1 bg-slate-100 rounded-xl">
                             <button type="button" class="icon-size-btn flex-1 py-2.5 text-xs font-bold text-slate-600" data-size="small">Small</button>
-                            <button type="button" class="icon-size-btn flex-1 py-2.5 bg-white shadow-sm rounded-lg text-xs font-bold text-blue-600" data-size="medium">Medium</button>
+                            <button type="button" class="icon-size-btn flex-1 py-2.5 bg-white shadow-sm rounded-lg text-xs font-bold text-[#5850EC]" data-size="medium">Medium</button>
                             <button type="button" class="icon-size-btn flex-1 py-2.5 text-xs font-bold text-slate-600" data-size="large">Large</button>
                         </div>
                         <input type="hidden" id="icon_size_value" name="icon_size" value="{{ form.icon_size.value|default:'medium' }}"/>
                     </div>
 
                     <!-- Preview -->
-                    <div class="pt-6 border-t border-slate-200">
+                    <div class="pt-6 border-t border-[#EEF2F6]">
                         <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Live Preview</h4>
-                        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-wrap justify-center gap-4" id="icon-preview-container">
-                            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white icon-preview-item">
+                        <div class="bg-slate-50 p-6 rounded-2xl border border-[#EEF2F6] flex flex-wrap justify-center gap-4" id="icon-preview-container">
+                            <div class="w-10 h-10 bg-[#5850EC] rounded-xl flex items-center justify-center text-white icon-preview-item">
                                 <span class="material-symbols-outlined filled">social_leaderboard</span>
                             </div>
-                            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white icon-preview-item">
+                            <div class="w-10 h-10 bg-[#5850EC] rounded-xl flex items-center justify-center text-white icon-preview-item">
                                 <span class="material-symbols-outlined filled">photo_camera</span>
                             </div>
-                            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white icon-preview-item">
+                            <div class="w-10 h-10 bg-[#5850EC] rounded-xl flex items-center justify-center text-white icon-preview-item">
                                 <span class="material-symbols-outlined filled">alternate_email</span>
                             </div>
-                            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white icon-preview-item">
+                            <div class="w-10 h-10 bg-[#5850EC] rounded-xl flex items-center justify-center text-white icon-preview-item">
                                 <span class="material-symbols-outlined filled">play_circle</span>
                             </div>
                         </div>
@@ -391,9 +391,9 @@
                 </div>
             </div>
         <!-- Mobile-friendly sticky bottom save bar -->
-        <div class="sticky bottom-16 sm:bottom-0 z-20 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 px-3 py-2.5 sm:px-4 sm:py-3 sm:rounded-xl sm:border sm:shadow-sm sm:static sm:mt-6">
+        <div class="sticky bottom-16 sm:bottom-0 z-20 bg-white/95 backdrop-blur-md border-t border-[#EEF2F6] px-3 py-2.5 sm:px-4 sm:py-3 sm:rounded-xl sm:border sm:shadow-sm sm:static sm:mt-6">
             <div class="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
-                <button type="reset" class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                <button type="reset" class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 border border-slate-300 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
                     Reset
                 </button>
                 <button type="submit" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-hover active:scale-95 transition-all text-sm font-semibold shadow-sm">
@@ -417,10 +417,10 @@
 
                 tabLinks.forEach(function(t) {
                     t.classList.remove('active', 'bg-primary', 'text-white', 'shadow-sm');
-                    t.classList.add('text-slate-600', 'dark:text-slate-300');
+                    t.classList.add('text-slate-600', '');
                 });
                 this.classList.add('active', 'bg-primary', 'text-white', 'shadow-sm');
-                this.classList.remove('text-slate-600', 'dark:text-slate-300');
+                this.classList.remove('text-slate-600', '');
 
                 sections.forEach(function(section) {
                     section.classList.remove('active');
@@ -461,10 +461,10 @@
         styleButtons.forEach(function(btn) {
             btn.addEventListener('click', function() {
                 styleButtons.forEach(function(b) {
-                    b.classList.remove('selected', 'border-blue-500', 'text-blue-700', 'bg-blue-50');
+                    b.classList.remove('selected', 'border-blue-500', 'text-blue-700', 'bg-indigo-50');
                     b.classList.add('border-transparent', 'text-slate-600');
                 });
-                this.classList.add('selected', 'border-blue-500', 'text-blue-700', 'bg-blue-50');
+                this.classList.add('selected', 'border-blue-500', 'text-blue-700', 'bg-indigo-50');
                 this.classList.remove('border-transparent', 'text-slate-600');
                 styleValue.value = this.getAttribute('data-style');
                 updateIconPreview(this.getAttribute('data-style'));
@@ -478,10 +478,10 @@
         sizeButtons.forEach(function(btn) {
             btn.addEventListener('click', function() {
                 sizeButtons.forEach(function(b) {
-                    b.classList.remove('bg-white', 'shadow-sm', 'rounded-lg', 'text-blue-600');
+                    b.classList.remove('bg-white', 'shadow-sm', 'rounded-lg', 'text-[#5850EC]');
                     b.classList.add('text-slate-600');
                 });
-                this.classList.add('bg-white', 'shadow-sm', 'rounded-lg', 'text-blue-600');
+                this.classList.add('bg-white', 'shadow-sm', 'rounded-lg', 'text-[#5850EC]');
                 this.classList.remove('text-slate-600');
                 sizeValue.value = this.getAttribute('data-size');
                 updateIconSize(this.getAttribute('data-size'));
@@ -495,7 +495,7 @@
 
             items.forEach(function(item) {
                 item.classList.remove('bg-transparent', 'border-2', 'border-blue-600', 'bg-slate-200');
-                item.classList.add('bg-blue-600');
+                item.classList.add('bg-[#5850EC]');
             });
 
             icons.forEach(function(icon) {
@@ -503,13 +503,13 @@
                     icon.classList.add('filled');
                 } else if (style === 'outline') {
                     icon.classList.remove('filled');
-                    icon.parentElement.classList.remove('bg-blue-600');
+                    icon.parentElement.classList.remove('bg-[#5850EC]');
                     icon.parentElement.classList.add('bg-transparent', 'border-2', 'border-blue-600');
                 } else if (style === 'colored') {
                     icon.classList.add('filled');
                 } else if (style === 'mono') {
                     icon.classList.remove('filled');
-                    icon.parentElement.classList.remove('bg-blue-600');
+                    icon.parentElement.classList.remove('bg-[#5850EC]');
                     icon.parentElement.classList.add('bg-slate-200');
                 }
             });

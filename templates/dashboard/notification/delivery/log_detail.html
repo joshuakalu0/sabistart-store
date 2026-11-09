@@ -1,4 +1,4 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% load static %}
 {% load i18n %}
 
@@ -23,7 +23,7 @@
     <!-- Stats -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <!-- Status Card -->
-        <div class="bg-white p-5 rounded-sm border border-slate-200 flex items-center shadow-sm">
+        <div class="bg-white p-5 rounded-sm border border-[#EEF2F6] flex items-center shadow-sm">
             <div class="w-12 h-12 rounded-full mr-4 flex justify-center items-center
                 {% if log.status == 'delivered' %}bg-emerald-100 text-emerald-500
                 {% elif log.status == 'failed' or log.status == 'bounced' %}bg-rose-100 text-rose-500
@@ -42,12 +42,12 @@
             </div>
         </div>
         <!-- Recipient Card -->
-        <div class="bg-white p-5 rounded-sm border border-slate-200 shadow-sm md:col-span-2 flex flex-col justify-center">
+        <div class="bg-white p-5 rounded-sm border border-[#EEF2F6] shadow-sm md:col-span-2 flex flex-col justify-center">
             <p class="text-sm font-semibold text-slate-400 uppercase mb-1">Recipient</p>
             <h2 class="text-lg font-bold text-slate-800">{{ log.recipient_address }}</h2>
         </div>
         <!-- Timing Card -->
-        <div class="bg-white p-5 rounded-sm border border-slate-200 shadow-sm flex flex-col justify-center">
+        <div class="bg-white p-5 rounded-sm border border-[#EEF2F6] shadow-sm flex flex-col justify-center">
             <p class="text-sm font-semibold text-slate-400 uppercase mb-1">Time Elapsed</p>
             <h2 class="text-lg font-bold text-slate-800">{{ log.delivery_latency_ms|default:"N/A" }} ms</h2>
         </div>
@@ -55,7 +55,7 @@
 
     <div class="grid grid-cols-12 gap-6">
         <!-- Info Panel -->
-        <div class="col-span-12 xl:col-span-8 bg-white shadow-sm rounded-sm border border-slate-200">
+        <div class="col-span-12 xl:col-span-8 bg-white shadow-sm rounded-sm border border-[#EEF2F6]">
             <header class="px-5 py-4 border-b border-slate-100">
                 <h2 class="font-semibold text-slate-800">Log Details</h2>
             </header>
@@ -116,12 +116,12 @@
         </div>
 
         <!-- Event Timeline -->
-        <div class="col-span-12 xl:col-span-4 bg-white shadow-sm rounded-sm border border-slate-200">
+        <div class="col-span-12 xl:col-span-4 bg-white shadow-sm rounded-sm border border-[#EEF2F6]">
             <header class="px-5 py-4 border-b border-slate-100">
                 <h2 class="font-semibold text-slate-800">Event Timeline</h2>
             </header>
             <div class="p-5">
-                <ol class="relative border-l border-slate-200 ml-3">
+                <ol class="relative border-l border-[#EEF2F6] ml-3">
                     {% for event in events %}
                     <li class="mb-6 ml-6 last:mb-0">
                         <span class="absolute flex items-center justify-center w-6 h-6 rounded-full -left-3 ring-4 ring-white

@@ -1,5 +1,5 @@
-{% load i18n %}
-<aside class="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-slate-200" id="checkout-card">
+﻿{% load i18n %}
+<aside class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200" id="checkout-card">
 
   <h2 class="text-lg font-semibold text-slate-900">{% trans "Buy now" %}</h2>
 
@@ -38,7 +38,7 @@
           <span id="ps-discount" class="tabular-nums text-green-600">– {{ preview.currency }} {{ preview.discount_amount }}</span>
         </div>
         {% endif %}
-        <div class="flex items-center justify-between text-sm border-t border-slate-200 pt-2 mt-1">
+        <div class="flex items-center justify-between text-sm border-t border-[#EEF2F6] pt-2 mt-1">
           <span class="font-semibold text-slate-900">{% trans "Total" %}</span>
           <span id="ps-total" class="font-semibold tabular-nums text-slate-900">{{ preview.currency }} {{ preview.total_amount }}</span>
         </div>
@@ -65,7 +65,7 @@
 
 <script>
 (function () {
-  "use strict";
+"use strict";
 
   const form    = document.getElementById("checkout-form");
   const btn     = document.getElementById("checkout-btn");

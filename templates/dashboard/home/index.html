@@ -1,99 +1,185 @@
 {% extends "dashboard/_partials/base.html" %}
 {% block content %}
-  <div class="space-y-4 sm:space-y-6 lg:space-y-8">
-    <section class="rounded-2xl sm:rounded-[2rem] border border-slate-200 bg-white p-4 sm:p-6 lg:p-8 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-      <div class="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-end lg:justify-between">
+  <div class="space-y-6">
+    <!-- Top Welcome Banner -->
+    <section class="rounded-2xl border border-[#EEF2F6] bg-white p-5 sm:p-7 shadow-sm">
+      <div class="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-blue-600">Store Control</p>
-          <h2 class="mt-2 sm:mt-3 text-2xl sm:text-3xl font-extrabold text-slate-950 dark:text-white">{{ store_name|default:"Your Store" }}</h2>
-          <p class="mt-2 text-xs sm:text-sm leading-relaxed text-slate-500 dark:text-slate-400 max-w-2xl">The tenant dashboard now exposes only live sections. Use these quick links to move between catalog, payments, staff, POS, marketplace, and domain operations.</p>
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-50 text-[#5850EC] text-[11px] font-bold uppercase tracking-wider mb-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#5850EC]"></span>
+            Store Control Center
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">{{ store_name|default:"Your Store" }}</h1>
+          <p class="mt-1.5 text-xs sm:text-sm text-slate-500 max-w-2xl">Manage catalog items, payments, orders, team access, POS, domains, and app extensions with a unified dashboard.</p>
         </div>
-        <a href="{% url 'dashboard:feature_marketplace:catalog' prefix %}" class="inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-blue-600 px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 w-full sm:w-auto">
-          <span class="material-icons-outlined text-sm">store</span>
-          <span>Browse add-ons</span>
-        </a>
+        <div class="flex items-center gap-3">
+          <a href="{% url 'dashboard:feature_marketplace:catalog' prefix %}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#5850EC] px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-[#4F46E5] transition-all">
+            <span class="material-icons-outlined text-base">store</span>
+            <span>Browse Add-ons</span>
+          </a>
+        </div>
       </div>
     </section>
 
-    <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
-      <a href="{% url 'dashboard:product_settings:product_list' prefix %}" class="rounded-xl sm:rounded-[1.5rem] border border-slate-200 bg-white p-4 sm:p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800">
-        <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Catalog</p>
-        <h3 class="mt-2 text-base sm:text-lg font-bold text-slate-950 dark:text-white">Products</h3>
-        <p class="mt-1.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-normal">Manage products, attributes, categories, brands, and tags.</p>
+    <!-- Quick Navigation Cards -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <a href="{% url 'dashboard:product_settings:product_list' prefix %}" class="group rounded-2xl border border-[#EEF2F6] bg-white p-5 shadow-sm transition hover:border-[#5850EC]/40 hover:shadow-md">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Catalog</span>
+          <span class="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-[#5850EC] group-hover:scale-105 transition-transform">
+            <span class="material-icons-outlined text-lg">inventory_2</span>
+          </span>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 group-hover:text-[#5850EC] transition-colors">Products & Catalog</h3>
+        <p class="mt-1 text-xs text-slate-400 line-clamp-2">Manage products, categories, brands, tags, and stock.</p>
       </a>
-      <a href="{% url 'dashboard:payments_tenant:tenant_home' prefix %}" class="rounded-xl sm:rounded-[1.5rem] border border-slate-200 bg-white p-4 sm:p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800">
-        <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Revenue</p>
-        <h3 class="mt-2 text-base sm:text-lg font-bold text-slate-950 dark:text-white">Payments</h3>
-        <p class="mt-1.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-normal">Track balances, transactions, disputes, refunds, and payout status.</p>
+
+      <a href="{% url 'dashboard:payments_tenant:tenant_home' prefix %}" class="group rounded-2xl border border-[#EEF2F6] bg-white p-5 shadow-sm transition hover:border-[#5850EC]/40 hover:shadow-md">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Revenue</span>
+          <span class="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:scale-105 transition-transform">
+            <span class="material-icons-outlined text-lg">account_balance_wallet</span>
+          </span>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 group-hover:text-[#5850EC] transition-colors">Payments & Balances</h3>
+        <p class="mt-1 text-xs text-slate-400 line-clamp-2">Track balances, settlements, payouts, and transactions.</p>
       </a>
+
       {% if feature_access_map.max_pos_locations and feature_access_map.max_pos_locations.active %}
-      <a href="{% url 'dashboard:pos:dashboard' prefix %}" class="rounded-xl sm:rounded-[1.5rem] border border-slate-200 bg-white p-4 sm:p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800">
-        <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Operations</p>
-        <h3 class="mt-2 text-base sm:text-lg font-bold text-slate-950 dark:text-white">Point of Sale</h3>
-        <p class="mt-1.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-normal">Run in-store sales, inventory movement, and local discounts.</p>
+      <a href="{% url 'dashboard:pos:dashboard' prefix %}" class="group rounded-2xl border border-[#EEF2F6] bg-white p-5 shadow-sm transition hover:border-[#5850EC]/40 hover:shadow-md">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Operations</span>
+          <span class="w-8 h-8 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600 group-hover:scale-105 transition-transform">
+            <span class="material-icons-outlined text-lg">point_of_sale</span>
+          </span>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 group-hover:text-[#5850EC] transition-colors">Point of Sale</h3>
+        <p class="mt-1 text-xs text-slate-400 line-clamp-2">Run registers, in-store sales, and inventory movement.</p>
       </a>
       {% endif %}
-      <a href="{% url 'dashboard:user_settings:staff_list' prefix %}" class="rounded-xl sm:rounded-[1.5rem] border border-slate-200 bg-white p-4 sm:p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800">
-        <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">People</p>
-        <h3 class="mt-2 text-base sm:text-lg font-bold text-slate-950 dark:text-white">Users & Staff</h3>
-        <p class="mt-1.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-normal">Manage store users, staff roles, permissions, customers, and audit logs.</p>
+
+      <a href="{% url 'dashboard:user_settings:staff_list' prefix %}" class="group rounded-2xl border border-[#EEF2F6] bg-white p-5 shadow-sm transition hover:border-[#5850EC]/40 hover:shadow-md">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Team</span>
+          <span class="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 group-hover:scale-105 transition-transform">
+            <span class="material-icons-outlined text-lg">badge</span>
+          </span>
+        </div>
+        <h3 class="text-sm font-bold text-slate-900 group-hover:text-[#5850EC] transition-colors">Staff & Permissions</h3>
+        <p class="mt-1 text-xs text-slate-400 line-clamp-2">Manage roles, permissions, staff accounts, and access.</p>
       </a>
     </section>
 
-    <section class="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+    <!-- Key Performance Indicators -->
+    <section class="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-4">
       {% for kpi in overview_bundle.kpis %}
-      <article class="rounded-xl sm:rounded-[1.5rem] border border-slate-200 bg-white p-3.5 sm:p-5 shadow-sm">
-        <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 truncate">{{ kpi.label }}</p>
-        <p class="mt-2 sm:mt-3 text-lg sm:text-2xl lg:text-3xl font-extrabold text-slate-950 truncate" data-home-kpi-format="{{ kpi.format }}" data-home-kpi-value="{{ kpi.value }}"></p>
-        <p class="mt-1 sm:mt-2 text-xs text-slate-500 line-clamp-2">{{ kpi.helper }}</p>
+      <article class="rounded-2xl border border-[#EEF2F6] bg-white p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 truncate">{{ kpi.label }}</p>
+          <span class="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+            <span class="material-icons-outlined text-sm">trending_up</span>
+          </span>
+        </div>
+        <p class="mt-1 text-xl sm:text-2xl font-bold tracking-tight text-slate-900 truncate" data-home-kpi-format="{{ kpi.format }}" data-home-kpi-value="{{ kpi.value }}"></p>
+        <p class="mt-1 text-xs text-slate-400 line-clamp-1">{{ kpi.helper }}</p>
       </article>
       {% endfor %}
     </section>
 
-    <section class="grid gap-4 sm:gap-6 xl:grid-cols-2">
-      <div class="rounded-2xl sm:rounded-[1.75rem] border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
-          <div>
-            <h3 class="text-base sm:text-lg font-bold text-slate-950 dark:text-white">Revenue Trend</h3>
-            <p class="mt-0.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400">Rolling 30-day revenue snapshot from analytics.</p>
+    <!-- Analytics Charts -->
+    <section class="grid gap-6 xl:grid-cols-2">
+      <div class="rounded-2xl border border-[#EEF2F6] bg-white p-5 sm:p-6 shadow-sm">
+        <div class="flex items-center justify-between pb-3 border-b border-[#EEF2F6]">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-[#5850EC]">
+              <span class="material-icons-outlined text-lg">insights</span>
+            </span>
+            <div>
+              <h3 class="text-sm font-bold text-slate-900">Revenue Trend</h3>
+              <p class="text-xs text-slate-400">Rolling 30-day snapshot</p>
+            </div>
           </div>
-          <a href="{% url 'dashboard:analytics:overview' prefix %}" class="text-xs sm:text-sm font-semibold text-blue-600 hover:text-blue-700 whitespace-nowrap">Open analytics</a>
+          <a href="{% url 'dashboard:analytics:overview' prefix %}" class="text-xs font-semibold text-[#5850EC] hover:underline">View Analytics</a>
         </div>
-        <div class="mt-4 h-56 sm:h-72">
+        <div class="mt-4 h-60">
           <canvas id="homeRevenueChart"></canvas>
         </div>
       </div>
-      <div class="rounded-2xl sm:rounded-[1.75rem] border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
-          <div>
-            <h3 class="text-base sm:text-lg font-bold text-slate-950 dark:text-white">Traffic Trend</h3>
-            <p class="mt-0.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400">Tracked page views over the same period.</p>
+
+      <div class="rounded-2xl border border-[#EEF2F6] bg-white p-5 sm:p-6 shadow-sm">
+        <div class="flex items-center justify-between pb-3 border-b border-[#EEF2F6]">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-[#5850EC]">
+              <span class="material-icons-outlined text-lg">query_stats</span>
+            </span>
+            <div>
+              <h3 class="text-sm font-bold text-slate-900">Traffic Trend</h3>
+              <p class="text-xs text-slate-400">Tracked page impressions</p>
+            </div>
           </div>
-          <a href="{% url 'dashboard:monitoring:overview' prefix %}" class="text-xs sm:text-sm font-semibold text-blue-600 hover:text-blue-700 whitespace-nowrap">Traffic analytics</a>
+          <a href="{% url 'dashboard:monitoring:overview' prefix %}" class="text-xs font-semibold text-[#5850EC] hover:underline">View Traffic</a>
         </div>
-        <div class="mt-4 h-56 sm:h-72">
+        <div class="mt-4 h-60">
           <canvas id="homeTrafficChart"></canvas>
         </div>
       </div>
     </section>
 
-    <section class="grid gap-4 sm:gap-6 xl:grid-cols-2">
-      <div class="rounded-2xl sm:rounded-[1.75rem] border border-slate-200 bg-white p-4 sm:p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-        <h3 class="text-base sm:text-lg font-bold text-slate-950 dark:text-white">Live workspace areas</h3>
-        <div class="mt-3 sm:mt-5 grid gap-2.5 sm:grid-cols-2">
-          <a href="{% url 'dashboard:pricing:currency_list' prefix %}" class="rounded-xl sm:rounded-[1.25rem] border border-slate-200 bg-slate-50 px-3.5 py-3 sm:px-4 sm:py-4 text-xs sm:text-sm text-slate-600 hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">Pricing & promotions</a>
-          <a href="{% url 'dashboard:store_settings:manage_theme_settings' prefix %}" class="rounded-xl sm:rounded-[1.25rem] border border-slate-200 bg-slate-50 px-3.5 py-3 sm:px-4 sm:py-4 text-xs sm:text-sm text-slate-600 hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">Storefront & theme settings</a>
-          <a href="{% url 'dashboard:notification_dashboard_index' prefix %}" class="rounded-xl sm:rounded-[1.25rem] border border-slate-200 bg-slate-50 px-3.5 py-3 sm:px-4 sm:py-4 text-xs sm:text-sm text-slate-600 hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">Notifications</a>
-          <a href="{% url 'dashboard:domain:list' prefix %}" class="rounded-xl sm:rounded-[1.25rem] border border-slate-200 bg-slate-50 px-3.5 py-3 sm:px-4 sm:py-4 text-xs sm:text-sm text-slate-600 hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">Domains & SSL</a>
-          <a href="{% url 'dashboard:monitoring:overview' prefix %}" class="rounded-xl sm:rounded-[1.25rem] border border-slate-200 bg-slate-50 px-3.5 py-3 sm:px-4 sm:py-4 text-xs sm:text-sm text-slate-600 hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">Traffic analytics</a>
+    <!-- Direct Links & Updates -->
+    <section class="grid gap-6 xl:grid-cols-2">
+      <div class="rounded-2xl border border-[#EEF2F6] bg-white p-5 sm:p-6 shadow-sm space-y-4">
+        <div class="flex items-center gap-2.5 pb-2 border-b border-[#EEF2F6]">
+          <span class="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-[#5850EC]">
+            <span class="material-icons-outlined text-lg">apps</span>
+          </span>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Direct Workspace Access</h3>
+            <p class="text-xs text-slate-400">Navigate to specialized features</p>
+          </div>
+        </div>
+        <div class="grid gap-2.5 sm:grid-cols-2">
+          <a href="{% url 'dashboard:pricing:currency_list' prefix %}" class="flex items-center gap-2.5 rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-3 text-xs font-semibold text-slate-700 hover:border-[#5850EC]/30 hover:bg-indigo-50/30 hover:text-[#5850EC] transition">
+            <span class="material-icons-outlined text-base text-slate-400">price_change</span>
+            <span>Pricing & Rules</span>
+          </a>
+          <a href="{% url 'dashboard:store_settings:manage_theme_settings' prefix %}" class="flex items-center gap-2.5 rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-3 text-xs font-semibold text-slate-700 hover:border-[#5850EC]/30 hover:bg-indigo-50/30 hover:text-[#5850EC] transition">
+            <span class="material-icons-outlined text-base text-slate-400">palette</span>
+            <span>Theme & Storefront</span>
+          </a>
+          <a href="{% url 'dashboard:notification_dashboard_index' prefix %}" class="flex items-center gap-2.5 rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-3 text-xs font-semibold text-slate-700 hover:border-[#5850EC]/30 hover:bg-indigo-50/30 hover:text-[#5850EC] transition">
+            <span class="material-icons-outlined text-base text-slate-400">notifications_active</span>
+            <span>Notifications</span>
+          </a>
+          <a href="{% url 'dashboard:domain:list' prefix %}" class="flex items-center gap-2.5 rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-3 text-xs font-semibold text-slate-700 hover:border-[#5850EC]/30 hover:bg-indigo-50/30 hover:text-[#5850EC] transition">
+            <span class="material-icons-outlined text-base text-slate-400">dns</span>
+            <span>Domains & SSL</span>
+          </a>
         </div>
       </div>
-      <div class="rounded-2xl sm:rounded-[1.75rem] border border-slate-200 bg-white p-4 sm:p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-        <h3 class="text-base sm:text-lg font-bold text-slate-950 dark:text-white">What changed</h3>
-        <ul class="mt-3 sm:mt-5 space-y-2.5 text-xs sm:text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-          <li>Only live dashboard modules are shown in navigation now.</li>
-          <li>Marketplace, payments, POS, domains, pricing, products, and staff flows stay one click away.</li>
-          <li>Permission and feature bootstrap commands can now seed realistic data for full entitlement testing.</li>
+
+      <div class="rounded-2xl border border-[#EEF2F6] bg-white p-5 sm:p-6 shadow-sm space-y-4">
+        <div class="flex items-center gap-2.5 pb-2 border-b border-[#EEF2F6]">
+          <span class="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-[#5850EC]">
+            <span class="material-icons-outlined text-lg">info</span>
+          </span>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">System Information</h3>
+            <p class="text-xs text-slate-400">Unified Shodai admin architecture</p>
+          </div>
+        </div>
+        <ul class="space-y-3 text-xs text-slate-500">
+          <li class="flex items-start gap-2.5">
+            <span class="material-icons-outlined text-sm text-[#5850EC] mt-0.5">check_circle</span>
+            <span>Navigation, cards, tables, and form inputs follow the standard Shodai aesthetic.</span>
+          </li>
+          <li class="flex items-start gap-2.5">
+            <span class="material-icons-outlined text-sm text-[#5850EC] mt-0.5">check_circle</span>
+            <span>Catalog, orders, customers, and operations interfaces share identical interactive tokens.</span>
+          </li>
+          <li class="flex items-start gap-2.5">
+            <span class="material-icons-outlined text-sm text-[#5850EC] mt-0.5">check_circle</span>
+            <span>Responsive layout optimized for desktop, tablet, and mobile browsers.</span>
+          </li>
         </ul>
       </div>
     </section>

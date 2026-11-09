@@ -1,4 +1,4 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% load static %}
 
 {% block title %}{{ title|default:"Theme Settings" }}{% endblock %}
@@ -7,17 +7,17 @@
 <!-- Page Header -->
 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
   <div>
-    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+    <h2 class="text-xl font-bold text-slate-900">
       {% if is_edit %}Edit Theme: {{ object.theme_name }}{% else %}Storefront Theme Settings{% endif %}
     </h2>
-    <p class="text-sm text-slate-600 dark:text-slate-400">
+    <p class="text-sm text-slate-600">
       Configure your storefront typography, brand colors, layout, and visual styling
     </p>
   </div>
   <div class="flex items-center gap-2">
     <a
       href="{% if prefix %}{% url 'dashboard:store_settings:manage_store_settings' prefix %}{% else %}/dashboard/admin/settings/{% endif %}"
-      class="inline-flex items-center justify-center gap-1.5 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-sm font-medium"
+      class="inline-flex items-center justify-center gap-1.5 bg-slate-200 text-slate-800 px-4 py-2.5 rounded-xl hover:bg-slate-300 transition-colors text-sm font-medium"
     >
       <span class="material-icons-outlined text-sm">settings</span>
       <span>Store Settings</span>
@@ -30,33 +30,33 @@
   {% include "dashboard/_partials/_error_message.html" %}
 
   <!-- 1. Core Settings Section -->
-  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
-      <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
-        <span class="material-icons-outlined text-lg mr-3 text-blue-600 dark:text-blue-400">settings_applications</span>
+  <div class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden">
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-[#EEF2F6]">
+      <h3 class="text-lg font-semibold text-slate-900 flex items-center">
+        <span class="material-icons-outlined text-lg mr-3 text-[#5850EC]">settings_applications</span>
         Core Theme Settings
       </h3>
-      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Basic identification and storefront theme activation</p>
+      <p class="text-sm text-slate-600 mt-1">Basic identification and storefront theme activation</p>
     </div>
     <div class="p-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
         <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.theme_name.id_for_label }}">
+          <label class="block text-sm font-medium text-slate-700 mb-2" for="{{ form.theme_name.id_for_label }}">
             Theme Name <span class="text-red-500">*</span>
           </label>
           {{ form.theme_name }}
           {% if form.theme_name.errors %}
             <span class="text-red-500 text-sm mt-1 block">{{ form.theme_name.errors.0 }}</span>
           {% endif %}
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">A descriptive name for this visual theme preset.</p>
+          <p class="text-xs text-slate-500 mt-1.5">A descriptive name for this visual theme preset.</p>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Theme Activation</label>
-          <div class="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-750 rounded-xl border border-slate-200 dark:border-slate-700">
+          <label class="block text-sm font-medium text-slate-700 mb-2">Theme Activation</label>
+          <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-[#EEF2F6]">
             <div>
-              <span class="text-sm font-semibold text-slate-900 dark:text-white block">Active Theme</span>
-              <span class="text-xs text-slate-500 dark:text-slate-400">Apply this theme globally to your customer-facing storefront</span>
+              <span class="text-sm font-semibold text-slate-900 block">Active Theme</span>
+              <span class="text-xs text-slate-500">Apply this theme globally to your customer-facing storefront</span>
             </div>
             <label class="relative inline-flex items-center cursor-pointer">
               {{ form.is_active }}
@@ -71,21 +71,21 @@
   </div>
 
   <!-- 2. Color Palette Section -->
-  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-    <div class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
-      <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
-        <span class="material-icons-outlined text-lg mr-3 text-purple-600 dark:text-purple-400">palette</span>
+  <div class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden">
+    <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-6 py-4 border-b border-[#EEF2F6]">
+      <h3 class="text-lg font-semibold text-slate-900 flex items-center">
+        <span class="material-icons-outlined text-lg mr-3 text-purple-600">palette</span>
         Brand Color Palette
       </h3>
-      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Configure primary branding, surfaces, typography colors, and feedback states</p>
+      <p class="text-sm text-slate-600 mt-1">Configure primary branding, surfaces, typography colors, and feedback states</p>
     </div>
     <div class="p-6">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Primary Color -->
-        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
-          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Primary Color</label>
+        <div class="p-4 rounded-xl border border-[#EEF2F6] bg-slate-50/50">
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Primary Color</label>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.primary_color.value|default:'#2563EB' }};"></div>
+            <div class="w-10 h-10 rounded-xl border border-slate-300 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.primary_color.value|default:'#2563EB' }};"></div>
             <div class="flex-1">
               {{ form.primary_color }}
             </div>
@@ -94,10 +94,10 @@
         </div>
 
         <!-- Secondary Color -->
-        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
-          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Secondary Color</label>
+        <div class="p-4 rounded-xl border border-[#EEF2F6] bg-slate-50/50">
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Secondary Color</label>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.secondary_color.value|default:'#1E40AF' }};"></div>
+            <div class="w-10 h-10 rounded-xl border border-slate-300 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.secondary_color.value|default:'#1E40AF' }};"></div>
             <div class="flex-1">
               {{ form.secondary_color }}
             </div>
@@ -106,10 +106,10 @@
         </div>
 
         <!-- Accent Color -->
-        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
-          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Accent Color</label>
+        <div class="p-4 rounded-xl border border-[#EEF2F6] bg-slate-50/50">
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Accent Color</label>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.accent_color.value|default:'#F59E0B' }};"></div>
+            <div class="w-10 h-10 rounded-xl border border-slate-300 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.accent_color.value|default:'#F59E0B' }};"></div>
             <div class="flex-1">
               {{ form.accent_color }}
             </div>
@@ -118,10 +118,10 @@
         </div>
 
         <!-- Main Background -->
-        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
-          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Background Color</label>
+        <div class="p-4 rounded-xl border border-[#EEF2F6] bg-slate-50/50">
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Background Color</label>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.background_color.value|default:'#FFFFFF' }};"></div>
+            <div class="w-10 h-10 rounded-xl border border-slate-300 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.background_color.value|default:'#FFFFFF' }};"></div>
             <div class="flex-1">
               {{ form.background_color }}
             </div>
@@ -130,10 +130,10 @@
         </div>
 
         <!-- Secondary Background -->
-        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
-          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Secondary Background</label>
+        <div class="p-4 rounded-xl border border-[#EEF2F6] bg-slate-50/50">
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Secondary Background</label>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.secondary_background_color.value|default:'#F9FAFB' }};"></div>
+            <div class="w-10 h-10 rounded-xl border border-slate-300 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.secondary_background_color.value|default:'#F9FAFB' }};"></div>
             <div class="flex-1">
               {{ form.secondary_background_color }}
             </div>
@@ -142,10 +142,10 @@
         </div>
 
         <!-- Border Color -->
-        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
-          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Border & Divider Color</label>
+        <div class="p-4 rounded-xl border border-[#EEF2F6] bg-slate-50/50">
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Border & Divider Color</label>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.border_color.value|default:'#E5E7EB' }};"></div>
+            <div class="w-10 h-10 rounded-xl border border-slate-300 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.border_color.value|default:'#E5E7EB' }};"></div>
             <div class="flex-1">
               {{ form.border_color }}
             </div>
@@ -154,10 +154,10 @@
         </div>
 
         <!-- Primary Text Color -->
-        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
-          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Primary Text Color</label>
+        <div class="p-4 rounded-xl border border-[#EEF2F6] bg-slate-50/50">
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Primary Text Color</label>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.text_color.value|default:'#111827' }};"></div>
+            <div class="w-10 h-10 rounded-xl border border-slate-300 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.text_color.value|default:'#111827' }};"></div>
             <div class="flex-1">
               {{ form.text_color }}
             </div>
@@ -166,10 +166,10 @@
         </div>
 
         <!-- Secondary Text Color -->
-        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
-          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Secondary Text Color</label>
+        <div class="p-4 rounded-xl border border-[#EEF2F6] bg-slate-50/50">
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Secondary Text Color</label>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.secondary_text_color.value|default:'#6B7280' }};"></div>
+            <div class="w-10 h-10 rounded-xl border border-slate-300 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.secondary_text_color.value|default:'#6B7280' }};"></div>
             <div class="flex-1">
               {{ form.secondary_text_color }}
             </div>
@@ -178,10 +178,10 @@
         </div>
 
         <!-- Success Color -->
-        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
-          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Success State Color</label>
+        <div class="p-4 rounded-xl border border-[#EEF2F6] bg-slate-50/50">
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Success State Color</label>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.success_color.value|default:'#10B981' }};"></div>
+            <div class="w-10 h-10 rounded-xl border border-slate-300 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.success_color.value|default:'#10B981' }};"></div>
             <div class="flex-1">
               {{ form.success_color }}
             </div>
@@ -190,10 +190,10 @@
         </div>
 
         <!-- Warning Color -->
-        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
-          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Warning State Color</label>
+        <div class="p-4 rounded-xl border border-[#EEF2F6] bg-slate-50/50">
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Warning State Color</label>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.warning_color.value|default:'#F59E0B' }};"></div>
+            <div class="w-10 h-10 rounded-xl border border-slate-300 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.warning_color.value|default:'#F59E0B' }};"></div>
             <div class="flex-1">
               {{ form.warning_color }}
             </div>
@@ -202,10 +202,10 @@
         </div>
 
         <!-- Error Color -->
-        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-750">
-          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-2">Error State Color</label>
+        <div class="p-4 rounded-xl border border-[#EEF2F6] bg-slate-50/50">
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Error State Color</label>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.error_color.value|default:'#EF4444' }};"></div>
+            <div class="w-10 h-10 rounded-xl border border-slate-300 shadow-sm shrink-0 color-swatch" style="background-color: {{ form.error_color.value|default:'#EF4444' }};"></div>
             <div class="flex-1">
               {{ form.error_color }}
             </div>
@@ -217,18 +217,18 @@
   </div>
 
   <!-- 3. Typography Section -->
-  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-    <div class="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
-      <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
-        <span class="material-icons-outlined text-lg mr-3 text-amber-600 dark:text-amber-400">text_fields</span>
+  <div class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden">
+    <div class="bg-gradient-to-r from-amber-50 to-orange-50 px-6 py-4 border-b border-[#EEF2F6]">
+      <h3 class="text-lg font-semibold text-slate-900 flex items-center">
+        <span class="material-icons-outlined text-lg mr-3 text-amber-600">text_fields</span>
         Storefront Typography
       </h3>
-      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Select typography families, custom font URLs, sizing scales, and weights</p>
+      <p class="text-sm text-slate-600 mt-1">Select typography families, custom font URLs, sizing scales, and weights</p>
     </div>
     <div class="p-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.heading_font.id_for_label }}">
+          <label class="block text-sm font-medium text-slate-700 mb-2" for="{{ form.heading_font.id_for_label }}">
             Heading Font Family
           </label>
           {{ form.heading_font }}
@@ -236,7 +236,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.body_font.id_for_label }}">
+          <label class="block text-sm font-medium text-slate-700 mb-2" for="{{ form.body_font.id_for_label }}">
             Body Font Family
           </label>
           {{ form.body_font }}
@@ -244,16 +244,16 @@
         </div>
 
         <div class="md:col-span-2">
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.custom_font_url.id_for_label }}">
+          <label class="block text-sm font-medium text-slate-700 mb-2" for="{{ form.custom_font_url.id_for_label }}">
             Custom Font URL
           </label>
           {{ form.custom_font_url }}
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">Optional Google Fonts or CDN link (e.g. https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap)</p>
+          <p class="text-xs text-slate-500 mt-1.5">Optional Google Fonts or CDN link (e.g. https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap)</p>
           {% if form.custom_font_url.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.custom_font_url.errors.0 }}</span>{% endif %}
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.heading_font_weight.id_for_label }}">
+          <label class="block text-sm font-medium text-slate-700 mb-2" for="{{ form.heading_font_weight.id_for_label }}">
             Heading Font Weight
           </label>
           {{ form.heading_font_weight }}
@@ -261,7 +261,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.body_font_weight.id_for_label }}">
+          <label class="block text-sm font-medium text-slate-700 mb-2" for="{{ form.body_font_weight.id_for_label }}">
             Body Font Weight
           </label>
           {{ form.body_font_weight }}
@@ -270,7 +270,7 @@
 
         <div>
           <div class="flex items-center justify-between mb-2">
-            <label class="text-sm font-medium text-slate-700 dark:text-slate-300" for="{{ form.base_font_size.id_for_label }}">Base Font Size</label>
+            <label class="text-sm font-medium text-slate-700" for="{{ form.base_font_size.id_for_label }}">Base Font Size</label>
             <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md" id="base-font-size-display">{{ form.base_font_size.value|default:16 }}px</span>
           </div>
           {{ form.base_font_size }}
@@ -279,7 +279,7 @@
 
         <div>
           <div class="flex items-center justify-between mb-2">
-            <label class="text-sm font-medium text-slate-700 dark:text-slate-300" for="{{ form.heading_size_multiplier.id_for_label }}">Heading Size Multiplier</label>
+            <label class="text-sm font-medium text-slate-700" for="{{ form.heading_size_multiplier.id_for_label }}">Heading Size Multiplier</label>
             <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md" id="heading-multiplier-display">{{ form.heading_size_multiplier.value|default:1.5 }}x</span>
           </div>
           {{ form.heading_size_multiplier }}
@@ -290,19 +290,19 @@
   </div>
 
   <!-- 4. Borders, Shadows & Buttons Section -->
-  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
-      <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
-        <span class="material-icons-outlined text-lg mr-3 text-emerald-600 dark:text-emerald-400">layers</span>
+  <div class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden">
+    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 px-6 py-4 border-b border-[#EEF2F6]">
+      <h3 class="text-lg font-semibold text-slate-900 flex items-center">
+        <span class="material-icons-outlined text-lg mr-3 text-emerald-600">layers</span>
         Borders, Shadows & Buttons
       </h3>
-      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Define element curves, elevation shadows, and button styles</p>
+      <p class="text-sm text-slate-600 mt-1">Define element curves, elevation shadows, and button styles</p>
     </div>
     <div class="p-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <div class="flex items-center justify-between mb-2">
-            <label class="text-sm font-medium text-slate-700 dark:text-slate-300" for="{{ form.border_radius.id_for_label }}">Card / Container Border Radius</label>
+            <label class="text-sm font-medium text-slate-700" for="{{ form.border_radius.id_for_label }}">Card / Container Border Radius</label>
             <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md" id="border-radius-display">{{ form.border_radius.value|default:8 }}px</span>
           </div>
           {{ form.border_radius }}
@@ -310,11 +310,11 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Elevation Drop Shadows</label>
-          <div class="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-750 rounded-xl border border-slate-200 dark:border-slate-700">
+          <label class="block text-sm font-medium text-slate-700 mb-2">Elevation Drop Shadows</label>
+          <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-[#EEF2F6]">
             <div>
-              <span class="text-sm font-semibold text-slate-900 dark:text-white block">Enable Drop Shadows</span>
-              <span class="text-xs text-slate-500 dark:text-slate-400">Add subtle depth to cards, dropdowns and modals</span>
+              <span class="text-sm font-semibold text-slate-900 block">Enable Drop Shadows</span>
+              <span class="text-xs text-slate-500">Add subtle depth to cards, dropdowns and modals</span>
             </div>
             <label class="relative inline-flex items-center cursor-pointer">
               {{ form.use_shadows }}
@@ -324,7 +324,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.shadow_intensity.id_for_label }}">
+          <label class="block text-sm font-medium text-slate-700 mb-2" for="{{ form.shadow_intensity.id_for_label }}">
             Shadow Intensity
           </label>
           {{ form.shadow_intensity }}
@@ -332,7 +332,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.primary_button_style.id_for_label }}">
+          <label class="block text-sm font-medium text-slate-700 mb-2" for="{{ form.primary_button_style.id_for_label }}">
             Primary Button Style
           </label>
           {{ form.primary_button_style }}
@@ -340,7 +340,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.button_text_transform.id_for_label }}">
+          <label class="block text-sm font-medium text-slate-700 mb-2" for="{{ form.button_text_transform.id_for_label }}">
             Button Text Transform
           </label>
           {{ form.button_text_transform }}
@@ -348,7 +348,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.button_border_radius.id_for_label }}">
+          <label class="block text-sm font-medium text-slate-700 mb-2" for="{{ form.button_border_radius.id_for_label }}">
             Button Border Radius (px)
           </label>
           {{ form.button_border_radius }}
@@ -359,31 +359,31 @@
   </div>
 
   <!-- 5. Layout & Spacing Section -->
-  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-    <div class="bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-slate-700 dark:to-slate-600 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
-      <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
-        <span class="material-icons-outlined text-lg mr-3 text-cyan-600 dark:text-cyan-400">grid_view</span>
+  <div class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden">
+    <div class="bg-gradient-to-r from-cyan-50 to-blue-50 px-6 py-4 border-b border-[#EEF2F6]">
+      <h3 class="text-lg font-semibold text-slate-900 flex items-center">
+        <span class="material-icons-outlined text-lg mr-3 text-cyan-600">grid_view</span>
         Storefront Layout & Spacing
       </h3>
-      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Grid width boundaries and global section spacing scale</p>
+      <p class="text-sm text-slate-600 mt-1">Grid width boundaries and global section spacing scale</p>
     </div>
     <div class="p-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.container_width.id_for_label }}">
+          <label class="block text-sm font-medium text-slate-700 mb-2" for="{{ form.container_width.id_for_label }}">
             Max Content Container Width (px)
           </label>
           {{ form.container_width }}
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">Maximum width for storefront content (960px - 1920px)</p>
+          <p class="text-xs text-slate-500 mt-1.5">Maximum width for storefront content (960px - 1920px)</p>
           {% if form.container_width.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.container_width.errors.0 }}</span>{% endif %}
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" for="{{ form.spacing_scale.id_for_label }}">
+          <label class="block text-sm font-medium text-slate-700 mb-2" for="{{ form.spacing_scale.id_for_label }}">
             Section Spacing Scale
           </label>
           {{ form.spacing_scale }}
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">Controls whitespace rhythm between sections and cards</p>
+          <p class="text-xs text-slate-500 mt-1.5">Controls whitespace rhythm between sections and cards</p>
           {% if form.spacing_scale.errors %}<span class="text-red-500 text-sm mt-1 block">{{ form.spacing_scale.errors.0 }}</span>{% endif %}
         </div>
       </div>
@@ -391,18 +391,18 @@
   </div>
 
   <!-- 6. Collapsible Live CSS & Design Variables Preview -->
-  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+  <div class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden">
     <button
       type="button"
       onclick="toggleCssPreview()"
-      class="flex items-center justify-between w-full px-6 py-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-600 border-b border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-650 transition-colors text-left"
+      class="flex items-center justify-between w-full px-6 py-4 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-[#EEF2F6] hover:bg-slate-100 transition-colors text-left"
     >
       <div>
-        <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center">
-          <span class="material-icons-outlined text-lg mr-3 text-slate-600 dark:text-slate-300">code</span>
+        <h3 class="text-lg font-semibold text-slate-900 flex items-center">
+          <span class="material-icons-outlined text-lg mr-3 text-slate-600">code</span>
           Generated CSS & Design Variables
         </h3>
-        <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Live compiled CSS tokens injected into your storefront header</p>
+        <p class="text-sm text-slate-600 mt-1">Live compiled CSS tokens injected into your storefront header</p>
       </div>
       <span id="cssPreviewIcon" class="material-icons-outlined text-slate-500 transform transition-transform">expand_more</span>
     </button>
@@ -412,12 +412,12 @@
   </div>
 
   <!-- Mobile-friendly sticky bottom save bar -->
-  <div class="sticky bottom-16 sm:bottom-0 z-20 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 px-3 py-2.5 sm:px-4 sm:py-3 sm:rounded-xl sm:border sm:shadow-sm sm:static sm:mt-6">
+  <div class="sticky bottom-16 sm:bottom-0 z-20 bg-white/95 backdrop-blur-md border-t border-[#EEF2F6] px-3 py-2.5 sm:px-4 sm:py-3 sm:rounded-xl sm:border sm:shadow-sm sm:static sm:mt-6">
     <div class="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
       <button
         type="button"
         onclick="window.location.reload()"
-        class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+        class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2.5 border border-slate-300 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
       >
         Reset
       </button>

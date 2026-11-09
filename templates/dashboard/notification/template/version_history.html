@@ -1,4 +1,4 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% load static %}
 {% load i18n %}
 
@@ -27,15 +27,15 @@
 
     <!-- Active Version Banner -->
     {% if template.active_version %}
-    <div class="bg-blue-50 border border-blue-200 rounded p-5 mb-8 flex justify-between items-center shadow-sm">
+    <div class="bg-indigo-50 border border-blue-200 rounded p-5 mb-8 flex justify-between items-center shadow-sm">
         <div>
             <h2 class="text-lg font-bold text-blue-800">Currently Active: v{{ template.active_version.version_number }}</h2>
-            <div class="text-sm text-blue-600 mt-1">
+            <div class="text-sm text-[#5850EC] mt-1">
                 Subject: <span class="font-medium">"{{ template.active_version.subject|default:template.active_version.title }}"</span>
             </div>
         </div>
         <div>
-            <span class="text-xs font-semibold px-2 py-1 rounded bg-blue-600 text-white">LIVE</span>
+            <span class="text-xs font-semibold px-2 py-1 rounded bg-[#5850EC] text-white">LIVE</span>
         </div>
     </div>
     {% else %}
@@ -46,7 +46,7 @@
     {% endif %}
 
     <!-- Version List -->
-    <div class="bg-white shadow-lg rounded-sm border border-slate-200">
+    <div class="bg-white shadow-lg rounded-sm border border-[#EEF2F6]">
         <header class="px-5 py-4 border-b border-slate-100">
             <h2 class="font-semibold text-slate-800">Version History</h2>
         </header>
@@ -87,7 +87,7 @@
                                     <button type="submit" class="btn-sm bg-indigo-50 text-indigo-500 hover:bg-indigo-100 text-xs">Activate</button>
                                 </form>
                             {% endif %}
-                            <button class="btn-sm bg-white border-slate-200 hover:border-slate-300 text-slate-500 text-xs">Preview</button>
+                            <button class="btn-sm bg-white border-[#EEF2F6] hover:border-slate-300 text-slate-500 text-xs">Preview</button>
                         </div>
                     </div>
                 </li>

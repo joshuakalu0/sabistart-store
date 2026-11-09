@@ -1,4 +1,4 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% load static %}
 {% load i18n %}
 
@@ -31,17 +31,17 @@
     </div>
 
     <!-- Info banner -->
-    <div class="bg-blue-50 border border-blue-200 rounded p-4 mb-6">
+    <div class="bg-indigo-50 border border-blue-200 rounded p-4 mb-6">
         <p class="text-sm text-blue-800">
             Addresses and numbers on this list are permanently blocked from receiving notifications to protect deliverability reputation.
         </p>
     </div>
 
     <!-- Table -->
-    <div class="bg-white shadow-lg rounded-sm border border-slate-200">
+    <div class="bg-white shadow-lg rounded-sm border border-[#EEF2F6]">
         <div class="overflow-x-auto">
             <table class="table-auto w-full">
-                <thead class="text-xs font-semibold uppercase text-slate-500 bg-slate-50 border-t border-b border-slate-200">
+                <thead class="text-xs font-semibold uppercase text-slate-500 bg-slate-50 border-t border-b border-[#EEF2F6]">
                     <tr>
                         <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Destination</div></th>
                         <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Type</div></th>
@@ -49,7 +49,7 @@
                         <th class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap"><div class="font-semibold text-left">Added On</div></th>
                     </tr>
                 </thead>
-                <tbody class="text-sm divide-y divide-slate-200">
+                <tbody class="text-sm divide-y divide-[#EEF2F6]">
                     {% for b in blacklist %}
                     <tr>
                         <td class="px-2 first:pl-5 last:pr-5 py-3 whitespace-nowrap">

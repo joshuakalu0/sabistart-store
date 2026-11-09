@@ -1,4 +1,4 @@
-<script>
+﻿<script>
   console.log('media')
   // Media Management
   const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -30,7 +30,7 @@
       const reader = new FileReader();
       reader.onload = function(e) {
         const imgElement = document.createElement('div');
-        imgElement.className = 'image-preview relative group rounded-lg overflow-hidden border border-gray-200';
+        imgElement.className = 'image-preview relative group rounded-lg overflow-hidden border border-[#EEF2F6]';
         imgElement.innerHTML = `
           <img src="${e.target.result}" alt="${file.name}" class="w-full h-32 object-cover">
           <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center space-x-2 opacity-0 group-hover:opacity-100">
@@ -65,7 +65,7 @@
 
     const imgElement = button.closest('.image-preview');
     const primaryBadge = document.createElement('span');
-    primaryBadge.className = 'absolute top-2 left-2 px-2 py-1 bg-primary-600 text-white text-xs rounded';
+    primaryBadge.className = 'absolute top-2 left-2 px-2 py-1 bg-[#5850EC] text-white text-xs rounded';
     primaryBadge.textContent = 'Primary';
     imgElement.prepend(primaryBadge);
   }

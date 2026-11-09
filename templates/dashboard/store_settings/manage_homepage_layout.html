@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
@@ -17,62 +17,62 @@
         theme: {
           extend: {
             colors: {
-              "on-error-container": "#752121",
-              "on-surface-variant": "#566166",
-              "on-primary-fixed-variant": "#0050d4",
-              "background": "#f7f9fb",
-              "primary": "#0053db",
-              "surface-container-lowest": "#ffffff",
-              "on-secondary-container": "#435368",
-              "on-secondary": "#f7f9ff",
-              "error-container": "#fe8983",
-              "secondary-dim": "#44546a",
-              "on-secondary-fixed": "#314055",
-              "primary-fixed-dim": "#c7d3ff",
-              "surface-container-highest": "#d9e4ea",
-              "on-tertiary-fixed-variant": "#5b5672",
-              "on-primary": "#f8f7ff",
-              "on-tertiary-fixed": "#3e3a54",
-              "error": "#9f403d",
-              "on-surface": "#2a3439",
-              "on-primary-fixed": "#003798",
-              "surface": "#f7f9fb",
-              "tertiary-dim": "#54506b",
-              "surface-dim": "#cfdce3",
-              "on-secondary-fixed-variant": "#4d5d73",
-              "on-error": "#fff7f6",
-              "on-tertiary": "#fcf7ff",
-              "surface-container": "#e8eff3",
-              "inverse-primary": "#618bff",
-              "secondary-fixed": "#d3e4fe",
-              "surface-variant": "#d9e4ea",
-              "surface-tint": "#0053db",
-              "surface-container-low": "#f0f4f7",
-              "secondary-container": "#d3e4fe",
-              "primary-fixed": "#dbe1ff",
-              "outline": "#717c82",
-              "secondary-fixed-dim": "#c5d6f0",
-              "tertiary-fixed-dim": "#d4cdee",
-              "tertiary": "#605c78",
-              "tertiary-container": "#e3dbfd",
-              "tertiary-fixed": "#e3dbfd",
-              "error-dim": "#4e0309",
-              "on-tertiary-container": "#514d68",
-              "surface-container-high": "#e1e9ee",
-              "primary-container": "#dbe1ff",
-              "on-background": "#2a3439",
-              "inverse-on-surface": "#9a9d9f",
-              "secondary": "#506076",
-              "outline-variant": "#a9b4b9",
-              "on-primary-container": "#0048bf",
-              "primary-dim": "#0048c1",
-              "surface-bright": "#f7f9fb",
-              "inverse-surface": "#0b0f10"
+"on-error-container": "#752121",
+"on-surface-variant": "#566166",
+"on-primary-fixed-variant": "#0050d4",
+"background": "#f7f9fb",
+"primary": "#0053db",
+"surface-container-lowest": "#ffffff",
+"on-secondary-container": "#435368",
+"on-secondary": "#f7f9ff",
+"error-container": "#fe8983",
+"secondary-dim": "#44546a",
+"on-secondary-fixed": "#314055",
+"primary-fixed-dim": "#c7d3ff",
+"surface-container-highest": "#d9e4ea",
+"on-tertiary-fixed-variant": "#5b5672",
+"on-primary": "#f8f7ff",
+"on-tertiary-fixed": "#3e3a54",
+"error": "#9f403d",
+"on-surface": "#2a3439",
+"on-primary-fixed": "#003798",
+"surface": "#f7f9fb",
+"tertiary-dim": "#54506b",
+"surface-dim": "#cfdce3",
+"on-secondary-fixed-variant": "#4d5d73",
+"on-error": "#fff7f6",
+"on-tertiary": "#fcf7ff",
+"surface-container": "#e8eff3",
+"inverse-primary": "#618bff",
+"secondary-fixed": "#d3e4fe",
+"surface-variant": "#d9e4ea",
+"surface-tint": "#0053db",
+"surface-container-low": "#f0f4f7",
+"secondary-container": "#d3e4fe",
+"primary-fixed": "#dbe1ff",
+"outline": "#717c82",
+"secondary-fixed-dim": "#c5d6f0",
+"tertiary-fixed-dim": "#d4cdee",
+"tertiary": "#605c78",
+"tertiary-container": "#e3dbfd",
+"tertiary-fixed": "#e3dbfd",
+"error-dim": "#4e0309",
+"on-tertiary-container": "#514d68",
+"surface-container-high": "#e1e9ee",
+"primary-container": "#dbe1ff",
+"on-background": "#2a3439",
+"inverse-on-surface": "#9a9d9f",
+"secondary": "#506076",
+"outline-variant": "#a9b4b9",
+"on-primary-container": "#0048bf",
+"primary-dim": "#0048c1",
+"surface-bright": "#f7f9fb",
+"inverse-surface": "#0b0f10"
             },
             fontFamily: {
-              "headline": ["Manrope"],
-              "body": ["Inter"],
-              "label": ["Inter"]
+"headline": ["Manrope"],
+"body": ["Inter"],
+"label": ["Inter"]
             },
             borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
           },
@@ -174,14 +174,14 @@
 {% endif %}
 
 <!-- TopNavBar -->
-<header class="sticky top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm dark:shadow-none flex justify-between items-center px-12 py-4">
+<header class="sticky top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm flex justify-between items-center px-12 py-4">
     <div class="flex items-center gap-8">
-        <span class="text-xl font-extrabold tracking-tighter text-slate-900 dark:text-white font-headline">{{ title }}</span>
+        <span class="text-xl font-extrabold tracking-tighter text-slate-900 font-headline">{{ title }}</span>
         <nav class="hidden md:flex gap-6 items-center">
-            <a class="font-headline font-bold text-lg tracking-tight text-[#0053db] dark:text-blue-400 border-b-2 border-[#0053db] pb-1" href="#hero">Hero</a>
-            <a class="font-headline font-bold text-lg tracking-tight text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors pb-1" href="#collections">Collections</a>
-            <a class="font-headline font-bold text-lg tracking-tight text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors pb-1" href="#featured">Featured</a>
-            <a class="font-headline font-bold text-lg tracking-tight text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors pb-1" href="#content">Content</a>
+            <a class="font-headline font-bold text-lg tracking-tight text-[#0053db] border-b-2 border-[#0053db] pb-1" href="#hero">Hero</a>
+            <a class="font-headline font-bold text-lg tracking-tight text-slate-500 hover:text-slate-900 transition-colors pb-1" href="#collections">Collections</a>
+            <a class="font-headline font-bold text-lg tracking-tight text-slate-500 hover:text-slate-900 transition-colors pb-1" href="#featured">Featured</a>
+            <a class="font-headline font-bold text-lg tracking-tight text-slate-500 hover:text-slate-900 transition-colors pb-1" href="#content">Content</a>
         </nav>
     </div>
     <div class="flex items-center gap-4">

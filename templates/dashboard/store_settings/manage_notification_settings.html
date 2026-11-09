@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
@@ -14,62 +14,62 @@
           theme: {
             extend: {
               colors: {
-                "on-error": "#fff7f6",
-                "surface-container-high": "#e1e9ee",
-                "on-error-container": "#752121",
-                "on-surface-variant": "#566166",
-                "primary-dim": "#0048c1",
-                "inverse-on-surface": "#9a9d9f",
-                "tertiary-dim": "#54506b",
-                "tertiary-fixed": "#e3dbfd",
-                "primary-container": "#dbe1ff",
-                "tertiary": "#605c78",
-                "surface": "#f7f9fb",
-                "outline-variant": "#a9b4b9",
-                "tertiary-fixed-dim": "#d4cdee",
-                "surface-container-highest": "#d9e4ea",
-                "surface-container-lowest": "#ffffff",
-                "on-primary-fixed": "#003798",
-                "on-background": "#2a3439",
-                "on-primary-fixed-variant": "#0050d4",
-                "primary-fixed": "#dbe1ff",
-                "on-tertiary": "#fcf7ff",
-                "inverse-primary": "#618bff",
-                "surface-variant": "#d9e4ea",
-                "error-container": "#fe8983",
-                "on-tertiary-fixed-variant": "#5b5672",
-                "on-secondary-fixed": "#314055",
-                "surface-tint": "#0053db",
-                "secondary": "#506076",
-                "surface-container-low": "#f0f4f7",
-                "secondary-fixed-dim": "#c5d6f0",
-                "on-tertiary-fixed": "#3e3a54",
-                "on-secondary-fixed-variant": "#4d5d73",
-                "on-primary-container": "#0048bf",
-                "primary": "#0053db",
-                "on-primary": "#f8f7ff",
-                "tertiary-container": "#e3dbfd",
-                "surface-container": "#e8eff3",
-                "outline": "#717c82",
-                "primary-fixed-dim": "#c7d3ff",
-                "on-secondary-container": "#435368",
-                "error-dim": "#4e0309",
-                "error": "#9f403d",
-                "inverse-surface": "#0b0f10",
-                "surface-bright": "#f7f9fb",
-                "on-tertiary-container": "#514d68",
-                "secondary-dim": "#44546a",
-                "on-secondary": "#f7f9ff",
-                "on-surface": "#2a3439",
-                "secondary-fixed": "#d3e4fe",
-                "background": "#f7f9fb",
-                "surface-dim": "#cfdce3",
-                "secondary-container": "#d3e4fe"
+"on-error": "#fff7f6",
+"surface-container-high": "#e1e9ee",
+"on-error-container": "#752121",
+"on-surface-variant": "#566166",
+"primary-dim": "#0048c1",
+"inverse-on-surface": "#9a9d9f",
+"tertiary-dim": "#54506b",
+"tertiary-fixed": "#e3dbfd",
+"primary-container": "#dbe1ff",
+"tertiary": "#605c78",
+"surface": "#f7f9fb",
+"outline-variant": "#a9b4b9",
+"tertiary-fixed-dim": "#d4cdee",
+"surface-container-highest": "#d9e4ea",
+"surface-container-lowest": "#ffffff",
+"on-primary-fixed": "#003798",
+"on-background": "#2a3439",
+"on-primary-fixed-variant": "#0050d4",
+"primary-fixed": "#dbe1ff",
+"on-tertiary": "#fcf7ff",
+"inverse-primary": "#618bff",
+"surface-variant": "#d9e4ea",
+"error-container": "#fe8983",
+"on-tertiary-fixed-variant": "#5b5672",
+"on-secondary-fixed": "#314055",
+"surface-tint": "#0053db",
+"secondary": "#506076",
+"surface-container-low": "#f0f4f7",
+"secondary-fixed-dim": "#c5d6f0",
+"on-tertiary-fixed": "#3e3a54",
+"on-secondary-fixed-variant": "#4d5d73",
+"on-primary-container": "#0048bf",
+"primary": "#0053db",
+"on-primary": "#f8f7ff",
+"tertiary-container": "#e3dbfd",
+"surface-container": "#e8eff3",
+"outline": "#717c82",
+"primary-fixed-dim": "#c7d3ff",
+"on-secondary-container": "#435368",
+"error-dim": "#4e0309",
+"error": "#9f403d",
+"inverse-surface": "#0b0f10",
+"surface-bright": "#f7f9fb",
+"on-tertiary-container": "#514d68",
+"secondary-dim": "#44546a",
+"on-secondary": "#f7f9ff",
+"on-surface": "#2a3439",
+"secondary-fixed": "#d3e4fe",
+"background": "#f7f9fb",
+"surface-dim": "#cfdce3",
+"secondary-container": "#d3e4fe"
               },
               fontFamily: {
-                "headline": ["Manrope"],
-                "body": ["Inter"],
-                "label": ["Inter"]
+"headline": ["Manrope"],
+"body": ["Inter"],
+"label": ["Inter"]
               },
               borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
             },
@@ -134,14 +134,14 @@
 {% endif %}
 
 <!-- Top Navigation Shell -->
-<header class="fixed top-0 w-full z-50 sticky bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm shadow-slate-200/50 dark:shadow-none">
+<header class="fixed top-0 w-full z-50 sticky bg-white/80 backdrop-blur-md shadow-sm shadow-slate-200/50">
     <div class="flex justify-between items-center max-w-[1440px] mx-auto px-8 h-20">
-        <div class="text-2xl font-extrabold tracking-tighter text-blue-700 dark:text-blue-500 font-headline">{{ title }}</div>
+        <div class="text-2xl font-extrabold tracking-tighter text-blue-700 font-headline">{{ title }}</div>
         <nav class="hidden md:flex gap-8 items-center">
-            <a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-300 transition-all duration-200" href="{% url 'manage_notification_settings' %}">Dashboard</a>
-            <a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-300 transition-all duration-200" href="#">Triggers</a>
-            <a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-300 transition-all duration-200" href="#">Templates</a>
-            <a class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-600 dark:hover:text-blue-300 transition-all duration-200" href="{% url 'notification_logs' %}">Logs</a>
+            <a class="text-slate-500 font-medium hover:text-[#5850EC] transition-all duration-200" href="{% url 'manage_notification_settings' %}">Dashboard</a>
+            <a class="text-slate-500 font-medium hover:text-[#5850EC] transition-all duration-200" href="#">Triggers</a>
+            <a class="text-slate-500 font-medium hover:text-[#5850EC] transition-all duration-200" href="#">Templates</a>
+            <a class="text-slate-500 font-medium hover:text-[#5850EC] transition-all duration-200" href="{% url 'notification_logs' %}">Logs</a>
         </nav>
         <div class="flex items-center gap-4">
             <span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" title="Help">help</span>
@@ -727,14 +727,14 @@
 </main>
 
 <!-- Footer Shell -->
-<footer class="w-full py-12 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
+<footer class="w-full py-12 border-t border-slate-100 bg-slate-50">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center px-8 gap-4">
-        <div class="font-headline font-semibold text-slate-900 dark:text-slate-100">{{ title }}</div>
-        <p class="font-inter text-sm text-slate-500 dark:text-slate-400">© 2024 NotifyCore Systems. Architectural Ledger v1.0</p>
+        <div class="font-headline font-semibold text-slate-900">{{ title }}</div>
+        <p class="font-inter text-sm text-slate-500">© 2024 NotifyCore Systems. Architectural Ledger v1.0</p>
         <div class="flex gap-6">
-            <a class="text-slate-500 hover:text-blue-600 font-inter text-sm transition-colors" href="#">Documentation</a>
-            <a class="text-slate-500 hover:text-blue-600 font-inter text-sm transition-colors" href="#">API Reference</a>
-            <a class="text-slate-500 hover:text-blue-600 font-inter text-sm transition-colors" href="#">Support</a>
+            <a class="text-slate-500 hover:text-[#5850EC] font-inter text-sm transition-colors" href="#">Documentation</a>
+            <a class="text-slate-500 hover:text-[#5850EC] font-inter text-sm transition-colors" href="#">API Reference</a>
+            <a class="text-slate-500 hover:text-[#5850EC] font-inter text-sm transition-colors" href="#">Support</a>
         </div>
     </div>
 </footer>

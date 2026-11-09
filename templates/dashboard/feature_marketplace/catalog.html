@@ -1,16 +1,16 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% block content %}
 <section class="space-y-6">
-  <div class="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
+  <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
     <h1 class="text-3xl font-semibold text-slate-900">Marketplace Catalog</h1>
     <p class="mt-2 text-sm text-slate-600">Browse individual add-ons and bundles priced in {{ currency }}.</p>
   </div>
   <div class="grid gap-6 lg:grid-cols-2">
-    <div class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+    <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
       <h2 class="text-lg font-semibold text-slate-900">Features</h2>
       <div class="mt-4 grid gap-4">
         {% for feature in features %}
-        <a class="rounded-2xl border border-slate-200 p-4 transition hover:border-primary/40 hover:shadow-sm" href="{% url 'dashboard:feature_marketplace:feature_detail' prefix=prefix code=feature.code %}">
+        <a class="rounded-2xl border border-[#EEF2F6] p-4 transition hover:border-primary/40 hover:shadow-sm" href="{% url 'dashboard:feature_marketplace:feature_detail' prefix=prefix code=feature.code %}">
           <div class="flex items-start justify-between gap-4">
             <div>
               <div class="font-semibold text-slate-900">{{ feature.name }}</div>
@@ -24,11 +24,11 @@
         {% endfor %}
       </div>
     </div>
-    <div class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+    <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
       <h2 class="text-lg font-semibold text-slate-900">Bundles</h2>
       <div class="mt-4 grid gap-4">
         {% for bundle in bundles %}
-        <a class="rounded-2xl border border-slate-200 p-4 transition hover:border-primary/40 hover:shadow-sm" href="{% url 'dashboard:feature_marketplace:bundle_detail' prefix=prefix slug=bundle.slug %}">
+        <a class="rounded-2xl border border-[#EEF2F6] p-4 transition hover:border-primary/40 hover:shadow-sm" href="{% url 'dashboard:feature_marketplace:bundle_detail' prefix=prefix slug=bundle.slug %}">
           <div class="flex items-start justify-between gap-4">
             <div>
               <div class="font-semibold text-slate-900">{{ bundle.name }}</div>

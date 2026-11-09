@@ -1,16 +1,16 @@
-{% extends "dashboard/_partials/base.html" %} {% block content %}
+﻿{% extends "dashboard/_partials/base.html" %} {% block content %}
 <div class="flex items-center justify-between mb-6">
   <div>
-    <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+    <h2 class="text-xl font-bold text-slate-900">
       Attribute Groups
     </h2>
-    <p class="text-slate-600 dark:text-slate-400">
+    <p class="text-slate-600">
       Manage your product attribute groups
     </p>
   </div>
   <a
     href="{% url 'dashboard:product_settings:attribute_group_create' prefix %}"
-    class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-2"
+    class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-[#5850EC] transition-colors flex items-center space-x-2"
   >
     <span class="material-icons-outlined text-sm">add</span>
     <span>Add Attribute Group</span>
@@ -18,9 +18,9 @@
 </div>
 
 <div
-  class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden"
+  class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden"
 >
-  <div class="p-6 border-b border-slate-200 dark:border-slate-700">
+  <div class="p-6 border-b border-[#EEF2F6]">
     <div class="flex flex-col sm:flex-row gap-4">
       <div class="flex-1">
         <div class="relative">
@@ -34,7 +34,7 @@
           <input
             type="text"
             placeholder="Search attribute groups..."
-            class="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-slate-700 dark:text-white"
+            class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         </div>
       </div>
@@ -42,84 +42,84 @@
   </div>
   <div class="overflow-x-auto">
     <table class="w-full">
-      <thead class="bg-slate-50 dark:bg-slate-700">
+      <thead class="bg-slate-50">
         <tr>
           <th
-            class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
           >
             Name
           </th>
           <th
-            class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
           >
             Description
           </th>
           <th
-            class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
           >
             Attributes
           </th>
           <th
-            class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
           >
             Display Order
           </th>
           <th
-            class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
           >
             Actions
           </th>
         </tr>
       </thead>
       <tbody
-        class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700"
+        class="bg-white divide-y divide-[#EEF2F6]"
       >
         {% if page_obj %} {% for group in page_obj %}
-        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+        <tr class="hover:bg-slate-50 transition-colors">
           <td class="px-6 py-4 whitespace-nowrap">
             <div class="flex items-center">
               <div
-                class="w-10 h-10 bg-slate-200 dark:bg-slate-600 rounded-lg flex items-center justify-center mr-3"
+                class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center mr-3"
               >
                 <span class="material-icons-outlined text-slate-400"
                   >folder</span
                 >
               </div>
               <div>
-                <div class="text-sm font-medium text-slate-900 dark:text-white">
+                <div class="text-sm font-medium text-slate-900">
                   {{ group.name }}
                 </div>
-                <div class="text-sm text-slate-500 dark:text-slate-400">
+                <div class="text-sm text-slate-500">
                   {{ group.slug }}
                 </div>
               </div>
             </div>
           </td>
           <td class="px-6 py-4">
-            <span class="text-sm text-slate-600 dark:text-slate-400">
+            <span class="text-sm text-slate-600">
               {{ group.description|truncatewords:10 }}
             </span>
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
-            <span class="text-sm text-slate-600 dark:text-slate-400">
+            <span class="text-sm text-slate-600">
               {{ group.attributes.count }}
             </span>
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
-            <span class="text-sm text-slate-600 dark:text-slate-400">
+            <span class="text-sm text-slate-600">
               {{ group.display_order }}
             </span>
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
             <button
-              class="text-blue-600 hover:text-blue-800 cursor-pointer view-details-btn"
+              class="text-[#5850EC] hover:text-blue-800 cursor-pointer view-details-btn"
               data-url="{% url 'dashboard:product_settings:attribute_group_details' prefix group.id %}"
             >
               View Details
             </button>
             <a
               href="{% url 'dashboard:product_settings:attribute_group_edit' prefix group.id %}"
-              class="text-primary hover:text-blue-600"
+              class="text-primary hover:text-[#5850EC]"
               >Edit</a
             >
             <button
@@ -135,7 +135,7 @@
         <tr>
           <td
             colspan="5"
-            class="px-6 py-4 text-center text-slate-600 dark:text-slate-400"
+            class="px-6 py-4 text-center text-slate-600"
           >
             No attribute groups found
           </td>
@@ -145,9 +145,9 @@
     </table>
   </div>
   <div
-    class="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between"
+    class="px-6 py-4 border-t border-[#EEF2F6] flex items-center justify-between"
   >
-    <div class="text-sm text-slate-600 dark:text-slate-400">
+    <div class="text-sm text-slate-600">
       Showing
       <span class="font-medium">{{ page_obj.start_index }}</span> to
       <span class="font-medium">{{ page_obj.end_index }}</span> of
@@ -158,18 +158,18 @@
       {% if page_obj.has_previous %}
       <a
         href="?page={{ page_obj.previous_page_number }}"
-        class="px-3 py-1 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+        class="px-3 py-1 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors"
       >
         Previous
       </a>
       {% endif %}
-      <span class="text-sm text-slate-600 dark:text-slate-400">
+      <span class="text-sm text-slate-600">
         Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
       </span>
       {% if page_obj.has_next %}
       <a
         href="?page={{ page_obj.next_page_number }}"
-        class="px-3 py-1 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+        class="px-3 py-1 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors"
       >
         Next
       </a>
@@ -195,14 +195,14 @@
         const url = this.dataset.url;
 
         openDeleteModal(
-          "Delete Attribute Group",
+"Delete Attribute Group",
           `Are you sure you want to delete "${name}"? This action cannot be undone.`,
           function () {
             fetch(url, {
               method: "POST",
               headers: {
-                "X-CSRFToken": "{{ csrf_token }}",
-                "Content-Type": "application/x-www-form-urlencoded",
+"X-CSRFToken": "{{ csrf_token }}",
+"Content-Type": "application/x-www-form-urlencoded",
               },
             }).then(() => location.reload());
           },

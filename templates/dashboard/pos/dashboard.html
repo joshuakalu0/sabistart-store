@@ -1,17 +1,17 @@
-{% extends 'dashboard/_partials/base.html' %}
+﻿{% extends 'dashboard/_partials/base.html' %}
 
 {% block content %}
 <section class="space-y-6">
-  <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+  <div class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
       <div class="space-y-2">
-        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-blue-600">Point of Sale</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-[#5850EC]">Point of Sale</p>
         <h1 class="text-3xl font-semibold text-slate-900">Branch-aware workspace for physical store sales.</h1>
         <p class="max-w-3xl text-sm text-slate-600">
           Run local checkout from a real place, register, and cashier session with offline-friendly receipts and inventory deductions.
         </p>
       </div>
-      <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+      <div class="rounded-2xl border border-[#EEF2F6] bg-slate-50 px-4 py-3 text-sm text-slate-600">
         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Using Place</p>
         <p class="mt-2 text-base font-semibold text-slate-900">{{ selected_store.name }}</p>
         {% if selected_register %}<p class="mt-1 text-xs text-slate-500">{{ selected_register.name }}</p>{% endif %}
@@ -22,18 +22,18 @@
   {% if selected_store %}
     <div class="grid gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(22rem,0.9fr)]">
       <div class="space-y-6">
-        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
           <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h2 class="text-xl font-semibold text-slate-900">Checkout Screen</h2>
               <p class="text-sm text-slate-600">Serving <span class="font-medium text-slate-900">{{ selected_store.name }}</span>{% if selected_register %} via <span class="font-medium text-slate-900">{{ selected_register.name }}</span>{% endif %}.</p>
             </div>
             <div class="flex flex-wrap gap-3">
-              <a href="{% url 'dashboard:pos:stores' prefix=prefix %}?store={{ selected_store.id }}" class="inline-flex items-center rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-blue-200 hover:text-blue-600">Manage Places</a>
-              <a href="{% url 'dashboard:pos:sessions' prefix=prefix %}?store={{ selected_store.id }}{% if selected_register %}&register={{ selected_register.id }}{% endif %}" class="inline-flex items-center rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-blue-200 hover:text-blue-600">
+              <a href="{% url 'dashboard:pos:stores' prefix=prefix %}?store={{ selected_store.id }}" class="inline-flex items-center rounded-full border border-[#EEF2F6] px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-blue-200 hover:text-[#5850EC]">Manage Places</a>
+              <a href="{% url 'dashboard:pos:sessions' prefix=prefix %}?store={{ selected_store.id }}{% if selected_register %}&register={{ selected_register.id }}{% endif %}" class="inline-flex items-center rounded-full border border-[#EEF2F6] px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-blue-200 hover:text-[#5850EC]">
                 {% if active_session %}Session Open{% else %}Open Session{% endif %}
               </a>
-              <a href="{% url 'dashboard:pos:sales' prefix=prefix %}?store={{ selected_store.id }}" class="inline-flex items-center rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-blue-200 hover:text-blue-600">
+              <a href="{% url 'dashboard:pos:sales' prefix=prefix %}?store={{ selected_store.id }}" class="inline-flex items-center rounded-full border border-[#EEF2F6] px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-blue-200 hover:text-[#5850EC]">
                 View Sales History
               </a>
             </div>
@@ -50,33 +50,33 @@
             <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
               <div>
                 <label for="product-search" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Find Product</label>
-                <input id="product-search" type="search" autocomplete="off" placeholder="Search by product name, SKU, or barcode" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+                <input id="product-search" type="search" autocomplete="off" placeholder="Search by product name, SKU, or barcode" class="w-full rounded-2xl border border-[#EEF2F6] px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
               </div>
-              <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+              <div class="rounded-2xl border border-[#EEF2F6] bg-slate-50 px-4 py-3 text-sm text-slate-600">
                 <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Location Tax</p>
                 <p class="mt-2 text-lg font-semibold text-slate-900">{{ selected_store_tax_percent|floatformat:2 }}%</p>
               </div>
             </div>
 
-            <div id="search-results" class="hidden rounded-2xl border border-slate-200 bg-slate-50 p-3"></div>
+            <div id="search-results" class="hidden rounded-2xl border border-[#EEF2F6] bg-slate-50 p-3"></div>
 
             <div class="grid gap-4 lg:grid-cols-3">
               <div>
                 <label for="customer_name" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Customer Name</label>
-                <input id="customer_name" type="text" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+                <input id="customer_name" type="text" class="w-full rounded-2xl border border-[#EEF2F6] px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
               </div>
               <div>
                 <label for="customer_email" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Customer Email</label>
-                <input id="customer_email" type="email" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+                <input id="customer_email" type="email" class="w-full rounded-2xl border border-[#EEF2F6] px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
               </div>
               <div>
                 <label for="customer_phone" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Customer Phone</label>
-                <input id="customer_phone" type="text" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+                <input id="customer_phone" type="text" class="w-full rounded-2xl border border-[#EEF2F6] px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
               </div>
             </div>
 
-            <div class="overflow-hidden rounded-3xl border border-slate-200">
-              <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <div class="overflow-hidden rounded-2xl border border-[#EEF2F6]">
+              <table class="min-w-full divide-y divide-[#EEF2F6] text-sm">
                 <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
                   <tr>
                     <th class="px-4 py-3">Product</th>
@@ -86,7 +86,7 @@
                     <th class="px-4 py-3 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody id="cart-items" class="divide-y divide-slate-200 bg-white">
+                <tbody id="cart-items" class="divide-y divide-[#EEF2F6] bg-white">
                   <tr id="empty-cart-row">
                     <td colspan="5" class="px-4 py-10 text-center text-sm text-slate-500">Search for a product to start this sale.</td>
                   </tr>
@@ -98,7 +98,7 @@
       </div>
 
       <aside class="space-y-6">
-        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
           <h2 class="text-xl font-semibold text-slate-900">Order Summary</h2>
           <p class="mt-1 text-sm text-slate-600">Totals are reviewed on the server before the sale is finalized.</p>
 
@@ -111,7 +111,7 @@
               <span>Tax</span>
               <span id="tax">NGN 0.00</span>
             </div>
-            <div class="flex items-center justify-between border-t border-slate-200 pt-3 text-base font-semibold text-slate-900">
+            <div class="flex items-center justify-between border-t border-[#EEF2F6] pt-3 text-base font-semibold text-slate-900">
               <span>Total</span>
               <span id="total">NGN 0.00</span>
             </div>
@@ -120,7 +120,7 @@
           <div class="mt-5 space-y-4">
             <div>
               <label for="payment_method" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Payment Method</label>
-              <select id="payment_method" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+              <select id="payment_method" class="w-full rounded-2xl border border-[#EEF2F6] px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
                 <option value="cash">Cash</option>
                 <option value="card">Card</option>
                 <option value="mobile">Mobile Payment</option>
@@ -129,45 +129,45 @@
             </div>
             <div>
               <label for="sale_notes" class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Notes</label>
-              <textarea id="sale_notes" rows="3" class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"></textarea>
+              <textarea id="sale_notes" rows="3" class="w-full rounded-2xl border border-[#EEF2F6] px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"></textarea>
             </div>
           </div>
 
           <div id="sale-feedback" class="mt-4 hidden rounded-2xl px-4 py-3 text-sm"></div>
 
-          <button id="complete-sale" type="button" class="mt-5 w-full rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300" disabled>
+          <button id="complete-sale" type="button" class="mt-5 w-full rounded-2xl bg-[#5850EC] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#4F46E5] disabled:cursor-not-allowed disabled:bg-slate-300" disabled>
             Complete Sale
           </button>
         </div>
 
         <div class="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
-          <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div class="rounded-2xl border border-[#EEF2F6] bg-white p-5 shadow-sm">
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Today</p>
             <p class="mt-3 text-2xl font-semibold text-slate-900">NGN {{ today_sales|floatformat:2 }}</p>
           </div>
-          <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div class="rounded-2xl border border-[#EEF2F6] bg-white p-5 shadow-sm">
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Transactions</p>
             <p class="mt-3 text-2xl font-semibold text-slate-900">{{ today_transactions }}</p>
           </div>
-          <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div class="rounded-2xl border border-[#EEF2F6] bg-white p-5 shadow-sm">
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Products Sold</p>
             <p class="mt-3 text-2xl font-semibold text-slate-900">{{ products_sold }}</p>
           </div>
-          <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div class="rounded-2xl border border-[#EEF2F6] bg-white p-5 shadow-sm">
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Low Stock</p>
             <p class="mt-3 text-2xl font-semibold text-amber-600">{{ inventory_summary.low_stock_count }}</p>
           </div>
-          <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div class="rounded-2xl border border-[#EEF2F6] bg-white p-5 shadow-sm">
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Out Of Stock</p>
             <p class="mt-3 text-2xl font-semibold text-rose-600">{{ inventory_summary.out_of_stock_count }}</p>
           </div>
         </div>
 
-        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
           <h2 class="text-xl font-semibold text-slate-900">Payment Breakdown</h2>
           <div class="mt-4 space-y-3">
             {% for row in payment_breakdown %}
-              <div class="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3 text-sm">
+              <div class="flex items-center justify-between rounded-2xl border border-[#EEF2F6] px-4 py-3 text-sm">
                 <span class="font-medium text-slate-900">{{ row.payments__payment_method|default:"unknown"|title }}</span>
                 <span class="text-slate-600">NGN {{ row.total|floatformat:2 }} • {{ row.count }}</span>
               </div>
@@ -177,11 +177,11 @@
           </div>
         </div>
 
-        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
           <h2 class="text-xl font-semibold text-slate-900">Cashier Activity</h2>
           <div class="mt-4 space-y-3">
             {% for row in cashier_activity %}
-              <div class="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3 text-sm">
+              <div class="flex items-center justify-between rounded-2xl border border-[#EEF2F6] px-4 py-3 text-sm">
                 <span class="font-medium text-slate-900">{{ row.cashier__first_name }} {{ row.cashier__last_name }}</span>
                 <span class="text-slate-600">NGN {{ row.total_sales|floatformat:2 }} • {{ row.transaction_count }}</span>
               </div>
@@ -191,7 +191,7 @@
           </div>
         </div>
 
-        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
           <div class="flex items-center justify-between gap-4">
             <div>
               <h2 class="text-xl font-semibold text-slate-900">7-Day POS Trend</h2>
@@ -203,14 +203,14 @@
           </div>
         </div>
 
-        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
           <div class="flex items-center justify-between">
             <h2 class="text-xl font-semibold text-slate-900">Recent Transactions</h2>
-            <a href="{% url 'dashboard:pos:sales' prefix=prefix %}" class="text-sm font-medium text-blue-600 hover:text-blue-700">All Sales</a>
+            <a href="{% url 'dashboard:pos:sales' prefix=prefix %}" class="text-sm font-medium text-[#5850EC] hover:text-[#4F46E5]">All Sales</a>
           </div>
           <div class="mt-4 space-y-3">
             {% for transaction in recent_transactions %}
-              <a href="{% url 'dashboard:pos:sale_detail' prefix=prefix transaction_id=transaction.id %}" class="block rounded-2xl border border-slate-200 p-4 transition hover:border-blue-200 hover:bg-blue-50/40">
+              <a href="{% url 'dashboard:pos:sale_detail' prefix=prefix transaction_id=transaction.id %}" class="block rounded-2xl border border-[#EEF2F6] p-4 transition hover:border-blue-200 hover:bg-indigo-50/40">
                 <div class="flex items-center justify-between gap-3">
                   <div>
                     <p class="text-sm font-semibold text-slate-900">{{ transaction.transaction_number }}</p>
@@ -228,23 +228,23 @@
     </div>
 
     <section class="mt-6 grid gap-6 xl:grid-cols-3">
-      <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <h2 class="text-xl font-semibold text-slate-900">Outlet Comparison</h2>
         <div class="mt-5 h-72">
           <canvas id="posOutletSalesChart"></canvas>
         </div>
       </div>
-      <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <h2 class="text-xl font-semibold text-slate-900">Cashier Comparison</h2>
         <div class="mt-5 h-72">
           <canvas id="posCashierSalesChart"></canvas>
         </div>
       </div>
-      <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
         <h2 class="text-xl font-semibold text-slate-900">Hourly Activity</h2>
         <div class="mt-5 grid grid-cols-4 gap-3 sm:grid-cols-6">
           {% for cell in pos_analytics_bundle.charts.hourly_activity.meta.heatmap_cells %}
-            <div class="rounded-2xl border border-slate-200 px-3 py-3 text-center" style="background-color: rgba(37,99,235,{{ cell.intensity|default:0 }});">
+            <div class="rounded-2xl border border-[#EEF2F6] px-3 py-3 text-center" style="background-color: rgba(37,99,235,{{ cell.intensity|default:0 }});">
               <p class="text-xs font-semibold text-slate-600">{{ cell.label }}</p>
               <p class="mt-2 text-lg font-bold text-slate-900">{{ cell.value }}</p>
             </div>
@@ -329,11 +329,11 @@
               </td>
               <td class="px-4 py-4 text-slate-600">${money(item.price)}</td>
               <td class="px-4 py-4">
-                <input data-index="${index}" type="number" min="1" max="${item.maxQuantity}" value="${item.quantity}" class="cart-qty w-24 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900">
+                <input data-index="${index}" type="number" min="1" max="${item.maxQuantity}" value="${item.quantity}" class="cart-qty w-24 rounded-xl border border-[#EEF2F6] px-3 py-2 text-sm text-slate-900">
               </td>
               <td class="px-4 py-4 font-medium text-slate-900">${money(lineTotal)}</td>
               <td class="px-4 py-4 text-right">
-                <button data-remove="${index}" type="button" class="rounded-full border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-rose-200 hover:text-rose-600">Remove</button>
+                <button data-remove="${index}" type="button" class="rounded-full border border-[#EEF2F6] px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-rose-200 hover:text-rose-600">Remove</button>
               </td>
             `;
             cartItems.appendChild(row);
@@ -424,8 +424,8 @@
             const response = await fetch(app.dataset.createUrl, {
               method: "POST",
               headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": getCookie("csrftoken"),
+"Content-Type": "application/json",
+"X-CSRFToken": getCookie("csrftoken"),
               },
               body: JSON.stringify(payload),
             });

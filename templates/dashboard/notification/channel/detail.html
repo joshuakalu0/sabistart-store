@@ -1,4 +1,4 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% load static %}
 {% load i18n %}
 
@@ -23,7 +23,7 @@
                     <span>Send Test Email</span>
                 </a>
                 {% endif %}
-                <a href="{% url 'dashboard:notification_channel_update' prefix=prefix pk=channel.pk %}" class="btn bg-white border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-600">
+                <a href="{% url 'dashboard:notification_channel_update' prefix=prefix pk=channel.pk %}" class="btn bg-white border-[#EEF2F6] hover:border-slate-300 text-slate-500 hover:text-slate-600">
                     <svg class="w-4 h-4 fill-current text-slate-500 shrink-0 mr-2" viewBox="0 0 16 16">
                         <path d="M11.7.3c-.4-.4-1-.4-1.4 0l-10 10c-.2.2-.3.4-.3.7v4c0 .6.4 1 1 1h4c.3 0 .5-.1.7-.3l10-10c.4-.4.4-1 0-1.4l-4-4zM4.6 14H2v-2.6l6-6L10.6 8l-6 6zM12 6.6L9.4 4 11 2.4 13.6 5 12 6.6z" />
                     </svg>
@@ -34,7 +34,7 @@
     </div>
 
     <!-- Overview -->
-    <div class="bg-white shadow-lg rounded-sm border border-slate-200 mb-8 p-5">
+    <div class="bg-white shadow-lg rounded-sm border border-[#EEF2F6] mb-8 p-5">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div>
                 <div class="text-sm text-slate-500 mb-1">Status</div>
@@ -75,7 +75,7 @@
     <div class="grid grid-cols-12 gap-6">
 
         <!-- Recent Jobs -->
-        <div class="col-span-12 xl:col-span-6 bg-white shadow-sm rounded-sm border border-slate-200">
+        <div class="col-span-12 xl:col-span-6 bg-white shadow-sm rounded-sm border border-[#EEF2F6]">
             <header class="px-5 py-4 border-b border-slate-100 flex justify-between items-center">
                 <h2 class="font-semibold text-slate-800">Recent Jobs</h2>
             </header>
@@ -110,7 +110,7 @@
         </div>
 
         <!-- Recent Delivery Logs -->
-        <div class="col-span-12 xl:col-span-6 bg-white shadow-sm rounded-sm border border-slate-200">
+        <div class="col-span-12 xl:col-span-6 bg-white shadow-sm rounded-sm border border-[#EEF2F6]">
             <header class="px-5 py-4 border-b border-slate-100 flex justify-between items-center">
                 <h2 class="font-semibold text-slate-800">Recent Delivered Logs</h2>
             </header>

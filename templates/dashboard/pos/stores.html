@@ -1,8 +1,8 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% block content %}
   <section class="space-y-6">
-    <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-      <p class="text-xs font-semibold uppercase tracking-[0.35em] text-blue-600">POS Places</p>
+    <div class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
+      <p class="text-xs font-semibold uppercase tracking-[0.35em] text-[#5850EC]">POS Places</p>
       <h1 class="mt-2 text-3xl font-semibold text-slate-900">Places and registers</h1>
       <p class="mt-2 text-sm text-slate-600">Create branches or outlets, then attach browser or printer registers to each place.</p>
     </div>
@@ -10,7 +10,7 @@
     <div class="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
       <div class="space-y-4">
         {% for store in stores %}
-          <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <article class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
             <div class="flex items-start justify-between gap-4">
               <div>
                 <h2 class="text-xl font-semibold text-slate-900">{{ store.name }}</h2>
@@ -30,18 +30,18 @@
                 </div>
               </div>
               <div class="flex gap-3">
-                <a href="?store={{ store.id }}&edit={{ store.id }}" class="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Edit</a>
+                <a href="?store={{ store.id }}&edit={{ store.id }}" class="rounded-full border border-[#EEF2F6] px-4 py-2 text-sm font-semibold text-slate-700">Edit</a>
                 <a href="?store={{ store.id }}" class="rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white">Use place</a>
               </div>
             </div>
           </article>
         {% empty %}
-          <div class="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500 shadow-sm">No POS places yet. Create the first branch to start selling.</div>
+          <div class="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500 shadow-sm">No POS places yet. Create the first branch to start selling.</div>
         {% endfor %}
       </div>
 
       <div class="space-y-6">
-        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
           <h2 class="text-lg font-semibold text-slate-900">{% if editing_store %}Edit place{% else %}Create place{% endif %}</h2>
           <form method="post" class="mt-4 space-y-4">
             {% csrf_token %}
@@ -53,12 +53,12 @@
           </form>
         </div>
 
-        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="rounded-2xl border border-[#EEF2F6] bg-white p-6 shadow-sm">
           <h2 class="text-lg font-semibold text-slate-900">Registers{% if selected_store %} for {{ selected_store.name }}{% endif %}</h2>
           {% if selected_store %}
             <div class="mt-4 space-y-3">
               {% for register in registers %}
-                <div class="rounded-2xl border border-slate-200 px-4 py-4 text-sm">
+                <div class="rounded-2xl border border-[#EEF2F6] px-4 py-4 text-sm">
                   <div class="flex items-start justify-between gap-4">
                     <div>
                       <p class="font-semibold text-slate-900">{{ register.name }}</p>
@@ -82,7 +82,7 @@
               {% for field in register_form %}
                 {% include "shared/forms/field.html" with field=field %}
               {% endfor %}
-              <button type="submit" class="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700">Save register</button>
+              <button type="submit" class="rounded-2xl border border-[#EEF2F6] px-5 py-3 text-sm font-semibold text-slate-700">Save register</button>
             </form>
           {% else %}
             <p class="mt-4 text-sm text-slate-500">Select a place first to manage its registers.</p>
