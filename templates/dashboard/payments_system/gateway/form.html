@@ -4,7 +4,7 @@
   <div class="flex items-center space-x-4 mb-6">
     <a href="{% url 'dashboard:payments_system:gateway_list' prefix %}"
        class="p-2 text-slate-500 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors">
-      <span class="material-icons-outlined">arrow_back</span>
+      <span class="material-symbols-outlined">arrow_back</span>
     </a>
     <div>
       <h2 class="text-xl font-bold text-slate-900">{{ form_title }}</h2>
@@ -21,7 +21,7 @@
     <!-- Basic Info -->
     <div class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm p-6">
       <h3 class="font-semibold text-slate-900 mb-4 flex items-center space-x-2">
-        <span class="material-icons-outlined text-primary">info</span><span>Basic Information</span>
+        <span class="material-symbols-outlined text-primary">info</span><span>Basic Information</span>
       </h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
         {% for field in form %}{% if field.name in "provider,name,badge_label,display_order,logo_url,website_url,dashboard_url,documentation_url,description" %}
@@ -40,7 +40,7 @@
     <!-- Capabilities -->
     <div class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm p-6">
       <h3 class="font-semibold text-slate-900 mb-4 flex items-center space-x-2">
-        <span class="material-icons-outlined text-primary">check_circle</span><span>Capabilities & Limits</span>
+        <span class="material-symbols-outlined text-primary">check_circle</span><span>Capabilities & Limits</span>
       </h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
         {% for field in form %}{% if field.name in "min_transaction_amount,max_transaction_amount,settlement_days,settlement_note" %}
@@ -65,7 +65,7 @@
     <!-- JSON Fields -->
     <div class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm p-6">
       <h3 class="font-semibold text-slate-900 mb-4 flex items-center space-x-2">
-        <span class="material-icons-outlined text-primary">code</span><span>Configuration (JSON)</span>
+        <span class="material-symbols-outlined text-primary">code</span><span>Configuration (JSON)</span>
       </h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
         {% for field in form %}{% if field.name in "supported_countries,supported_currencies,credential_schema,webhook_events" %}

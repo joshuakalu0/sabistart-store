@@ -4,7 +4,7 @@
   <div class="flex items-center space-x-4 mb-6">
     <a href="{% url 'dashboard:payments_system:credential_list' prefix gateway.id %}"
        class="p-2 text-slate-500 hover:text-primary rounded-lg hover:bg-slate-100">
-      <span class="material-icons-outlined">arrow_back</span>
+      <span class="material-symbols-outlined">arrow_back</span>
     </a>
     <div>
       <h2 class="text-xl font-bold text-slate-900">{{ form_title }}</h2>
@@ -14,7 +14,7 @@
 
   <!-- Security Notice -->
   <div class="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start space-x-3">
-    <span class="material-icons-outlined text-amber-500 mt-0.5">lock</span>
+    <span class="material-symbols-outlined text-amber-500 mt-0.5">lock</span>
     <div>
       <p class="text-sm font-medium text-amber-800">Encrypted at Rest</p>
       <p class="text-xs text-amber-700 mt-0.5">API keys are stored encrypted. Leave password fields blank to preserve existing values. Existing keys are <strong>never</strong> echoed back to the browser.</p>
@@ -48,7 +48,7 @@
     <!-- Encrypted keys -->
     <div class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm p-6">
       <h3 class="font-semibold text-slate-900 mb-4 flex items-center space-x-2">
-        <span class="material-icons-outlined text-amber-500">key</span><span>API Keys (Write-only)</span>
+        <span class="material-symbols-outlined text-amber-500">key</span><span>API Keys (Write-only)</span>
       </h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
         {% for field in form %}{% if field.name in "public_key,secret_key,encryption_key,webhook_secret" %}

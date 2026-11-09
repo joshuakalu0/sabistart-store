@@ -13,7 +13,11 @@
       rel="stylesheet"
     />
     <link
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
     />
     <link
@@ -163,6 +167,23 @@
         color: #059669;
         border: 1px solid #D1FAE5;
       }
+      .material-symbols-outlined,
+      .material-icons,
+      .material-icons-outlined {
+        font-family: 'Material Symbols Outlined', 'Material Icons Outlined', 'Material Icons', sans-serif !important;
+        font-weight: normal;
+        font-style: normal;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        -webkit-font-feature-settings: 'liga';
+        -webkit-font-smoothing: antialiased;
+      }
+
       .table-row-hover:hover {
         background-color: #FBFBFE;
       }
@@ -183,7 +204,7 @@
       <div class="flex h-16 items-center justify-between border-b border-[#EEF2F6] px-5">
         <div class="flex items-center gap-3 min-w-0">
           <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#5850EC] text-white shadow-md shadow-indigo-200">
-            <span class="material-icons-outlined text-xl">shopping_bag</span>
+            <span class="material-symbols-outlined text-xl">shopping_bag</span>
           </div>
           <div class="min-w-0">
             <h2 class="truncate text-base font-bold tracking-tight text-slate-900">{{ request.tenant.name|default:"Shodai Store" }}</h2>
@@ -196,7 +217,7 @@
           class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900 active:scale-95 lg:hidden"
           aria-label="Close navigation"
         >
-          <span class="material-icons-outlined text-lg">close</span>
+          <span class="material-symbols-outlined text-lg">close</span>
         </button>
       </div>
 
@@ -216,12 +237,12 @@
             data-menu="{{ key }}"
           >
             <div class="flex items-center gap-2.5 min-w-0">
-              <span class="material-icons-outlined text-[19px] {% if values.active %}text-white{% else %}text-slate-400 group-hover:text-slate-700{% endif %}">
+              <span class="material-symbols-outlined text-[19px] {% if values.active %}text-white{% else %}text-slate-400 group-hover:text-slate-700{% endif %}">
                 {{ values.icon }}
               </span>
               <span class="truncate">{{ values.name }}</span>
             </div>
-            <span class="sidebar-collapse-icon material-icons-outlined text-sm opacity-70">
+            <span class="sidebar-collapse-icon material-symbols-outlined text-sm opacity-70">
               {% if values.active %}expand_less{% else %}expand_more{% endif %}
             </span>
           </button>
@@ -245,7 +266,7 @@
           class="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-semibold transition-all {% if values.active %}bg-[#5850EC] text-white shadow-md shadow-indigo-300/40{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900{% endif %}"
           href="{{ values.url }}"
         >
-          <span class="material-icons-outlined text-[19px] {% if values.active %}text-white{% else %}text-slate-400{% endif %}">
+          <span class="material-symbols-outlined text-[19px] {% if values.active %}text-white{% else %}text-slate-400{% endif %}">
             {{ values.icon }}
           </span>
           <span class="truncate">{{ values.name }}</span>
@@ -272,7 +293,7 @@
             </div>
           </div>
           <a href="/logout/" title="Log out" class="text-slate-400 hover:text-slate-600 p-1">
-            <span class="material-icons-outlined text-sm">logout</span>
+            <span class="material-symbols-outlined text-sm">logout</span>
           </a>
         </div>
       </div>
@@ -357,7 +378,7 @@
           href="{{ values.url }}"
           class="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-xl {% if values.active %}bg-[#5850EC] text-white shadow-xs{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900{% endif %} transition-colors"
         >
-          <span class="material-icons-outlined text-base"
+          <span class="material-symbols-outlined text-base"
             >{{ values.icon }}</span
           >
           <span class="truncate">{{ values.name }}</span>
@@ -378,12 +399,12 @@
             class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 active:scale-95 lg:hidden"
             aria-label="Open Navigation Menu"
           >
-            <span class="material-icons-outlined text-xl">menu</span>
+            <span class="material-symbols-outlined text-xl">menu</span>
           </button>
 
           <!-- Search Bar with ⌘K Badge -->
           <div class="relative w-full max-w-md hidden sm:block">
-            <span class="material-icons-outlined absolute left-3 top-2.5 text-slate-400 text-lg">search</span>
+            <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-lg">search</span>
             <input
               type="text"
               placeholder="Search products, orders, customers... ⌘K"
@@ -407,7 +428,7 @@
             title="View Live Storefront"
             class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#EEF2F6]/80 bg-white px-3 text-xs font-semibold text-slate-700 shadow-xs transition hover:border-[#5850EC] hover:text-[#5850EC]"
           >
-            <span class="material-icons-outlined text-[16px] text-[#5850EC]">storefront</span>
+            <span class="material-symbols-outlined text-[16px] text-[#5850EC]">storefront</span>
             <span class="hidden md:inline">Storefront</span>
           </a>
 
@@ -417,7 +438,7 @@
             title="Notifications"
             class="relative flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition"
           >
-            <span class="material-icons-outlined text-lg">notifications</span>
+            <span class="material-symbols-outlined text-lg">notifications</span>
             <span class="absolute top-2 right-2 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
           </a>
 
@@ -451,7 +472,7 @@
             href="{{ values.url }}"
             class="flex items-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-1.5 text-xs font-semibold transition {% if values.active %}bg-[#5850EC] text-white shadow-xs{% else %}bg-slate-100 text-slate-600 hover:bg-slate-200{% endif %}"
           >
-            <span class="material-icons-outlined text-sm">{{ values.icon }}</span>
+            <span class="material-symbols-outlined text-sm">{{ values.icon }}</span>
             <span>{{ values.name }}</span>
           </a>
           {% endfor %}
@@ -481,7 +502,7 @@
           <div
             class="flex items-center justify-center w-12 h-12 mx-auto bg-rose-50 text-rose-600 rounded-xl mb-4"
           >
-            <span class="material-icons-outlined text-2xl">delete</span>
+            <span class="material-symbols-outlined text-2xl">delete</span>
           </div>
           <h3
             class="text-base font-bold text-center text-slate-900 mb-1"
@@ -535,7 +556,7 @@
             onclick="closeDetailsOverlay()"
             class="p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
           >
-            <span class="material-icons-outlined text-slate-400">close</span>
+            <span class="material-symbols-outlined text-slate-400">close</span>
           </button>
         </div>
         <div
@@ -664,7 +685,7 @@
         href="{% if prefix %}{% url 'dashboard:dashboard_home:home' prefix %}{% else %}/dashboard/admin/{% endif %}"
         class="flex flex-1 flex-col items-center justify-center py-1 text-center transition {% if '/dashboard/admin/' == request.path or request.path == '/dashboard/admin' or request.path == '/dashboard/' %}text-[#5850EC] font-bold{% else %}text-slate-400 hover:text-slate-900{% endif %}"
       >
-        <span class="material-icons-outlined text-xl leading-none">dashboard</span>
+        <span class="material-symbols-outlined text-xl leading-none">dashboard</span>
         <span class="mt-1 text-[10px] tracking-tight">Home</span>
       </a>
 
@@ -672,7 +693,7 @@
         href="{% if prefix %}{% url 'dashboard:product_settings:product_list' prefix %}{% else %}/dashboard/admin/products/{% endif %}"
         class="flex flex-1 flex-col items-center justify-center py-1 text-center transition {% if '/products' in request.path or '/category' in request.path %}text-[#5850EC] font-bold{% else %}text-slate-400 hover:text-slate-900{% endif %}"
       >
-        <span class="material-icons-outlined text-xl leading-none">inventory_2</span>
+        <span class="material-symbols-outlined text-xl leading-none">inventory_2</span>
         <span class="mt-1 text-[10px] tracking-tight">Products</span>
       </a>
 
@@ -681,7 +702,7 @@
         href="{% if prefix %}{% url 'dashboard:pos:dashboard' prefix %}{% else %}/dashboard/admin/pos/{% endif %}"
         class="flex flex-1 flex-col items-center justify-center py-1 text-center transition {% if '/pos' in request.path %}text-[#5850EC] font-bold{% else %}text-slate-400 hover:text-slate-900{% endif %}"
       >
-        <span class="material-icons-outlined text-xl leading-none">point_of_sale</span>
+        <span class="material-symbols-outlined text-xl leading-none">point_of_sale</span>
         <span class="mt-1 text-[10px] tracking-tight">POS</span>
       </a>
       {% endif %}
@@ -690,7 +711,7 @@
         href="{% if prefix %}{% url 'dashboard:store_settings:manage_theme_settings' prefix %}{% else %}/dashboard/admin/theme_settings/{% endif %}"
         class="flex flex-1 flex-col items-center justify-center py-1 text-center transition {% if '/theme_settings' in request.path or '/settings' in request.path %}text-[#5850EC] font-bold{% else %}text-slate-400 hover:text-slate-900{% endif %}"
       >
-        <span class="material-icons-outlined text-xl leading-none">tune</span>
+        <span class="material-symbols-outlined text-xl leading-none">tune</span>
         <span class="mt-1 text-[10px] tracking-tight">Settings</span>
       </a>
 
@@ -698,7 +719,7 @@
         href="{% if prefix %}{% url 'dashboard:payments_tenant:tenant_home' prefix %}{% else %}/dashboard/admin/payments/{% endif %}"
         class="flex flex-1 flex-col items-center justify-center py-1 text-center transition {% if '/payments' in request.path %}text-[#5850EC] font-bold{% else %}text-slate-400 hover:text-slate-900{% endif %}"
       >
-        <span class="material-icons-outlined text-xl leading-none">payments</span>
+        <span class="material-symbols-outlined text-xl leading-none">payments</span>
         <span class="mt-1 text-[10px] tracking-tight">Payments</span>
       </a>
     </nav>

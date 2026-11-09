@@ -2,7 +2,7 @@
 {% block content %}
 <div class="flex items-center space-x-4 mb-6">
   <a href="{% url 'dashboard:pricing:price_list_list' prefix %}" class="p-2 text-slate-500 hover:text-slate-700 transition-colors rounded-lg hover:bg-slate-100">
-    <span class="material-icons-outlined">arrow_back</span>
+    <span class="material-symbols-outlined">arrow_back</span>
   </a>
   <div>
     <div class="flex items-center space-x-3">
@@ -17,7 +17,7 @@
   </div>
   <div class="ml-auto">
     <a href="{{ edit_url }}" class="bg-white text-slate-700 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 transition-colors flex items-center shadow-sm text-sm font-medium">
-      <span class="material-icons-outlined text-[18px] mr-2">edit</span>Edit Price List
+      <span class="material-symbols-outlined text-[18px] mr-2">edit</span>Edit Price List
     </a>
   </div>
 </div>
@@ -59,7 +59,7 @@
     {% if price_list.internal_note %}
     <div class="bg-amber-50 rounded-xl border border-amber-200 shadow-sm p-6">
       <h3 class="text-md font-semibold text-amber-900 mb-2 flex items-center">
-        <span class="material-icons-outlined text-[18px] mr-2">info</span>Internal Note
+        <span class="material-symbols-outlined text-[18px] mr-2">info</span>Internal Note
       </h3>
       <p class="text-sm text-amber-800 whitespace-pre-wrap">{{ price_list.internal_note }}</p>
     </div>
@@ -73,7 +73,7 @@
   <div class="border-b border-[#EEF2F6] px-6 py-4 flex items-center justify-between">
     <h3 class="text-lg font-bold text-slate-900">Customer Assignments</h3>
     <a href="{% url 'dashboard:pricing:price_list_assignment_list' prefix price_list.id %}" class="text-primary hover:text-[#4F46E5] text-sm font-medium flex items-center">
-      Manage Assignments <span class="material-icons-outlined text-[16px] ml-1">arrow_forward</span>
+      Manage Assignments <span class="material-symbols-outlined text-[16px] ml-1">arrow_forward</span>
     </a>
   </div>
 
@@ -110,7 +110,7 @@
   <div class="border-b border-[#EEF2F6] px-6 py-4 flex items-center justify-between">
     <h3 class="text-lg font-bold text-slate-900">Price Overrides (Entries)</h3>
     <a href="{% url 'dashboard:pricing:price_list_entry_list' prefix price_list.id %}" class="text-primary hover:text-[#4F46E5] text-sm font-medium flex items-center">
-      Manage Entries <span class="material-icons-outlined text-[16px] ml-1">arrow_forward</span>
+      Manage Entries <span class="material-symbols-outlined text-[16px] ml-1">arrow_forward</span>
     </a>
   </div>
 

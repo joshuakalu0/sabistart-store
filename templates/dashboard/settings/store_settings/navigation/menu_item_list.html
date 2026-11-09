@@ -15,14 +15,14 @@
       href="{% url 'dashboard:store_settings:navigation_menu_item_create' prefix menu.pk %}"
       class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-[#5850EC] transition-colors flex items-center space-x-2"
     >
-      <span class="material-icons-outlined text-sm">add</span>
+      <span class="material-symbols-outlined text-sm">add</span>
       <span>Add Item</span>
     </a>
     <a
       href="{% url 'dashboard:store_settings:navigation_menu_edit' prefix menu.pk %}"
       class="bg-slate-100 text-slate-600 px-4 py-2 rounded-lg hover:bg-slate-200 transition-colors"
     >
-      <span class="material-icons-outlined text-sm mr-2">arrow_back</span>
+      <span class="material-symbols-outlined text-sm mr-2">arrow_back</span>
       Back to Menu
     </a>
   </div>
@@ -67,7 +67,7 @@
           <span
             class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
           >
-            <span class="material-icons-outlined text-slate-400 text-sm">search</span>
+            <span class="material-symbols-outlined text-slate-400 text-sm">search</span>
           </span>
           <input
             type="text"
@@ -138,7 +138,7 @@
             <td class="px-6 py-4">
               <div class="flex items-center space-x-3">
                 {% if item.icon %}
-                <span class="material-icons-outlined text-slate-400">{{ item.icon }}</span>
+                <span class="material-symbols-outlined text-slate-400">{{ item.icon }}</span>
                 {% endif %}
                 <div>
                   <div class="text-sm font-medium text-slate-900">

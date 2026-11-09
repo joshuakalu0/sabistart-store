@@ -18,7 +18,7 @@
     href="{% if prefix %}{% url 'dashboard:store_settings:theme_preset_list' prefix %}{% else %}#{% endif %}"
     class="inline-flex items-center justify-center gap-1.5 bg-slate-200 text-slate-800 px-4 py-2.5 rounded-xl hover:bg-slate-300 transition-colors text-sm font-medium w-full sm:w-auto"
   >
-    <span class="material-icons-outlined text-sm">arrow_back</span>
+    <span class="material-symbols-outlined text-sm">arrow_back</span>
     <span>Back to Presets</span>
   </a>
 </div>
@@ -31,7 +31,7 @@
   <div class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden">
     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-[#EEF2F6]">
       <h3 class="text-lg font-semibold text-slate-900 flex items-center">
-        <span class="material-icons-outlined text-lg mr-3 text-[#5850EC]">info</span>
+        <span class="material-symbols-outlined text-lg mr-3 text-[#5850EC]">info</span>
         Basic Information
       </h3>
       <p class="text-sm text-slate-600 mt-1">Preset name, category tags, and descriptive copy</p>
@@ -88,7 +88,7 @@
   <div class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden">
     <div class="bg-gradient-to-r from-purple-50 to-pink-50 px-6 py-4 border-b border-[#EEF2F6]">
       <h3 class="text-lg font-semibold text-slate-900 flex items-center">
-        <span class="material-icons-outlined text-lg mr-3 text-purple-600">image</span>
+        <span class="material-symbols-outlined text-lg mr-3 text-purple-600">image</span>
         Preview Thumbnail
       </h3>
       <p class="text-sm text-slate-600 mt-1">Upload a representative screenshot or banner of this theme preset</p>
@@ -98,7 +98,7 @@
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-2">Preset Image</label>
           <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-primary transition-colors">
-            <span class="material-icons-outlined text-slate-400 text-4xl mb-2">cloud_upload</span>
+            <span class="material-symbols-outlined text-slate-400 text-4xl mb-2">cloud_upload</span>
             <p class="text-sm text-slate-600 mb-2">Click to select or drag and drop</p>
             <p class="text-xs text-slate-500 mb-3">PNG, JPG, WebP up to 5MB</p>
             {{ form.preview_image }}
@@ -122,7 +122,7 @@
   <div class="bg-white rounded-xl border border-[#EEF2F6] shadow-sm overflow-hidden">
     <div class="bg-gradient-to-r from-emerald-50 to-teal-50 px-6 py-4 border-b border-[#EEF2F6]">
       <h3 class="text-lg font-semibold text-slate-900 flex items-center">
-        <span class="material-icons-outlined text-lg mr-3 text-emerald-600">code</span>
+        <span class="material-symbols-outlined text-lg mr-3 text-emerald-600">code</span>
         Theme Configuration (JSON)
       </h3>
       <p class="text-sm text-slate-600 mt-1">JSON configuration mapping directly to ThemeSettings schema attributes</p>
@@ -154,7 +154,7 @@
         type="submit"
         class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-hover active:scale-95 transition-all text-sm font-semibold shadow-sm"
       >
-        <span class="material-icons-outlined text-sm">save</span>
+        <span class="material-symbols-outlined text-sm">save</span>
         <span>{% if is_edit %}Save Changes{% else %}Create Preset{% endif %}</span>
       </button>
     </div>

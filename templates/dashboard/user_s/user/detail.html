@@ -8,10 +8,10 @@
   <div class="flex items-center space-x-3">
     <a href="{% url 'dashboard:user_settings:user_edit' prefix user_obj.pk %}"
        class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-[#5850EC] text-sm flex items-center space-x-1">
-      <span class="material-icons-outlined text-sm">edit</span><span>Edit</span>
+      <span class="material-symbols-outlined text-sm">edit</span><span>Edit</span>
     </a>
     <a href="{% url 'dashboard:user_settings:user_list' prefix %}" class="text-sm text-slate-500 hover:text-slate-800 flex items-center space-x-1">
-      <span class="material-icons-outlined text-sm">arrow_back</span><span>Users</span>
+      <span class="material-symbols-outlined text-sm">arrow_back</span><span>Users</span>
     </a>
   </div>
 </div>
@@ -87,25 +87,25 @@
         <form method="post" action="{% url 'dashboard:user_settings:user_unlock' prefix user_obj.pk %}">
           {% csrf_token %}
           <button type="submit" class="w-full text-left px-3 py-2 rounded-lg text-sm text-orange-600 hover:bg-orange-50 flex items-center space-x-2">
-            <span class="material-icons-outlined text-sm">lock_open</span><span>Unlock Account</span>
+            <span class="material-symbols-outlined text-sm">lock_open</span><span>Unlock Account</span>
           </button>
         </form>
         {% endif %}
         <form method="post" action="{% url 'dashboard:user_settings:user_force_password_reset' prefix user_obj.pk %}">
           {% csrf_token %}
           <button type="submit" class="w-full text-left px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-slate-50 flex items-center space-x-2">
-            <span class="material-icons-outlined text-sm">key</span><span>Force Password Reset</span>
+            <span class="material-symbols-outlined text-sm">key</span><span>Force Password Reset</span>
           </button>
         </form>
         <form method="post" action="{% url 'dashboard:user_settings:user_toggle_status' prefix user_obj.pk %}">
           {% csrf_token %}
           <button type="submit" class="w-full text-left px-3 py-2 rounded-lg text-sm {% if user_obj.account_status == 'ACTIVE' %}text-yellow-600 hover:bg-yellow-50{% else %}text-green-600 hover:bg-green-50{% endif %} flex items-center space-x-2">
-            <span class="material-icons-outlined text-sm">{% if user_obj.account_status == 'ACTIVE' %}pause_circle{% else %}play_circle{% endif %}</span>
+            <span class="material-symbols-outlined text-sm">{% if user_obj.account_status == 'ACTIVE' %}pause_circle{% else %}play_circle{% endif %}</span>
             <span>{% if user_obj.account_status == 'ACTIVE' %}Deactivate{% else %}Reactivate{% endif %} Account</span>
           </button>
         </form>
         <button id="soft-delete-btn" class="w-full text-left px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2">
-          <span class="material-icons-outlined text-sm">person_remove</span><span>Anonymise &amp; Delete (GDPR)</span>
+          <span class="material-symbols-outlined text-sm">person_remove</span><span>Anonymise &amp; Delete (GDPR)</span>
         </button>
       </div>
     </div>
@@ -118,7 +118,7 @@
     <!-- Security status -->
     {% if user_obj.is_locked or user_obj.force_password_reset %}
     <div class="bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-start space-x-3">
-      <span class="material-icons-outlined text-orange-500 mt-0.5">warning</span>
+      <span class="material-symbols-outlined text-orange-500 mt-0.5">warning</span>
       <div class="text-sm">
         {% if user_obj.is_locked %}<p class="font-medium text-orange-800">Account Locked — locked until {{ user_obj.locked_until|date:"M d, H:i" }}</p>{% endif %}
         {% if user_obj.force_password_reset %}<p class="text-orange-700 mt-1">This user must reset their password on next login.</p>{% endif %}

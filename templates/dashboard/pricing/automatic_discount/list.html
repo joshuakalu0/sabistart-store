@@ -8,10 +8,10 @@
   </div>
   <div class="flex flex-wrap gap-3">
     <a href="{% url 'dashboard:pricing:promotion_conflict_list' prefix %}" class="bg-white text-slate-700 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 transition-colors flex items-center space-x-2">
-      <span class="material-icons-outlined text-sm">warning</span><span>Conflicts</span>
+      <span class="material-symbols-outlined text-sm">warning</span><span>Conflicts</span>
     </a>
     <a href="{{ create_url }}" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-[#5850EC] transition-colors flex items-center space-x-2">
-      <span class="material-icons-outlined text-sm">add</span><span>Create Auto-Discount</span>
+      <span class="material-symbols-outlined text-sm">add</span><span>Create Auto-Discount</span>
     </a>
   </div>
 </div>
@@ -21,7 +21,7 @@
     <form method="get" class="flex flex-col sm:flex-row gap-4">
       <div class="relative flex-1">
         <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-          <span class="material-icons-outlined text-slate-400 text-sm">search</span>
+          <span class="material-symbols-outlined text-slate-400 text-sm">search</span>
         </span>
         <input type="text" name="q" value="{{ q }}" placeholder="Search by name..."
                class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary"/>
@@ -68,7 +68,7 @@
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
             {% if ad.is_combinable %}
-            <span class="text-[#5850EC] text-sm font-medium"><span class="material-icons-outlined text-[16px] align-middle -mt-1">merge_type</span> Yes</span>
+            <span class="text-[#5850EC] text-sm font-medium"><span class="material-symbols-outlined text-[16px] align-middle -mt-1">merge_type</span> Yes</span>
             {% else %}
             <span class="text-slate-500 text-sm">No</span>
             {% endif %}

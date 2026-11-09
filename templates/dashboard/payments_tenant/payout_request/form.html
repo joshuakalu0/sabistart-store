@@ -4,7 +4,7 @@
   <div class="flex items-center space-x-4 mb-6">
     <a href="{% url 'dashboard:payments_tenant:payout_request_list' prefix %}"
        class="p-2 text-slate-500 hover:text-primary rounded-lg hover:bg-slate-100">
-      <span class="material-icons-outlined">arrow_back</span>
+      <span class="material-symbols-outlined">arrow_back</span>
     </a>
     <div>
       <h2 class="text-xl font-bold text-slate-900">{{ form_title }}</h2>
@@ -37,7 +37,7 @@
 
     {% if not form.fields.bank_account.queryset.exists %}
     <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start space-x-3">
-      <span class="material-icons-outlined text-amber-500">warning</span>
+      <span class="material-symbols-outlined text-amber-500">warning</span>
       <div class="text-sm">
         <p class="font-medium text-amber-800">No verified bank accounts</p>
         <p class="text-amber-700 mt-1">You need at least one verified bank account before requesting a payout. <a href="{% url 'dashboard:payments_tenant:bank_account_create' prefix %}" class="underline">Add a bank account</a></p>

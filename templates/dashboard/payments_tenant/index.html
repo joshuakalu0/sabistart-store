@@ -9,7 +9,7 @@
     </div>
     <a href="{% url 'dashboard:payments_tenant:profile_edit' prefix %}"
        class="px-4 py-2 border border-slate-300 rounded-lg text-sm hover:bg-slate-50 flex items-center space-x-2">
-      <span class="material-icons-outlined text-sm">settings</span><span>Settings</span>
+      <span class="material-symbols-outlined text-sm">settings</span><span>Settings</span>
     </a>
   </div>
 
@@ -17,7 +17,7 @@
   {% if health %}
     {% for check in health %}{% if not check.ok %}
     <div class="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-3">
-      <span class="material-icons-outlined text-red-500">warning</span>
+      <span class="material-symbols-outlined text-red-500">warning</span>
       <div>
         <p class="font-medium text-red-800">{{ check.label }}</p>
         <p class="text-sm text-red-700">{{ check.message }}</p>
@@ -31,7 +31,7 @@
   {% if attention %}
   <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl">
     <h3 class="font-semibold text-amber-800 mb-2 flex items-center space-x-2">
-      <span class="material-icons-outlined text-sm">notification_important</span><span>Needs Attention ({{ attention|length }})</span>
+      <span class="material-symbols-outlined text-sm">notification_important</span><span>Needs Attention ({{ attention|length }})</span>
     </h3>
     <ul class="space-y-1 text-sm text-amber-700">
       {% for item in attention %}<li>• {{ item.message }} <a href="{{ item.url }}" class="underline ml-1">View</a></li>{% endfor %}
@@ -85,7 +85,7 @@
       <div class="mt-4">
         <a href="{% url 'dashboard:payments_tenant:payout_request_create' prefix %}"
            class="w-full flex items-center justify-center space-x-2 py-2 bg-primary text-white rounded-lg text-sm hover:bg-[#5850EC]">
-          <span class="material-icons-outlined text-sm">payments</span><span>Request Payout</span>
+          <span class="material-symbols-outlined text-sm">payments</span><span>Request Payout</span>
         </a>
       </div>
     </div>

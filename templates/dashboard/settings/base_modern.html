@@ -58,7 +58,7 @@
         <div class="p-6">
         <div class="relative">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <span class="material-icons-outlined text-gray-500 text-sm">search</span>
+                <span class="material-symbols-outlined text-gray-500 text-sm">search</span>
             </span>
             <input class="w-full bg-gray-800 border-none rounded-lg py-2 pl-10 pr-4 text
             -sm focus:ring-1 focus:ring-primary text-white" placeholder="Search menu" type="text">
@@ -72,15 +72,15 @@
         <div class="group">
             <button class="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-gray-800 hover:text-white transition-colors">
                 <div class="flex items-center">
-                    <span class="material-icons-outlined mr-3 text-gray-400 group-hover:text-white">receipt_long</span>
+                    <span class="material-symbols-outlined mr-3 text-gray-400 group-hover:text-white">receipt_long</span>
                     System Vat/Tax
                 </div>
-                <span class="material-icons-outlined text-xs">expand_more</span>
+                <span class="material-symbols-outlined text-xs">expand_more</span>
         </button>
             </div>
             {% else %}
             <a class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg  {% if values.active %} bg-gray-800 text-white {% else %} hover:bg-gray-800 hover:text-white{% endif %}" href="{{ values.url }}">
-                        <span class="material-icons-outlined mr-3 {% if values.active %} text-primary {% else %}  text-white{% endif %}">{{ values.icon }}</span>
+                        <span class="material-symbols-outlined mr-3 {% if values.active %} text-primary {% else %}  text-white{% endif %}">{{ values.icon }}</span>
                         {{ values.name }}
                     </a>
             {% endif %}
@@ -106,7 +106,7 @@
 
  {% for key,values in sub_sidebar.1.items %}
         <a href="{% url 'dashboard:dashboard_settings:general' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg {% if values.active %}bg-primary text-white shadow-sm{% else %}text-slate-600 hover:bg-slate-100{% endif %} transition-colors">
-            <span class="material-icons-outlined mr-3 text-sm">{{ values.icon }}</span>
+            <span class="material-symbols-outlined mr-3 text-sm">{{ values.icon }}</span>
             {{ values.name }}
         </a>
 {% endfor %}
@@ -135,7 +135,7 @@
         <div class="bg-white/95 backdrop-blur-md rounded-2xl border border-[#EEF2F6] p-2 sm:p-3.5 flex items-center justify-between sm:justify-end gap-1.5 sm:gap-3 shadow-xl sticky bottom-16 lg:bottom-4 z-30 mt-6 max-w-full min-w-0">
             <button type="button" class="px-3 sm:px-5 py-2 rounded-xl bg-slate-100 text-slate-600 text-xs sm:text-sm font-medium hover:bg-slate-200 transition-colors whitespace-nowrap shrink-0">Reset</button>
             <button type="submit" class="px-3.5 sm:px-6 py-2 rounded-xl bg-primary text-white text-xs sm:text-sm font-semibold shadow-md shadow-primary/20 hover:bg-[#5850EC] transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0">
-                <span class="material-icons-outlined mr-2 text-[18px]">save</span>
+                <span class="material-symbols-outlined mr-2 text-[18px]">save</span>
                 Save information
             </button>
         </div>

@@ -4,7 +4,7 @@
     <!-- Card Header -->
     <div class="flex items-center gap-2.5 mb-5 pb-3 border-b border-[#EEF2F6]">
       <span class="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-[#5850EC] shrink-0">
-        <span class="material-icons-outlined text-lg">list_alt</span>
+        <span class="material-symbols-outlined text-lg">list_alt</span>
       </span>
       <div>
         <h2 class="text-sm sm:text-base font-bold text-slate-900">Specifications</h2>
@@ -37,7 +37,7 @@
             class="shrink-0 w-9 h-9 flex items-center justify-center rounded-xl text-rose-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
             title="Remove"
           >
-            <span class="material-icons-outlined text-base">close</span>
+            <span class="material-symbols-outlined text-base">close</span>
           </button>
         </div>
         {% endfor %}
@@ -50,7 +50,7 @@
       onclick="addSpecification()"
       class="w-full h-10 flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#EEF2F6] text-slate-400 text-xs font-semibold hover:border-[#5850EC] hover:text-[#5850EC] transition-colors"
     >
-      <span class="material-icons-outlined text-base">add</span>
+      <span class="material-symbols-outlined text-base">add</span>
       Add Specification
     </button>
   </div>
@@ -62,7 +62,7 @@
     <!-- Card Header -->
     <div class="flex items-center gap-2.5 mb-5 pb-3 border-b border-[#EEF2F6]">
       <span class="w-8 h-8 rounded-xl bg-green-50 flex items-center justify-center text-green-600 shrink-0">
-        <span class="material-icons-outlined text-lg">verified</span>
+        <span class="material-symbols-outlined text-lg">verified</span>
       </span>
       <div>
         <h2 class="text-sm sm:text-base font-bold text-slate-900">Features</h2>
@@ -81,7 +81,7 @@
             onclick="removeFeature({{ forloop.counter0 }})"
             class="w-4 h-4 flex items-center justify-center rounded-full hover:bg-indigo-200 transition-colors"
           >
-            <span class="material-icons-outlined" style="font-size:12px">close</span>
+            <span class="material-symbols-outlined" style="font-size:12px">close</span>
           </button>
         </span>
         {% endfor %}
@@ -156,7 +156,7 @@
           class="w-full sm:flex-1 h-10 px-3 rounded-xl bg-white border border-[#EEF2F6]/80 text-xs text-slate-800 placeholder:text-slate-400 focus:border-[#5850EC] focus:ring-2 focus:ring-[#5850EC]/20 focus:outline-none transition-all">
         <button type="button" onclick="removeSpecification(${index})"
           class="shrink-0 w-9 h-9 flex items-center justify-center rounded-xl text-rose-400 hover:bg-rose-50 hover:text-rose-600 transition-colors">
-          <span class="material-icons-outlined text-base">close</span>
+          <span class="material-symbols-outlined text-base">close</span>
         </button>
       </div>
     `).join('');
@@ -205,7 +205,7 @@
         ${feature}
         <button type="button" onclick="removeFeature(${index})"
           class="w-4 h-4 flex items-center justify-center rounded-full hover:bg-indigo-200 transition-colors">
-          <span class="material-icons-outlined" style="font-size:12px">close</span>
+          <span class="material-symbols-outlined" style="font-size:12px">close</span>
         </button>
       </span>
     `).join('');

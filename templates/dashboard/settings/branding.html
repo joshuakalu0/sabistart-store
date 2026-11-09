@@ -21,14 +21,14 @@
                         <div class="relative">
                             <img src="{{ settings.logo.url }}" alt="Main Logo" class="w-full h-40 object-contain rounded-lg border border-[#EEF2F6] p-4 bg-white">
                             <button type="button" class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors" onclick="document.getElementById('id_logo_clear').value = 'on'; this.closest('.relative').remove();">
-                                <span class="material-icons-outlined text-sm">close</span>
+                                <span class="material-symbols-outlined text-sm">close</span>
                             </button>
                             {{ form.logo.as_hidden }}
                             <input type="hidden" id="id_logo_clear" name="logo-clear">
                         </div>
                         {% else %}
                         <div class="border-2 border-dashed border-[#EEF2F6] rounded-lg p-4 flex flex-col items-center justify-center bg-slate-50 hover:border-primary/50 transition-colors min-h-[160px]">
-                            <span class="material-icons-outlined text-slate-400 text-3xl mb-2">image</span>
+                            <span class="material-symbols-outlined text-slate-400 text-3xl mb-2">image</span>
                             <span class="text-[10px] text-slate-500 mb-4 text-center">JPG, PNG or SVG (Max. 2MB)</span>
                             <input type="file" name="logo" id="id_logo" class="hidden" accept="image/*">
                             <label for="id_logo" class="px-3 py-1.5 bg-white border border-[#EEF2F6] text-xs font-medium rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
@@ -45,14 +45,14 @@
                         <div class="relative">
                             <img src="{{ settings.logo_dark.url }}" alt="Dark Mode Logo" class="w-full h-40 object-contain rounded-lg border border-[#EEF2F6] p-4 bg-white">
                             <button type="button" class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors" onclick="document.getElementById('id_logo_dark_clear').value = 'on'; this.closest('.relative').remove();">
-                                <span class="material-icons-outlined text-sm">close</span>
+                                <span class="material-symbols-outlined text-sm">close</span>
                             </button>
                             {{ form.logo_dark.as_hidden }}
                             <input type="hidden" id="id_logo_dark_clear" name="logo_dark-clear">
                         </div>
                         {% else %}
                         <div class="border-2 border-dashed border-[#EEF2F6] rounded-lg p-4 flex flex-col items-center justify-center bg-slate-50 hover:border-primary/50 transition-colors min-h-[160px]">
-                            <span class="material-icons-outlined text-slate-400 text-3xl mb-2">dark_mode</span>
+                            <span class="material-symbols-outlined text-slate-400 text-3xl mb-2">dark_mode</span>
                             <span class="text-[10px] text-slate-500 mb-4 text-center">High contrast logo for dark UI</span>
                             <input type="file" name="logo_dark" id="id_logo_dark" class="hidden" accept="image/*">
                             <label for="id_logo_dark" class="px-3 py-1.5 bg-white border border-[#EEF2F6] text-xs font-medium rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
@@ -69,14 +69,14 @@
                         <div class="relative">
                             <img src="{{ settings.favicon.url }}" alt="Favicon" class="w-full h-40 object-contain rounded-lg border border-[#EEF2F6] p-4 bg-white">
                             <button type="button" class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors" onclick="document.getElementById('id_favicon_clear').value = 'on'; this.closest('.relative').remove();">
-                                <span class="material-icons-outlined text-sm">close</span>
+                                <span class="material-symbols-outlined text-sm">close</span>
                             </button>
                             {{ form.favicon.as_hidden }}
                             <input type="hidden" id="id_favicon_clear" name="favicon-clear">
                         </div>
                         {% else %}
                         <div class="border-2 border-dashed border-[#EEF2F6] rounded-lg p-4 flex flex-col items-center justify-center bg-slate-50 hover:border-primary/50 transition-colors min-h-[160px]">
-                            <span class="material-icons-outlined text-slate-400 text-3xl mb-2">tab</span>
+                            <span class="material-symbols-outlined text-slate-400 text-3xl mb-2">tab</span>
                             <span class="text-[10px] text-slate-500 mb-4 text-center">Standard 32x32 or 16x16 px</span>
                             <input type="file" name="favicon" id="id_favicon" class="hidden" accept="image/*">
                             <label for="id_favicon" class="px-3 py-1.5 bg-white border border-[#EEF2F6] text-xs font-medium rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
@@ -93,14 +93,14 @@
                         <div class="relative">
                             <img src="{{ settings.loading_gif.url }}" alt="Loading Animation" class="w-full h-40 object-contain rounded-lg border border-[#EEF2F6] p-4 bg-white">
                             <button type="button" class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors" onclick="document.getElementById('id_loading_gif_clear').value = 'on'; this.closest('.relative').remove();">
-                                <span class="material-icons-outlined text-sm">close</span>
+                                <span class="material-symbols-outlined text-sm">close</span>
                             </button>
                             {{ form.loading_gif.as_hidden }}
                             <input type="hidden" id="id_loading_gif_clear" name="loading_gif-clear">
                         </div>
                         {% else %}
                         <div class="border-2 border-dashed border-[#EEF2F6] rounded-lg p-4 flex flex-col items-center justify-center bg-slate-50 hover:border-primary/50 transition-colors min-h-[160px]">
-                            <span class="material-icons-outlined text-slate-400 text-3xl mb-2">hourglass_empty</span>
+                            <span class="material-symbols-outlined text-slate-400 text-3xl mb-2">hourglass_empty</span>
                             <span class="text-[10px] text-slate-500 mb-4 text-center">GIF or SVG animation</span>
                             <input type="file" name="loading_gif" id="id_loading_gif" class="hidden" accept="image/*,.gif,.svg">
                             <label for="id_loading_gif" class="px-3 py-1.5 bg-white border border-[#EEF2F6] text-xs font-medium rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
@@ -213,7 +213,7 @@
             <div id="buttom_submit" class="bg-white/95 backdrop-blur-md rounded-2xl border border-[#EEF2F6] p-2 sm:p-3.5 flex items-center justify-between sm:justify-end gap-1.5 sm:gap-3 shadow-xl sticky bottom-16 lg:bottom-4 z-30 mt-6 max-w-full min-w-0">
                 <button id="reset_button" type="button" class="px-8 py-2.5 rounded-lg bg-slate-100 text-slate-600 font-medium hover:bg-slate-200 transition-colors">Reset</button>
                 <button id="submit_button" type="submit" class="px-8 py-2.5 rounded-lg bg-primary text-white font-medium shadow-lg shadow-primary/20 hover:bg-[#5850EC] transition-all flex items-center">
-                    <span class="material-icons-outlined mr-2 text-[18px]">save</span>
+                    <span class="material-symbols-outlined mr-2 text-[18px]">save</span>
                     Save Changes
                 </button>
             </div>
@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="relative">
                                 <img src="${e.target.result}" alt="${fileName} Preview" class="w-full h-40 object-contain rounded-lg border border-[#EEF2F6] p-4 bg-white">
                                 <button type="button" class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors" onclick="removeFile('${fileInput.id}')">
-                                    <span class="material-icons-outlined text-sm">close</span>
+                                    <span class="material-symbols-outlined text-sm">close</span>
                                 </button>
                                 <input type="hidden" id="${fileInput.id}_clear" name="${fileName}-clear">
                             </div>
@@ -303,7 +303,7 @@ function removeFile(inputId) {
 
     const placeholder = `
         <div class="border-2 border-dashed border-[#EEF2F6] rounded-lg p-4 flex flex-col items-center justify-center bg-slate-50 hover:border-primary/50 transition-colors min-h-[160px]">
-            <span class="material-icons-outlined text-slate-400 text-3xl mb-2">${icon}</span>
+            <span class="material-symbols-outlined text-slate-400 text-3xl mb-2">${icon}</span>
             <span class="text-[10px] text-slate-500 mb-4 text-center">${text}</span>
             <input type="file" name="${fileName}" id="${inputId}" class="hidden" accept="${accept}">
             <label for="${inputId}" class="px-3 py-1.5 bg-white border border-[#EEF2F6] text-xs font-medium rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
@@ -325,7 +325,7 @@ function removeFile(inputId) {
                         <div class="relative">
                             <img src="${e.target.result}" alt="${fileName} Preview" class="w-full h-40 object-contain rounded-lg border border-[#EEF2F6] p-4 bg-white">
                             <button type="button" class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors" onclick="removeFile('${inputId}')">
-                                <span class="material-icons-outlined text-sm">close</span>
+                                <span class="material-symbols-outlined text-sm">close</span>
                             </button>
                             <input type="hidden" id="${inputId}_clear" name="${fileName}-clear">
                         </div>

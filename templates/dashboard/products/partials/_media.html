@@ -3,7 +3,7 @@
   <div class="flex items-center justify-between pb-1 border-b border-[#EEF2F6]">
     <div class="flex items-center gap-2.5">
       <span class="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-[#5850EC]">
-        <span class="material-icons-outlined text-lg">photo_library</span>
+        <span class="material-symbols-outlined text-lg">photo_library</span>
       </span>
       <div>
         <h2 class="text-sm sm:text-base font-bold text-slate-900">Product Media & Gallery</h2>
@@ -31,7 +31,7 @@
       onchange="handleImageUpload(event)"
     />
     <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-[#5850EC] flex items-center justify-center group-hover:scale-105 transition-transform mb-2.5">
-      <span class="material-icons-outlined text-2xl">cloud_upload</span>
+      <span class="material-symbols-outlined text-2xl">cloud_upload</span>
     </div>
     <p class="text-xs sm:text-sm font-bold text-slate-800">
       Drop product images here, or <span class="text-[#5850EC] underline">browse files</span>
@@ -53,7 +53,7 @@
         />
         {% if image.is_primary %}
         <span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-[#5850EC] text-white font-bold text-[10px] tracking-wide shadow-xs flex items-center gap-1">
-          <span class="material-icons-outlined text-[12px]">star</span>
+          <span class="material-symbols-outlined text-[12px]">star</span>
           Primary
         </span>
         {% endif %}
@@ -64,7 +64,7 @@
             class="w-8 h-8 rounded-full bg-white text-slate-700 hover:text-[#5850EC] flex items-center justify-center shadow-md transition"
             title="Set as Primary"
           >
-            <span class="material-icons-outlined text-sm">star</span>
+            <span class="material-symbols-outlined text-sm">star</span>
           </button>
           <button
             type="button"
@@ -72,7 +72,7 @@
             class="w-8 h-8 rounded-full bg-white text-rose-600 hover:bg-rose-50 flex items-center justify-center shadow-md transition"
             title="Remove"
           >
-            <span class="material-icons-outlined text-sm">delete</span>
+            <span class="material-symbols-outlined text-sm">delete</span>
           </button>
         </div>
       </div>
@@ -215,13 +215,13 @@
     container.innerHTML = images.map((img) => `
       <div class="image-preview relative group rounded-xl overflow-hidden border border-[#EEF2F6] bg-slate-50 aspect-square shadow-xs">
         <img src="${img.url}" alt="${img.name}" class="w-full h-full object-cover">
-        ${img.isPrimary ? '<span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-[#5850EC] text-white font-bold text-[10px] tracking-wide shadow-xs flex items-center gap-1"><span class="material-icons-outlined text-[12px]">star</span>Primary</span>' : ''}
+        ${img.isPrimary ? '<span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-[#5850EC] text-white font-bold text-[10px] tracking-wide shadow-xs flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">star</span>Primary</span>' : ''}
         <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
           <button type="button" onclick="setPrimaryImage('${img.id}')" class="w-8 h-8 rounded-full bg-white text-slate-700 hover:text-[#5850EC] flex items-center justify-center shadow-md transition" title="Set as Primary">
-            <span class="material-icons-outlined text-sm">star</span>
+            <span class="material-symbols-outlined text-sm">star</span>
           </button>
           <button type="button" onclick="removeImage('${img.id}')" class="w-8 h-8 rounded-full bg-white text-rose-600 hover:bg-rose-50 flex items-center justify-center shadow-md transition" title="Remove">
-            <span class="material-icons-outlined text-sm">delete</span>
+            <span class="material-symbols-outlined text-sm">delete</span>
           </button>
         </div>
       </div>
@@ -267,7 +267,7 @@
           <span class="text-slate-700 truncate font-mono">${video.url}</span>
         </div>
         <button type="button" onclick="removeVideo('${video.id}')" class="text-rose-500 hover:text-rose-700 p-1">
-          <span class="material-icons-outlined text-sm">delete</span>
+          <span class="material-symbols-outlined text-sm">delete</span>
         </button>
       </div>
     `).join('');

@@ -3,7 +3,7 @@
   <div class="flex items-center justify-between pb-1 border-b border-[#EEF2F6]">
     <div class="flex items-center gap-2.5">
       <span class="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-[#5850EC]">
-        <span class="material-icons-outlined text-lg">category</span>
+        <span class="material-symbols-outlined text-lg">category</span>
       </span>
       <div>
         <h2 class="text-sm sm:text-base font-bold text-slate-900">Organization & Taxonomy</h2>
@@ -23,7 +23,7 @@
           id="categoryInputContainer"
         >
           <span class="text-slate-400 truncate" id="categoryPlaceholder">Click to select categories...</span>
-          <span class="material-icons-outlined text-slate-400 text-sm">expand_more</span>
+          <span class="material-symbols-outlined text-slate-400 text-sm">expand_more</span>
         </div>
 
         <div class="multi-select-dropdown absolute left-0 right-0 top-full mt-1.5 bg-white border border-[#EEF2F6] rounded-xl shadow-lg z-50 overflow-hidden" id="categoryDropdown" style="display: none;">
@@ -45,7 +45,7 @@
               <span class="selected-item inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-[#5850EC] border border-indigo-100">
                 {{ category.name }}
                 <button type="button" onclick="removeCategory('{{ category.id }}')" class="hover:text-indigo-800">
-                  <span class="material-icons-outlined text-xs">close</span>
+                  <span class="material-symbols-outlined text-xs">close</span>
                 </button>
               </span>
             {% endfor %}
@@ -70,7 +70,7 @@
           id="tagInputContainer"
         >
           <span class="text-slate-400 truncate" id="tagPlaceholder">Click to select tags...</span>
-          <span class="material-icons-outlined text-slate-400 text-sm">expand_more</span>
+          <span class="material-symbols-outlined text-slate-400 text-sm">expand_more</span>
         </div>
 
         <div class="multi-select-dropdown absolute left-0 right-0 top-full mt-1.5 bg-white border border-[#EEF2F6] rounded-xl shadow-lg z-50 overflow-hidden" id="tagDropdown" style="display: none;">
@@ -108,7 +108,7 @@
               <span class="selected-item inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                 {{ tag.name }}
                 <button type="button" onclick="removeTag('{{ tag.id }}')" class="hover:text-emerald-900">
-                  <span class="material-icons-outlined text-xs">close</span>
+                  <span class="material-symbols-outlined text-xs">close</span>
                 </button>
               </span>
             {% endfor %}
@@ -159,7 +159,7 @@
           onclick="toggleCategory('${cat.id}', '${cat.name.replace(/'/g, "\\'")}')"
         >
           <span>${cat.name}</span>
-          ${isSelected ? '<span class="material-icons-outlined text-sm">check</span>' : ''}
+          ${isSelected ? '<span class="material-symbols-outlined text-sm">check</span>' : ''}
         </div>
       `;
     }).join('');
@@ -196,7 +196,7 @@
         <span class="selected-item inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-[#5850EC] border border-indigo-100">
           ${cat.name}
           <button type="button" onclick="removeCategory('${cat.id}')" class="hover:text-indigo-800">
-            <span class="material-icons-outlined text-xs">close</span>
+            <span class="material-symbols-outlined text-xs">close</span>
           </button>
         </span>
       `).join('');
@@ -234,7 +234,7 @@
           onclick="toggleTag('${tag.id}', '${tag.name.replace(/'/g, "\\'")}')"
         >
           <span>${tag.name}</span>
-          ${isSelected ? '<span class="material-icons-outlined text-sm">check</span>' : ''}
+          ${isSelected ? '<span class="material-symbols-outlined text-sm">check</span>' : ''}
         </div>
       `;
     }).join('');
@@ -271,7 +271,7 @@
         <span class="selected-item inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
           ${tag.name}
           <button type="button" onclick="removeTag('${tag.id}')" class="hover:text-emerald-900">
-            <span class="material-icons-outlined text-xs">close</span>
+            <span class="material-symbols-outlined text-xs">close</span>
           </button>
         </span>
       `).join('');

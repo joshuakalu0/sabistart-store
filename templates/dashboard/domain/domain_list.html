@@ -1,4 +1,4 @@
-{% extends "dashboard/_partials/base.html" %}
+﻿{% extends "dashboard/_partials/base.html" %}
 {% block content %}
 <section class="space-y-6">
   <!-- Header Banner -->
@@ -57,7 +57,7 @@
         <div class="flex items-center justify-between pb-3 border-b border-[#EEF2F6]">
           <div class="flex items-center gap-2.5">
             <span class="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-[#5850EC]">
-              <span class="material-icons-outlined text-lg">travel_explore</span>
+              <span class="material-symbols-outlined text-lg">travel_explore</span>
             </span>
             <div>
               <h2 class="text-sm font-bold text-slate-900">Discover & Register</h2>
@@ -118,7 +118,7 @@
         <div class="flex items-center justify-between pb-3 border-b border-[#EEF2F6]">
           <div class="flex items-center gap-2.5">
             <span class="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-[#5850EC]">
-              <span class="material-icons-outlined text-lg">link</span>
+              <span class="material-symbols-outlined text-lg">link</span>
             </span>
             <div>
               <h2 class="text-sm font-bold text-slate-900">Connect External Domain</h2>
@@ -141,7 +141,7 @@
             <p class="mt-1 text-[11px] text-slate-400">{{ add_form.domain.help_text }}</p>
           </div>
           <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#5850EC] text-white text-xs font-semibold shadow-sm hover:bg-[#4F46E5] transition">
-            <span class="material-icons-outlined text-sm">add</span>
+            <span class="material-symbols-outlined text-sm">add</span>
             <span>Add External Domain</span>
           </button>
         </form>
@@ -154,7 +154,7 @@
         <div class="flex items-center justify-between pb-3 border-b border-[#EEF2F6]">
           <div class="flex items-center gap-2.5">
             <span class="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-[#5850EC]">
-              <span class="material-icons-outlined text-lg">dns</span>
+              <span class="material-symbols-outlined text-lg">dns</span>
             </span>
             <div>
               <h2 class="text-sm font-bold text-slate-900">Connected Domains</h2>
@@ -169,7 +169,7 @@
             {% include "dashboard/domain/partials/domain_card.html" with domain=domain prefix=prefix %}
           {% empty %}
             <div class="py-12 text-center text-xs text-slate-400">
-              <span class="material-icons-outlined text-3xl text-slate-300 block mb-2">language</span>
+              <span class="material-symbols-outlined text-3xl text-slate-300 block mb-2">language</span>
               No connected domains yet. Search above or connect an external domain to get started.
             </div>
           {% endfor %}

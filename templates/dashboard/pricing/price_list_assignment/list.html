@@ -3,14 +3,14 @@
 {% block content %}
 <div class="flex items-center space-x-4 mb-6">
   <a href="{{ detail_url }}" class="p-2 text-slate-500 hover:text-slate-700 transition-colors rounded-lg hover:bg-slate-100">
-    <span class="material-icons-outlined">arrow_back</span>
+    <span class="material-symbols-outlined">arrow_back</span>
   </a>
   <div class="flex-1">
     <h2 class="text-xl font-bold text-slate-900">Customer Assignments</h2>
     <p class="text-slate-600 text-sm">Managing assignments for: <span class="font-semibold">{{ price_list.name }}</span></p>
   </div>
   <a href="{{ create_url }}" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-[#5850EC] transition-colors flex items-center space-x-2 text-sm font-medium">
-    <span class="material-icons-outlined text-[18px]">add</span><span>Assign Customer</span>
+    <span class="material-symbols-outlined text-[18px]">add</span><span>Assign Customer</span>
   </a>
 </div>
 
@@ -29,9 +29,9 @@
         <tr class="hover:bg-slate-50 transition-colors">
           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
             {% if a.customer_group %}
-              <div class="flex items-center"><span class="material-icons-outlined text-slate-400 mr-2 text-[18px]">groups</span> {{ a.customer_group.name }}</div>
+              <div class="flex items-center"><span class="material-symbols-outlined text-slate-400 mr-2 text-[18px]">groups</span> {{ a.customer_group.name }}</div>
             {% else %}
-              <div class="flex items-center"><span class="material-icons-outlined text-slate-400 mr-2 text-[18px]">person</span> {{ a.customer.email }}</div>
+              <div class="flex items-center"><span class="material-symbols-outlined text-slate-400 mr-2 text-[18px]">person</span> {{ a.customer.email }}</div>
             {% endif %}
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">

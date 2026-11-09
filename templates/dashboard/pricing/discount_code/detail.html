@@ -2,7 +2,7 @@
 {% block content %}
 <div class="flex items-center space-x-4 mb-6">
   <a href="{% url 'dashboard:pricing:discount_code_list' prefix %}" class="p-2 text-slate-500 hover:text-slate-700 transition-colors rounded-lg hover:bg-slate-100">
-    <span class="material-icons-outlined">arrow_back</span>
+    <span class="material-symbols-outlined">arrow_back</span>
   </a>
   <div>
     <div class="flex items-center space-x-3">
@@ -17,7 +17,7 @@
   </div>
   <div class="ml-auto">
     <a href="{{ edit_url }}" class="bg-white text-slate-700 border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 transition-colors flex items-center shadow-sm text-sm font-medium">
-      <span class="material-icons-outlined text-[18px] mr-2">edit</span>Edit Config
+      <span class="material-symbols-outlined text-[18px] mr-2">edit</span>Edit Config
     </a>
   </div>
 </div>
@@ -30,7 +30,7 @@
       <div class="text-4xl font-bold">
         {% if discount.discount_type == 'percentage' %}{{ discount.discount_value|floatformat:0 }}%
         {% elif discount.discount_type == 'fixed' %}<span class="text-2xl align-top">Fixed: </span>{{ discount.discount_value }}
-        {% elif discount.discount_type == 'free_shipping' %}<span class="material-icons-outlined text-[36px]">local_shipping</span>
+        {% elif discount.discount_type == 'free_shipping' %}<span class="material-symbols-outlined text-[36px]">local_shipping</span>
         {% endif %}
       </div>
       <div class="mt-2 text-sm text-blue-100 font-medium">Discount Value</div>
@@ -83,7 +83,7 @@
       <div class="flex flex-wrap gap-2">
         {% for cg in discount.allowed_customer_groups.all %}
         <span class="px-3 py-1 bg-slate-100 border border-[#EEF2F6] rounded-lg text-xs text-slate-700 flex items-center">
-          <span class="material-icons-outlined text-[14px] mr-1">group</span>{{ cg.name }}
+          <span class="material-symbols-outlined text-[14px] mr-1">group</span>{{ cg.name }}
         </span>
         {% endfor %}
       </div>
@@ -110,7 +110,7 @@
       </dl>
       <div class="mt-4">
         <a href="{{ share_link_detail_url }}" class="inline-flex items-center rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50">
-          <span class="material-icons-outlined mr-2 text-[18px]">qr_code_2</span>Manage Share Link
+          <span class="material-symbols-outlined mr-2 text-[18px]">qr_code_2</span>Manage Share Link
         </a>
       </div>
     </div>
@@ -175,10 +175,10 @@
 <!-- Navigation Tabs for Rules and Usages -->
 <div class="flex space-x-1 bg-slate-100 p-1 rounded-xl mb-6 shadow-inner w-full max-w-md">
   <button class="flex-1 px-4 py-2 text-sm font-medium rounded-lg text-slate-900 bg-white shadow flex items-center justify-center">
-    <span class="material-icons-outlined text-[18px] mr-2">rule</span> Rules & Constraints
+    <span class="material-symbols-outlined text-[18px] mr-2">rule</span> Rules & Constraints
   </button>
   <a href="{% url 'dashboard:pricing:discount_usage_list' prefix discount.id %}" class="flex-1 px-4 py-2 text-sm font-medium rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-200 transition-colors flex items-center justify-center">
-    <span class="material-icons-outlined text-[18px] mr-2">history</span> Usage Ledger
+    <span class="material-symbols-outlined text-[18px] mr-2">history</span> Usage Ledger
   </a>
 </div>
 
@@ -190,7 +190,7 @@
       <p class="text-xs text-slate-500 mt-1">If no rules exist, the code applies to the entire order.</p>
     </div>
     <a href="{% url 'dashboard:pricing:discount_rule_list' prefix discount.id %}" class="bg-slate-100 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-200 transition-colors flex items-center text-sm font-medium">
-      Manage Rules <span class="material-icons-outlined text-[16px] ml-1">arrow_forward</span>
+      Manage Rules <span class="material-symbols-outlined text-[16px] ml-1">arrow_forward</span>
     </a>
   </div>
   

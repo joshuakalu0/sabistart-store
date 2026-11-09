@@ -7,10 +7,10 @@
   </div>
   <div class="flex items-center space-x-3">
     <a href="{% url 'dashboard:user_settings:staff_edit' prefix staff.pk %}" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-[#5850EC] text-sm flex items-center space-x-1">
-      <span class="material-icons-outlined text-sm">edit</span><span>Edit</span>
+      <span class="material-symbols-outlined text-sm">edit</span><span>Edit</span>
     </a>
     <a href="{% url 'dashboard:user_settings:staff_list' prefix %}" class="text-sm text-slate-500 hover:text-slate-800 flex items-center space-x-1">
-      <span class="material-icons-outlined text-sm">arrow_back</span><span>Staff</span>
+      <span class="material-symbols-outlined text-sm">arrow_back</span><span>Staff</span>
     </a>
   </div>
 </div>
@@ -54,7 +54,7 @@
           onsubmit="return confirm('Remove {{ staff.user.email }} from staff? This will revoke their dashboard access.')">
       {% csrf_token %}
       <button type="submit" class="w-full text-left px-4 py-2.5 rounded-lg text-sm text-red-600 border border-red-200 hover:bg-red-50 flex items-center space-x-2">
-        <span class="material-icons-outlined text-sm">person_remove</span><span>Remove from Staff</span>
+        <span class="material-symbols-outlined text-sm">person_remove</span><span>Remove from Staff</span>
       </button>
     </form>
     {% endif %}

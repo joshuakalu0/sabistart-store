@@ -20,7 +20,7 @@
     href="{% url 'dashboard:user_settings:user_create' prefix %}"
     class="inline-flex items-center justify-center gap-1.5 bg-primary text-white px-4 py-2.5 rounded-xl hover:bg-[#5850EC] active:scale-95 transition-all text-sm font-medium w-full sm:w-auto"
   >
-    <span class="material-icons-outlined text-base">add</span>
+    <span class="material-symbols-outlined text-base">add</span>
     <span>Add User</span>
   </a>
 </div>
@@ -32,7 +32,7 @@
     <div class="flex flex-col gap-3">
       <div class="relative">
         <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-          <span class="material-icons-outlined text-slate-400 text-sm">search</span>
+          <span class="material-symbols-outlined text-slate-400 text-sm">search</span>
         </span>
         <input
           type="text"
@@ -59,11 +59,11 @@
       </div>
       <div class="flex gap-2">
         <button type="submit" class="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#5850EC] text-white rounded-xl text-sm font-medium hover:bg-[#4F46E5] active:scale-95 transition-all">
-          <span class="material-icons-outlined text-sm">filter_list</span>
+          <span class="material-symbols-outlined text-sm">filter_list</span>
           Apply Filters
         </button>
         <a href="{% url 'dashboard:user_settings:user_list' prefix %}" class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 border border-slate-300 rounded-xl text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition-colors">
-          <span class="material-icons-outlined text-sm">clear</span>
+          <span class="material-symbols-outlined text-sm">clear</span>
           Clear
         </a>
       </div>
@@ -117,7 +117,7 @@
               <div
                 class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center mr-3"
               >
-                <span class="material-icons-outlined text-slate-400"
+                <span class="material-symbols-outlined text-slate-400"
                   >person</span
                 >
               </div>
@@ -189,7 +189,7 @@
     {% if page_obj %}{% for user in page_obj %}
     <div class="p-4 flex items-start gap-3">
       <div class="w-12 h-12 shrink-0 bg-slate-100 rounded-xl flex items-center justify-center">
-        <span class="material-icons-outlined text-slate-400">person</span>
+        <span class="material-symbols-outlined text-slate-400">person</span>
       </div>
       <div class="flex-1 min-w-0">
         <div class="flex items-start justify-between gap-2">
@@ -234,7 +234,7 @@
           href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if user_type_filter %}&user_type={{ user_type_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"
           class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50"
         >
-          <span class="material-icons-outlined text-sm">chevron_left</span>
+          <span class="material-symbols-outlined text-sm">chevron_left</span>
         </a>
         {% endif %} {% for num in page_obj.paginator.page_range %}
          {% if page_obj.number == num %}
@@ -255,7 +255,7 @@
           href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if user_type_filter %}&user_type={{ user_type_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"
           class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50"
         >
-          <span class="material-icons-outlined text-sm">chevron_right</span>
+          <span class="material-symbols-outlined text-sm">chevron_right</span>
         </a>
         {% endif %}
       </nav>

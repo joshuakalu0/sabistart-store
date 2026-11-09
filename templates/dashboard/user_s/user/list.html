@@ -7,7 +7,7 @@
   </div>
   <a href="{% url 'dashboard:user_settings:user_create' prefix %}"
      class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-[#5850EC] flex items-center space-x-2 text-sm">
-    <span class="material-icons-outlined text-sm">person_add</span><span>New User</span>
+    <span class="material-symbols-outlined text-sm">person_add</span><span>New User</span>
   </a>
 </div>
 
@@ -79,7 +79,7 @@
             {% if u.is_locked %}<span class="ml-1 text-xs text-red-500" title="Locked">🔒</span>{% endif %}
           </td>
           <td class="px-4 py-3 text-center">
-            {% if u.is_verified %}<span class="text-green-500 material-icons-outlined text-base">verified</span>{% else %}<span class="text-slate-400 material-icons-outlined text-base">cancel</span>{% endif %}
+            {% if u.is_verified %}<span class="text-green-500 material-symbols-outlined text-base">verified</span>{% else %}<span class="text-slate-400 material-symbols-outlined text-base">cancel</span>{% endif %}
           </td>
           <td class="px-4 py-3 text-center text-slate-400 text-xs">
             {{ u.totp_enabled|yesno:"✓,—" }}

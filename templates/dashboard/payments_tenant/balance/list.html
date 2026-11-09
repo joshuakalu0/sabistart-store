@@ -12,7 +12,7 @@
       {% if profile.payout_enabled %}
       <a href="{% url 'dashboard:payments_tenant:payout_request_create' prefix %}"
          class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-[#5850EC] flex items-center space-x-2">
-        <span class="material-icons-outlined text-sm">payments</span><span>Request Payout</span>
+        <span class="material-symbols-outlined text-sm">payments</span><span>Request Payout</span>
       </a>
       {% endif %}
     </div>
@@ -38,7 +38,7 @@
     </div>
     {% empty %}
     <div class="col-span-3 text-center py-16 text-slate-400">
-      <span class="material-icons-outlined text-4xl mb-2">account_balance_wallet</span>
+      <span class="material-symbols-outlined text-4xl mb-2">account_balance_wallet</span>
       <p>No balance records found. Balances are created automatically when your first payment is received.</p>
     </div>
     {% endfor %}
@@ -48,17 +48,17 @@
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
     <a href="{% url 'dashboard:payments_tenant:balance_transaction_list' prefix %}"
        class="bg-white rounded-xl border border-[#EEF2F6] p-4 flex items-center space-x-3 hover:shadow-md transition-shadow">
-      <span class="material-icons-outlined text-primary text-2xl">receipt_long</span>
+      <span class="material-symbols-outlined text-primary text-2xl">receipt_long</span>
       <div><p class="font-medium">Ledger</p><p class="text-sm text-slate-500">Balance movement history</p></div>
     </a>
     <a href="{% url 'dashboard:payments_tenant:commission_entry_list' prefix %}"
        class="bg-white rounded-xl border border-[#EEF2F6] p-4 flex items-center space-x-3 hover:shadow-md transition-shadow">
-      <span class="material-icons-outlined text-primary text-2xl">percent</span>
+      <span class="material-symbols-outlined text-primary text-2xl">percent</span>
       <div><p class="font-medium">Commission Entries</p><p class="text-sm text-slate-500">Platform fee history</p></div>
     </a>
     <a href="{% url 'dashboard:payments_tenant:payout_request_list' prefix %}"
        class="bg-white rounded-xl border border-[#EEF2F6] p-4 flex items-center space-x-3 hover:shadow-md transition-shadow">
-      <span class="material-icons-outlined text-primary text-2xl">payments</span>
+      <span class="material-symbols-outlined text-primary text-2xl">payments</span>
       <div><p class="font-medium">Payout History</p><p class="text-sm text-slate-500">All payout requests</p></div>
     </a>
   </div>
